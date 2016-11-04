@@ -1,0 +1,961 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="phoenix,hbase,sql" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+
+
+
+
+
+<meta name="description" content="hbase 提供很方便的shell脚本，可以对数据表进行 CURD 操作，但是毕竟是有一定的学习成本的，基本上对于开发来讲，sql 语句都是看家本领，那么，有没有一种方法可以把 sql 语句转换成 hbase的原生API呢？ 这样就可以通过普通平常的 sql 来对hbase 进行数据的管理，使用成本大大降低。Apache Phoenix 组件就完成了这种需求，官方注解为 “Phoenix - we">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Phoenix通过sql语句更新操作hbase数据">
+<meta property="og:url" content="http://www.ixirong.com/2015/06/24/how-hbase-use-apache-phoenix/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="hbase 提供很方便的shell脚本，可以对数据表进行 CURD 操作，但是毕竟是有一定的学习成本的，基本上对于开发来讲，sql 语句都是看家本领，那么，有没有一种方法可以把 sql 语句转换成 hbase的原生API呢？ 这样就可以通过普通平常的 sql 来对hbase 进行数据的管理，使用成本大大降低。Apache Phoenix 组件就完成了这种需求，官方注解为 “Phoenix - we">
+<meta property="og:image" content="https://phoenix.apache.org/images/squirrel.png">
+<meta property="og:updated_time" content="2015-06-28T15:40:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Phoenix通过sql语句更新操作hbase数据">
+<meta name="twitter:description" content="hbase 提供很方便的shell脚本，可以对数据表进行 CURD 操作，但是毕竟是有一定的学习成本的，基本上对于开发来讲，sql 语句都是看家本领，那么，有没有一种方法可以把 sql 语句转换成 hbase的原生API呢？ 这样就可以通过普通平常的 sql 来对hbase 进行数据的管理，使用成本大大降低。Apache Phoenix 组件就完成了这种需求，官方注解为 “Phoenix - we">
+<meta name="twitter:image" content="https://phoenix.apache.org/images/squirrel.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'xirong'
+    }
+  };
+</script>
+
+  <title> 使用Phoenix通过sql语句更新操作hbase数据 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">自由</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用Phoenix通过sql语句更新操作hbase数据
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-06-24T18:47:17+08:00" content="2015-06-24">
+              2015-06-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/06/24/how-hbase-use-apache-phoenix/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/24/how-hbase-use-apache-phoenix/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/06/24/how-hbase-use-apache-phoenix/" class="leancloud_visitors" data-flag-title="使用Phoenix通过sql语句更新操作hbase数据">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>hbase 提供很方便的shell脚本，可以对数据表进行 CURD 操作，但是毕竟是有一定的学习成本的，基本上对于开发来讲，sql 语句都是看家本领，那么，有没有一种方法可以把 sql 语句转换成 hbase的原生API呢？ 这样就可以通过普通平常的 sql 来对hbase 进行数据的管理，使用成本大大降低。Apache Phoenix 组件就完成了这种需求，官方注解为 “Phoenix - we put the SQL back in NoSql”，通过官方说明，Phoenix 的性能很高，相对于 hbase 原生的scan 并不会差多少，而对于类似的组件 hive、Impala等，性能有着显著的提升，详细请阅读 <a href="https://phoenix.apache.org/performance.html。" target="_blank" rel="external">https://phoenix.apache.org/performance.html。</a></p>
+<p>Apache Phoenix 官方站点：<a href="https://phoenix.apache.org/" target="_blank" rel="external">https://phoenix.apache.org/</a><br>Phoenix支持的sql语句： <a href="https://phoenix.apache.org/language/index.html" target="_blank" rel="external">https://phoenix.apache.org/language/index.html</a><br>Phoenix 支持的DataTypes：<a href="https://phoenix.apache.org/language/datatypes.html" target="_blank" rel="external">https://phoenix.apache.org/language/datatypes.html</a><br>Phoenix 支持的函数：<a href="https://phoenix.apache.org/language/functions.html" target="_blank" rel="external">https://phoenix.apache.org/language/functions.html</a></p>
+<a id="more"></a>
+<h1 id="一、安装使用"><a href="#一、安装使用" class="headerlink" title="一、安装使用"></a>一、安装使用</h1><p>Phoenix 安装很简单，下载对应hbase版本的Phoenix，<a href="https://phoenix.apache.org/download.html" target="_blank" rel="external">下载地址</a>，以<code>phoenix-4.4.0-HBase-0.98-bin.tar.gz</code>为例，解压文件，将<code>phoenix-4.4.0-server.jar</code> 拷贝到hbase安装目录的lib下，注意：每台regionserver均需要拷贝，重启hbase server即可，官方如下：</p>
+<blockquote>
+<ul>
+<li><a href="https://phoenix.apache.org/download.html" target="_blank" rel="external">download</a> and expand the latest phoenix-[version]-bin.tar.</li>
+<li>Add the phoenix-[version]-server.jar to the classpath of all HBase region server and master and remove any previous version. An easy way to do this is to copy it into the HBase lib directory (use phoenix-core-[version].jar for Phoenix 3.x)</li>
+<li>restart the region servers</li>
+<li>Add the phoenix-[version]-client.jar to the classpath of any Phoenix client.</li>
+<li>download and setup <a href="https://phoenix.apache.org/installation.html#SQL_Client" target="_blank" rel="external">SQuirrel</a> as your SQL client so you can issue adhoc SQL against your HBase cluster</li>
+</ul>
+</blockquote>
+<p>详情查看：<a href="https://phoenix.apache.org/Phoenix-in-15-minutes-or-less.html" target="_blank" rel="external">Phoenix-in-15-minutes</a> 。</p>
+<h1 id="二、shell-命令"><a href="#二、shell-命令" class="headerlink" title="二、shell 命令"></a>二、shell 命令</h1><p>通过案例，create 表，插入语句，更新语句，删除语句案例，详细可参考：<a href="https://phoenix.apache.org/faq.html" target="_blank" rel="external">https://phoenix.apache.org/faq.html</a> </p>
+<p>Phoenix 连接hbase的命令如下，<code>sqlline.py [zookeeper]</code> ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">[hadoop@slave2 lib]$ ./sqlline.py 10.35.66.72</div><div class="line">Setting property: [isolation, TRANSACTION_READ_COMMITTED]</div><div class="line">issuing: !connect jdbc:phoenix:10.35.66.72 none none org.apache.phoenix.jdbc.PhoenixDriver</div><div class="line">Connecting to jdbc:phoenix:10.35.66.72</div><div class="line">15/06/24 13:06:29 WARN util.NativeCodeLoader: Unable to load native-hadoop library <span class="keyword">for</span> your platform... using <span class="built_in">builtin</span>-java classes <span class="built_in">where</span> applicable</div><div class="line">Connected to: Phoenix (version 4.2)</div><div class="line">Driver: PhoenixEmbeddedDriver (version 4.2)</div><div class="line">Autocommit status: <span class="literal">true</span></div><div class="line">Transaction isolation: TRANSACTION_READ_COMMITTED</div><div class="line">Building list of tables and columns <span class="keyword">for</span> tab-completion (<span class="built_in">set</span> fastconnect to <span class="literal">true</span> to skip)...</div><div class="line">193/193 (100%) Done</div><div class="line">Done</div><div class="line">sqlline version 1.1.2</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt;!tables</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">|                TABLE_CAT                 |               TABLE_SCHEM                |                TABLE_NAME                |                TA |</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">| null                                     | WL                                       | BIG_LOG_DEVUTRACEID_INDEX                | INDEX             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE_V2_OWNERPAGE_INDEX | INDEX             |</div><div class="line">| null                                     | SYSTEM                                   | CATALOG                                  | SYSTEM TABLE      |</div><div class="line">| null                                     | SYSTEM                                   | SEQUENCE                                 | SYSTEM TABLE      |</div><div class="line">| null                                     | SYSTEM                                   | STATS                                    | SYSTEM TABLE      |</div><div class="line">| null                                     | DMO                                      | SOWNTOWN_STATICS                         | TABLE             |</div><div class="line">| null                                     | OL                                       | BIGLOG                                   | TABLE             |</div><div class="line">| null                                     | WL                                       | BIG_LOG                                  | TABLE             |</div><div class="line">| null                                     | WL                                       | ERROR_LOG                                | TABLE             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE                    | TABLE             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE_V2                 | TABLE             |</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+------------------</div></pre></td></tr></table></figure>
+<p>从上面能够看到，已经连接到了hbase集群上面，<code>Phoenix version 4.2</code> ，<code>sqlline version 4.2</code>  ，输入Phoenix支持的命令<code>！tables</code>可以查看当前集群中存在的数据表，能够看到有些是 <code>SYSTEM TABLE</code>，其它的都是自己建立的；</p>
+<p>下面通过脚本来模拟下使用Phoenix建立数据表、修改表、添加数据、修改数据、删除数据、删除表等操作：</p>
+<p>1、新建一张<code>Person</code>表，含有<code>IDCardNum</code>，<code>Name</code>，<code>Age</code> 三个字段 ，<code>test</code> 为<code>table_schem</code> ，标准sql如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">IF</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> test.Person (IDCardNum <span class="built_in">INTEGER</span> <span class="keyword">not</span> <span class="literal">null</span> primary <span class="keyword">key</span>, <span class="keyword">Name</span> <span class="built_in">varchar</span>(<span class="number">20</span>),Age <span class="built_in">INTEGER</span>);</div></pre></td></tr></table></figure>
+<p>在 Phoenix 中使用如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">0: jdbc:phoenix:10.35.66.72&gt; create table IF NOT EXISTS test.Person (IDCardNum INTEGER not null primary key, Name varchar(20),Age INTEGER);</div><div class="line">No rows affected (0.344 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; !tables</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">|                TABLE_CAT                 |               TABLE_SCHEM                |                TABLE_NAME                |                TA |</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">| null                                     | WL                                       | BIG_LOG_DEVUTRACEID_INDEX                | INDEX             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE_V2_OWNERPAGE_INDEX | INDEX             |</div><div class="line">| null                                     | SYSTEM                                   | CATALOG                                  | SYSTEM TABLE      |</div><div class="line">| null                                     | SYSTEM                                   | SEQUENCE                                 | SYSTEM TABLE      |</div><div class="line">| null                                     | SYSTEM                                   | STATS                                    | SYSTEM TABLE      |</div><div class="line">| null                                     | DMO                                      | SOWNTOWN_STATICS                         | TABLE             |</div><div class="line">| null                                     | OL                                       | BIGLOG                                   | TABLE             |</div><div class="line">| null                                     | TEST                                     | PERSON                                  | TABLE             |</div><div class="line">| null                                     | WL                                       | BIG_LOG                                  | TABLE             |</div><div class="line">| null                                     | WL                                       | ERROR_LOG                                | TABLE             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE                    | TABLE             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE_V2                 | TABLE             |</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select * from TEST.PERSON;</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+</div><div class="line">|                IDCARDNUM                 |         NAME         |                   AGE                    |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+</div></pre></td></tr></table></figure>
+<p>可以看到，hbase中已经存在数据表 <code>Person</code>了，包含了三列。</p>
+<p>2、对表进行插入操作，sql如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Person (IDCardNum,<span class="keyword">Name</span>,Age) <span class="keyword">values</span> (<span class="number">100</span>,<span class="string">'小明'</span>,<span class="number">12</span>);</div><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Person (IDCardNum,<span class="keyword">Name</span>,Age) <span class="keyword">values</span> (<span class="number">101</span>,<span class="string">'小红'</span>,<span class="number">15</span>);</div><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Person (IDCardNum,<span class="keyword">Name</span>,Age) <span class="keyword">values</span> (<span class="number">103</span>,<span class="string">'小王'</span>,<span class="number">22</span>);</div></pre></td></tr></table></figure>
+<p>在 Phoenix 中插入的语句为 <code>upsert</code> ，具体如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.Person (IDCardNum,Name,Age) values (100,<span class="string">'小明'</span>,12);</div><div class="line">1 row affected (0.043 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.Person (IDCardNum,Name,Age) values (101,<span class="string">'小红'</span>,15);</div><div class="line">1 row affected (0.018 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.Person (IDCardNum,Name,Age) values (103,<span class="string">'小王'</span>,22);</div><div class="line">1 row affected (0.009 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select * from test.Person;</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+</div><div class="line">|                IDCARDNUM                 |         NAME         |                   AGE                    |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+</div><div class="line">| 100                                      | 小明                   | 12                                       |</div><div class="line">| 101                                      | 小红                   | 15                                       |</div><div class="line">| 103                                      | 小王                   | 22                                       |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+</div><div class="line">3 rows selected (0.115 seconds)</div></pre></td></tr></table></figure>
+<p>从上面可以看到，三条数据已经进入hbase里面了；好了，现在要对表添加一列 <code>sex</code> 性别操作，怎么办？</p>
+<p>3、alter 修改表数据，sql如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> test.Persion <span class="keyword">ADD</span> sex <span class="built_in">varchar</span>(<span class="number">10</span>);</div></pre></td></tr></table></figure>
+<p>Phoenix 中操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">0: jdbc:phoenix:10.35.66.72&gt; ALTER TABLE test.Person ADD sex varchar(10);</div><div class="line">No rows affected (0.191 seconds)</div><div class="line">: jdbc:phoenix:10.35.66.72&gt; select * from test.person;</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">|                IDCARDNUM                 |         NAME         |                   AGE                    |    SEX     |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">| 100                                      | 小明                   | 12                                       | null       |</div><div class="line">| 101                                      | 小红                   | 15                                       | null       |</div><div class="line">| 103                                      | 小王                   | 22                                       | null       |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">3 rows selected (0.113 seconds)</div></pre></td></tr></table></figure>
+<p>上图看到已经新增了列<code>sex</code>，每行的默认值为 <code>null</code> ，那么怎么样修改这些值呢？</p>
+<p>4、 更新表数据 ，标准的sql 如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">update</span> test.Person <span class="keyword">set</span> sex=<span class="string">'男'</span> <span class="keyword">where</span> IDCardNum=<span class="number">100</span>;</div><div class="line"><span class="keyword">update</span> test.Person <span class="keyword">set</span> sex=<span class="string">'女'</span> <span class="keyword">where</span> IDCardNum=<span class="number">101</span>;</div><div class="line"><span class="keyword">update</span> test.Person <span class="keyword">set</span> sex=<span class="string">'男'</span> <span class="keyword">where</span> IDCardNum=<span class="number">103</span>;</div></pre></td></tr></table></figure>
+<p>Phoenix中不存在<code>update</code>的语法关键字，而是<code>upsert</code> ，功能上替代了<code>Insert+update</code>，官方说明为：</p>
+<blockquote>
+<p><strong>UPSERT VALUES</strong><br>Inserts if not present and updates otherwise the value in the table. The list of columns is optional and if not present, the values will map to the column in the order they are declared in the schema. The values must evaluate to constants.</p>
+</blockquote>
+<p>根据介绍，只需要在<code>upsert</code>语句中制定存在的<code>idcardnum</code>即可实现更新，在 Phoenix 客户端中操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.person (idcardnum,sex) values (100,<span class="string">'男'</span>);</div><div class="line">1 row affected (0.083 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.person (idcardnum,sex) values (101,<span class="string">'女'</span>);</div><div class="line">1 row affected (0.012 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.person (idcardnum,sex) values (103,<span class="string">'男'</span>);</div><div class="line">1 row affected (0.008 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select * from test.person;</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">|                IDCARDNUM                 |         NAME         |                   AGE                    |    SEX     |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">| 100                                      | 小明                   | 12                                       | 男          |</div><div class="line">| 101                                      | 小红                   | 15                                       | 女          |</div><div class="line">| 103                                      | 小王                   | 22                                       | 男          |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">3 rows selected (0.087 seconds)</div></pre></td></tr></table></figure>
+<p>5、复杂查询，通过Phoenix可以支持 where、group by、case when 等复杂的查询条件，案例如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 现增加几条数据</span></div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.Person (IDCardNum,Name,Age,sex) values (104,<span class="string">'小张'</span>,23,<span class="string">'男'</span>);</div><div class="line">1 row affected (0.012 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.Person (IDCardNum,Name,Age,sex) values (105,<span class="string">'小李'</span>,28,<span class="string">'男'</span>);</div><div class="line">1 row affected (0.015 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; upsert into test.Person (IDCardNum,Name,Age,sex) values (106,<span class="string">'小李'</span>,33,<span class="string">'男'</span>);</div><div class="line">1 row affected (0.011 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select * from test.person;</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">|                IDCARDNUM                 |         NAME         |                   AGE                    |    SEX     |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">| 100                                      | 小明                   | 12                                       | 男          |</div><div class="line">| 101                                      | 小红                   | 15                                       | 女          |</div><div class="line">| 103                                      | 小王                   | 22                                       | 男          |</div><div class="line">| 104                                      | 小张                   | 23                                       | 男          |</div><div class="line">| 105                                      | 小李                   | 28                                       | 男          |</div><div class="line">| 106                                      | 小李                   | 33                                       | 男          |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">6 rows selected (0.09 seconds)</div></pre></td></tr></table></figure>
+<p>where + group by 语句例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">jdbc:phoenix:10.35.66.72&gt; select sex ,count(sex) as num from test.person <span class="built_in">where</span> age &gt;20 group by sex;</div><div class="line">+------------+------------------------------------------+</div><div class="line">|    SEX     |                   NUM                    |</div><div class="line">+------------+------------------------------------------+</div><div class="line">| 男          | 4                                        |</div><div class="line">+------------+------------------------------------------+</div></pre></td></tr></table></figure>
+<p>case when 的例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select (<span class="keyword">case</span> name when <span class="string">'小明'</span> <span class="keyword">then</span> <span class="string">'明明啊'</span> when <span class="string">'小红'</span> <span class="keyword">then</span> <span class="string">'红红啊'</span> <span class="keyword">else</span> name end) as showname from test.person;</div><div class="line">+------------------------------------------+</div><div class="line">|                 SHOWNAME                 |</div><div class="line">+------------------------------------------+</div><div class="line">| 明明啊                                      |</div><div class="line">| 红红啊                                      |</div><div class="line">| 小王                                       |</div><div class="line">| 小张                                       |</div><div class="line">| 小李                                       |</div><div class="line">| 小李                                       |</div><div class="line">+------------------------------------------+</div></pre></td></tr></table></figure>
+<p>更多支持语法参考：<a href="https://phoenix.apache.org/language/index.html" target="_blank" rel="external">https://phoenix.apache.org/language/index.html</a></p>
+<p>6、删除数据及删除表，标准sql如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">delete</span> <span class="keyword">from</span> test.Person <span class="keyword">where</span> idcardnum=<span class="number">100</span>;</div><div class="line"><span class="keyword">drop</span> <span class="keyword">table</span> test.person;</div></pre></td></tr></table></figure>
+<p>Phoenix中同标准sql一样，案例如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">0: jdbc:phoenix:10.35.66.72&gt; delete from test.Person <span class="built_in">where</span> idcardnum=100;</div><div class="line">1 row affected (0.072 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select * from test.Person <span class="built_in">where</span> idcardnum=100;</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">|                IDCARDNUM                 |         NAME         |                   AGE                    |    SEX     |</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line">+------------------------------------------+----------------------+------------------------------------------+------------+</div><div class="line"></div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; drop table test.person;</div><div class="line">No rows affected (1.799 seconds)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; select * from test.person;</div><div class="line">Error: ERROR 1012 (42M03): Table undefined. tableName=TEST.PERSON (state=42M03,code=1012)</div><div class="line">0: jdbc:phoenix:10.35.66.72&gt; !tables</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">|                TABLE_CAT                 |               TABLE_SCHEM                |                TABLE_NAME                |                TA |</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div><div class="line">| null                                     | WL                                       | BIG_LOG_DEVUTRACEID_INDEX                | INDEX             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE_V2_OWNERPAGE_INDEX | INDEX             |</div><div class="line">| null                                     | SYSTEM                                   | CATALOG                                  | SYSTEM TABLE      |</div><div class="line">| null                                     | SYSTEM                                   | SEQUENCE                                 | SYSTEM TABLE      |</div><div class="line">| null                                     | SYSTEM                                   | STATS                                    | SYSTEM TABLE      |</div><div class="line">| null                                     | DMO                                      | SOWNTOWN_STATICS                         | TABLE             |</div><div class="line">| null                                     | OL                                       | BIGLOG                                   | TABLE             |</div><div class="line">| null                                     | WL                                       | BIG_LOG                                  | TABLE             |</div><div class="line">| null                                     | WL                                       | ERROR_LOG                                | TABLE             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE                    | TABLE             |</div><div class="line">| null                                     | WL                                       | MSGCENTER_PUSHMESSAGE_V2                 | TABLE             |</div><div class="line">+------------------------------------------+------------------------------------------+------------------------------------------+-------------------+</div></pre></td></tr></table></figure>
+<h1 id="三、图形化客户端SQuirrel使用"><a href="#三、图形化客户端SQuirrel使用" class="headerlink" title="三、图形化客户端SQuirrel使用"></a>三、图形化客户端SQuirrel使用</h1><p>如果你不喜欢 终端下的脚本命令，青睐于GUI化的客户端，那么 SQuirrel是个好的选择，就跟平日里使用 MsSqlServer client、Navicat client 一样，效果如下图：</p>
+<p><img src="https://phoenix.apache.org/images/squirrel.png" alt="squirrel client"></p>
+<p>使用方法：（可以参照<a href="https://phoenix.apache.org/installation.html#SQL_Client" target="_blank" rel="external">官网英文说明</a>）</p>
+<ol>
+<li>下载SQuirrel 客户端 ，地址 <a href="http://squirrel-sql.sourceforge.net/" target="_blank" rel="external">http://squirrel-sql.sourceforge.net/</a></li>
+<li>解压缩，删除 <code>lib/</code> 下老版本的 <code>phoenix-[oldversion]-client.jar</code>文件，将你刚刚下载的Phoenix文件夹下最新的文件 拷贝过去；</li>
+<li>启动SQuirrel客户端，选择 Drivers-new driver ，名称随便，url格式： <code>jdbc:phoenix:（zk地址）</code> ，class name textbox 填写<code>org.apache.phoenix.jdbc.PhoenixDriver</code> </li>
+<li>ok， 点击 connect即可完成连接 </li>
+</ol>
+<p>squirrel 客户端的用法 和 Phoenix 自带终端一样，都是常见的sql语句，大家可以自己搭建练习。</p>
+<h1 id="四、-java-client-api-使用"><a href="#四、-java-client-api-使用" class="headerlink" title="四、 java client api 使用"></a>四、 java client api 使用</h1><p>java api 完全可以采用传统的 jdbc 连接的形式，案例如官方提供：</p>
+<p>创建<code>test.java</code> 类，内容如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.sql.Connection;</div><div class="line"><span class="keyword">import</span> java.sql.DriverManager;</div><div class="line"><span class="keyword">import</span> java.sql.ResultSet;</div><div class="line"><span class="keyword">import</span> java.sql.SQLException;</div><div class="line"><span class="keyword">import</span> java.sql.PreparedStatement;</div><div class="line"><span class="keyword">import</span> java.sql.Statement;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> SQLException </span>&#123;</div><div class="line">		Statement stmt = <span class="keyword">null</span>;</div><div class="line">		ResultSet rset = <span class="keyword">null</span>;</div><div class="line">		</div><div class="line">		Connection con = DriverManager.getConnection(<span class="string">"jdbc:phoenix:[zookeeper]"</span>);</div><div class="line">		stmt = con.createStatement();</div><div class="line">		</div><div class="line">		stmt.executeUpdate(<span class="string">"create table test (mykey integer not null primary key, mycolumn varchar)"</span>);</div><div class="line">		stmt.executeUpdate(<span class="string">"upsert into test values (1,'Hello')"</span>);</div><div class="line">		stmt.executeUpdate(<span class="string">"upsert into test values (2,'World!')"</span>);</div><div class="line">		con.commit();</div><div class="line">		</div><div class="line">		PreparedStatement statement = con.prepareStatement(<span class="string">"select * from test"</span>);</div><div class="line">		rset = statement.executeQuery();</div><div class="line">		<span class="keyword">while</span> (rset.next()) &#123;</div><div class="line">			System.out.println(rset.getString(<span class="string">"mycolumn"</span>));</div><div class="line">		&#125;</div><div class="line">		statement.close();</div><div class="line">		con.close();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在终端使用<code>javac</code>编译，通过Phoenix客户端执行，就能看到结果：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ javac test.java</div><div class="line">$ java -cp <span class="string">"../phoenix-[version]-client.jar:."</span> <span class="built_in">test</span></div><div class="line"></div><div class="line"><span class="comment"># You should get the following output</span></div><div class="line">Hello World!</div></pre></td></tr></table></figure></p>
+<p>当然，在生产使用中，往往采用的是 <code>spring mvc + mybaits</code> 的框架来进行访问的，Phoenix 完全支持这种形式，就像平常写mysql、SqlServer一样，对应的<code>jdbc.properties</code>中的驱动修改为 <code>org.apache.phoenix.jdbc.PhoenixDriver</code> 即可，其它的写法通普通的一样。 </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hbase/" rel="tag">#hbase</a>
+          
+            <a href="/tags/大数据/" rel="tag">#大数据</a>
+          
+            <a href="/tags/中间件/" rel="tag">#中间件</a>
+          
+            <a href="/tags/phoenix/" rel="tag">#phoenix</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/20/materials-about-sql/" rel="next" title="sql语句基础复习及资料推荐">
+                <i class="fa fa-chevron-left"></i> sql语句基础复习及资料推荐
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/28/the-things-i-thought-of-kaifuli/" rel="prev" title="我所敬佩的开复老师">
+                我所敬佩的开复老师 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/06/24/how-hbase-use-apache-phoenix/"
+           data-title="使用Phoenix通过sql语句更新操作hbase数据" data-url="http://www.ixirong.com/2015/06/24/how-hbase-use-apache-phoenix/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/xirong.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+          <p class="site-description motion-element" itemprop="description">思考生活，分享故事</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">69</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、安装使用"><span class="nav-number">1.</span> <span class="nav-text">一、安装使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、shell-命令"><span class="nav-number">2.</span> <span class="nav-text">二、shell 命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、图形化客户端SQuirrel使用"><span class="nav-number">3.</span> <span class="nav-text">三、图形化客户端SQuirrel使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、-java-client-api-使用"><span class="nav-number">4.</span> <span class="nav-text">四、 java client api 使用</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="powered-by">
+  <div style="float:left;margin-top:7px;margin-right:10px;">
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1254711542'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1254711542%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+  </div>
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  Clone theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next/">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"xirong"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" async src="//push.zhanzhang.baidu.com/push.js">
+</script>
+
+
+</body>
+</html>

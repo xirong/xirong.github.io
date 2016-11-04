@@ -1,0 +1,935 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="git使用方法,git学习,git版本管理,git学习资料,git入门基础,git常用命令,git,分布式版本管理,git和svn哪个好" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git入门指南使用资料汇总及文章推荐">
+<meta property="og:url" content="http://www.ixirong.com/2014/11/19/the-way-to-learn-git/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式！">
+<meta property="og:image" content="http://static.ixirong.com/pic/git/git-branchs-messy.png">
+<meta property="og:image" content="http://static.ixirong.com/pic/git/git-xmind.png">
+<meta property="og:updated_time" content="2015-06-03T03:22:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="git入门指南使用资料汇总及文章推荐">
+<meta name="twitter:description" content="这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式！">
+<meta name="twitter:image" content="http://static.ixirong.com/pic/git/git-branchs-messy.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'xirong'
+    }
+  };
+</script>
+
+  <title> git入门指南使用资料汇总及文章推荐 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">自由</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                git入门指南使用资料汇总及文章推荐
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-11-19T13:43:34+08:00" content="2014-11-19">
+              2014-11-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/git/" itemprop="url" rel="index">
+                    <span itemprop="name">git</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2014/11/19/the-way-to-learn-git/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2014/11/19/the-way-to-learn-git/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2014/11/19/the-way-to-learn-git/" class="leancloud_visitors" data-flag-title="git入门指南使用资料汇总及文章推荐">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>前言：</strong><br>这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式，今后会不断尝试对文章进行修改，争取做到不会的人基本ok，会的人得到提高！</p>
+<h2 id="一、什么是git？"><a href="#一、什么是git？" class="headerlink" title="一、什么是git？"></a>一、什么是git？</h2><blockquote>
+<p>Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.</p>
+</blockquote>
+<p><a href="http://zh.wikipedia.org/wiki/Git" target="_blank" rel="external">git维基百科</a>上详细介绍了git的资料，包括git的创建、使用以及一些草考资料，已经挺全了，记住一点，最高效的学习方式就是<strong>读文档</strong>，找官方文档去阅读学习是最快的掌握git的方法。</p>
+<p>既然是分布式版本管理，那么和我们平常使用的svn有什么区别？</p>
+<ol>
+<li>分布式 vs 集中管理 （多份版本库 vs 一份版本库，设想下版本服务器挂了？）</li>
+<li>无需网络，随时随地进行版本控制，在没有网络的情况下你想回退到某个版本svn基本没戏；</li>
+<li>分支的新建、合并非常方便、快速，没有任何成本，基本不耗时，svn的版本基本上等同于又复制了一份代码；</li>
+</ol>
+<p><strong>stackoverflow</strong> 上关于svn和git的区别的讨论，说的很详细，请参考 <a href="http://stackoverflow.com/questions/871/why-is-git-better-than-subversion" target="_blank" rel="external">Why is Git better than Subversion?</a><br><strong>github</strong> 上通过版本库结构、历史、子项目（submudle）的不同来对比两者，请参考 <a href="https://help.github.com/articles/what-are-the-differences-between-svn-and-git/" target="_blank" rel="external">What are the differences between SVN and Git?</a></p>
+<h2 id="二、git-安装"><a href="#二、git-安装" class="headerlink" title="二、git 安装"></a>二、git 安装</h2><p> 《pro git》一书中已经写明白了<a href="http://git-scm.com/book/zh/v1/%E8%B5%B7%E6%AD%A5-%E5%AE%89%E8%A3%85-Git" target="_blank" rel="external">各个平台上怎么安装git</a>,如果感觉晦涩，就看这个<a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/00137396287703354d8c6c01c904c7d9ff056ae23da865a000" target="_blank" rel="external">廖雪峰安装git</a></p>
+<h2 id="三、git-初使用"><a href="#三、git-初使用" class="headerlink" title="三、git 初使用"></a>三、git 初使用</h2><ul>
+<li><p>对于已经熟悉svn的用户可以直接查看此文档 <a href="http://git.or.cz/course/svn.html" target="_blank" rel="external">Git - SVN Crash Course</a>，通过对比两个工具对同样的操作采取不同的命令来快速认识git的一些常用命令</p>
+</li>
+<li><p>对于一个新手来说，我不需要知道git的原理，不需要知道git那么多的命令，我只想用git完成一次仓库的从初始化、commit、push、branch、tag等一个流程，越简单越好，图文教程，以window下使用git为例，一步步走完整个流程，推荐 <a href="http://blog.jobbole.com/78960/" target="_blank" rel="external">手把手教你使用Git</a></p>
+</li>
+<li><p>比较全面讲述的git的系列文章 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="external">号称史上最浅显易懂的Git教程！</a></p>
+</li>
+<li><p>看完上面的几步内容，想你习对git基本上可以使用了，要掌握还得多多练习，熟能生巧，你是不是想去看看关于git的全部内容 ，<a href="http://git-scm.com/book/zh/v1" target="_blank" rel="external">官方中文电子版书籍</a>即可满足你，当然你可以查看最新<a href="http://git-scm.com/book/en/v2" target="_blank" rel="external">V2版英文</a>或者下载epub pdf等本地阅读；</p>
+</li>
+</ul>
+<h2 id="四、git-分支、tag"><a href="#四、git-分支、tag" class="headerlink" title="四、git 分支、tag"></a>四、git 分支、tag</h2><p>git 最帅气的就是对分支的处理，方便快速，你只需要一个简单的<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch branch-name</div></pre></td></tr></table></figure></p>
+<p>就能开出一个叫branch-name的分支，毫秒钟搞定，但也正是因为方便，如果使用不合理就会造成<strong>分支混乱，分不清脉络</strong>， 推荐看一下阮一峰写的文章 <a href="http://www.ruanyifeng.com/blog/2012/07/git.html" target="_blank" rel="external">Git分支管理策略</a> ，最原始的文章就是这篇老外写的<a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a>，<a href="">@萌面大叔的乌托邦</a>提到开源中国已经翻译成了中文，感兴趣的可以去看看<a href="http://www.oschina.net/translate/a-successful-git-branching-model" target="_blank" rel="external">介绍一个成功的 Git 分支模型</a></p>
+<p><img src="http://static.ixirong.com/pic/git/git-branchs-messy.png" alt="杂乱的分支"></p>
+<h2 id="五、git-常见命令"><a href="#五、git-常见命令" class="headerlink" title="五、git 常见命令"></a>五、git 常见命令</h2><p>一个比较好的汇总了git的一些基本命令的pdf，可以经常看看，或者当成命令手册，推荐 <a href="http://www.cheat-sheets.org/saved-copy/git-cheat-sheet.pdf" target="_blank" rel="external">Git Cheat Sheet</a> ，还有一张图片 <a href="http://www.cnblogs.com/1-2-3/archive/2010/07/18/git-commands.html" target="_blank" rel="external">Git常用命令</a> 也不错；最近我整理了一份xmind的导图，将<strong>这两份</strong>资料都放到了画布里面，<a href="http://pan.baidu.com/s/1c052yVu" target="_blank" rel="external">百度网盘</a> 密码：<code>6x7u</code> 存储了，不断更新，有需要的可以下载，预览图片如下：</p>
+<p><img src="http://static.ixirong.com/pic/git/git-xmind.png" alt="Git常用xmind导图整理"></p>
+<p>最强大的<strong>命令手册</strong>还得属于终端，<em> man git </em> 或者 <em> man git 命令 </em> 或者 <em> git –help </em> 或者 <em> git 命令 –help </em>，在这里可以找到任何你想要的。</p>
+<h2 id="六、git-书籍资料"><a href="#六、git-书籍资料" class="headerlink" title="六、git 书籍资料"></a>六、git 书籍资料</h2><p>-《<a href="http://git-scm.com/book/zh/v1" target="_blank" rel="external">Pro Git</a>》 作者Scott Chacon是github的员工，git的布道者，这本书被誉为git学习圣经，中间有好多插图描述的浅显易懂，挺适合详细学习下的，最新英文第二版《<a href="http://git-scm.com/book/en/v2" target="_blank" rel="external">pro git (Editon 2)</a>》；</p>
+<p>-《<a href="http://gitbook.liuhui998.com/" target="_blank" rel="external">Git Community Book</a>》汇聚了Git社区的很多精华,  并对git的对象模型原理等做了解释，可以深入的了解下git原理；</p>
+<p>2015-01-22 增加</p>
+<ul>
+<li>推荐的工作流程 <a href="http://documentup.com/skwp/git-workflows-book" target="_blank" rel="external">git workflow</a> </li>
+</ul>
+<p>2015-04-05 增加 git flow 工具</p>
+<ul>
+<li><a href="https://github.com/nvie/gitflow" target="_blank" rel="external">git flow 工具</a></li>
+<li><a href="http://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html" target="_blank" rel="external">git flow 中文备忘清单</a></li>
+<li>一个很有意思的学习 git 的小游戏 <a href="http://pcottle.github.io/learnGitBranching/" target="_blank" rel="external">http://pcottle.github.io/learnGitBranching/</a> </li>
+<li><a href="http://marklodato.github.io/visual-git-guide/index-zh-cn.html" target="_blank" rel="external">图解 git</a> 将书籍中很多<code>术语</code>用图片的方式进行讲解，很容易就懂了 </li>
+<li><a href="http://backlogtool.com/git-guide/cn/" target="_blank" rel="external">图文并茂-猴子都能懂的git入门教程</a> 全面，生动形象，图文并茂，简单易懂，强烈推荐！</li>
+</ul>
+<p>2015-06-02 增加<br>我在github上面整理了一个repo <a href="https://github.com/xirong/my-git" target="_blank" rel="external">my-git</a>，目前持续更新中，整理收集了git方便的学习资料，欢迎大家<code>fork-modify-pull request</code>，一块打造最全面的git学习！</p>
+<p>关于日常中使用git来版本管理的流程写的很不错的一本书，日常工作模式、流程怎样更合理的工作！<br><strong> 最后，当你开始使用git的时候，学会用终端，比如你想看关于branch，那么大胆的时候 <em>git branch –help </em> 查看相应的命令！ </strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag">#分布式</a>
+          
+            <a href="/tags/版本控制/" rel="tag">#版本控制</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/15/idea-eclipse-remote-debug/" rel="next" title="idea/eclipse远程调试服务器方法">
+                <i class="fa fa-chevron-left"></i> idea/eclipse远程调试服务器方法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/08/what-to-do-with-PrlSF/" rel="prev" title="PrlSF文件系统格式化">
+                PrlSF文件系统格式化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2014/11/19/the-way-to-learn-git/"
+           data-title="git入门指南使用资料汇总及文章推荐" data-url="http://www.ixirong.com/2014/11/19/the-way-to-learn-git/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/xirong.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+          <p class="site-description motion-element" itemprop="description">思考生活，分享故事</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">69</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、什么是git？"><span class="nav-number">1.</span> <span class="nav-text">一、什么是git？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、git-安装"><span class="nav-number">2.</span> <span class="nav-text">二、git 安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、git-初使用"><span class="nav-number">3.</span> <span class="nav-text">三、git 初使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、git-分支、tag"><span class="nav-number">4.</span> <span class="nav-text">四、git 分支、tag</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、git-常见命令"><span class="nav-number">5.</span> <span class="nav-text">五、git 常见命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、git-书籍资料"><span class="nav-number">6.</span> <span class="nav-text">六、git 书籍资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="powered-by">
+  <div style="float:left;margin-top:7px;margin-right:10px;">
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1254711542'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1254711542%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+  </div>
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  Clone theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next/">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"xirong"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" async src="//push.zhanzhang.baidu.com/push.js">
+</script>
+
+
+</body>
+</html>

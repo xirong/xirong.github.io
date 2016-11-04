@@ -1,0 +1,946 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="fastdfs简介, fastdfs使用方法, fastdfs安装配置,fastdfs最佳实践" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、分布式文件系统 FastDFS 架构解析FastDFS是为互联网应用量身定做的一套分布式文件存储系统，非常适合用来存储用户图片、视频、文档等文件，许多大型互联网公司包括几个大的云网盘都在使用，感兴趣的可以了解下。
+FastDFS 项目地址 ：http://code.google.com/p/fastdfs/分布式文件系统FastDFS架构剖析 : http://blog.csdn.net/MO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fastdfs 环境搭建使用及最佳实践">
+<meta property="og:url" content="http://www.ixirong.com/2015/03/16/something-about-fastdfs/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="一、分布式文件系统 FastDFS 架构解析FastDFS是为互联网应用量身定做的一套分布式文件存储系统，非常适合用来存储用户图片、视频、文档等文件，许多大型互联网公司包括几个大的云网盘都在使用，感兴趣的可以了解下。
+FastDFS 项目地址 ：http://code.google.com/p/fastdfs/分布式文件系统FastDFS架构剖析 : http://blog.csdn.net/MO">
+<meta property="og:updated_time" content="2015-05-13T15:09:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="fastdfs 环境搭建使用及最佳实践">
+<meta name="twitter:description" content="一、分布式文件系统 FastDFS 架构解析FastDFS是为互联网应用量身定做的一套分布式文件存储系统，非常适合用来存储用户图片、视频、文档等文件，许多大型互联网公司包括几个大的云网盘都在使用，感兴趣的可以了解下。
+FastDFS 项目地址 ：http://code.google.com/p/fastdfs/分布式文件系统FastDFS架构剖析 : http://blog.csdn.net/MO">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'xirong'
+    }
+  };
+</script>
+
+  <title> fastdfs 环境搭建使用及最佳实践 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">自由</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                fastdfs 环境搭建使用及最佳实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-03-16T13:49:16+08:00" content="2015-03-16">
+              2015-03-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/存储/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/03/16/something-about-fastdfs/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/03/16/something-about-fastdfs/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/03/16/something-about-fastdfs/" class="leancloud_visitors" data-flag-title="fastdfs 环境搭建使用及最佳实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="一、分布式文件系统-FastDFS-架构解析"><a href="#一、分布式文件系统-FastDFS-架构解析" class="headerlink" title="一、分布式文件系统 FastDFS 架构解析"></a>一、分布式文件系统 FastDFS 架构解析</h1><p>FastDFS是为互联网应用量身定做的一套分布式文件存储系统，非常适合用来存储用户图片、视频、文档等文件，许多大型互联网公司包括几个大的云网盘都在使用，感兴趣的可以了解下。</p>
+<p>FastDFS 项目地址 ：<a href="http://code.google.com/p/fastdfs/" target="_blank" rel="external">http://code.google.com/p/fastdfs/</a><br>分布式文件系统FastDFS架构剖析 : <a href="http://blog.csdn.net/MONKEY_D_MENG/article/details/6038133" target="_blank" rel="external">http://blog.csdn.net/MONKEY_D_MENG/article/details/6038133</a><br>作者余庆对 fdfs 做的介绍PPT <a href="http://static.ixirong.com/doc/FastDFS介绍_余庆.ppt" target="_blank" rel="external">FastDFS介绍_余庆.ppt</a></p>
+<h1 id="二、安装配置过程"><a href="#二、安装配置过程" class="headerlink" title="二、安装配置过程"></a>二、安装配置过程</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>包位置：/home/tester/fdfs/FastDFS/</p>
+<p>192.168.9.92  nginx模块 ，tracker ，storage<br>192.168.9.93  storage<br>192.168.9.94  storage</p>
+<a id="more"></a>
+<h2 id="2-搭建"><a href="#2-搭建" class="headerlink" title="2. 搭建"></a>2. 搭建</h2><p>FastDFS安装过程详解，利用<a href="http://static.ixirong.com/doc/install.sh" target="_blank" rel="external">install.sh（下载地址）</a>一键安装，自己手动配置conf文件，不想使用一键脚本的，可以参考此文章<a href="http://blog.csdn.net/monkey_d_meng/article/details/6038995" target="_blank" rel="external">fdfs 安装手册</a><br>配置文件详细说明 storage.conf tracker.conf nginx.conf等 <a href="http://bbs.chinaunix.net/thread-1941456-1-1.html" target="_blank" rel="external">http://bbs.chinaunix.net/thread-1941456-1-1.html</a></p>
+<p>storage.conf配置如下，其它默认即可~ </p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">group_name=group1 </div><div class="line">bind_addr=192.168.9.92（93.94）</div><div class="line">base_path=/home/work/fdfs_data/storage #存放日志路径</div><div class="line">store_path0=/home/work/fdfs_data/sdata #上传文件路径</div><div class="line">tracker_server=192.168.9.92:22122  #tracker服务器地址</div></pre></td></tr></table></figure>
+<p>tracker.conf配置如下 </p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">bind_addr=192.168.9.94</div><div class="line">base_path=/home/work/fdfs_data/tracker</div></pre></td></tr></table></figure>
+<p>/usr/local/nginx/conf/nginx.conf 配置访问规则<br>port:8080 当然你的可以默认使用80端口</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">location ~* /M00/.*\.(gif|jpg|jpeg|png|bmp|swf)$ &#123;   # 这个地方只是过滤了图片的访问</div><div class="line">alias /home/work/fdfs_data/sdata/data;  # 注意这个地方一定要有自动创建的data目录，否则找不到文件</div><div class="line">ngx_fastdfs_module;</div><div class="line">expires 30d;</div><div class="line">&#125;</div><div class="line"></div><div class="line"># /etc/fdfs/mod_fast  fastdfs nginx module模块使用的配置</div><div class="line"></div><div class="line">base_path=/home/work/fdfs_data/nginxmodule</div><div class="line">store_path0=/home/work/fdfs_data/sdata</div><div class="line">group_name=group1</div><div class="line">url_have_group_name = true</div></pre></td></tr></table></figure>
+<p>/ect/fdfs/client.conf 中日志base路径  /home/work/fdfs_data/client 这个在测试的使用，不测试，没什么用处</p>
+<h2 id="3-测试"><a href="#3-测试" class="headerlink" title="3. 测试"></a>3. 测试</h2><p>启动测试前，开放端口号cenos6.4开放8080端口给浏览器访问 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">/sbin/iptables -I INPUT -p tcp --dport 80 -j ACCEPT</div><div class="line">/sbin/iptables -I INPUT -p tcp --dport 22 -j ACCEPT</div><div class="line">/sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT</div><div class="line"><span class="comment">#然后保存：</span></div><div class="line">/etc/rc.d/init.d/iptables save</div><div class="line"><span class="comment">#重启防火墙以便改动生效:(或者直接重启系统)</span></div><div class="line">/etc/init.d/iptables restart</div></pre></td></tr></table></figure>
+<p>见到下面的输出说明就ok了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">service iptables restart</div><div class="line">iptables：清除防火墙规则： [确定]</div><div class="line">iptables：将链设置为政策 ACCEPT：filter [确定]</div><div class="line">iptables：正在卸载模块： [确定]</div><div class="line">iptables：应用防火墙规则： [确定]</div></pre></td></tr></table></figure>
+<h3 id="fdfs启动、重启、开机启动，nginx启动、stop-重启"><a href="#fdfs启动、重启、开机启动，nginx启动、stop-重启" class="headerlink" title="fdfs启动、重启、开机启动，nginx启动、stop 重启"></a>fdfs启动、重启、开机启动，nginx启动、stop 重启</h3><p>注意：启动的时候如果不指定conf，那么默认使用 /etc/fdfs/下的所有conf文件，这个一般没有处理！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#bin执行位置 /usr/local/bin/</span></div><div class="line"><span class="comment">#配置文件：/etc/fdfs/</span></div><div class="line"><span class="comment"># 启动Tracker服务:（位置是安装位置）</span></div><div class="line">/usr/<span class="built_in">local</span>/bin/fdfs_trackerd /etc/fdfs/tracker.conf </div><div class="line">/usr/<span class="built_in">local</span>/bin/stop.sh /usr/<span class="built_in">local</span>/bin/fdfs_trackerd </div><div class="line"></div><div class="line"><span class="comment"># 启动storage服务：（位置是安装位置）</span></div><div class="line">/usr/<span class="built_in">local</span>/bin/fdfs_storaged  /etc/fdfs/storage.conf</div><div class="line">/usr/<span class="built_in">local</span>/bin/stop.sh /usr/<span class="built_in">local</span>/bin/fdfs_storaged</div><div class="line"></div><div class="line"><span class="comment">#启动nginx服务：（所有都一样） /usr/local/nginx/sbin/nginx  http://zachary-guo.iteye.com/blog/1358312</span></div><div class="line"><span class="comment"># -t 参数将检查配置文件的语法是否正确，默认会检查 /usr/local/nginx/conf/nginx.conf 文件。  </span></div><div class="line"> /usr/<span class="built_in">local</span>/nginx/sbin/nginx -t  </div><div class="line"><span class="comment"># 如果要对指定的配置文件进行语法检查，可以继续添加 -c 参数  </span></div><div class="line">/usr/<span class="built_in">local</span>/nginx/sbin/nginx -t -c /home/a/b/c/my-nginx.conf  </div><div class="line"> <span class="built_in">kill</span> -HUP 【Nginx主进程号】  </div><div class="line"></div><div class="line"><span class="comment"># 三个端口都在监听说明启动成功</span></div><div class="line">netstat -ntl |grep -E <span class="string">'22122|23000|80|8080'</span></div></pre></td></tr></table></figure>
+<p>测试：<br>/usr/local/bin/fdfs_test /etc/fdfs/storage.conf upload /home/xirong/fdfs_test_files/1111.jpg </p>
+<p>从其它浏览器上访问 <a href="http://192.168.9.92:8080/group1/M00/00/00/wKgJXFUCoa-APWY1AABdrZgsqUU351.jpg" target="_blank" rel="external">http://192.168.9.92:8080/group1/M00/00/00/wKgJXFUCoa-APWY1AABdrZgsqUU351.jpg</a> 即ok</p>
+<h1 id="三、fdfs-客户端调用实例及-API-Doc-说明"><a href="#三、fdfs-客户端调用实例及-API-Doc-说明" class="headerlink" title="三、fdfs 客户端调用实例及 API Doc 说明"></a>三、fdfs 客户端调用实例及 API Doc 说明</h1><p>网上有个哥们写了个入门教程，直接搬过来了，入门可以看看，如下：<br><a href="http://blog.csdn.net/poechant/article/details/6977407" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（1）入门使用教程</a><br><a href="http://blog.csdn.net/poechant/article/details/6987403" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（2）Java API：根据InputStream、文件名、文件长度上传文件</a><br><a href="http://blog.csdn.net/poechant/article/details/6987427" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（3）Java API：根据InputStream、文件名、文件长度，采用IO流直接转换的方式上传文件</a><br><a href="http://blog.csdn.net/poechant/article/details/6987501" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（4）设置FastDFS配置参数的两种方式</a><br><a href="http://blog.csdn.net/poechant/article/details/6995697" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（5）FastDFS配置详解之Tracker配置</a><br><a href="http://blog.csdn.net/poechant/article/details/6996047" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（6）FastDFS配置详解之Storage配置</a><br><a href="http://blog.csdn.net/poechant/article/details/7036594" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（7）关于FastDFS的Nginx的一些Q&amp;A汇总</a><br><a href="http://blog.csdn.net/poechant/article/details/7209313" target="_blank" rel="external">FastDFS的配置、部署与API使用解读——（8）FastDFS多种文件上传接口详解</a></p>
+<p>fastdfs 提供的API（支持JAVA,C,PHP,PYTHON接口）</p>
+<ul>
+<li>upload：上传普通文件，包括主文件</li>
+<li>upload_appender：上传appender文件，后续可以对其进行append、modify和truncate操作</li>
+<li>upload_slave：上传从文件</li>
+<li>download：下载文件</li>
+<li>delete：删除文件</li>
+<li>append：在appender文件后追加内容</li>
+<li>modify：appender文件修改</li>
+<li>set_metadata：设置文件附加属性</li>
+<li>get_metadata：获取文件附加属性</li>
+</ul>
+<p>上面具体每个方法的参数以及使用请查看 api 文档，下载地址如下：<a href="https://code.google.com/p/fastdfs/downloads/list" target="_blank" rel="external">google code</a> 、 <a href="http://static.ixirong.com/doc/FastDFS_Java_Doc_v1.21.tar.gz" target="_blank" rel="external">七牛云</a></p>
+<h1 id="四、fdfs-常见问题及最佳实践"><a href="#四、fdfs-常见问题及最佳实践" class="headerlink" title="四、fdfs 常见问题及最佳实践"></a>四、fdfs 常见问题及最佳实践</h1><p>fastdfs 运维常见问题汇总 <a href="http://bbs.chinaunix.net/thread-1920470-1-1.html" target="_blank" rel="external">http://bbs.chinaunix.net/thread-1920470-1-1.html</a></p>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ul>
+<li><p>推荐的FastDFS部署方案<br>文件上传和删除等操作：使用 FastDFS client API，目前提供了C、PHP extension 和 Java 的 client API<br>文件下载采用 HTTP 方式：使用 nginx 或者 apache 扩展模块，不推荐使用 FastDFS 内置的 web server<br>不要做 RAID，直接挂载单盘，每个硬盘作为一个 mount point</p>
+</li>
+<li><p>最大并发连接数设置<br>参数名：max_connections<br>缺省值：256<br>说明：FastDFS 采用预先分配好 buffer 队列的做法，分配的内存大小为： max_connections * buff_size，因此配置的连接数越大，消耗的内存越多。不建议配置得过大，以避免无谓的内存开销。</p>
+</li>
+<li><p>工作线程数设置<br>参数名： work_threads<br>缺省值：4<br>说明：为了避免CPU上下文切换的开销，以及不必要的资源消耗，不建议将本参数设置得过大。为了发挥出多个CPU的效能，系统中的线程数总和，应等于CPU总数。</p>
+<p>  对于tracker server，公式为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">work_threads + 1 = CPU数</div></pre></td></tr></table></figure>
+<p>  对于storage，公式为：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">work_threads + 1 + (disk_reader_threads  + disk_writer_threads) * store_path_count  = CPU数</div></pre></td></tr></table></figure>
+</li>
+<li><p>storage目录数设置<br>参数名：subdir_count_per_path<br>缺省值：256<br>说明：FastDFS 采用二级目录的做法，目录会在 FastDFS 初始化时自动创建。存储海量小文件，打开了trunk存储方式的情况下，建议将本参数适当改小，比如设置为32，此时存放文件的目录数为 32 <em> 32 = 1024。假如trunk文件大小采用缺省值64MB，磁盘空间为2TB，那么每个目录下存放的trunk文件数均值为：2TB / (1024 </em> 64MB) = 32个</p>
+</li>
+<li><p>storage磁盘读写线程设置<br>disk_rw_separated：磁盘读写是否分离<br>disk_reader_threads：单个磁盘读线程数<br>disk_writer_threads：单个磁盘写线程数<br>如果磁盘读写混合，单个磁盘读写线程数为读线程数和写线程数之后<br>对于单盘挂载方式，磁盘读写线程分别设置为1即可<br>如果磁盘做了RAID，那么需要酌情加大读写线程数，这样才能最大程度地发挥磁盘性能</p>
+</li>
+<li><p>storage同步延迟相关设置<br>sync_binlog_buff_interval：将 binlog buffer 写入磁盘的时间间隔，取值大于 0，缺省值为 60s<br>sync_wait_msec：如果没有需要同步的文件，对 binlog 进行轮询的时间间隔，取值大于0，缺省值为 100ms<br>sync_interval：同步完一个文件后，休眠的毫秒数，缺省值为 0<br>为了缩短文件同步时间，可以将上述 3 个参数适当调小即可</p>
+</li>
+</ul>
+<p>fastdfs V3 新增加的合并存储介绍 ：<a href="http://www.open-open.com/doc/view/ab5701d57e5b49a8b6255df1ae7d5a97" target="_blank" rel="external">http://www.open-open.com/doc/view/ab5701d57e5b49a8b6255df1ae7d5a97</a></p>
+<p><strong>最后，如果你想也想学习下，那么就从搭建环境 + demo 案例开始吧，参考作者<a href="http://static.ixirong.com/doc/storage/分布式文件系统fastDFS使用_余庆+java_client_1.24+client_demo_余庆.zip" target="_blank" rel="external">余庆写的demo案例</a></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag">#分布式</a>
+          
+            <a href="/tags/存储/" rel="tag">#存储</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/01/31/storage-lib/" rel="next" title="数据存储解决方案汇总">
+                <i class="fa fa-chevron-left"></i> 数据存储解决方案汇总
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/03/19/install-java-on-mac/" rel="prev" title="mac下java环境搭建">
+                mac下java环境搭建 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/03/16/something-about-fastdfs/"
+           data-title="fastdfs 环境搭建使用及最佳实践" data-url="http://www.ixirong.com/2015/03/16/something-about-fastdfs/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/xirong.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+          <p class="site-description motion-element" itemprop="description">思考生活，分享故事</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">69</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、分布式文件系统-FastDFS-架构解析"><span class="nav-number">1.</span> <span class="nav-text">一、分布式文件系统 FastDFS 架构解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、安装配置过程"><span class="nav-number">2.</span> <span class="nav-text">二、安装配置过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-概述"><span class="nav-number">2.1.</span> <span class="nav-text">1. 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-搭建"><span class="nav-number">2.2.</span> <span class="nav-text">2. 搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-测试"><span class="nav-number">2.3.</span> <span class="nav-text">3. 测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fdfs启动、重启、开机启动，nginx启动、stop-重启"><span class="nav-number">2.3.1.</span> <span class="nav-text">fdfs启动、重启、开机启动，nginx启动、stop 重启</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、fdfs-客户端调用实例及-API-Doc-说明"><span class="nav-number">3.</span> <span class="nav-text">三、fdfs 客户端调用实例及 API Doc 说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、fdfs-常见问题及最佳实践"><span class="nav-number">4.</span> <span class="nav-text">四、fdfs 常见问题及最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#最佳实践"><span class="nav-number">4.1.</span> <span class="nav-text">最佳实践</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="powered-by">
+  <div style="float:left;margin-top:7px;margin-right:10px;">
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1254711542'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1254711542%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+  </div>
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  Clone theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next/">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"xirong"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" async src="//push.zhanzhang.baidu.com/push.js">
+</script>
+
+
+</body>
+</html>
