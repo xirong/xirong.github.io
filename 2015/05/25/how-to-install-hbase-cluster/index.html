@@ -1,0 +1,1135 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="Xia7mO2IvK" />
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+    
+  
+  <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.css.network/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+  
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.2/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="hbase,hbase集群,hbase分布式环境搭建,hadoop集群,hbase shell,hbase phoenix" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://static.ixirong.com/image/blog/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="hbase是什么？hbase集群分布式环境搭建怎么弄？hbase shell脚本怎么用？">
+<meta name="keywords" content="hbase,hbase集群,hbase分布式环境搭建,hadoop集群,hbase shell,hbase phoenix">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式实时日志系统（四） 环境搭建之centos 6.4下hbase 1.0.1 分布式集群搭建">
+<meta property="og:url" content="http://www.ixirong.com/2015/05/25/how-to-install-hbase-cluster/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="hbase是什么？hbase集群分布式环境搭建怎么弄？hbase shell脚本怎么用？">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2015-07-18T02:32:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式实时日志系统（四） 环境搭建之centos 6.4下hbase 1.0.1 分布式集群搭建">
+<meta name="twitter:description" content="hbase是什么？hbase集群分布式环境搭建怎么弄？hbase shell脚本怎么用？">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.ixirong.com/2015/05/25/how-to-install-hbase-cluster/"/>
+
+
+
+
+
+  <title> 分布式实时日志系统（四） 环境搭建之centos 6.4下hbase 1.0.1 分布式集群搭建 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-61803765-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2015/05/25/how-to-install-hbase-cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://static.ixirong.com/site/xirong_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                分布式实时日志系统（四） 环境搭建之centos 6.4下hbase 1.0.1 分布式集群搭建
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-25T20:43:09+08:00">
+                2015-05-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2015/05/25/how-to-install-hbase-cluster/" class="leancloud_visitors" data-flag-title="分布式实时日志系统（四） 环境搭建之centos 6.4下hbase 1.0.1 分布式集群搭建">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  hbase是什么？hbase集群分布式环境搭建怎么弄？hbase shell脚本怎么用？
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1>一、hbase简介</h1>
+<blockquote>
+<p>HBase是一个开源的非关系型分布式数据库（NoSQL），它参考了谷歌的BigTable建模，实现的编程语言为 Java。它是Apache软件基金会的Hadoop项目的一部分，运行于HDFS文件系统之上，为 Hadoop 提供类似于BigTable 规模的服务。因此，它可以容错地存储海量稀疏的数据。
+HBase在列上实现了BigTable论文提到的压缩算法、内存操作和布隆过滤器。HBase的表能够作为MapReduce任务的输入和输出，可以通过Java API来存取数据，也可以通过REST、Avro或者Thrift的API来访问。 -- <strong>维基百科</strong></p>
+</blockquote>
+<p>参考文档
+<a href="http://hbase.apache.org/book.html" target="_blank" rel="external">Apache HBase ™ Reference Guide</a>
+<a href="http://abloz.com/hbase/book.html" target="_blank" rel="external">HBase 官方文档中文版</a>
+<a href="http://www.ixirong.com/2015/07/16/learn-about-hbase/">列式存储hbase系统架构学习</a></p>
+<a id="more"></a>
+<p>（slideshare PPT 分享服务在大陆是被墙的，不能科学上网？查看<a href="http://ixirong.com/2015/01/19/shadowsocks-md/" target="_blank" rel="external">使用shadowsocks服务享受自由网络</a>学习方法）</p>
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/oyxDfFL44ItphE" width="510" height="420" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/enissoz/hbase-and-hdfs-understanding-filesystem-usage" title="HBase and HDFS: Understanding FileSystem Usage in HBase" target="_blank">HBase and HDFS: Understanding FileSystem Usage in HBase</a> </strong> from <strong><a href="//www.slideshare.net/enissoz" target="_blank">enissoz</a></strong> </div>
+<h1>二、整体环境说明</h1>
+<p>hbase的存储为 HDFS，所以运行hbase是需要hadoop环境的，hadoop 集群搭建过程参考之前文章 http://ixirong.com/2015/05/22/how-to-install-hadoop-cluster/</p>
+<p>操作系统： cenos 6.4 ，三台192.168.9.92、192.168.9.93、192.168.9.94
+jdk版本： 1.7.0_75
+hadoop版本： 2.5.2 （目的与hbase兼容）</p>
+<p>hbase 集群3个节点，一主两从，如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">角色</th>
+<th style="text-align:right">ip</th>
+<th style="text-align:center">运行进程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">master</td>
+<td style="text-align:right">192.168.9.92</td>
+<td style="text-align:center">JobHistoryServer，ResourceManager，NameNode，NodeManager，DataNode，Main，<strong>HMaster</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">slave1</td>
+<td style="text-align:right">192.168.9.93</td>
+<td style="text-align:center">NodeManager，DataNode，<strong>HRegionServer</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">slave2</td>
+<td style="text-align:right">192.168.9.94</td>
+<td style="text-align:center">NodeManager，DataNode，<strong>HRegionServer</strong></td>
+</tr>
+</tbody>
+</table>
+<p>hbase 的部署完全支持单机和伪分布式，如果没有机器可以按照这两种方式来部署，详情参考：http://blog.csdn.net/andie_guo/article/details/44086389</p>
+<h1>三、分布式集群搭建</h1>
+<p>hbase 集群的搭建如同hadoop一样，并不困难，解压完文件、修改环境变量、修改启动时候的配置文件，启动测试就ok了，下面一步步来说明，最后提供一键安装部署脚本。
+hbase 版本的下载参考官网 http://mirrors.cnnic.cn/apache/hbase/ ，本文使用的版本为<code>1.1.0.1/ 22-May-2015 02:20 -</code>。</p>
+<h2>3.1 安装 hbase</h2>
+<p>将下载下来的文件<code>hbase-1.0.1-bin.tar.gz</code>，解压到 <code>/home/hadoop/</code>目录下面 ，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tar -zxvf hbase-1.0.1-bin.tar.gz -C /home/hadoop</div><div class="line">mv hbase-1.0.1 hbase <span class="comment"># 重命名</span></div></pre></td></tr></table></figure>
+<h2>3.2 配置环境变量</h2>
+<p>第一步操作后会存在<code>/home/hadoop/hbase</code>这个目录，下面需要修改环境变量<code>vim /etc/profile</code>，添加如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">export</span>  PATH=<span class="variable">$PATH</span>:/home/hadoop/hbase/bin</div><div class="line"></div><div class="line"><span class="comment"># 使本次修改生效</span></div><div class="line"><span class="built_in">source</span> /etc/profile</div></pre></td></tr></table></figure>
+<h2>3.3 hbase配置文件修改</h2>
+<p>hbase 相关的配置主要包括<code>hbase-env.sh</code>、<code>hbase-site.xml</code>、<code>regionservers</code>三个文件，都在 <code>/home/haoop/hbase/conf</code>目录下面：</p>
+<h3>3.3.1 修改 hbase-env.sh</h3>
+<p>主要是 JAVA_HOME、HADOOP_HOME、日志等的位置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">export</span> JAVA_HOME=/opt/jdk1.7.0_75</div><div class="line"><span class="built_in">export</span> HBASE_CLASSPATH=/home/hadoop/hbase/conf</div><div class="line"><span class="comment"># 此配置信息，设置由hbase自己管理zookeeper，不需要单独的zookeeper。</span></div><div class="line"><span class="built_in">export</span> HBASE_MANAGES_ZK=<span class="literal">true</span></div><div class="line"><span class="built_in">export</span> HBASE_HOME=/home/hadoop/hbase</div><div class="line"><span class="built_in">export</span> HADOOP_HOME=/home/hadoop/hadoop-2.5.2</div><div class="line"><span class="comment">#Hbase日志目录</span></div><div class="line"><span class="built_in">export</span> HBASE_LOG_DIR=/home/hadoop/hbase/logs</div></pre></td></tr></table></figure>
+<h3>3.3.2 修改 hbase-site.xml</h3>
+<p>xml 包含了几个关键的属性</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">属性</th>
+<th style="text-align:right">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">hbase.rootdir</td>
+<td style="text-align:right">hbase数据存储目录，/tmp/hbase-${user.name},这意味着每次重启系统都会丢失数据。注意：需要和hadoop的core-site.xml中的文件保持一致</td>
+</tr>
+<tr>
+<td style="text-align:left">hbase.cluster.distributed</td>
+<td style="text-align:right">是否分布式，单击和伪分布式需要设置为 false</td>
+</tr>
+<tr>
+<td style="text-align:left">hbase.master</td>
+<td style="text-align:right">指定master机器</td>
+</tr>
+<tr>
+<td style="text-align:left">hbase.zookeeper.quorum</td>
+<td style="text-align:right">zk集群机器，多个英文逗号隔开，注意：必须是基数</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.rootdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://master:9000/hbase<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.cluster.distributed<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.master<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>master:60000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>master,slave1,slave2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></div></pre></td></tr></table></figure>
+<h2>3.3.3 修改regionservers</h2>
+<p>添加HRegionServer的机器，目前为slave1和slave2两台，如下 <code>vim /home/hadoop/hbase/conf/regionservers</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">slave1</div><div class="line">slave2</div></pre></td></tr></table></figure>
+<p>上面这几步，需要在每台机器上面都执行下，执行完毕后，hbase集群就算搭建完了，因为机器一多，执行这些命令很是烦人，所以提供一键安装部署脚本，<code>hbase_tar.zip</code>文件请访问<a href="http://pan.baidu.com/s/1jGJ3lcU" target="_blank" rel="external">百度网盘</a>，密码为<code>2a4g</code>，脚本如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line"><span class="comment"># author： xirong </span></div><div class="line"><span class="comment"># date  :  2015-05-11 </span></div><div class="line"></div><div class="line"><span class="comment">#####</span></div><div class="line"><span class="comment"># hbase 的数据存储在hdfs中，所以依赖hadoop的环境，安装配置hbase环境需要搭建好的hadoop环境</span></div><div class="line"><span class="comment"># </span></div><div class="line"><span class="comment">####</span></div><div class="line"></div><div class="line"><span class="comment"># 解压文件</span></div><div class="line"><span class="comment"># unzip hbase.zip -d /home/hadoop/</span></div><div class="line"><span class="comment"># 赋予权限</span></div><div class="line">sudo chown -R hadoop:hadoop /home/hadoop/hbase</div><div class="line"></div><div class="line">sudo sed -i <span class="string">'$ a # hbase configuration'</span> /etc/profile</div><div class="line">sudo sed -i <span class="string">'$ a export  PATH=$PATH:/home/hadoop/hbase/bin'</span> /etc/profile</div><div class="line"></div><div class="line"><span class="built_in">source</span> /etc/profile</div><div class="line">hbase version </div><div class="line"><span class="built_in">echo</span> <span class="string">'congratilations ,hbase has been installed on your machine!'</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'start change hbase-env.sh configuration ……'</span></div><div class="line"><span class="built_in">echo</span> <span class="string">'# 添加环境变量'</span> &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh</div><div class="line"><span class="built_in">echo</span> <span class="string">'export JAVA_HOME=/opt/jdk1.7.0_75'</span>   &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh</div><div class="line"><span class="built_in">echo</span> <span class="string">'export HBASE_CLASSPATH=/home/hadoop/hbase/conf'</span>   &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh</div><div class="line"><span class="built_in">echo</span> <span class="string">'export HBASE_MANAGES_ZK=true'</span>   &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh     </div><div class="line"><span class="built_in">echo</span> <span class="string">'export HBASE_HOME=/home/hadoop/hbase'</span>   &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh</div><div class="line"><span class="built_in">echo</span> <span class="string">'export HADOOP_HOME=/home/hadoop/hadoop-2.5.2'</span>   &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh</div><div class="line"><span class="built_in">echo</span> <span class="string">'export HBASE_LOG_DIR=/home/hadoop/hbase/logs'</span>   &gt;&gt; /home/hadoop/hbase/conf/hbase-env.sh</div><div class="line"></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'finish hbase-env.sh and start change hbase-site.xml configuration ……'</span></div><div class="line">\cp -f  /home/hadoop/hbase/conf/hbase-site.xml /home/hadoop/hbase/conf/hbase-site.xml.bak</div><div class="line"></div><div class="line">sed -i <span class="string">'/&lt;\/configuration&gt;/d'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line"></div><div class="line">sed -i <span class="string">'$ a &lt;property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a 	&lt;name&gt;hbase.rootdir&lt;\/name&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml	</div><div class="line">sed -i <span class="string">'$ a 	&lt;value&gt;hdfs:\/\/master:9000\/hbase&lt;\/value&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a &lt;\/property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line"></div><div class="line">sed -i <span class="string">'$ a &lt;property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a 	&lt;name&gt;hbase.cluster.distributed&lt;\/name&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml	</div><div class="line">sed -i <span class="string">'$ a 	&lt;value&gt;true&lt;\/value&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a &lt;\/property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line"></div><div class="line">sed -i <span class="string">'$ a &lt;property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a 	&lt;name&gt;hbase.master&lt;\/name&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml	</div><div class="line">sed -i <span class="string">'$ a 	&lt;value&gt;master:60000&lt;\/value&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a &lt;\/property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line"></div><div class="line">sed -i <span class="string">'$ a &lt;property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a 	&lt;name&gt;hbase.zookeeper.quorum&lt;\/name&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml	</div><div class="line">sed -i <span class="string">'$ a 	&lt;value&gt;master,slave1,slave2&lt;\/value&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line">sed -i <span class="string">'$ a &lt;\/property&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml</div><div class="line"></div><div class="line">sed -i <span class="string">'$ a &lt;\/configuration&gt;'</span> /home/hadoop/hbase/conf/hbase-site.xml </div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'finish hbase-site.xml configuration and start change regionservers ……'</span></div><div class="line">\cp -f  /home/hadoop/hbase/conf/regionservers /home/hadoop/hbase/conf/regionservers.bak</div><div class="line"><span class="built_in">echo</span> <span class="string">'slave1'</span> &gt;&gt; /home/hadoop/hbase/conf/regionservers</div><div class="line"><span class="built_in">echo</span> <span class="string">'slave2'</span> &gt;&gt; /home/hadoop/hbase/conf/regionservers</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'congratilations ,all conf has been changed ! enjoy hbase !'</span></div></pre></td></tr></table></figure>
+<h1>四、hbase集群测试</h1>
+<p>集群中所有节点完成上述HBase部署之后，即可启动HBase集群。启动顺序：hadoop-&gt; hbase，如果使用自己安装的zookeeper启动顺序是：hadoop-&gt; zookeeper-&gt; hbase
+停止顺序：hbase-&gt; zookeeper-&gt; hadoop。
+hadoop 启动方法：<code>$HADOOP_HOME/bin/start_all.sh</code> ，jps 命令后看到hadoop的几个进程说明就是ok的，<a href="http://ixirong.com/2015/05/22/how-to-install-hadoop-cluster/" target="_blank" rel="external">详情参考</a>
+zk 启动方法： <code>sh $ZOOKEEPER_HOME/bin/zkServer.sh start</code>, 启动后可以查看 zk的状态 <code>sh $ZOOKEEPER_HOME/bin/zkServer.sh status</code> ，发现 leader或者Fowler，就说明是ok的，<a href="http://ixirong.com/2015/05/12/how-to-install-jstorm-cluster/" target="_blank" rel="external">详情参考</a></p>
+<p>hbase启动方法如下，执行<code>jps</code>Java进程查看命令后，出现下面的情况就证明是ok的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># master上启动，注意：只需要在master机器上面执行 start-hbase.sh就行，会自动启动slave1和slave2</span></div><div class="line">[hadoop@master bin]$ start-hbase.sh</div><div class="line">slave1: starting zookeeper, logging to /home/hadoop/hbase/logs/hbase-hadoop-zookeeper-slave1.out</div><div class="line">slave2: starting zookeeper, logging to /home/hadoop/hbase/logs/hbase-hadoop-zookeeper-slave2.out</div><div class="line">master: starting zookeeper, logging to /home/hadoop/hbase/logs/hbase-hadoop-zookeeper-master.out</div><div class="line">starting master, logging to /home/hadoop/hbase/logs/hbase-hadoop-master-master.out</div><div class="line">slave2: starting regionserver, logging to /home/hadoop/hbase/logs/hbase-hadoop-regionserver-slave2.out</div><div class="line">slave1: starting regionserver, logging to /home/hadoop/hbase/logs/hbase-hadoop-regionserver-slave1.out</div><div class="line">localhost: starting regionserver, logging to /home/hadoop/hbase/logs/hbase-hadoop-regionserver-master.out</div><div class="line">[hadoop@master bin]$ jps</div><div class="line">23598 HQuorumPeer</div><div class="line">19655 JobHistoryServer</div><div class="line">10397 ResourceManager</div><div class="line">17688 DataNode</div><div class="line">23651 HMaster</div><div class="line">23814 Jps</div><div class="line">18141 NodeManager</div><div class="line">17597 NameNode</div><div class="line"></div><div class="line"><span class="comment"># slave1 验证</span></div><div class="line">[hadoop@slave1 ~]$ jps</div><div class="line">680 Jps</div><div class="line">538 HRegionServer</div><div class="line">14727 DataNode</div><div class="line">14856 NodeManager</div><div class="line"></div><div class="line"><span class="comment"># slave2 验证 </span></div><div class="line">[hadoop@slave2 ~]$ jps</div><div class="line">375 Jps</div><div class="line">14555 NodeManager</div><div class="line">32664 HRegionServer</div><div class="line">14424 DataNode</div></pre></td></tr></table></figure>
+<h1>五、hbase shell 操作</h1>
+<p>hbase提供的shell脚本就如果MySQL的一样，简单、强大，如下面例子中的几个：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">[hadoop@master bin]$ hbase shell</div><div class="line">SLF4J: Class path contains multiple SLF4J bindings.</div><div class="line">SLF4J: Found binding <span class="keyword">in</span> [jar:file:/home/hadoop/hbase/lib/slf4j-log4j12-1.7.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]</div><div class="line">SLF4J: Found binding <span class="keyword">in</span> [jar:file:/home/hadoop/hadoop-2.5.2/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]</div><div class="line">SLF4J: See http://www.slf4j.org/codes.html<span class="comment">#multiple_bindings for an explanation.</span></div><div class="line">SLF4J: Actual binding is of <span class="built_in">type</span> [org.slf4j.impl.Log4jLoggerFactory]</div><div class="line">2015-05-25 15:53:06,988 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library <span class="keyword">for</span> your platform... using <span class="built_in">builtin</span>-java classes <span class="built_in">where</span> applicable</div><div class="line">HBase Shell; enter <span class="string">'help&lt;RETURN&gt;'</span> <span class="keyword">for</span> list of supported commands.</div><div class="line">Type <span class="string">"exit&lt;RETURN&gt;"</span> to leave the HBase Shell</div><div class="line">Version 1.0.1, r66a93c09df3b12ff7b86c39bc8475c60e15af82d, Fri Apr 17 22:14:06 PDT 2015</div><div class="line"></div><div class="line">hbase(main):002:0&gt; status</div><div class="line">2 servers, 0 dead, 1.0000 average load</div><div class="line"></div><div class="line">hbase(main):005:0&gt; list</div><div class="line">TABLE</div><div class="line">0 row(s) <span class="keyword">in</span> 0.3430 seconds</div></pre></td></tr></table></figure>
+<p>这部分操作请参考如下文章，个人认为写的通俗易懂，还很全面，适合入门体验
+<a href="http://blog.csdn.net/andie_guo/article/details/44086445" target="_blank" rel="external">【HBase基础教程】3、HBase Shell DDL操作</a>
+<a href="http://blog.csdn.net/andie_guo/article/details/44086461" target="_blank" rel="external">【HBase基础教程】4、HBase Shell DML操作</a>
+<a href="http://www.cnblogs.com/ggjucheng/p/3379607.html" target="_blank" rel="external"> HBase shell的基本用法</a></p>
+<h1>六、hbase 实践优化</h1>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="http://static.ixirong.com/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/hbase/" rel="tag"># hbase</a>
+          
+            <a href="/tags/大数据/" rel="tag"># 大数据</a>
+          
+            <a href="/tags/日志/" rel="tag"># 日志</a>
+          
+            <a href="/tags/nosql/" rel="tag"># nosql</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/24/hexo-blog-donate/" rel="next" title="hexo 静态博客上线文章打赏功能，支持支付宝、微信支付捐赠">
+                <i class="fa fa-chevron-left"></i> hexo 静态博客上线文章打赏功能，支持支付宝、微信支付捐赠
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/07/git-and-github-repo/" rel="prev" title="如何高效的使用github">
+                如何高效的使用github <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://static.ixirong.com/site/xirong_avatar.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">116</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">1.</span> <span class="nav-text">一、hbase简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">2.</span> <span class="nav-text">二、整体环境说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">3.</span> <span class="nav-text">三、分布式集群搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 安装 hbase</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 配置环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 hbase配置文件修改</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#undefined"><span class="nav-number">3.3.1.</span> <span class="nav-text">3.3.1 修改 hbase-env.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undefined"><span class="nav-number">3.3.2.</span> <span class="nav-text">3.3.2 修改 hbase-site.xml</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">3.4.</span> <span class="nav-text">3.3.3 修改regionservers</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">4.</span> <span class="nav-text">四、hbase集群测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">5.</span> <span class="nav-text">五、hbase shell 操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">6.</span> <span class="nav-text">六、hbase 实践优化</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="powered-by">
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery_lazyload/1.9.7/jquery.lazyload.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.ui.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

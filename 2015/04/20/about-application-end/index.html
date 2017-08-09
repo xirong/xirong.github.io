@@ -1,0 +1,1095 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="Xia7mO2IvK" />
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+    
+  
+  <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.css.network/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+  
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.2/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Application_End,global.asax,asp.net事件触发机制" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://static.ixirong.com/image/blog/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="Application_End事件在HttpApplication 类的最后一个实例被销毁时被触发，在一个应用程序的生命周期内它只被触发一次，那么在什么情况下会导致该事件的触发呢？ 一、Application_End 事件触发时间/机制 1、回收应用程序池会导致站点重启，记录的原因是如下： 1　 HostingEnvironment initiated shutdown HostingEnviro">
+<meta name="keywords" content="Application_End,global.asax,asp.net事件触发机制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Application_end事件触发机制及全局global.asax文件说明">
+<meta property="og:url" content="http://www.ixirong.com/2015/04/20/about-application-end/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="Application_End事件在HttpApplication 类的最后一个实例被销毁时被触发，在一个应用程序的生命周期内它只被触发一次，那么在什么情况下会导致该事件的触发呢？ 一、Application_End 事件触发时间/机制 1、回收应用程序池会导致站点重启，记录的原因是如下： 1　 HostingEnvironment initiated shutdown HostingEnviro">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2015-06-28T15:30:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Application_end事件触发机制及全局global.asax文件说明">
+<meta name="twitter:description" content="Application_End事件在HttpApplication 类的最后一个实例被销毁时被触发，在一个应用程序的生命周期内它只被触发一次，那么在什么情况下会导致该事件的触发呢？ 一、Application_End 事件触发时间/机制 1、回收应用程序池会导致站点重启，记录的原因是如下： 1　 HostingEnvironment initiated shutdown HostingEnviro">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.ixirong.com/2015/04/20/about-application-end/"/>
+
+
+
+
+
+  <title> Application_end事件触发机制及全局global.asax文件说明 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-61803765-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2015/04/20/about-application-end/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://static.ixirong.com/site/xirong_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                Application_end事件触发机制及全局global.asax文件说明
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-20T14:13:04+08:00">
+                2015-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/net/" itemprop="url" rel="index">
+                    <span itemprop="name">net</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2015/04/20/about-application-end/" class="leancloud_visitors" data-flag-title="Application_end事件触发机制及全局global.asax文件说明">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Application_End事件在HttpApplication 类的最后一个实例被销毁时被触发，在一个应用程序的生命周期内它只被触发一次，那么在什么情况下会导致该事件的触发呢？</p>
+<h2>一、Application_End 事件触发时间/机制</h2>
+<p>1、回收应用程序池会导致站点重启，记录的原因是如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">　 HostingEnvironment initiated shutdown HostingEnvironment caused shutdown</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>2、修改应用程序池回收规则会导致重启，记录的重启原因如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HostingEnvironment initiated shutdown HostingEnvironment caused shutdown</div></pre></td></tr></table></figure>
+<p>3、在IIS中修改站点的名字，不会导致重启。
+4、修改站点根目录的配置文件web.config，在配置文件注释中添加几个空格会导致重启，记录的重启原因如下，但是修改子目录的web.config文件不一定会导致马上重启。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CONFIG change HostingEnvironment initiated shutdown</div></pre></td></tr></table></figure>
+<p>5、修改aspx、master文件不一定会导致重启；但是每修改一次都会导致一次重新编译，重新编译次数达到15次之后会导致站点重启，重启原因如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Recompilation limit of 15 reached HostingEnvironment initiated shutdown</div></pre></td></tr></table></figure>
+<p>15次后重启这个数字可以在web.config中做配置，修改compilation的numRecompilesBeforeAppRestart属性值即可。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">compilation</span> <span class="attr">debug</span>=<span class="string">"false"</span> <span class="attr">numRecompilesBeforeAppRestart</span>=<span class="string">"15"</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>6、删除bin目录下的pdb文件，会导致重启，记录的重启原因是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Change Notification for critical directories.</div></pre></td></tr></table></figure>
+<p>在bin目录下新建一个空的文件夹，会导致站点重启，重启原因是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Directory rename change notification for &apos;D:\projects\TestWebApp\TestWeb&apos;.T estWeb dir change or directory rename</div></pre></td></tr></table></figure>
+<p>在bin目录下删除空文件夹，会导致站点重启，记录原因是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Directory rename change notification for &apos;D:\projects\TestWebApp\TestWeb&apos;.T estWeb dir change or directory rename</div></pre></td></tr></table></figure>
+<p>7、修改Global.asax文件会导致站点重启，即使加几个空格也会重启，记录的重启原因是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Change in GLOBAL.ASAX HostingEnvironment initiated shutdown</div></pre></td></tr></table></figure>
+<p>8、对App_Code目录做修改会导致站点重启，在站点根目录下添加一个名字为App_Code的文件夹，会导致重启，记录的重启原因是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Change Notification for critical directories. App_Code dir change or directory rename</div></pre></td></tr></table></figure>
+<p>删除App_Code文件夹会导致站点重启，记录的重启原因是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">　　File Change Notification Error in D:\projects\TestWebApp\TestWeb\app_code Change Notification for critical directories.App_Code dir change or directory rename</div></pre></td></tr></table></figure>
+<p>在App_Code文件夹下面新建或者删除一个cs文件，会导致站点重启，记录的原因是：</p>
+<pre><code>Change Notification for critical directories. App_Code dir change or directory rename
+</code></pre>
+<p>9、对关键路径的修改都会导致站点重启，关键路径包括：
+　 bin, App_Code, Web References,App_Browsers,App_GlobalResources,App_LocalResources</p>
+<p>总结三方面：一方面是IIS配置发生变化；另一方面是asp.net相关文件配置文件,global文件，aspx，ascx,master等类型的文件发生变法；第三个方面是关键路径bin，app_Code, Web References,App_Browsers,App_GlobalResources,App_LocalResources发生变化。（<a href="http://www.51testing.com/html/97/n-243197.html" target="_blank" rel="external">参考</a>）</p>
+<h3>1.1 在事件中记录站点重启的原因</h3>
+<p>在站点执行Application_End事件中添加记录方法。在Global.asax.cs文件中添加如下代码即可：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_End</span>(<span class="params"></span>)</span></div><div class="line"><span class="function">   </span>&#123;</div><div class="line">      <span class="keyword">try</span>&#123;</div><div class="line">           HttpRuntime runtime = (HttpRuntime)<span class="keyword">typeof</span>(System.Web.HttpRuntime).InvokeMember(<span class="string">"_theRuntime"</span>,</div><div class="line">                                    BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.GetField, <span class="literal">null</span>, <span class="literal">null</span>, <span class="literal">null</span>);</div><div class="line"></div><div class="line">           <span class="keyword">if</span> (runtime == <span class="literal">null</span>)</div><div class="line">                       <span class="keyword">return</span>;</div><div class="line"></div><div class="line">           <span class="keyword">string</span> shutDownMessage = (<span class="keyword">string</span>)runtime.GetType().InvokeMember(<span class="string">"_shutDownMessage"</span>,</div><div class="line">                       BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField, <span class="literal">null</span>, runtime, <span class="literal">null</span>);</div><div class="line"></div><div class="line">            <span class="keyword">string</span> shutDownStack = (<span class="keyword">string</span>)runtime.GetType().InvokeMember(<span class="string">"_shutDownStack"</span>,</div><div class="line">                       BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField, <span class="literal">null</span>, runtime, <span class="literal">null</span>);</div><div class="line"></div><div class="line">           <span class="comment">// 记录日志到本地文件</span></div><div class="line">           WebLog.ChannelLog.ApplicationLogger.Error(<span class="string">"MvcApplicationEnd事件触发："</span> + shutDownMessage, <span class="keyword">new</span> Exception(shutDownStack));</div><div class="line">       &#125;</div><div class="line">       <span class="keyword">catch</span> (Exception ex)</div><div class="line">       &#123;</div><div class="line">           WebLog.ChannelLog.ApplicationLogger.Error(<span class="string">"MvcApplicationEnd事件触发异常"</span>, ex);</div><div class="line">       &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<h2>二、Global.asax 文件介绍</h2>
+<p>有时候叫做 ASP.NET 应用程序文件，提供了一种在一个中心位置响应应用程序级或模块级事件的方法。你可以使用这个文件实现应用程序安全性以及其它一些任务。</p>
+<p>Global.asax 位于应用程序根目录下。虽然 Visual Studio .NET 会自动插入这个文件到所有的 ASP.NET 项目中，但是它实际上是一个可选文件。删除它不会出问题——当然是在你没有使用它的情况下。.asax 文件扩展名指出它是一个应用程序文件，而不是一个使用 aspx 的 ASP.NET 文件。</p>
+<p>Global.asax 文件被配置为任何（通过 URL 的）直接 HTTP 请求都被自动拒绝，所以用户不能下载或查看其内容。ASP.NET 页面框架能够自动识别出对Global.asax 文件所做的任何更改。在 Global.asax 被更改后ASP.NET 页面框架会重新启动应用程序，包括关闭所有的浏览器会话，去除所有状态信息，并重新启动应用程序域。</p>
+<p>Global.asax 文件继承自HttpApplication 类，它维护一个HttpApplication 对象池，并在需要时将对象池中的对象分配给应用程序。Global.asax 文件包含以下事件：</p>
+<ul>
+<li>Application_Init：在应用程序被实例化或第一次被调用时，该事件被触发。对于所有的HttpApplication 对象实例，它都会被调用。</li>
+<li>Application_Disposed：在应用程序被销毁之前触发。这是清除以前所用资源的理想位置。</li>
+<li>Application_Error：当应用程序中遇到一个未处理的异常时，该事件被触发。</li>
+<li>Application_Start：在HttpApplication 类的第一个实例被创建时，该事件被触发。它允许你创建可以由所有HttpApplication 实例访问的对象。</li>
+<li>Application_End：在HttpApplication 类的最后一个实例被销毁时，该事件被触发。在一个应用程序的生命周期内它只被触发一次。</li>
+<li>Application_BeginRequest：在接收到一个应用程序请求时触发。对于一个请求来说，它是第一个被触发的事件，请求一般是用户输入的一个页面请求（URL）。</li>
+<li>Application_EndRequest：针对应用程序请求的最后一个事件。</li>
+<li>Application_PreRequestHandlerExecute：在 ASP.NET 页面框架开始执行诸如页面或 Web 服务之类的事件处理程序之前，该事件被触发。</li>
+<li>Application_PostRequestHandlerExecute：在 ASP.NET 页面框架结束执行一个事件处理程序时，该事件被触发。</li>
+<li>Applcation_PreSendRequestHeaders：在 ASP.NET 页面框架发送 HTTP 头给请求客户（浏览器）时，该事件被触发。</li>
+<li>Application_PreSendContent：在 ASP.NET 页面框架发送内容给请求客户（浏览器）时，该事件被触发。</li>
+<li>Application_AcquireRequestState：在 ASP.NET 页面框架得到与当前请求相关的当前状态（Session 状态）时，该事件被触发。</li>
+<li>Application_ReleaseRequestState：在 ASP.NET 页面框架执行完所有的事件处理程序时，该事件被触发。这将导致所有的状态模块保存它们当前的状态数据。</li>
+<li>Application_ResolveRequestCache：在 ASP.NET 页面框架完成一个授权请求时，该事件被触发。它允许缓存模块从缓存中为请求提供服务，从而绕过事件处理程序的执行。</li>
+<li>Application_UpdateRequestCache：在 ASP.NET 页面框架完成事件处理程序的执行时，该事件被触发，从而使缓存模块存储响应数据，以供响应后续的请求时使用。</li>
+<li>Application_AuthenticateRequest：在安全模块建立起当前用户的有效的身份时，该事件被触发。在这个时候，用户的凭据将会被验证。</li>
+<li>Application_AuthorizeRequest：当安全模块确认一个用户可以访问资源之后，该事件被触发。</li>
+<li>Session_Start：在一个新用户访问应用程序 Web 站点时，该事件被触发。</li>
+<li>Session_End：在一个用户的会话超时、结束或他们离开应用程序 Web 站点时，该事件被触发。</li>
+</ul>
+<p>这个事件列表看起来好像多得吓人，但是在不同环境下这些事件可能会非常有用。使用这些事件的一个关键问题是知道它们被触发的顺序。Application_Init 和Application_Start 事件在应用程序第一次启动时被触发一次。相似地，Application_Disposed 和 Application_End 事件在应用程序终止时被触发一次。此外，基于会话的事件（Session_Start 和 Session_End）只在用户进入和离开站点时被使用。其余的事件则处理应用程序请求，这些事件被触发的顺序是：</p>
+<ul>
+<li>Application_BeginRequest</li>
+<li>Application_AuthenticateRequest</li>
+<li>Application_AuthorizeRequest</li>
+<li>Application_ResolveRequestCache</li>
+<li>Application_AcquireRequestState</li>
+<li>Application_PreRequestHandlerExecute</li>
+<li>Application_PreSendRequestHeaders</li>
+<li>Application_PreSendRequestContent</li>
+<li>&lt;&lt;执行代码&gt;&gt;</li>
+<li>Application_PostRequestHandlerExecute</li>
+<li>Application_ReleaseRequestState</li>
+<li>Application_UpdateRequestCache</li>
+<li>Application_EndRequest</li>
+</ul>
+<p>这些事件常被用于安全性方面。下面这个 C# 的例子演示了不同的Global.asax 事件，该例使用Application_Authenticate 事件来完成通过 cookie 的基于表单（form）的身份验证。此外，Application_Start 事件填充一个应用程序变量，而Session_Start 填充一个会话变量。Application_Error 事件显示一个简单的消息用以说明发生的错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">protected void Application_Start(Object sender, EventArgs e) &#123;</div><div class="line">	Application[&quot;Title&quot;] = &quot;Builder.com Sample&quot;;</div><div class="line">&#125;</div><div class="line"></div><div class="line">protected void Session_Start(Object sender, EventArgs e) &#123;</div><div class="line">	Session[&quot;startValue&quot;] = 0;</div><div class="line">&#125;</div><div class="line"></div><div class="line">protected void Application_AuthenticateRequest(Object sender, EventArgs e) &#123;</div><div class="line">	// Extract the forms authentication cookie</div><div class="line">	string cookieName = FormsAuthentication.FormsCookieName;</div><div class="line">	HttpCookie authCookie = Context.Request.Cookies[cookieName];</div><div class="line">	if(null == authCookie) &#123;</div><div class="line">		// There is no authentication cookie.</div><div class="line">		return;</div><div class="line">	&#125;</div><div class="line">	FormsAuthenticationTicket authTicket = null;</div><div class="line">	try &#123;</div><div class="line">		authTicket = FormsAuthentication.Decrypt(authCookie.Value);</div><div class="line">	&#125; catch(Exception ex) &#123;</div><div class="line">		// Log exception details (omitted for simplicity)</div><div class="line">	return;</div><div class="line">	&#125;</div><div class="line">	if (null == authTicket) &#123;</div><div class="line">		// Cookie failed to decrypt.</div><div class="line">		return;</div><div class="line">	&#125;</div><div class="line">	// When the ticket was created, the UserData property was assigned</div><div class="line">	// a pipe delimited string of role names.</div><div class="line">	string[2] roles</div><div class="line">	roles[0] = &quot;One&quot;</div><div class="line">	roles[1] = &quot;Two&quot;</div><div class="line">	// Create an Identity object</div><div class="line">	FormsIdentity id = new FormsIdentity( authTicket );</div><div class="line">	// This principal will flow throughout the request.</div><div class="line">	GenericPrincipal principal = new GenericPrincipal(id, roles);</div><div class="line">	// Attach the new principal object to the current HttpContext object</div><div class="line">	Context.User = principal;</div><div class="line">&#125;</div><div class="line"></div><div class="line">protected void Application_Error(Object sender, EventArgs e) &#123;</div><div class="line">	Response.Write(&quot;Error encountered.&quot;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个例子只是很简单地使用了一些Global.asax 文件中的事件；重要的是要意识到这些事件是与整个应用程序相关的。这样，所有放在其中的方法都会通过应用程序的代码被提供，这就是它的名字为Global 的原因(<a href="http://www.cnblogs.com/I-am-Betty/archive/2010/09/06/1819558.html" target="_blank" rel="external">详情请参考</a>)</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="http://static.ixirong.com/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/net/" rel="tag"># net</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/04/15/how-blog-record-by-aliyun/" rel="next" title="个人godaddy域名备案解决方案">
+                <i class="fa fa-chevron-left"></i> 个人godaddy域名备案解决方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/04/27/strong-bash-use-oh-my-zsh/" rel="prev" title="增强你的bash，提高命令效率之终极利器oh-my-zsh">
+                增强你的bash，提高命令效率之终极利器oh-my-zsh <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://static.ixirong.com/site/xirong_avatar.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">116</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">1.</span> <span class="nav-text">一、Application_End 事件触发时间/机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#undefined"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 在事件中记录站点重启的原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.</span> <span class="nav-text">二、Global.asax 文件介绍</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="powered-by">
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery_lazyload/1.9.7/jquery.lazyload.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.ui.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

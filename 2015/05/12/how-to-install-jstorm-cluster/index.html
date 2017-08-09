@@ -1,0 +1,1097 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="Xia7mO2IvK" />
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+    
+  
+  <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.css.network/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+  
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.2/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="storm集群,storm环境,jstorm,jstorm集群,jstorm分布式集群,jstorm环境搭建" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://static.ixirong.com/image/blog/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="最近公司业务数据量越来越大，以前的基于消息队列的日志系统越来越难以满足目前的业务量，表现为消息积压，日志延迟，日志存储日期过短，所以，我们开始着手要重新设计这块，业界已经有了比较成熟的流程，即基于流式处理，采用 flume 收集日志，发送到 kafka 队列做缓冲，storm 分布式实时框架进行消费处理，短期数据落地到 hbase、mongo中，长期数据进入 hadoop 中存储。 接下来打算将这">
+<meta name="keywords" content="storm集群,storm环境,jstorm,jstorm集群,jstorm分布式集群,jstorm环境搭建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式实时日志系统（一）环境搭建之 Jstorm 集群搭建过程&#x2F;Jstorm集群一键安装部署">
+<meta property="og:url" content="http://www.ixirong.com/2015/05/12/how-to-install-jstorm-cluster/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="最近公司业务数据量越来越大，以前的基于消息队列的日志系统越来越难以满足目前的业务量，表现为消息积压，日志延迟，日志存储日期过短，所以，我们开始着手要重新设计这块，业界已经有了比较成熟的流程，即基于流式处理，采用 flume 收集日志，发送到 kafka 队列做缓冲，storm 分布式实时框架进行消费处理，短期数据落地到 hbase、mongo中，长期数据进入 hadoop 中存储。 接下来打算将这">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://static.ixirong.com/pic/bigdata/jstorm_clusters.png">
+<meta property="og:image" content="http://static.ixirong.com/pic/bigdata/jstorm_topology.png">
+<meta property="og:updated_time" content="2015-07-13T08:17:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式实时日志系统（一）环境搭建之 Jstorm 集群搭建过程&#x2F;Jstorm集群一键安装部署">
+<meta name="twitter:description" content="最近公司业务数据量越来越大，以前的基于消息队列的日志系统越来越难以满足目前的业务量，表现为消息积压，日志延迟，日志存储日期过短，所以，我们开始着手要重新设计这块，业界已经有了比较成熟的流程，即基于流式处理，采用 flume 收集日志，发送到 kafka 队列做缓冲，storm 分布式实时框架进行消费处理，短期数据落地到 hbase、mongo中，长期数据进入 hadoop 中存储。 接下来打算将这">
+<meta name="twitter:image" content="http://static.ixirong.com/pic/bigdata/jstorm_clusters.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.ixirong.com/2015/05/12/how-to-install-jstorm-cluster/"/>
+
+
+
+
+
+  <title> 分布式实时日志系统（一）环境搭建之 Jstorm 集群搭建过程/Jstorm集群一键安装部署 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-61803765-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2015/05/12/how-to-install-jstorm-cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://static.ixirong.com/site/xirong_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                分布式实时日志系统（一）环境搭建之 Jstorm 集群搭建过程/Jstorm集群一键安装部署
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-12T18:43:38+08:00">
+                2015-05-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2015/05/12/how-to-install-jstorm-cluster/" class="leancloud_visitors" data-flag-title="分布式实时日志系统（一）环境搭建之 Jstorm 集群搭建过程/Jstorm集群一键安装部署">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近公司业务数据量越来越大，以前的基于消息队列的日志系统越来越难以满足目前的业务量，表现为消息积压，日志延迟，日志存储日期过短，所以，我们开始着手要重新设计这块，业界已经有了比较成熟的流程，即基于流式处理，采用 flume 收集日志，发送到 kafka 队列做缓冲，storm 分布式实时框架进行消费处理，短期数据落地到 hbase、mongo中，长期数据进入 hadoop 中存储。 接下来打算将这其间所遇到的问题、学习到的知识记录整理下，作为备忘，作为分享，带给需要的人。</p>
+<p>淘宝开源了许多产品组件，其中包括这鼎鼎有名的 jstorm ，也就是我们采用的分布式实时处理框架，至于为什么，请看《<a href="https://github.com/alibaba/jstorm/wiki/JStorm-vs-Storm-vs-flume-vs-S4-%E9%80%89%E5%9E%8B" target="_blank" rel="external">为什么选择Jstorm</a>》。这篇文章只介绍 Jstorm 整个集群的搭建过程，并提供一键安装部署脚本，方便其它使用的人员（搭建环境是一件头疼的事情，费时、费力）。</p>
+<p>这是 Jstorm 的介绍PPT：（slideshare PPT 分享服务在大陆是被墙的，不能科学上网？查看<a href="http://ixirong.com/2015/01/19/shadowsocks-md/" target="_blank" rel="external">使用shadowsocks服务享受自由网络</a>学习方法）</p>
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/6NiKs9odzHXrZK" width="510" height="420" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/hustjackie/jstorm-introduction096" title="Jstorm introduction-0.9.6" target="_blank">Jstorm introduction-0.9.6</a> </strong> from <strong><a href="//www.slideshare.net/hustjackie" target="_blank">longda feng</a></strong> </div>
+<a id="more"></a>
+<p>Jstorm 官方搭建使用过程如连接 https://github.com/alibaba/jstorm/wiki/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85 ，我整理了三个脚本：<code>安装 Jstorm 集群</code>，<code>安装 jstorm_web_ui 监控页面</code>，<code>启动zookeeper、Jstorm集群进行测试</code>。</p>
+<h1>一、整体环境说明</h1>
+<p>三个脚本是测试环境搭建使用的，三台机器：<code>192.168.9.92</code>、<code>192.168.9.93</code>、<code>192.168.9.94</code><br>
+如果在其他机器上面使用，必须修改脚本中相应有ip的地方 ，脚本在文章最后提供，在 <code>zip</code> 文件夹里面有完整的一份，使用的时候直接使用zip文件夹即可。</p>
+<h1>二、搭建过程</h1>
+<p>将 <code>zip</code> 包解压到测试环境 <code>/home/work</code> 目录下，解压后，执行目录中的三个脚本，顺序执行，即可安装完毕。</p>
+<h2>2.1 搭建脚本如下</h2>
+<h3>2.1.1 Jstorm 集群安装过程 ：</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line"><span class="comment"># author： xirong </span></div><div class="line"><span class="comment"># date  :  2015-02-06 </span></div><div class="line"></div><div class="line"><span class="comment">####</span></div><div class="line"><span class="comment"># 此脚本为在测试环境192.168.9.92~94 三台机器上面搭建 jstorm 集群的脚本，免去一步步的安装的过程，如果换其他环境，把文中的ip修改即可</span></div><div class="line"><span class="comment"># 详细步骤请参考 https://github.com/alibaba/jstorm/wiki/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85</span></div><div class="line"><span class="comment">#	</span></div><div class="line"><span class="comment"># 安装目录</span></div><div class="line"><span class="comment"># jstorm : /opt/jstorm-0.9.6.2, zookeeper : /opt/zookeeper-3.4.6 , java : /opt/jdk1.7.0_75 </span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># 注意：执行此shell脚本时候，最好使用 source jstorm_install.sh 或者 . jstorm_install.sh 强制在当前shell进程中执行，否则当前shell脚本获取不到&gt;修改的这些环境变量值 </span></div><div class="line"><span class="comment"># 		遇到sudo的命令时需要输入密码</span></div><div class="line"><span class="comment"># 脚本执行前提：</span></div><div class="line"><span class="comment">#		存在用户work，即存在/home/work/目录 ；</span></div><div class="line"><span class="comment">#       全新机器无Java</span></div><div class="line"><span class="comment">#		机器已经存在 Python 2.6，一般centos自带</span></div><div class="line"><span class="comment"># </span></div><div class="line"><span class="comment"># 执行完脚本后需要手动操作的步骤：</span></div><div class="line"><span class="comment"># 1. zookeeper 集群需要每台机器标记自己身份，vim $dataDir/myid 将机器的标识填入，比如第一天机器即为1，二台为2，以此类推      </span></div><div class="line"><span class="comment">#### </span></div><div class="line"></div><div class="line"><span class="comment"># 在64系统里执行32位程序如果出现/lib/ld-linux.so.2: bad ELF interpreter: No such file or directory</span></div><div class="line"></div><div class="line"><span class="comment"># 解决错误Failed to set locale, defaulting to C </span></div><div class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL=en_US.UTF-8"</span>  &gt;&gt;  /etc/profile  </div><div class="line"><span class="built_in">source</span> /etc/profile </div><div class="line"></div><div class="line"></div><div class="line">yum install glibc.i686</div><div class="line"><span class="built_in">echo</span> <span class="string">'finish pre install glibc.i686'</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'start unzip all files'</span></div><div class="line"><span class="comment">#tar -zxf jstorm.tar.gz </span></div><div class="line">unzip jstorm.zip</div><div class="line"><span class="built_in">echo</span> <span class="string">'finish unzip all files and start java setup'</span></div><div class="line"><span class="built_in">cd</span> jstorm_tar/</div><div class="line">tar -zxf jdk-7u75-linux-i586.tar_0.gz -C /opt/</div><div class="line"><span class="built_in">echo</span> <span class="string">'finish unzpip jdk-7u75-linux-i586.tar_0.gz &amp;&amp; start java envirenment settting '</span></div><div class="line"></div><div class="line"><span class="comment"># 配置java环境</span></div><div class="line"><span class="built_in">echo</span> <span class="string">'## java configuration '</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'JAVA_HOME=/opt/jdk1.7.0_75'</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'export PATH=$JAVA_HOME/bin:$PATH'</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar'</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'export JAVA_HOME'</span> &gt;&gt; /etc/profile</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'finish java envirement setting etc/profile'</span></div><div class="line"><span class="comment"># 使配置生效</span></div><div class="line">. /etc/profile</div><div class="line"><span class="built_in">which</span> java</div><div class="line"></div><div class="line"><span class="comment">## 搭建zookeeper集群 </span></div><div class="line"><span class="built_in">echo</span> <span class="string">'start setup zookeeper ……………………'</span></div><div class="line">tar -zxf zookeeper-3.4.6.tar.gz -C /opt/ </div><div class="line"><span class="built_in">echo</span> <span class="string">'# zookeeper configuration '</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'export ZOOKEEPER_HOME=/opt/zookeeper-3.4.6'</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'export PATH=$ZOOKEEPER_HOME/bin:$PATH'</span> &gt;&gt; /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'export CLASSPATH=$ZOOKEEPER_HOME/lib'</span> &gt;&gt; /etc/profile</div><div class="line"></div><div class="line">mkdir -p /home/work/jstorm/zookeeper_data </div><div class="line"><span class="comment">#cd /opt/zookeeper-3.4.6/conf/</span></div><div class="line">cp -f /opt/zookeeper-3.4.6/conf/zoo_sample.cfg /opt/zookeeper-3.4.6/conf/zoo_sample.cfg.bak</div><div class="line">mv /opt/zookeeper-3.4.6/conf/zoo_sample.cfg /opt/zookeeper-3.4.6/conf/zoo.cfg</div><div class="line"><span class="comment"># 修改zookeeper数据文件的位置</span></div><div class="line">sed -i.bak <span class="string">'s/dataDir=\/tmp\/zookeeper/dataDir=\/home\/work\/jstorm\/zookeeper_data\//g'</span> /opt/zookeeper-3.4.6/conf/zoo.cfg</div><div class="line"><span class="comment"># 集群配置的时候需要加入三台机器的配置 ，这个就是你在搭建你自己的三台机器的ip</span></div><div class="line"><span class="built_in">echo</span> <span class="string">'# zookeeper cluster mathines'</span> &gt;&gt; /opt/zookeeper-3.4.6/conf/zoo.cfg</div><div class="line"><span class="built_in">echo</span> <span class="string">'server.1=192.168.9.92:2888:3888'</span> &gt;&gt; /opt/zookeeper-3.4.6/conf/zoo.cfg </div><div class="line"><span class="built_in">echo</span> <span class="string">'server.2=192.168.9.93:2888:3888'</span> &gt;&gt; /opt/zookeeper-3.4.6/conf/zoo.cfg </div><div class="line"><span class="built_in">echo</span> <span class="string">'server.3=192.168.9.94:2888:3888'</span> &gt;&gt; /opt/zookeeper-3.4.6/conf/zoo.cfg </div><div class="line"></div><div class="line"><span class="comment"># dataDir目录下添加标识身份 myid(这个需要手动做)</span></div><div class="line"><span class="comment"># vim $dataDir/myid 将机器的标识填入，比如第一天机器即为1，二台为2</span></div><div class="line"></div><div class="line"><span class="comment"># 使配置生效</span></div><div class="line">. /etc/profile</div><div class="line"><span class="built_in">echo</span> <span class="string">'finish setup zookeeper &amp;&amp; start setup zeromq……'</span></div><div class="line"></div><div class="line"><span class="comment"># 安装zeromq </span></div><div class="line"><span class="comment"># 解决错误 cannot link with -luuid, install uuid-dev</span></div><div class="line">yum install uuid-devel &amp;&amp; yum install libuuid-devel</div><div class="line"></div><div class="line">tar -zxf zeromq-2.1.7.tar.gz </div><div class="line"><span class="built_in">cd</span> zeromq-2.1.7</div><div class="line">./configure &amp;&amp; make &amp;&amp; sudo make install &amp;&amp; sudo ldconfig </div><div class="line"><span class="built_in">cd</span> .. </div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'finish setup zeromq &amp;&amp; start setup jzmq ……'</span></div><div class="line"></div><div class="line"><span class="comment"># 安装jzmq </span></div><div class="line">tar -zxf jzmq.tar &amp;&amp; <span class="built_in">cd</span> jzmq  &amp;&amp; ./autogen.sh &amp;&amp; ./configure &amp;&amp; make &amp;&amp; sudo make install</div><div class="line"><span class="built_in">cd</span> ..</div><div class="line"></div><div class="line"><span class="comment"># 安装 jstrom </span></div><div class="line"><span class="built_in">echo</span> <span class="string">'finish setup jzmq &amp;&amp; start setup jstorm ……'</span></div><div class="line">mkdir /home/work/jstorm/jstorm_data </div><div class="line">unzip jstorm-0.9.6.2.zip -d /opt/</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'export JSTORM_HOME=/opt/jstorm-0.9.6.2'</span> &gt;&gt; ~/.bashrc </div><div class="line"><span class="built_in">echo</span> <span class="string">'export PATH=$PATH:$JSTORM_HOME/bin'</span> &gt;&gt; ~/.bashrc</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'after configure bashrc for jstorm'</span></div><div class="line"><span class="built_in">source</span> ~/.bashrc</div><div class="line"></div><div class="line"><span class="comment"># 配置$JSTORM_HOME/conf/storm.yaml</span></div><div class="line"><span class="built_in">echo</span> <span class="string">'start configuration storm.yaml ……'</span></div><div class="line">sed -i <span class="string">'/localhost"$/'</span>d /opt/jstorm-0.9.6.2/conf/storm.yaml</div><div class="line">sed -i /<span class="string">'storm.zookeeper.servers:/a\     - "192.168.9.94"'</span> /opt/jstorm-0.9.6.2/conf/storm.yaml</div><div class="line">sed -i /<span class="string">'storm.zookeeper.servers:/a\     - "192.168.9.93"'</span> /opt/jstorm-0.9.6.2/conf/storm.yaml</div><div class="line">sed -i /<span class="string">'storm.zookeeper.servers:/a\     - "192.168.9.92"'</span> /opt/jstorm-0.9.6.2/conf/storm.yaml</div><div class="line">sed -i <span class="string">'s/%JSTORM_HOME%\/data/\/home\/work\/jstorm\/jstorm_data/g'</span> /opt/jstorm-0.9.6.2/conf/storm.yaml</div><div class="line">sed -i /<span class="string">'storm.zookeeper.root/a\ nimbus.host: "192.168.9.92"'</span> /opt/jstorm-0.9.6.2/conf/storm.yaml</div><div class="line"></div><div class="line"><span class="comment"># 下面这两句只需要在安装 jstorm_ui 和提交jar节点的机器上面执行就可以了</span></div><div class="line"><span class="comment">#mkdir ~/.jstorm</span></div><div class="line"><span class="comment">#cp -f $JSTORM_HOME/conf/storm.yaml ~/.jstorm</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'congratilations ! you have successfully install jstorm on your machine ! Enjoy it !'</span></div></pre></td></tr></table></figure>
+<h3>2.1.2 Jstorm_web_ui 监控搭建 ：</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line"><span class="comment"># author： xirong </span></div><div class="line"><span class="comment"># date  :  2015-05-11 </span></div><div class="line"></div><div class="line"><span class="comment">#########</span></div><div class="line"><span class="comment"># 安装 jstorm 监控 UI 页面 （只需要在一台机器上面安装即可）</span></div><div class="line"><span class="comment"># 此脚本执行前需要先执行脚本 1.jstorm_cluster_install.sh</span></div><div class="line"><span class="comment">#########</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'start install apache-tomcat-7.0.61 '</span></div><div class="line">mkdir ~/.jstorm</div><div class="line">cp -f <span class="variable">$JSTORM_HOME</span>/conf/storm.yaml ~/.jstorm</div><div class="line"></div><div class="line">tar -zxf apache-tomcat-7.0.61.tar.gz  -C /opt/</div><div class="line"><span class="built_in">cd</span> /opt/apache-tomcat-7.0.61/webapps</div><div class="line">cp <span class="variable">$JSTORM_HOME</span>/jstorm-ui-0.9.6.2.war  ./</div><div class="line">mv ROOT ROOT.old</div><div class="line">ln -s jstorm-ui-0.9.6.2 ROOT </div><div class="line"><span class="built_in">cd</span> ../bin</div><div class="line">./startup.sh</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'congratulaions ! you have install jstorm_ui！ enjoy it ！'</span></div><div class="line"></div><div class="line"><span class="comment"># 如果本机端口8080没有开放，那么需要开放端口号8080以供外面可以访问</span></div><div class="line"><span class="comment">#/sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT</span></div><div class="line"><span class="comment">#/etc/rc.d/init.d/iptables save</span></div><div class="line"><span class="comment">#/etc/init.d/iptables restart</span></div></pre></td></tr></table></figure>
+<h3>2.1.3 jstorm 集群启动 测试</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line"><span class="comment"># author： xirong </span></div><div class="line"><span class="comment"># date  :  2015-05-11 </span></div><div class="line"></div><div class="line"><span class="comment">#####</span></div><div class="line"><span class="comment"># 启动 jstorm脚本 </span></div><div class="line"><span class="comment"># 1. 先启动必须组件 zookeeper，启动前必须确定每台机器自己的myid文件</span></div><div class="line"><span class="comment">####</span></div><div class="line"></div><div class="line"><span class="comment"># 先启动必须组件 zookeeper，启动前必须确定每台机器自己的myid文件，不明白，查看安装地方 </span></div><div class="line"><span class="built_in">cd</span> /opt/zookeeper-3.4.6</div><div class="line">sh bin/zkServer.sh start </div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">'zookeeper has started ! please see status :'</span></div><div class="line"></div><div class="line"><span class="comment"># leader or follower </span></div><div class="line">sh bin/zkServer.sh status</div><div class="line"></div><div class="line"><span class="comment"># 详细命令 http://www.wangyuxiong.com/archives/51725</span></div><div class="line"></div><div class="line"><span class="comment"># 启动 jstorm 服务 自动脚本 $JSTORM_HOME/logs/supervisor.log检查有无错误</span></div><div class="line">sh /opt/jstorm-0.9.6.2/bin/start.sh</div><div class="line"></div><div class="line"><span class="comment"># 只需要在nimbus机器上面执行，如果已经ok的话，就不需要了</span></div><div class="line"><span class="comment"># nohup jstorm nimbus &amp;</span></div><div class="line"><span class="comment"># $JSTORM_HOME/logs/nimbus.log检查有无错误</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 停止 </span></div><div class="line"><span class="comment">#sh /opt/jstorm-0.9.6.2/bin/stop.sh</span></div></pre></td></tr></table></figure>
+<p>监控页面如下(当然这只是官方例子，证明安装部署的ok）：
+<img src="http://static.ixirong.com/pic/bigdata/jstorm_clusters.png" alt="Jstorm 集群首页"></p>
+<p><img src="http://static.ixirong.com/pic/bigdata/jstorm_topology.png" alt="topology 分析页面"></p>
+<h2>2.2 安装注意</h2>
+<ul>
+<li>java环境配置建议1.7以上</li>
+<li>集群三台机器需要关闭防火墙，否则错误 “<code>java.net.NoRouteToHostException: 没有到主机的路由</code>”</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@master shirdrn]<span class="comment"># service iptables stop  </span></div><div class="line">Flushing firewall rules: [  OK  ]  </div><div class="line">Setting chains to policy ACCEPT: filter [  OK  ]  </div><div class="line">Unloading iptables modules: [  OK  ]</div></pre></td></tr></table></figure>
+<h1>三、jstorm 常用命令</h1>
+<ol>
+<li><strong>启动 nimbus</strong>  &quot;nohup jstorm nimbus &amp; &quot;    查看$JSTORM_HOME/logs/nimbus.log 检查错误日志</li>
+<li>启动 supervisor &quot;nohup jstorm supervisor &amp;&quot;    查看$JSTORM_HOME/logs/supervisor.log 检查有无错误</li>
+<li>停止  &quot;sh $JSTORM_HOME/bin/stop.sh&quot;</li>
+</ol>
+<p>完整命令列表同storm一样，包括jar、kill、activate、deactivate、rebalance、repl、classpath、localconfvalue、remoteconfvalue、nimbus、supervisor、ui、drpc等，详细见：https://github.com/techdocscn/storm/blob/master/source/documentation/Command-line-client.md</p>
+<h1>四、zookeeper 常用命令</h1>
+<p>zk 集群搭建过程：</p>
+<ul>
+<li><a href="http://www.cnblogs.com/linjiqin/archive/2013/03/16/2962597.html" target="_blank" rel="external">zookeeper 集群安装步骤</a></li>
+<li><a href="http://blog.csdn.net/hi_kevin/article/details/7089358" target="_blank" rel="external">zookeeper配置介绍</a></li>
+</ul>
+<p>常用命令：</p>
+<ol>
+<li>启动ZK服务:       sh bin/zkServer.sh start</li>
+<li>查看ZK服务状态: 	 sh bin/zkServer.sh status</li>
+<li>停止ZK服务:       sh bin/zkServer.sh stop</li>
+<li>重启ZK服务:       sh bin/zkServer.sh restart
+或者连接到服务器 bin/zkCli.sh -server 127.0.0.1:2181  输入help 查看操作帮助</li>
+</ol>
+<p>其它使用命令详细参考： http://www.wangyuxiong.com/archives/51725</p>
+<p>学习资料：</p>
+<ul>
+<li><a href="https://zookeeper.apache.org/" target="_blank" rel="external">apache zookeeper page</a> 官网文档</li>
+<li><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/" target="_blank" rel="external">分布式服务框架 Zookeeper -- 管理分布式环境中的数据</a></li>
+<li><a href="http://www.cnblogs.com/sharpxiajun/archive/2013/06/02/3113923.html" target="_blank" rel="external">分布式网站架构后续：zookeeper技术浅析</a></li>
+</ul>
+<p>Jstorm中使用zookeeper主要用于Storm集群各节点的分布式协调工作，具体功能如下：
+（1）存储客户端提供的topology任务信息，nimbus负责将任务分配信息写入Zookeeper，supervisor从Zookeeper上读取任务分配信息；
+（2）存储supervisor和worker的心跳（包括它们的状态），使得nimbus可以监控整个集群的状态， 从而重启一些挂掉的worker；
+（3）存储整个集群的所有状态信息和配置信息。
+具体目录结构参考：<a href="http://xumingming.sinaapp.com/466/twitter-storm-code-analysis-zookeeper-dirs/" target="_blank" rel="external">storm在ZooKeeper中的目录结构</a></p>
+<h1>五、jstorm.zip 包和脚本下载</h1>
+<p>在 <code>zip</code> 文件夹里面有完整的上述三个骄傲本，使用的时候直接下载zip文件夹即可，下载地址 ： <a href="http://pan.baidu.com/s/1c0k2TtI" target="_blank" rel="external">百度网盘</a> ，密码：<code>btcq</code></p>
+<h1>六、storm 学习资料</h1>
+<p>大圆那些事 http://www.cnblogs.com/panfeng412/tag/Storm/
+徐明明 https://xumingming.sinaapp.com/category/storm/
+常用的一些基本命令 http://my.oschina.net/infiniteSpace/blog/339193
+jstorm通用介绍 http://luoshi0801.iteye.com/blog/2168848
+简单之美个人博客 http://shiyanjun.cn/archives/1019.html</p>
+<p>jstorm深入分析：http://hexiaoqiao.sinaapp.com/2014/06/jstorm%E4%BB%8B%E7%BB%8D/
+介绍nimbus ： http://hexiaoqiao.sinaapp.com/2014/06/jstorm%E4%B9%8Bnimbus%E7%AE%80%E4%BB%8B/
+介绍 superviser ：http://hexiaoqiao.sinaapp.com/2014/07/jstorm%E4%B9%8Bsupervisor%E7%AE%80%E4%BB%8B/
+storm 入门教程（量子恒道官方博客） http://blog.linezing.com/?cat=92</p>
+<p>如果有什么问题，可以在右侧我的各种社交中找到我，或者在文章下面评论，我会及时答复各位。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="http://static.ixirong.com/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/jstorm/" rel="tag"># jstorm</a>
+          
+            <a href="/tags/大数据/" rel="tag"># 大数据</a>
+          
+            <a href="/tags/实时日志/" rel="tag"># 实时日志</a>
+          
+            <a href="/tags/storm/" rel="tag"># storm</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/11/plan-lately/" rel="next" title="最近计划中的几篇文章">
+                <i class="fa fa-chevron-left"></i> 最近计划中的几篇文章
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/13/how-to-decide-to-bye-mac-economicaly/" rel="prev" title="购买苹果设备如何更经济实惠？">
+                购买苹果设备如何更经济实惠？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://static.ixirong.com/site/xirong_avatar.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">116</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">1.</span> <span class="nav-text">一、整体环境说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">2.</span> <span class="nav-text">二、搭建过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 搭建脚本如下</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#undefined"><span class="nav-number">2.1.1.</span> <span class="nav-text">2.1.1 Jstorm 集群安装过程 ：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undefined"><span class="nav-number">2.1.2.</span> <span class="nav-text">2.1.2 Jstorm_web_ui 监控搭建 ：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undefined"><span class="nav-number">2.1.3.</span> <span class="nav-text">2.1.3 jstorm 集群启动 测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 安装注意</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">3.</span> <span class="nav-text">三、jstorm 常用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">4.</span> <span class="nav-text">四、zookeeper 常用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">5.</span> <span class="nav-text">五、jstorm.zip 包和脚本下载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">6.</span> <span class="nav-text">六、storm 学习资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="powered-by">
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery_lazyload/1.9.7/jquery.lazyload.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.ui.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

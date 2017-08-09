@@ -1,0 +1,1095 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="Xia7mO2IvK" />
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+    
+  
+  <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.css.network/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+  
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.2/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="SeleniumHQ教程,SeleniumHQ自动化测试,selenium webdriver使用教程,selenium webdriver使用方法,selenium webdriver入门教程" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://static.ixirong.com/image/blog/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="SeleniumHQ 是一款基于浏览器开源的自动化测试组件，支持 win、linux、Mac 、Android、Ios 几大平台上的 IE、Firefox、Chrome 等浏览器，也支持模拟安卓、ios、winphone设置上的浏览器，「一切重复操作的流程均可自动化」，对测试来讲，大大提高测试程序对不同平台不同浏览器兼容性的效率。 SeleniumHQ  2.0 组件包括 Selenium we">
+<meta name="keywords" content="SeleniumHQ教程,SeleniumHQ自动化测试,selenium webdriver使用教程,selenium webdriver使用方法,selenium webdriver入门教程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Selenium Webdriver 基于浏览器的自动化测试">
+<meta property="og:url" content="http://www.ixirong.com/2016/03/06/how-selenium-webdriver-works/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="SeleniumHQ 是一款基于浏览器开源的自动化测试组件，支持 win、linux、Mac 、Android、Ios 几大平台上的 IE、Firefox、Chrome 等浏览器，也支持模拟安卓、ios、winphone设置上的浏览器，「一切重复操作的流程均可自动化」，对测试来讲，大大提高测试程序对不同平台不同浏览器兼容性的效率。 SeleniumHQ  2.0 组件包括 Selenium we">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://static.ixirong.com/selenium%2F1457265240273.png">
+<meta property="og:image" content="http://static.ixirong.com/selenium%2F1457264017455.png">
+<meta property="og:updated_time" content="2016-05-21T02:54:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Selenium Webdriver 基于浏览器的自动化测试">
+<meta name="twitter:description" content="SeleniumHQ 是一款基于浏览器开源的自动化测试组件，支持 win、linux、Mac 、Android、Ios 几大平台上的 IE、Firefox、Chrome 等浏览器，也支持模拟安卓、ios、winphone设置上的浏览器，「一切重复操作的流程均可自动化」，对测试来讲，大大提高测试程序对不同平台不同浏览器兼容性的效率。 SeleniumHQ  2.0 组件包括 Selenium we">
+<meta name="twitter:image" content="http://static.ixirong.com/selenium%2F1457265240273.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.ixirong.com/2016/03/06/how-selenium-webdriver-works/"/>
+
+
+
+
+
+  <title> Selenium Webdriver 基于浏览器的自动化测试 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-61803765-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/03/06/how-selenium-webdriver-works/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://static.ixirong.com/site/xirong_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                Selenium Webdriver 基于浏览器的自动化测试
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-06T17:35:58+08:00">
+                2016-03-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/测试/" itemprop="url" rel="index">
+                    <span itemprop="name">测试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2016/03/06/how-selenium-webdriver-works/" class="leancloud_visitors" data-flag-title="Selenium Webdriver 基于浏览器的自动化测试">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://static.ixirong.com/selenium%2F1457265240273.png" alt="Selenium HQ"></p>
+<p>SeleniumHQ 是一款基于浏览器开源的自动化测试组件，支持 win、linux、Mac 、Android、Ios 几大平台上的 IE、Firefox、Chrome 等浏览器，也支持模拟安卓、ios、winphone设置上的浏览器，「一切重复操作的流程均可自动化」，对测试来讲，大大提高测试程序对不同平台不同浏览器兼容性的效率。</p>
+<p>SeleniumHQ  2.0 组件包括 Selenium webdriver、Selenium IDE 两大组件，与之前的1.0版本有所区别（具体区别可以参考<a href="https://wizardforcel.gitbooks.io/selenium-doc/content/official-site/introduction.html" target="_blank" rel="external">Selenium 发展历史</a>）。使用Selenium IDE，可以通过安装Firefox浏览器插件，录制你所有的操作，也就是说，你操作一遍业务流程，后续的测试回归均可以交给 Selenium IDE 录制下来的程序去测试。优点就是简单，不需要编写代码，缺陷是如果业务流程发生了改变，需要重新录制脚本。使用Selenium Webdriver 可以编写代码，指定程序处理逻辑，比如 form 表单验证登录、提交返回结果验证等，功能强大，可以说能满足所有的场景。</p>
+<a id="more"></a>
+<h1>一、基础使用</h1>
+<p>Selenium Webdriver 支持 Java、C#、Python、Ruby、Php、Perl、Javascript 等几种语言，不过不同的语言实现功能的完整性略有区别，下文介绍下 Java 客户端的使用方法。</p>
+<h2>1.1 完整实例</h2>
+<p>创建一个基于 maven 的 java 项目 ，使用 Selenium Webdriver 只需要引用相依的依赖即可：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.seleniumhq.selenium<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>selenium-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!-- 目前最新版本 --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.49.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>一个简单的使用例子：通过程序打开百度首页，收入搜索关键字「两会」，搜索相应的结果内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">       <span class="comment">// 如果你的 FireFox 没有安装在默认目录，那么必须在程序中设置</span></div><div class="line">	<span class="comment">// System.setProperty("webdriver.firefox.bin", "D:\\Program Files\\Mozilla Firefox\\firefox.exe");</span></div><div class="line">       <span class="comment">// 创建一个 FireFox 的浏览器实例</span></div><div class="line">       WebDriver driver = <span class="keyword">new</span> FirefoxDriver();</div><div class="line"></div><div class="line">       <span class="comment">// 让浏览器访问 Baidu</span></div><div class="line">       driver.get(<span class="string">"http://www.baidu.com"</span>);</div><div class="line">       <span class="comment">// 用下面代码也可以实现</span></div><div class="line">       <span class="comment">// driver.navigate().to("http://www.baidu.com");</span></div><div class="line"></div><div class="line">       <span class="comment">// 获取 网页的 title</span></div><div class="line">       System.out.println(<span class="string">"1 Page title is: "</span> + driver.getTitle());</div><div class="line"></div><div class="line">       <span class="comment">// 通过 id 找到 input 的 DOM</span></div><div class="line">       WebElement element = driver.findElement(By.id(<span class="string">"kw"</span>));</div><div class="line"></div><div class="line">       <span class="comment">// 输入关键字</span></div><div class="line">       element.sendKeys(<span class="string">"两会"</span>);</div><div class="line"></div><div class="line">       <span class="comment">// 提交 input 所在的  form</span></div><div class="line">       element.submit();</div><div class="line"></div><div class="line">       <span class="comment">// 通过判断 title 内容等待搜索页面加载完毕，间隔10秒</span></div><div class="line">       (<span class="keyword">new</span> WebDriverWait(driver, <span class="number">10</span>)).until(<span class="keyword">new</span> ExpectedCondition&lt;Boolean&gt;() &#123;</div><div class="line">           <span class="function"><span class="keyword">public</span> Boolean <span class="title">apply</span><span class="params">(WebDriver d)</span> </span>&#123;</div><div class="line">               <span class="keyword">return</span> d.getTitle().toLowerCase().endsWith(<span class="string">"两会"</span>);</div><div class="line">           &#125;</div><div class="line">       &#125;);</div><div class="line"></div><div class="line">       <span class="comment">// 显示搜索结果页面的 title</span></div><div class="line">       System.out.println(<span class="string">"2 Page title is: "</span> + driver.getTitle());</div><div class="line"></div><div class="line">       <span class="comment">//关闭浏览器</span></div><div class="line">       driver.quit();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<h2>1.2 支持浏览器</h2>
+<p>Selenium WebDriver 支持如下浏览器，在所有支持这些浏览器的操作系统中能都运行良好。</p>
+<ul>
+<li>Google Chrome</li>
+<li>Internet Explorer 6, 7, 8, 9, 10 - 32 and 64-bit where applicable</li>
+<li>Firefox: latest ESR, previous ESR, current release, one previous release</li>
+<li>Safari</li>
+<li>Opera</li>
+<li>HtmlUnit</li>
+<li>phantomjs</li>
+<li>Android (with Selendroid or appium)</li>
+<li>iOS (with ios-driver or appium)</li>
+</ul>
+<p>Selenium WebDriver 直接通过浏览器自动化的本地接口来调用浏览器。如何直接调用，和调用的细节取决于你使用什么浏览器，所以需要相应平台相应的浏览器「驱动」，使用方式如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// firefox 浏览器</span></div><div class="line"><span class="comment">// firexfox 是原生支持的，不需要特殊的浏览器驱动。如果安装目录不是默认的，需要指定相应的环境变量</span></div><div class="line"><span class="comment">// System.setProperty("webdriver.firefox.bin", "D:\\Program Files\\Mozilla Firefox\\firefox.exe");</span></div><div class="line">WebDriver driver = <span class="keyword">new</span> FirefoxDriver();</div><div class="line"></div><div class="line"><span class="comment">// chrome 浏览器</span></div><div class="line"><span class="comment">// ChromeDriver is maintained / supported by the Chromium project iteslf. https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver</span></div><div class="line"><span class="comment">// 下载 ChromeDriver：https://sites.google.com/a/chromium.org/chromedriver/downloads</span></div><div class="line"><span class="comment">// Optional, if not specified, WebDriver will search your path for chromedriver.</span></div><div class="line"><span class="comment">// System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver");</span></div><div class="line">WebDriver driver = <span class="keyword">new</span> ChromeDriver();</div><div class="line"></div><div class="line"><span class="comment">// Safari、opera、Android、ios 等浏览器使用同理，下载安装相应的驱动，非默认目录需要设置 System.setProperty 属性</span></div><div class="line"><span class="comment">// 下载地址及参考：https://github.com/SeleniumHQ/selenium/wiki</span></div></pre></td></tr></table></figure>
+<h2>1.3 支持 Api</h2>
+<p>Selenium Webdriver 有很多的 Api可以调用，进行浏览器操作，举例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//获取一个页面 get 和 navigate 结果是一样的</span></div><div class="line"><span class="comment">// driver.navigate().to("http://www.baidu.com");</span></div><div class="line">driver.get(<span class="string">"http://www.baidu.com"</span>);</div><div class="line"></div><div class="line"><span class="comment">// 查找 UI 元素（web 元素）</span></div><div class="line"><span class="comment">// 根据元素 id 获取 ，对应 js 中 document.getElementById</span></div><div class="line">WebElement element = driver.findElement(By.id(<span class="string">"element_id"</span>));</div><div class="line"><span class="comment">// 根据元素 class 属性获取，对应 js 中的 document.getElementsByClassName</span></div><div class="line">List&lt;WebElement&gt; elementList = driver.findElements(By.className(<span class="string">"element_class"</span>));</div><div class="line"><span class="comment">// 根据元素标签名查找 ，对应 js 中的  document.getElementsByName</span></div><div class="line">WebElement iframe = driver.findElement(By.tagName(<span class="string">"iframe"</span>));</div><div class="line"><span class="comment">// 根据元素 css 属性</span></div><div class="line"><span class="comment">// 举例 html： &lt;div id="food"&gt;&lt;span class="dairy"&gt;milk&lt;/span&gt;&lt;span class="dairy aged"&gt;cheese&lt;/span&gt;&lt;/div&gt;</span></div><div class="line">WebElement cheese = driver.findElement(By.cssSelector(<span class="string">"#food span.dairy.aged"</span>));</div><div class="line"><span class="comment">// 筛选表单元素，对表单进行操作等，更多例子请参考：http://www.seleniumhq.org/docs/03_webdriver.jsp#selenium-webdriver-api-commands-and-operations</span></div></pre></td></tr></table></figure>
+<p>有时候页面没加载完成，相应的元素并没有解析完成，通过 driver.findElement 的时候会报找不到<code>Element not found</code>的异常，这时候就需要进行等待一断时间后再获取该元素，实现此功能有两种方式<code>Explicit Waits</code> 和 <code>Implicit Waits</code>，区别在于前者每隔500ms都会去尝试获取该元素，直到设定的时间到后仍找不到，抛出<code>TimeoutException</code>，而后者会一直等待到指定的时间，才会尝试获取该元素，找不到抛出<code>Element not found</code>的异常，代码上相当于<code>Thread.sleep()</code>，所以推荐使用<code>Explicit Waits</code> 的方式才操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 1. Explicit Waits</span></div><div class="line"><span class="comment">// This waits up to 10 seconds before throwing a TimeoutException or if it finds the element will return it in 0 - 10 seconds. WebDriverWait by default calls the ExpectedCondition every 500 milliseconds until it returns successfully. A successful return is for ExpectedCondition type is Boolean return true or not null return value for all other ExpectedCondition types.</span></div><div class="line"></div><div class="line">WebDriver driver = <span class="keyword">new</span> FirefoxDriver();</div><div class="line">driver.get(<span class="string">"http://somedomain/url_that_delays_loading"</span>);</div><div class="line">WebElement myDynamicElement = (<span class="keyword">new</span> WebDriverWait(driver, <span class="number">10</span>))</div><div class="line">  .until(ExpectedConditions.presenceOfElementLocated(By.id(<span class="string">"myDynamicElement"</span>)));</div><div class="line"></div><div class="line"><span class="comment">// 2. Implicit Waits</span></div><div class="line"><span class="comment">// An implicit wait is to tell WebDriver to poll the DOM for a certain amount of time when trying to find an element or elements if they are not immediately available. The default setting is 0. Once set, the implicit wait is set for the life of the WebDriver object instance.</span></div><div class="line"></div><div class="line">WebDriver driver = <span class="keyword">new</span> FirefoxDriver();</div><div class="line">driver.manage().timeouts().implicitlyWait(<span class="number">10</span>, TimeUnit.SECONDS);</div><div class="line">driver.get(<span class="string">"http://somedomain/url_that_delays_loading"</span>);</div><div class="line">WebElement myDynamicElement = driver.findElement(By.id(<span class="string">"myDynamicElement"</span>));</div></pre></td></tr></table></figure>
+<h2>1.4 操作 cookie</h2>
+<p>Selenium Webdriver 如何操作 cookie ？ 首先，你必须在 cookie 所在的域。如果你希望在加载一个大页面之前重设 cookie，你可以先访问站点中一个较小的页面，典型的是 404 页面 (http://example.com/some404page)。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 进到正确的域</span></div><div class="line">driver.get(<span class="string">"http://www.example.com"</span>);</div><div class="line"></div><div class="line"><span class="comment">// 设置 cookie，这个cookie 对整个域都有效</span></div><div class="line">Cookie cookie = <span class="keyword">new</span> Cookie(<span class="string">"key"</span>, <span class="string">"value"</span>);</div><div class="line">driver.manage().addCookie(cookie);</div><div class="line"></div><div class="line"><span class="comment">// 输出当前 url 所有可用的 cookie</span></div><div class="line">Set&lt;Cookie&gt; allCookies = driver.manage().getCookies();</div><div class="line"><span class="keyword">for</span> (Cookie loadedCookie : allCookies) &#123;</div><div class="line">    System.out.println(String.format(<span class="string">"%s -&gt; %s"</span>, loadedCookie.getName(), loadedCookie.getValue()));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 你可以通过3中方式删除 cookie</span></div><div class="line"><span class="comment">// By name</span></div><div class="line">driver.manage().deleteCookieNamed(<span class="string">"CookieName"</span>);</div><div class="line"><span class="comment">// By Cookie</span></div><div class="line">driver.manage().deleteCookie(loadedCookie);</div><div class="line"><span class="comment">// Or all of them</span></div><div class="line">driver.manage().deleteAllCookies();</div></pre></td></tr></table></figure>
+<p>真实测试环境中，有些网站是需要登录的，如果想要免登陆直接访问测试某些页面，就需要保持用户的登录态，也就是说需要传递cookie到服务端，一种方式就是获取到网站需要的cookie，通过上面的方法一个 key 一个 key 的设置，另外一种方法直接在 http request header 请求头中设置 cookie的值，比如这种：
+<img src="http://static.ixirong.com/selenium%2F1457264017455.png" alt="Alt text"></p>
+<p>这依赖第三方开源组件<a href="https://github.com/lightbody/browsermob-proxy" target="_blank" rel="external">BrowserMobProxy</a> 来实现，它可以实现更改请求的 HTTP requests and responses，详情可以参考官网：https://bmp.lightbody.net/ 。使用首选需要依赖相应的 jar 包：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.lightbody.bmp<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="comment">&lt;!-- To use the legacy, Jetty-based implementation,  change the artifactId to browsermob-core --&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>browsermob-core-littleproxy<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0-beta-4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span> <span class="comment">&lt;!-- test类中使用，非test去掉即可 --&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>代码使用如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testHttpHeader</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">// start the proxy</span></div><div class="line">        BrowserMobProxy proxy = <span class="keyword">new</span> BrowserMobProxyServer();</div><div class="line">        proxy.start(<span class="number">0</span>);</div><div class="line"></div><div class="line">        <span class="comment">// get the Selenium proxy object</span></div><div class="line">        Proxy seleniumProxy = ClientUtil.createSeleniumProxy(proxy);</div><div class="line"></div><div class="line">        <span class="comment">// configure it as a desired capability</span></div><div class="line">        DesiredCapabilities capabilities = <span class="keyword">new</span> DesiredCapabilities();</div><div class="line">        capabilities.setCapability(CapabilityType.PROXY, seleniumProxy);</div><div class="line"></div><div class="line">        <span class="comment">// start the browser up</span></div><div class="line">        WebDriver driver = <span class="keyword">new</span> FirefoxDriver(capabilities);</div><div class="line"></div><div class="line">		<span class="comment">// 举例获取12306未完成订单</span></div><div class="line">        String url12306 = <span class="string">"https://kyfw.12306.cn/otn/queryOrder/initNoComplete"</span>;</div><div class="line">        <span class="keyword">final</span> String cookieValue = <span class="string">""</span>; <span class="comment">//登录后获取请求中cookie的那长串内容</span></div><div class="line">        proxy.addRequestFilter(<span class="keyword">new</span> RequestFilter() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> HttpResponse <span class="title">filterRequest</span><span class="params">(HttpRequest request, HttpMessageContents contents, HttpMessageInfo messageInfo)</span> </span>&#123;</div><div class="line">                request.headers().add(<span class="string">"Cookie"</span>, cookieValue);</div><div class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        driver.get(url12306);</div></pre></td></tr></table></figure>
+<h1>二、高级用法</h1>
+<p>高级用户交互API提供了一个更新更完善的机制来定义并描述用户在一个网页上的各种操作。这些操作包括：更改UA、拖拽、按住CTRL键选择多个元素等等。</p>
+<h2>2.1 更改UA</h2>
+<p>改变浏览器的 User Agent ，当使用 Firefox Driver 的时候这很容易：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">FirefoxProfile profile = <span class="keyword">new</span> FirefoxProfile();</div><div class="line">profile.addAdditionalPreference(<span class="string">"general.useragent.override"</span>, <span class="string">"some UA string"</span>);</div><div class="line">WebDriver driver = <span class="keyword">new</span> FirefoxDriver(profile);</div></pre></td></tr></table></figure>
+<p>为了生成一连串的动作，我们使用Actions来建立。这一系列的动作应该尽量的短。在使用中最好在执行一个简短的动作后验证页面是否处于正确的状态，然后再执行下面的动作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 定义动作</span></div><div class="line">Actions builder = <span class="keyword">new</span> Actions(driver);</div><div class="line">builder.keyDown(Keys.CONTROL)</div><div class="line">.click(someElement)</div><div class="line">.click(someOtherElement)</div><div class="line">.keyUp(Keys.CONTROL);</div><div class="line"><span class="comment">// 获取动作</span></div><div class="line">Action selectMultiple = builder.build();</div><div class="line"><span class="comment">// 执行动作</span></div><div class="line">selectMultiple.perform();</div></pre></td></tr></table></figure>
+<h2>2.2 键盘交互（Keyboard interactions）</h2>
+<p>键盘交互是发生在一个特定的页面元素的，而webdriver会确保这个页面元素在执行键盘动作时处于正确的状态。这个正确的状态，包括页面元素滚动到可视区域并定位到这个页面元素。
+既然这个新的API是面向用户（user-oriental）的接口，那么对于一个用户，在对一个元素输入文本前做显式的交互就更加的符合逻辑。这意味着，当想定位到相邻的页面元素时，可能需要点击一下元素或按下Tab（Keys.TAB）键。
+The new interactions API will (first) support keyboard actions without a provided element. The additional work to focus on an element before sending it keyboard events will be added later on.</p>
+<p>这块具体的内容及案例可以参考：http://docs.seleniumhq.org/docs/04_webdriver_advanced.jsp#advanceduserinteractions ，中文翻译在：https://wizardforcel.gitbooks.io/selenium-doc/content/official-site/selenium-web-driver.html</p>
+<h2>2.3 通过代理实现抓取请求header、response等信息</h2>
+<p>通过使用 BrowserMob Proxy ，详细参考 Performance data collection using BrowserMob Proxy and Selenium：http://www.assertselenium.com/browsermob-proxy/performance-data-collection-using-browsermob-proxy-and-selenium/</p>
+<h1>三、经常遇到的问题</h1>
+<ol>
+<li>selenium IeDriver 使用测试 IE11 浏览器后，调用代码 <code>driver.quit()</code> 方法后， <code>IEDriverServer.exe</code> 进程不退出，越来越多，导致内存不断增大最后崩溃。ff、chrome 浏览器并没有问题。 原因是 截图导致，去掉截图的代码就ok。</li>
+<li>截图出现黑屏现象，图片全部是黑色的。webdriver截图黑屏原因：① window的远程桌面连接，连接到agent，然后退出远程连接，会被锁屏 ② window的睡眠时间设置成永不睡眠，否则睡眠后，截图是黑色的
+解决方案：
+1）、window的远程桌面连接，连接到agent，然后退出远程连接，会被锁屏，所以需要安装tightvnc，通过UltraVNC连接，这样关闭UltraVNC不会影响远程机
+2）、UltraVNC 连接agent后，agent的窗口不会大屏的，总是显示800<em>600的，所以需要设置远程agent的分辨率，设置成1280</em>1024
+3）、window的睡眠时间设置成永不睡眠，否则睡眠后，截图是黑色的</li>
+</ol>
+<p>参考资料：</p>
+<ul>
+<li>SeleniumHQ 官网：http://www.seleniumhq.org/</li>
+<li>Selenium document ：http://www.seleniumhq.org/docs/ ，中文翻译：https://wizardforcel.gitbooks.io/selenium-doc/content/official-site/selenium-web-driver.html</li>
+<li>New selenium documentation：https://seleniumhq.github.io/docs/</li>
+<li>Selenium Github：https://github.com/SeleniumHQ/selenium</li>
+<li>Selenium Java Api：http://seleniumhq.github.io/selenium/docs/api/java/index.html</li>
+<li>Assert Selenium: http://www.assertselenium.com/</li>
+<li>BrowserMob Proxy：https://github.com/lightbody/browsermob-proxy</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="http://static.ixirong.com/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/测试/" rel="tag"># 测试</a>
+          
+            <a href="/tags/自动化/" rel="tag"># 自动化</a>
+          
+            <a href="/tags/开源组件/" rel="tag"># 开源组件</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/24/notes-of-family-ship-jinanhaoxiangyin/" rel="next" title="「童年追忆」-李逍遥">
+                <i class="fa fa-chevron-left"></i> 「童年追忆」-李逍遥
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/13/intro-to-java-log/" rel="prev" title="混乱的 Java 日志体系">
+                混乱的 Java 日志体系 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://static.ixirong.com/site/xirong_avatar.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">116</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">1.</span> <span class="nav-text">一、基础使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 完整实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 支持浏览器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 支持 Api</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 操作 cookie</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">2.</span> <span class="nav-text">二、高级用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 更改UA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 键盘交互（Keyboard interactions）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 通过代理实现抓取请求header、response等信息</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">3.</span> <span class="nav-text">三、经常遇到的问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="powered-by">
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery_lazyload/1.9.7/jquery.lazyload.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.ui.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

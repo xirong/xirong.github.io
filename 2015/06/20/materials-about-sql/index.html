@@ -1,0 +1,1172 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw" />
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="Xia7mO2IvK" />
+
+
+
+
+  <meta name="360-site-verification" content="2ebfa6bfe0988ac65c00405e3012ab01" />
+
+
+
+
+  
+  
+    
+  
+  <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.css.network/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+  
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.2/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="基础知识,sqlserver,ms sqlserver,sql脚本,sql数据库" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="自由" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://static.ixirong.com/image/blog/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="这篇文章的内容来自4年前的个人博客园上的博客，这里将这些内容迁移过来，正好顺便也是复习一遍。真是感慨时光飞逝啊，还记得当时认认真真的拿着书写这两篇文章的情景，恍如昨日！！ 原文章如下：  MS SQLServer 基础知识回顾（一） MS sql server 基础知识回顾（二）-表连接和子查询  一、 数据类型 包括整数类型（可以用来做主键）的如bit，int，smallint，tinyint，">
+<meta name="keywords" content="基础知识,sqlserver,ms sqlserver,sql脚本,sql数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sql语句基础复习及资料推荐">
+<meta property="og:url" content="http://www.ixirong.com/2015/06/20/materials-about-sql/index.html">
+<meta property="og:site_name" content="自由">
+<meta property="og:description" content="这篇文章的内容来自4年前的个人博客园上的博客，这里将这些内容迁移过来，正好顺便也是复习一遍。真是感慨时光飞逝啊，还记得当时认认真真的拿着书写这两篇文章的情景，恍如昨日！！ 原文章如下：  MS SQLServer 基础知识回顾（一） MS sql server 基础知识回顾（二）-表连接和子查询  一、 数据类型 包括整数类型（可以用来做主键）的如bit，int，smallint，tinyint，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2015-06-28T15:49:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sql语句基础复习及资料推荐">
+<meta name="twitter:description" content="这篇文章的内容来自4年前的个人博客园上的博客，这里将这些内容迁移过来，正好顺便也是复习一遍。真是感慨时光飞逝啊，还记得当时认认真真的拿着书写这两篇文章的情景，恍如昨日！！ 原文章如下：  MS SQLServer 基础知识回顾（一） MS sql server 基础知识回顾（二）-表连接和子查询  一、 数据类型 包括整数类型（可以用来做主键）的如bit，int，smallint，tinyint，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.ixirong.com/2015/06/20/materials-about-sql/"/>
+
+
+
+
+
+  <title> sql语句基础复习及资料推荐 | 自由 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-61803765-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2015/06/20/materials-about-sql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://static.ixirong.com/site/xirong_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                sql语句基础复习及资料推荐
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-06-20T23:36:06+08:00">
+                2015-06-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DB/" itemprop="url" rel="index">
+                    <span itemprop="name">DB</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2015/06/20/materials-about-sql/" class="leancloud_visitors" data-flag-title="sql语句基础复习及资料推荐">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这篇文章的内容来自4年前的个人博客园上的博客，这里将这些内容迁移过来，正好顺便也是复习一遍。真是感慨时光飞逝啊，还记得当时认认真真的拿着书写这两篇文章的情景，恍如昨日！！ 原文章如下：</p>
+<ul>
+<li><a href="http://www.cnblogs.com/xirongliu/archive/2011/03/24/1993668.html" target="_blank" rel="external">MS SQLServer 基础知识回顾（一）</a></li>
+<li><a href="http://www.cnblogs.com/xirongliu/archive/2011/03/27/1997329.html" target="_blank" rel="external">MS sql server 基础知识回顾（二）-表连接和子查询</a></li>
+</ul>
+<h1>一、 数据类型</h1>
+<p>包括整数类型（可以用来做主键）的如bit，int，smallint，tinyint，bigint，存储的范围个不行同，常用的有int，bigint等；数值类型decimal（p，s）【p为固定精度，s为宽度，使用这种数据类型时必须指定范围和精度】，numeric（decimal的同义词），money（货币型，精确到货币的万分之一），smallmoney（货币型），float（近似数值型，供浮点数使用）等。</p>
+<p>字符类型：固定长度char，nchar，可变长度varchar，国际化可变长度nvarchar。固定长度char类型的，用来保存具有固定长度的字符串，如果字符长度不满所定义的长度，则用空格填充，这样在读取字符串的时候也将空格读取出来，很不方便；可变长度varchar，也需要指定一个最大长度，但是如果数据不足最大长度，数据库不会将剩下的部分用空格填充；固定长度和可变长度只能存储基于ASCII的字符，这样对于中文、日文、韩文等Unicode字符集的程序来说就会造成存储问题，解决办法使用国际化可变长度nvarchar。</p>
+<a id="more"></a>
+<p>日期时间类型：smalldatetime，timestamp（时间戳），datetime-格式为‘2008-8-8 19:30:34’。</p>
+<p>二进制类型：在存储一幅图片或者一段视频的时候，就要使用二进制类型的字段，这种字段通常能够保存非常大的，没有固定结构的数据。如image，可以保存任意的二进制的数据。</p>
+<h1>二、操作数据表</h1>
+<h2>1、创建数据表</h2>
+<p>sql语句创建数据表：create table 表名（字段1 字段类型，字段2，字段类型…… 约束定义1， 约束定义2……） (关于主键和外键约束，稍后再详细讲解)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  例如创建用于保存人员信息的数据表</span></div><div class="line"> <span class="keyword">create</span> <span class="keyword">table</span> T_Person (FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> , FName <span class="built_in">varchar</span>(<span class="number">20</span>),FAge <span class="built_in">int</span>,primary <span class="keyword">key</span>(FId) ) </div><div class="line"><span class="comment">-- 创建有外键的表T_Order，其中的FCustomerId为表T_Person的主键FId</span></div><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> T_Order (FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> ,FName <span class="built_in">varchar</span>(<span class="number">20</span>),FAccount <span class="built_in">int</span> ,FCustomerId <span class="built_in">int</span> ,</div><div class="line"> foreign <span class="keyword">key</span> (FCustomerId)  <span class="keyword">references</span> T_Person (FId))</div></pre></td></tr></table></figure>
+<h2>2、修改已有表</h2>
+<p>添加字段：alter table 表名 add 字段名 字段类型  。删除字段 ：alter table 表名 drop 字段名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 为T_Person 添加字段FYearofBirth</span></div><div class="line"><span class="keyword">alter</span> <span class="keyword">table</span> T_Person  <span class="keyword">add</span> FYearofBirth <span class="built_in">int</span> </div><div class="line"><span class="comment">-- 删除表T_Person中的字段FAge</span></div><div class="line"><span class="keyword">alter</span> <span class="keyword">table</span> T_Person <span class="keyword">drop</span> FAge</div></pre></td></tr></table></figure>
+<h2>3、删除数据表</h2>
+<p>包括清空数据表（delete from）和销毁数据表（drop），两者的区别在于，delete只是将表中的信息全部清空，但是表的框架还在，还可以用insert语句为表插入新的数据，而drop是将数据表直接在数据库中销毁，改表不存在了。</p>
+<p>语法  delete from 表名   drop表名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 例如 ：删除表T_Person</span></div><div class="line"> <span class="keyword">delete</span> <span class="keyword">from</span> T_Person   </div><div class="line"> <span class="keyword">drop</span> T_Person  </div><div class="line"><span class="comment">--  删除年龄在20-30岁之间的数据   </span></div><div class="line"><span class="keyword">delete</span> <span class="keyword">from</span> T_Person <span class="keyword">where</span> FAge &gt;<span class="number">20</span> <span class="keyword">and</span> FAge&lt;<span class="number">30</span></div></pre></td></tr></table></figure>
+<h2>4、为数据表插入新的数据（insert语句）</h2>
+<p>语法：insert into 表名 （字段1，字段2……字段n） values （值1，值2,……值n）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 例如： 为T_Person插入一条数据</span></div><div class="line"> <span class="keyword">insert</span>  <span class="keyword">into</span> T_Person (FId , FName ,FAge ,FYearofBirth) <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'Tom'</span>,<span class="number">24</span>,<span class="number">1989</span>)</div></pre></td></tr></table></figure>
+<p>再插入数据时，要注意原表中的约束条件，如FId就有非空约束，如果不为FId插入数据，则会报错。同样FId有主键的约束，如果为T_Person表再插入一条FId=1的数据，也会报错，这违反了主键必须唯一的约束。再如外键约束，请看实例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 现在的T_Person表中只有一条名为Tom的数据，现在向T_Order表中插入一条数据</span></div><div class="line"> <span class="keyword">insert</span> <span class="keyword">into</span> T_Order (FId ,FName,FAccount ,FCustomerId) <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'Milk'</span>,<span class="number">100</span>,<span class="number">2</span>)</div></pre></td></tr></table></figure>
+<pre><code>此时会报错“INSERT 语句与 FOREIGN KEY 约束&quot;FK__T_Order2__FCusto__1BFD2C07&quot;冲突。该冲突发生于数据库&quot;Sql jindian&quot;，表&quot;dbo.T_Person&quot;, column 'FId'。语句已终止。”这是因为在表T_Person中没有FId=2的这条数据，违反了外键的约束。
+</code></pre>
+<h2>5、数据更新（Update语句）</h2>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 将T_Person表中所有数据的FAge列的值更新为30，执行完后，该列的值全变为30</span></div><div class="line"><span class="keyword">update</span> T_Person <span class="keyword">set</span> FAge=<span class="number">30</span></div><div class="line"><span class="comment">-- update还可以执行带有where的语句，将在1990年出生的人的年龄更新为30岁</span></div><div class="line"> <span class="keyword">update</span> T_Person <span class="keyword">set</span> FAge=<span class="number">30</span> <span class="keyword">where</span> FYearofBirth =<span class="number">1990</span></div></pre></td></tr></table></figure>
+<p>同样的，在更新语句中非空约束，主键和外键也会对其产生影响。如对于T_Person中的FId字段，有非空约束和主键约束，那么在更新的时候，不能将一条数据的set FId=null ，违反了非空约束，不能将FId更新为已经存在的FId的值。对于更新T_Order表中的数据时，也不能更新T_Person表中没有的数据，因为存在T_Order.FCustomerId =T_Person.FId 这个外键约束。</p>
+<h2>6、数据表的检索（select语句）</h2>
+<p>(1)、取出数据表T_Perosn中的所有数据，下面的两条语句执行效果一样</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span>  * <span class="keyword">from</span> T_Person </div><div class="line"><span class="keyword">select</span> FId ,FName,FAge,FYearofBirth <span class="keyword">from</span> T_Person</div></pre></td></tr></table></figure>
+<p>(2)、排序 。例如，将表T_Person 中数据按照年龄的大小排列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Person <span class="keyword">order</span> <span class="keyword">by</span> FAge <span class="keyword">DESC</span></div></pre></td></tr></table></figure>
+<p>desc是descend的缩写，意为下降，向下；asc为ascend的缩写，意为向上，上升，攀登</p>
+<p>(3)、条件过滤，包括一般的where语句和通配符过滤（单字符，多字符和集合通配符）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Person <span class="keyword">where</span> FAge=<span class="number">20</span> <span class="keyword">and</span> FYearofBirth &gt;<span class="number">1990</span></div></pre></td></tr></table></figure>
+<p>单字符通配 _ :匹配单个出现的字符，多字符%:匹配多次出现的字符，集合[]:匹配满足集合要求的字符</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 匹配姓名以任意一个字符开头，后面为erry的，例如kerry将会匹配出来</span></div><div class="line"><span class="keyword">select</span>  * <span class="keyword">from</span> T_Person <span class="keyword">where</span> FName <span class="keyword">like</span> <span class="string">'_erry'</span></div><div class="line"><span class="comment">-- 匹配姓名中以y结尾，前面任意多字符 ，例如 kerry，lily等</span></div><div class="line"><span class="keyword">select</span>  * <span class="keyword">from</span> T_Person <span class="keyword">where</span> FName <span class="keyword">like</span> <span class="string">'%y'</span></div><div class="line"><span class="comment">-- 集合匹配：姓名以s或者j开头的，不是以bt开头的</span></div><div class="line"> <span class="keyword">select</span> * <span class="keyword">from</span> T_Person <span class="keyword">where</span> FName <span class="keyword">like</span> <span class="string">'[sj]%'</span></div><div class="line"> <span class="keyword">select</span> * <span class="keyword">from</span> T_Person <span class="keyword">where</span> FName <span class="keyword">like</span> <span class="string">'[^bt]%'</span></div></pre></td></tr></table></figure>
+<p>没有添加非空约束的列是可以为空值的（null），有时我们要对空值进行监测</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Person <span class="keyword">where</span> FName <span class="keyword">is</span> <span class="literal">null</span></div></pre></td></tr></table></figure>
+<p>反义运算符：&lt; &gt; = !=  等这些是用来进行判断值的，其中不等于可以用多种形式表示，“！”只能用在MS sql server和DB2中个，其它数据库不支持。推荐使用“&lt;&gt;”和”not ”来进行不等的判断。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span>  T_Person <span class="keyword">where</span> FAge != <span class="number">20</span> <span class="keyword">and</span> FAge &gt;<span class="number">19</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span>  T_Person <span class="keyword">where</span> FAge &lt;&gt;<span class="number">20</span> <span class="keyword">and</span> FAge &gt;<span class="number">19</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span>  T_Person <span class="keyword">where</span>  <span class="keyword">not</span> (FAge =<span class="number">20</span>) <span class="keyword">and</span> FAge &gt;<span class="number">19</span></div></pre></td></tr></table></figure>
+<p>多值判断，范围值判断  IN语句，between and 语句的使用。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span>  T_Person <span class="keyword">where</span> FAge  =<span class="number">19</span> <span class="keyword">or</span> FAge =<span class="number">20</span> <span class="keyword">or</span> FAge =<span class="number">24</span></div><div class="line"><span class="comment">-- 上面这条语句等价于下面这条</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span>  T_Person <span class="keyword">where</span> FAge <span class="keyword">in</span> (<span class="number">19</span>,<span class="number">20</span>,<span class="number">24</span>)</div><div class="line"><span class="comment">-- 选择年龄在19到28岁这个年龄段的人的信息</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span>  T_Person <span class="keyword">where</span> FAge <span class="keyword">between</span> <span class="number">19</span> <span class="keyword">and</span> <span class="number">28</span></div></pre></td></tr></table></figure>
+<p>(4)、数据分组(group by)与聚合函数(max min count sum等)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 将T_Person表中数据按照年龄相同的检索</span></div><div class="line"><span class="keyword">select</span>  * <span class="keyword">from</span> T_Person <span class="keyword">group</span> <span class="keyword">by</span> FAge </div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Person  <span class="keyword">where</span> FAge &gt;<span class="number">20</span> <span class="keyword">group</span> <span class="keyword">by</span> FAge </div><div class="line"><span class="comment">--  查看每个年龄段的人数</span></div><div class="line"><span class="keyword">select</span> FAge ,<span class="keyword">count</span> (*) <span class="keyword">as</span>  N<span class="string">'总人数'</span> <span class="keyword">from</span>  T_Person <span class="keyword">group</span> <span class="keyword">by</span> FAge </div><div class="line"><span class="comment">--  只检索人数大于2的年龄段 having语句的使用</span></div><div class="line"> <span class="keyword">select</span> FAge ,<span class="keyword">count</span> (*) <span class="keyword">as</span> N<span class="string">'总人数'</span> <span class="keyword">from</span> T_Person  <span class="keyword">group</span> <span class="keyword">by</span> FAge  <span class="keyword">having</span> <span class="keyword">count</span>(*)&gt;<span class="number">2</span></div></pre></td></tr></table></figure>
+<p>区别： having语句是滴分组后的信息进行过滤，而where语句是对原始数据进行过滤</p>
+<p>(5)、限制结果集行数</p>
+<p>有时候进行数据检索的时候只需要检索结果集中的部分行，比如“检索成绩排在前3位的学生信息”，这种功能被称作限制结果集行数。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  从数据表T_Employee中检索工资排在前五位的人员信息，下面两句查询等价</span></div><div class="line"> <span class="keyword">select</span>  top <span class="number">5</span> * <span class="keyword">from</span> T_Employee <span class="keyword">order</span> <span class="keyword">by</span> FSarlary <span class="keyword">DESC</span></div><div class="line"> <span class="keyword">select</span> * <span class="keyword">from</span></div><div class="line">   (  </div><div class="line">     <span class="keyword">select</span> ROW_NUMBER () <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> FSarlary ) <span class="keyword">as</span> <span class="keyword">row</span>,FName  <span class="keyword">from</span> T_Employee </div><div class="line">    ) a   <span class="keyword">where</span> a.row &lt;=<span class="number">5</span></div></pre></td></tr></table></figure>
+<p>(6)、联合结果集union ，union all函数</p>
+<p>有时候我们需要组合两个完全不同的查询结果，而这俩个查询结果直接没有任何的联系，只是需要他们显示在一起，这时候可以使用union函数联合。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  查询正式员工和临时工的最高、最低年龄 ，分开查</span></div><div class="line"> <span class="keyword">select</span> <span class="string">'正式工的最大年龄'</span> , <span class="keyword">max</span>(FAge) <span class="keyword">from</span> T_Employee</div><div class="line"> <span class="keyword">union</span></div><div class="line"> <span class="keyword">select</span> <span class="string">'正式工的最小年龄'</span> , <span class="keyword">min</span>(FAge) <span class="keyword">from</span> T_Employee</div><div class="line"> <span class="keyword">union</span></div><div class="line"> <span class="keyword">select</span> <span class="string">'临时工的最大年龄'</span> , <span class="keyword">max</span>(FAge) <span class="keyword">from</span> T_TempEmployee</div><div class="line"> <span class="keyword">union</span></div><div class="line"> <span class="keyword">select</span> <span class="string">'临时工的最小年龄'</span> , <span class="keyword">min</span>(FAge) <span class="keyword">from</span> T_TempEmployee</div></pre></td></tr></table></figure>
+<p>联合结果集使用原则：一是每个结果集必须有相同的列，二是每个结果集的列类型必须相容。</p>
+<p>union和union all 的区别：union会自动将查询出来的结果进行重复比较如果有重复，则只显示一条，而union  all 则将查询出来的结果直接显示出来。所以，在没有特殊要求下，尽量使用union all 进行连接。</p>
+<h1>三、函数，包括数学函数，字符串函、日期函数以及其它函数等</h1>
+<p>1、数学函数，包括常用的求绝对值函数abs() ,求指数函数power() ,求平方根 sqrt () ,求随机数 rand () ,舍入到最大整数celing () ,舍入到最小整数 floor () ,四舍五入 round () 等，还有一些求正弦、余弦、正切、余切、反正弦、反正切等函数。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> <span class="keyword">abs</span>(- <span class="number">12.27</span>) </div><div class="line"><span class="keyword">select</span> <span class="keyword">power</span> ( <span class="number">2</span>,<span class="number">2</span> )<span class="comment">--  求2的平方 </span></div><div class="line"><span class="keyword">select</span> <span class="keyword">rand</span> ()  <span class="comment">--  生成随机数</span></div></pre></td></tr></table></figure>
+<p>2、字符串函数，包括计算字符串的长度，转换大小写，去掉字符串两边的空格，字符串替换，得到字符串的ASCII值等。 看例子：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  计算 sqlserver的长度</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">len</span> (<span class="string">'sqlserver'</span>)     <span class="comment">-- 返回 9</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">upper</span>(<span class="string">'sqlserver'</span>)    <span class="comment">-- 返回 SQLSERVER</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">upper</span>(<span class="string">'SQLSERVER'</span>)      <span class="comment">-- sqlserver</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">substring</span>(<span class="string">'sqlserver'</span>,<span class="number">4</span>,<span class="number">6</span>)    <span class="comment">--  返回 server</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">charindex</span>(<span class="string">'q'</span>,<span class="string">'sqlserver'</span>)    <span class="comment">-- 返回 2，查询q在sqlserver中的位置</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">left</span>(<span class="string">'sqlserver'</span>,<span class="number">3</span>)       <span class="comment">-- 取出前三个字符  ，返回 sql</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">right</span> (<span class="string">'sqlserver'</span>,<span class="number">3</span>)   <span class="comment">--  取出后三个字符，返回 ver</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">replace</span>(<span class="string">'sqlserver'</span>,<span class="string">'sql'</span>,<span class="string">'SQL'</span>)   <span class="comment">-- 替换字符  ，返回 SQLserver</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">ASCII</span>(<span class="string">'a'</span>)   <span class="comment">-- 取a的ASCII值，返回 97</span></div><div class="line">   <span class="keyword">select</span> <span class="keyword">ASCII</span>(<span class="string">'abc'</span>)   <span class="comment">-- 返回 97 ,只取第一个字符的ASCII值</span></div></pre></td></tr></table></figure>
+<p>3、日期函数，包括日期(date)，时间（time），日期时间（datetime）时间戳（datestamp）等。
+获取当前时间，计算日期相加减函数，计算两个日期之间的差额函数，计算一个日期是星期几，取得指定日期的指定部分。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  获取当前时间，返回xx- xx-xx  ss:ss:ss</span></div><div class="line">  <span class="keyword">select</span>  <span class="keyword">getdate</span>()</div><div class="line"><span class="comment">-- 计算据今天3个月的日期</span></div><div class="line">  <span class="keyword">select</span>  <span class="keyword">dateadd</span> (<span class="keyword">month</span>,<span class="number">3</span>,<span class="keyword">getdate</span>())</div><div class="line"><span class="comment">-- 计算两个日期之间的差额,2011-1-1距今多少天</span></div><div class="line">  <span class="keyword">select</span> <span class="keyword">datediff</span>(<span class="keyword">day</span>,<span class="string">'2011-1-1'</span>,<span class="keyword">getdate</span>())</div><div class="line"><span class="comment">--  计算今天星期几</span></div><div class="line">  <span class="keyword">select</span> <span class="keyword">datename</span>(<span class="keyword">weekday</span>,<span class="keyword">getdate</span>())</div><div class="line"><span class="comment">-- 获取今天的时间部分</span></div><div class="line">  <span class="keyword">select</span> datapart(<span class="keyword">hour</span>,<span class="keyword">getdate</span>())</div></pre></td></tr></table></figure>
+<p>4、其它函数如类型转换（convert，cast），空值处理（coalesce，isnull）case函数等。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  将字符类型的20转换成int型</span></div><div class="line"><span class="keyword">select</span> <span class="keyword">cast</span>(<span class="string">'20'</span> <span class="keyword">as</span> <span class="built_in">int</span> ), <span class="keyword">convert</span> (<span class="built_in">int</span> ,<span class="string">'20'</span>)</div></pre></td></tr></table></figure>
+<p>空值处理：coalesce（expression，value1，value2……，valuen），如果expression不为空，则返回expression的值，若为空，则判断value1的值，value1不空，返回value1 的值，value1空，判断value2……，如果valuen的值也为空，则返回null。isnull（expression，value）是其简化版。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  将FName为null的显示为匿名</span></div><div class="line"><span class="keyword">select</span> <span class="keyword">coalesce</span>(FName,N<span class="string">'匿名'</span>) <span class="keyword">from</span>  T_Person </div><div class="line"><span class="keyword">select</span> <span class="keyword">isnull</span> (FName,N<span class="string">'匿名'</span>) <span class="keyword">from</span> T_Employee</div></pre></td></tr></table></figure>
+<p>case函数：流程控制函数，可以控制返回，例如：如果年龄&gt;20，则返回姓名，否则返回小孩。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">(</div><div class="line"> <span class="keyword">case</span>  </div><div class="line"> <span class="keyword">when</span> FAge &gt;<span class="number">20</span>  <span class="keyword">then</span> FName</div><div class="line"> <span class="keyword">else</span>  N<span class="string">'小孩'</span></div><div class="line"><span class="keyword">end</span></div><div class="line">)</div><div class="line"><span class="keyword">from</span> T_Person</div><div class="line"><span class="comment">--case函数基本语句的练习  </span></div><div class="line"><span class="keyword">select</span> FName,</div><div class="line"> (</div><div class="line">  <span class="keyword">case</span> FLevel</div><div class="line">      <span class="keyword">when</span> <span class="number">1</span> <span class="keyword">then</span> <span class="string">'普通客户'</span></div><div class="line">      <span class="keyword">when</span> <span class="number">2</span> <span class="keyword">then</span> <span class="string">'会员'</span></div><div class="line">      <span class="keyword">when</span> <span class="number">3</span> <span class="keyword">then</span> <span class="string">'VIP客户'</span></div><div class="line">      <span class="keyword">else</span> </div><div class="line">      <span class="string">'未知类型客户'</span></div><div class="line">  <span class="keyword">end</span></div><div class="line">  ) <span class="keyword">as</span> 客户类型</div><div class="line"> <span class="keyword">from</span> T_Employee</div><div class="line"></div><div class="line"><span class="comment">--例如：从表中选出收入小于4000的为低收入人群，收入在4000-6000之间的为中等收入，大于6000的为高收入</span></div><div class="line"></div><div class="line"><span class="keyword">select</span>  FName,</div><div class="line"> (</div><div class="line"> <span class="keyword">case</span> </div><div class="line"> <span class="keyword">when</span> FSarlary  &lt;<span class="string">'4000'</span> <span class="keyword">then</span> <span class="string">'低收入'</span>    <span class="comment">--FSarlary 是varchar类型的，所以'4800'</span></div><div class="line"> <span class="keyword">when</span> FSarlary &gt;=<span class="string">'4000'</span> <span class="keyword">and</span> FSarlary &lt;<span class="string">'6000'</span> <span class="keyword">then</span> <span class="string">'中等收入'</span></div><div class="line"> <span class="keyword">else</span> <span class="string">'高收入'</span></div><div class="line"> <span class="keyword">end</span></div><div class="line"> ) <span class="keyword">as</span> 收入水平</div><div class="line"> <span class="keyword">from</span> T_Employee</div></pre></td></tr></table></figure>
+<h1>四、索引与约束</h1>
+<p>当一个数据表中的数据量越来越大时，检索一条记录的速度也会变慢，创建索引是一个很好的解决办法，索引提高的搜索效率，但是索引会占据一定的磁盘空间，减缓了数据插入和删除的速度，同时会造成存储碎片的问题，由于索引是采用B树结构存储的，在删除一条记录时，索引项并不会被删除，这样经过一段时间的增删查改之后就会产生存储碎片，道理同内存碎片磁盘碎片一样。</p>
+<p>创建索引：create index 索引名 on 表名（字段1，字段2……字段n）</p>
+<p><code>create index idx_name on T_Person (FName)</code></p>
+<p>删除索引：drop 表名.索引名</p>
+<p><code>drop T_Person.idx_name</code></p>
+<p>约束：包括非空约束，唯一约束，复合约束，主键约束，外键约束等。</p>
+<p>1、非空约束not null</p>
+<p><code>create T_table (FId int not null ,Fnumber int )</code></p>
+<p>2、唯一约束，防止特定的列中含有相同的值，比如说一个邮箱只能注册一次。unique约束</p>
+<p><code>create T_table (FId int not null ,Fnumber int unique)</code></p>
+<p>3、复合约束，被约束的字段不能同时重复。例如一个公司有多个部门，每个部门有多个小组，每个部门里面的小组都可以从1开始往后排，小组名相同的小组必定部门名不相同。constraint 约束名 unique （字段1，……），可以向一个表中添加多个复合约束，只要约束名不同即可。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> talbe T_Person(FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,FName varchr(<span class="number">20</span>),FNumber <span class="built_in">varchar</span>(<span class="number">20</span>),FAge <span class="built_in">int</span> ,FDepartNum <span class="keyword">nvarchar</span>(<span class="number">20</span>),</div><div class="line">  <span class="keyword">constraint</span> uni_ num_departnum <span class="keyword">unique</span>  (FNumber,FDepartNum),</div><div class="line">  <span class="keyword">constraint</span> uni_name_num <span class="keyword">unique</span> (FName,FNumber)</div></pre></td></tr></table></figure>
+<p>如果在创建表的时候，没有添加约束，可以利用alter来修改添加，alter table 表名 add constraint 约束名 unique （字段1，字段2……）。</p>
+<p><code>alter table T_Person add constraint uni_name_num unique (FName,FNumber)</code></p>
+<p>删除约束 alter table 表名 drop constraint 约束名。</p>
+<p><code>alter table drop constraint uni_name_num</code></p>
+<p>4、check约束，检查输入的记录值是否符合一个条件，如果不符合，则对数据表的修改不会成功，check约束同唯一约束一样，在声明的时候在字段后面就可以声明一个约束。</p>
+<p><code>create talbe T_Person(FId int not null,FName varchr(20),FNumber varchar(20),FAge int check (FAge &gt;0))</code></p>
+<p>这样的check约束是不能约束两列的，比如约束FWorkYear&lt; FAge ,在哪个字段后面添加这个约束都是不可以的。解决方法：在create table 语句的末尾使用constraint 约束名 check （约束条件）来约束这个条件。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  这条语句是错误的，不能在字段后声明约束两列</span></div><div class="line"><span class="keyword">create</span> talbe T_Person(FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,FName varchr(<span class="number">20</span>),FNumber <span class="built_in">varchar</span>(<span class="number">20</span>),FAge <span class="built_in">int</span> ，</div><div class="line">FWorkYear <span class="built_in">int</span>  <span class="keyword">check</span> (FWorkYear &lt; FAge ))</div><div class="line"><span class="comment">-- 解决方法</span></div><div class="line"><span class="keyword">create</span> talbe T_Person(FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,FName varchr(<span class="number">20</span>),FNumber <span class="built_in">varchar</span>(<span class="number">20</span>),FAge <span class="built_in">int</span> ，FWorkYear <span class="built_in">int</span>,</div><div class="line"> <span class="keyword">constraint</span> ck_age_workyear chect (FWorkYear &lt; FAge)   )</div></pre></td></tr></table></figure>
+<p>5、主键约束，主键必须是唯一的，不能重复的，可以创建复合主键，即在多个字段上创建主键，但是这样做会带来很大 的系统性能问题，除了考虑向下兼容的问题，还是不要用复合主键。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span>  <span class="keyword">table</span> T_Person (FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> primary <span class="keyword">key</span> ,FName <span class="built_in">varchar</span>(<span class="number">20</span>))</div><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> T_Person (FId <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> ,FName <span class="built_in">varchar</span>(<span class="number">20</span>),primary <span class="keyword">key</span>(FId))</div><div class="line"><span class="comment">-- 两条语句等价</span></div></pre></td></tr></table></figure>
+<p>6、外键约束，当一些信息重复出现时，我们就要考虑将这些信息提取出来创建到另一张表中，然后再原表中引用这些数据，这就用到了外键。</p>
+<p>创建外键：在create table 末尾添加：foreign key （字段名）references 表名（字段名）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> T_Author (FId <span class="built_in">int</span> primary <span class="keyword">key</span> ,FName <span class="built_in">varchar</span>(<span class="number">20</span>),FAge  <span class="built_in">int</span> )</div><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> T_Book (FId <span class="built_in">int</span> primary <span class="keyword">key</span> ,FName <span class="built_in">varchar</span> (<span class="number">20</span>),FAuthotId <span class="built_in">int</span> ,</div><div class="line">    foreign <span class="keyword">key</span> ( FAuthorId) <span class="keyword">references</span> T_Author (FId))</div></pre></td></tr></table></figure>
+<p>删除外键的时候，必须先删除被关联的表，如上例就是必须先删除T_Author，在删除T_Book</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">drop</span> <span class="keyword">table</span> T_Author </div><div class="line"><span class="keyword">drop</span> <span class="keyword">table</span> T_Book</div></pre></td></tr></table></figure>
+<h1>五、表连接</h1>
+<p>当数据表中存在许多重复的冗余信息时，就要考虑将这些信息建在另一张新表中，在新表中为原表设置好外键，在进行数据查询的时候，就要使用到连接了，表连接就好像两根线，线的两端分别连接两张表的不同字段上，将两个字段进行关联。表连接分为内连接（inner join）、交叉连接、自连接和外连接等。</p>
+<p>1、内连接，语法  inner join table_name on condition ，table_name被关联的表名，condition关联条件。</p>
+<p>例如：有两张表，T_Customer保存着客户的Id，姓名，年龄等信息，T_Order表保存着订单号及订单价格等信息，T_Order中FCustomerId是T_Customer中的FId的外键，下面查询客户姓名为Mike的客户的订单号及订单价格。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> c.FName,o.FNumber,o.FPrice</div><div class="line"><span class="keyword">from</span> T_Order  o</div><div class="line"><span class="keyword">inner</span> <span class="keyword">join</span> T_Customer c <span class="keyword">on</span> o.FCustomerId=c.FId </div><div class="line"><span class="keyword">where</span> c.FName=<span class="string">'Mike'</span></div></pre></td></tr></table></figure>
+<p>2、交叉连接，与内连接相比，交叉连接非常简单，不需要on子句，交叉连接将表中的所有记录都包含到结果集中，交叉连接分为隐式的连接和显示的cross join 连接，其中隐式的交叉连接，所有数据库都支持，cross join显示的交叉连接DB2数据库不支持。例如：查询上两张表中客户的Id，姓名，年龄以及订单信息。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--  隐式的交叉连接</span></div><div class="line"><span class="keyword">select</span>  T_Customer.Id,T_Customer.FName,T_Customer.FAge,TOrder.FName,TOrder.FNumber</div><div class="line"><span class="keyword">from</span> T_Customer ,TOrder</div><div class="line"><span class="comment">--  显示的交叉连接</span></div><div class="line"><span class="keyword">select</span>  T_Customer.Id,T_Customer.FName,T_Customer.FAge,TOrder.FName,TOrder.FNumber</div><div class="line"><span class="keyword">from</span> T_Customer  across <span class="keyword">join</span> TOrder</div></pre></td></tr></table></figure>
+<p>3、自连接，其主要用途就是检索一张表中的内部情况，例如检索表T_Order中订单类型相同的订单的列表。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> o1.FNumber ,o1.FName,o1.FType, o2.FNumber ,o2.FName,o2.FType</div><div class="line"><span class="keyword">from</span> T_Order o1 </div><div class="line"><span class="keyword">inner</span> <span class="keyword">join</span> T_Order o2 <span class="keyword">on</span> o1.FType=o2.FType <span class="keyword">and</span> o1.FId &lt;o2.FId</div></pre></td></tr></table></figure>
+<p>（至于为什么要加上and后面的约束及为什么不是 o1.FId &lt;&gt;o2.FId ，感兴趣的朋友我们可以自己试一试，因为存在着信息重复的问题，我们也可以继续交流）</p>
+<p>4、外连接，内连接要求连接的两张表必须有匹配的记录，但是如果说T_Order表中的FCustomerId一列有null值，那么内连接是无法将这条信息查询出来的，但是我们是需要这条数据的，这样就需要外部连接了，外连接包括左外连接，右外连接和全外连接，全外连接在数据库MySql中是不支持的，所以，可以使用union all 联合两个查询语句，即左外连接查询和右外连接查询。</p>
+<p>左外连接就是将左表中的所有数据，无论是否满足on后面的条件语句，都匹配出来。右外连接就是将右表中的所有数据，无论是否满足on后面的条件语句，都匹配出来。而全外连接，就是将两张表中的所有数据，无论是否满足on后面的条件语句，都匹配出来。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 左外连接,取出左表T_Customer中的所有数据，无论是否匹配 T_Customer.FId =T_Order.FCustomerId</span></div><div class="line"><span class="keyword">select</span>  c.FNumber ,C.FName,o.FNumber ,o.FPrice</div><div class="line"><span class="keyword">from</span> T_Customer c </div><div class="line"><span class="keyword">left</span> <span class="keyword">outer</span> <span class="keyword">join</span> T_Order o <span class="keyword">on</span> T_Customer.FId =T_Order.FCustomerId</div><div class="line"><span class="comment">-- 右外连接,取出右表T_Order中的所有数据，无论是否匹配 T_Customer.FId =T_Order.FCustomerId</span></div><div class="line"><span class="keyword">select</span>  c.FNumber ,C.FName,o.FNumber ,o.FPrice</div><div class="line"><span class="keyword">from</span> T_Customer c </div><div class="line"><span class="keyword">right</span>  <span class="keyword">outer</span> <span class="keyword">join</span> T_Order o <span class="keyword">on</span> T_Customer.FId =T_Order.FCustomerId</div><div class="line"><span class="comment">-- 全外连接,取出两张表中的所有数据，无论是否匹配 T_Customer.FId =T_Order.FCustomerId</span></div><div class="line"><span class="keyword">select</span>  c.FNumber ,C.FName,o.FNumber ,o.FPrice</div><div class="line"><span class="keyword">from</span> T_Customer c </div><div class="line"><span class="keyword">full</span> <span class="keyword">outer</span> <span class="keyword">join</span> T_Order o <span class="keyword">on</span> T_Customer.FId =T_Order.FCustomerId</div></pre></td></tr></table></figure>
+<h1>六、子查询</h1>
+<p>sql允许将一个查询语句作为结果集提供给其它sql语句使用，被当做结果集的查询语句就是子查询，可以将子查询看做是一张临时生成的数据表（此时的搜索结果必须是多行多列），这张数据表在开始时被创建，在查询结束时被删除。子查询可以用在select语句，insert语句以及update语句。子查询大大简化了sql语句的编写，提高了效率，但是如果使用不当，容易造成性能问题。</p>
+<p>1、单值子查询</p>
+<p>单值子查询和普通的sql语句没什么区别，唯一的限制就是子查询的返回值必须只有一行记录，而且只能有一个列，这样的子查询也称作标量子查询。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> <span class="number">1</span> <span class="keyword">as</span> f1 ,<span class="number">2</span> ,(<span class="keyword">select</span> <span class="keyword">MIN</span> (FYearOfPublish)<span class="keyword">from</span> T_Book ) <span class="keyword">as</span> N<span class="string">'最早出版年份'</span>,</div><div class="line">                     (<span class="keyword">select</span> <span class="keyword">MAX</span> (FYearOfPublish) <span class="keyword">from</span> T_Book )<span class="keyword">as</span> N<span class="string">'最晚出版年份'</span></div></pre></td></tr></table></figure>
+<p>2、列值子查询</p>
+<p>与标量子查询不同，列值子查询可以返回一个多行多列的结果集，又称为表子查询，可以看做一个临时的表。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--查询出版日期在1800年以前的书的名字及作者的名字，当然这个地方用到了交叉连接的隐式实现</span></div><div class="line"><span class="keyword">select</span> r.FName ,b.FName ,b.FYearOfPublish </div><div class="line"><span class="keyword">from</span> T_Reader r,(<span class="keyword">select</span> FName ,FYearOfPublish  <span class="keyword">from</span> T_Book <span class="keyword">where</span> FYearOfPublish &lt;<span class="number">1800</span>) b</div></pre></td></tr></table></figure>
+<p>3、select语句中的标量子查询</p>
+<p>标量子查询唯一的限制就是子查询的返回值必须只有一行记录，而且只能有一个列，其实标量子查询完全可以返回随当前记录变化而变化的值。比如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--返回每一类图书的最新出版年份，图书类别</span></div><div class="line"><span class="keyword">select</span> FId ,FName,</div><div class="line">(</div><div class="line">    <span class="keyword">select</span>  <span class="keyword">MAX</span> (FYearOfPublish)<span class="keyword">from</span> T_Book b </div><div class="line">    <span class="keyword">where</span> b.FCategoryId =c.FId  </div><div class="line"></div><div class="line">)<span class="keyword">as</span> N<span class="string">'最新出版年份'</span> </div><div class="line"> <span class="keyword">from</span> T_Categroy  c</div></pre></td></tr></table></figure>
+<p>4、where语句中的标量子查询</p>
+<p>标量子查询不仅可以用在select语句中，而且可以用在where语句中，比如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--返回最喜欢读的书籍类别为Story的读者的ID信息</span></div><div class="line"><span class="keyword">select</span> FReaderId  <span class="keyword">from</span> T_ReaderFavorite </div><div class="line">     <span class="keyword">where</span> FCategoryId =</div><div class="line">     (</div><div class="line">       <span class="keyword">select</span> FId <span class="keyword">from</span> T_Categroy</div><div class="line">       <span class="keyword">where</span> FName =<span class="string">'Story'</span></div><div class="line">     )</div></pre></td></tr></table></figure>
+<p>再看一个综合点的例子：假设需要检索每一种书籍类别中出版年份最早的书籍的名称，如果有两本或两本以上的，则都显示他们的名字。要求检索结果中显示类型的名字、书的名字和它的出版年份。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> T_Categroy .FName ,T_Book .FName ,T_Book .FYearOfPublish  </div><div class="line"><span class="keyword">from</span> T_Book <span class="keyword">inner</span> <span class="keyword">join</span> T_Categroy <span class="keyword">on</span> T_Book .FCategoryId =T_Categroy .FId </div><div class="line"><span class="keyword">where</span> T_Book .FYearOfPublish =</div><div class="line">(</div><div class="line">    <span class="keyword">select</span> <span class="keyword">MIN</span> (T_Book .FYearOfPublish) <span class="keyword">from</span> T_Book</div><div class="line">    <span class="keyword">where</span> T_Book .FCategoryId =T_Categroy .FId  </div><div class="line">)</div></pre></td></tr></table></figure>
+<p>当然上面的语句中也可以使用别名代换，这样会更简明些。</p>
+<p>5、集合运算符与子查询，如果子查询的结果集是多行多列的，那么可以将该子查询看做是一个临时的数据表，但是当结果集是一个多行单列的集合时，就需要使用in，any，all及exists等来查询。</p>
+<p>in操作符，是用来匹配多行单列的，可以简单的匹配一个集合中的某一项，比如检索在2001,2003,2005年出版的所有图书</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Book <span class="keyword">where</span> FYearofPublish <span class="keyword">in</span> (<span class="number">2001</span>,<span class="number">2003</span>,<span class="number">2005</span>)</div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Reader <span class="keyword">where</span> FYearofJoin <span class="keyword">in</span> (<span class="keyword">select</span> FYearofPublis <span class="keyword">from</span> T_Book)</div></pre></td></tr></table></figure>
+<p>any必须和其他的比较运算符（=，&lt;,&gt;,!=）共同使用，不严谨的说你可以这样认为，any就是任何一个，匹配任何一个的意思，比如</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Reader <span class="keyword">where</span> FYearOfJoin =<span class="keyword">any</span> (  <span class="keyword">select</span> FYearOfPublish  <span class="keyword">from</span> T_Book )</div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Reader <span class="keyword">where</span> FYearOfJoin &lt;&gt;<span class="keyword">any</span> (  <span class="keyword">select</span> FYearOfPublish  <span class="keyword">from</span> T_Book )</div></pre></td></tr></table></figure>
+<p>这两条语句前一条=any其效果适合in一样的，&lt;&gt;any 效果适合not in 一样的，除了=运算符，any还可以和大于小于大于等于等运算符共同使用，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 查询在所有会员出生之前出版的书</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> T_Book <span class="keyword">where</span> FYearOfPublish &lt;<span class="keyword">any</span>( <span class="keyword">select</span> FYearOfBith  <span class="keyword">from</span> T_Reader)</div></pre></td></tr></table></figure>
+<p>exists，是否存在比较运算符，其后面的语句如果为真则返回true，否则返回false。先看一个例子：</p>
+<p>在这个事例中，如果T_Reader表中存在姓名为Tom的读者信息，那么将返回T_Book表中的信息，反之，不会检索出任何信息。也就是，如果存在，则返回，不存在，则查不到任何信息，看似好像exists的作用并不是很大，但是它往往用在子查询中引用外部字段的检索中，看实例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 检索1950年以前出版的图书的图书类别</span></div><div class="line"><span class="keyword">select</span>  * <span class="keyword">from</span> T_Category <span class="keyword">where</span> <span class="keyword">exists</span> (<span class="keyword">select</span> * <span class="keyword">from</span> T_Book <span class="keyword">where</span> T_Book.FCategoryId =T_Category.Id <span class="keyword">and</span> T_Book .FYearofPublis &lt;<span class="number">1950</span> )</div></pre></td></tr></table></figure>
+<p>这样就会检索出在1950年以前出版的图书的信息了。</p>
+<h1>七、子查询在insert语句update语句中的应用</h1>
+<p>insert语句：一般的，向一个数据表中添加一条数据就是应用insert into 表名（字段1，字段2……）values （值1，值2，……） 比如</p>
+<p><code>insert into T_Person(FId ,FName,FAge) values (1,'Tom',20)</code></p>
+<p>但其实insert还有另外一种用法，就是insert ……select……语句，具体语法为insert into 表名（字段1，字段2……）select （值1，值2，……） from 表</p>
+<p><code>insert into T_Reader2(FId,FName,FAge) select (FId,FName,FAge) from T_Reader</code></p>
+<p>这条语句其实就相当于复制了一个T_Reader表，将其信息插入到了T_Reader2 中。当然，insert……select 还有更复杂的用法，可以向不同结构的表中插入数据，例如：为每个读者的爱好增加“小说”，也就是为每一个读者在其T_ReaderFavorite中添加一条FCategory=1的记录（如果原先读者已经有了此爱好，就不用添加，如果没有此爱好，就添加）。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> T_ReaderFavorite(FCategoryId ,FReaderId ) <span class="keyword">select</span> <span class="number">1</span>,FId <span class="keyword">from</span> T_Reader </div><div class="line"><span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span></div><div class="line">(</div><div class="line">  <span class="keyword">select</span> * <span class="keyword">from</span> T_ReaderFavorite  <span class="keyword">where</span> T_ReaderFavorite .FCategoryId =<span class="number">1</span> <span class="keyword">and</span>  T_ReaderFavorite .FReaderId =T_Reader .FId </div><div class="line">)</div></pre></td></tr></table></figure>
+<p>update语句：在update语句中子查询也可以有比较复杂的检索，例如：将所有同类图书的本数超过3本的图书的出版日期更新为2008（自连接）</p>
+<p><code>update T_Book set FYearOfPublish =2008 where (select COUNT (*) from T_Book bk2 where bk2 .FCategoryId =T_Book .FCategoryId )&gt;3</code></p>
+<p>delete语句：例如：将所有同类图书的本数超过3本的图书删除</p>
+<p><code>delete from T_Book where (select count(*) from T_Book bk where bk.FCategoryId=T_Book.FCategoryId)&gt;3</code></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="http://static.ixirong.com/GeekNotes.jpg" alt="xirong wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我在公众号与你分享更多内容</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/sql/" rel="tag"># sql</a>
+          
+            <a href="/tags/sqlserver/" rel="tag"># sqlserver</a>
+          
+            <a href="/tags/数据库/" rel="tag"># 数据库</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/20/reading-notes-tough-workout/" rel="next" title="《硬派健身》笔记">
+                <i class="fa fa-chevron-left"></i> 《硬派健身》笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/24/how-hbase-use-apache-phoenix/" rel="prev" title="使用Phoenix通过sql语句更新操作hbase数据">
+                使用Phoenix通过sql语句更新操作hbase数据 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://static.ixirong.com/site/xirong_avatar.jpg"
+               alt="xirong" />
+          <p class="site-author-name" itemprop="name">xirong</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">116</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weixin.sogou.com/weixin?type=1&query=Geek_Notes&ie=utf8&w=01019900&sut=4856&sst0=1451527213494&lkt=1%2C1451527211738%2C1451527211738" target="_blank" title="wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jackieliuxirong" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xirong/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zhoujingen.cn/blog/" title="敏捷个人" target="_blank">敏捷个人</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ruanyifeng.com/blog/" title="阮一峰" target="_blank">阮一峰</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.read.org.cn/" title="战隼" target="_blank">战隼</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.mifengtd.cn/" title="褪墨" target="_blank">褪墨</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mindhacks.cn/" title="刘未鹏" target="_blank">刘未鹏</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ddimples.github.io/" title="程小黑" target="_blank">程小黑</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.javachen.com/" title="JavaChen" target="_blank">JavaChen</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">1.</span> <span class="nav-text">一、 数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">2.</span> <span class="nav-text">二、操作数据表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.1.</span> <span class="nav-text">1、创建数据表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.2.</span> <span class="nav-text">2、修改已有表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.3.</span> <span class="nav-text">3、删除数据表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.4.</span> <span class="nav-text">4、为数据表插入新的数据（insert语句）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.5.</span> <span class="nav-text">5、数据更新（Update语句）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#undefined"><span class="nav-number">2.6.</span> <span class="nav-text">6、数据表的检索（select语句）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">3.</span> <span class="nav-text">三、函数，包括数学函数，字符串函、日期函数以及其它函数等</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">4.</span> <span class="nav-text">四、索引与约束</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">5.</span> <span class="nav-text">五、表连接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">6.</span> <span class="nav-text">六、子查询</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number">7.</span> <span class="nav-text">七、子查询在insert语句update语句中的应用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="powered-by">
+   鲁ICP备15013969号
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery_lazyload/1.9.7/jquery.lazyload.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/velocity/1.2.3/velocity.ui.min.js"></script>
+
+  
+  <script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz", "j8gTHCF5cxmeGRbV0QIujeUw");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+</body>
+</html>
