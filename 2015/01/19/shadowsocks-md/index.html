@@ -106,7 +106,7 @@
 <meta property="og:description" content="shadowsocks是另一种翻墙工具，如何翻墙？速度快，安全高，跨平台包括 mac OSX shadowsocks、windows shadowsocks、android shadowsocks、ios shadowsocks等，众多服务提供商，包括shadowsocks免费账号、shadowsocks付费账号，shadowsocks的使用方法是怎么样的呢？Mac下怎么使用shadowsocks">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://static.ixirong.com/pic/ss/what-is-shadowsocks.png">
-<meta property="og:updated_time" content="2017-10-23T15:55:02.268Z">
+<meta property="og:updated_time" content="2017-10-23T16:05:33.235Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="科学上网工具shadowsocks翻墙工具使用方法及资料汇总">
 <meta name="twitter:description" content="shadowsocks是另一种翻墙工具，如何翻墙？速度快，安全高，跨平台包括 mac OSX shadowsocks、windows shadowsocks、android shadowsocks、ios shadowsocks等，众多服务提供商，包括shadowsocks免费账号、shadowsocks付费账号，shadowsocks的使用方法是怎么样的呢？Mac下怎么使用shadowsocks">
@@ -454,9 +454,11 @@ Shadowsocks 轻量级科学上网姿势，改变您的生活体验！</p>
 <h3>shadowsocks 原理</h3>
 <p>简单理解的话，Shadowsocks是将以前通过 SSH 创建的 Socks5 协议拆开成 Server 端和 client 端，下面这个原理图能简单介绍其翻墙原理，基本上和利用SSH tunnel大致类似：</p>
 <p><img src="http://static.ixirong.com/pic/ss/what-is-shadowsocks.png" alt="shadowsocks原理图"></p>
-<p>1、PC客户端（即你的电脑）发出请求基于 Socks5 协议跟 SS-Local 端进行通讯，由于这个 SS-Local 一般是本机或路由器等局域网的其他机器，不经过 GFW，所以解决 GFW 通过特征分析进行干扰的问题。
-2、SS-Local 和 SS-Server 两端通过多种可选的加密方法进行通讯，经过GFW的时候因为是常规的 TCP 包，没有明显特征码 GFW 也无法对通讯数据进行解密，因此通讯放行。
-3、SS-Server 将收到的加密数据进行解密，还原初始请求，再发送到用户需要访问的服务网站，获取响应原路再返回 SS-04，返回途中依然使用了加密，使得流量是普通 TCP 包，并成功穿过 GFW 防火墙。</p>
+<ol>
+<li>PC客户端（即你的电脑）发出请求基于 Socks5 协议跟 SS-Local 端进行通讯，由于这个 SS-Local 一般是本机或路由器等局域网的其他机器，不经过 GFW，所以解决 GFW 通过特征分析进行干扰的问题。</li>
+<li>SS-Local 和 SS-Server 两端通过多种可选的加密方法进行通讯，经过GFW的时候因为是常规的 TCP 包，没有明显特征码 GFW 也无法对通讯数据进行解密，因此通讯放行。</li>
+<li>SS-Server 将收到的加密数据进行解密，还原初始请求，再发送到用户需要访问的服务网站，获取响应原路再返回 SS-04，返回途中依然使用了加密，使得流量是普通 TCP 包，并成功穿过 GFW 防火墙。</li>
+</ol>
 <p>详细理解请参考文章<a href="http://vc2tea.com/whats-shadowsocks/" target="_blank" rel="external">写给非专业人士看的 Shadowsocks 简介</a>，不知道GFW？请参考<a href="http://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E9%95%BF%E5%9F%8E" target="_blank" rel="external">强大的GFW长城防火墙</a></p>
 <h2>为什么要用shadowsocks？</h2>
 <ul>
@@ -519,8 +521,8 @@ Shadowsocks 轻量级科学上网姿势，改变您的生活体验！</p>
 </ul>
 <h2>客户端怎么使用？</h2>
 <ul>
-<li>跨平台支持 window、mac、Android、ios、wp <a href="http://help.fyvps.com/index.php/archives/51/" target="_blank" rel="external">客户端下载地址及使用方法-枫叶主机下载 </a></li>
-<li>还是不会用？google搜索<a href="https://www.google.com.hk/search?q=shadowsocks+%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&amp;oq=shadowsocks+%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&amp;aqs=chrome..69i57j0j69i61.6446j0j7&amp;sourceid=chrome&amp;es_sm=119&amp;ie=UTF-8&amp;gws_rd=cr,ssl" target="_blank" rel="external">shadowsocks使用方法</a></li>
+<li>跨平台支持 window、mac、Android、ios、wp 客户端下载地址及使用方法 参考<a href="http://help.fyvps.com/index.php/archives/51/" target="_blank" rel="external">枫叶主机帮助文档 </a></li>
+<li>还是不会用？google搜索 <a href="https://www.google.com.hk/search?q=shadowsocks+%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&amp;oq=shadowsocks+%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&amp;aqs=chrome..69i57j0j69i61.6446j0j7&amp;sourceid=chrome&amp;es_sm=119&amp;ie=UTF-8&amp;gws_rd=cr,ssl" target="_blank" rel="external">shadowsocks使用方法</a></li>
 <li>几个常见工具<a href="https://milooo.net/download.html" target="_blank" rel="external">下载地址</a>，包括Autoproxy.pac文件、proxy switchsharp、ios openvpn配置等。</li>
 </ul>
 <h2>账号资源</h2>
