@@ -106,7 +106,7 @@
 <meta property="og:description" content="shadowsocks是另一种翻墙工具，如何翻墙？速度快，安全高，跨平台包括 mac OSX shadowsocks、windows shadowsocks、android shadowsocks、ios shadowsocks等，众多服务提供商，包括shadowsocks免费账号、shadowsocks付费账号，shadowsocks的使用方法是怎么样的呢？Mac下怎么使用shadowsocks">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://static.ixirong.com/pic/ss/what-is-shadowsocks.png">
-<meta property="og:updated_time" content="2017-12-09T10:59:18.418Z">
+<meta property="og:updated_time" content="2017-12-10T06:47:05.656Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="科学上网工具shadowsocks翻墙工具使用方法及资料汇总">
 <meta name="twitter:description" content="shadowsocks是另一种翻墙工具，如何翻墙？速度快，安全高，跨平台包括 mac OSX shadowsocks、windows shadowsocks、android shadowsocks、ios shadowsocks等，众多服务提供商，包括shadowsocks免费账号、shadowsocks付费账号，shadowsocks的使用方法是怎么样的呢？Mac下怎么使用shadowsocks">
@@ -450,14 +450,14 @@
 <p>A secure socks5 proxy , designed to protect your Internet traffic.
 Shadowsocks 轻量级科学上网姿势，改变您的生活体验！</p>
 </blockquote>
-<p>做完一个码农，经常需要搜索技术文章，如果不能够使用 google ，那么你的生活是很痛苦的，很多资料根本搜索不到的，所以你应该知道<strong>代理</strong>，通过代理可以绕过gwf（<a href="http://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E9%95%BF%E5%9F%8E" target="_blank" rel="external">见识下强大的GFW</a>），从而去享受不被控制的生活，<a href="http://cokebar.info/archives/236" target="_blank" rel="external">科学上网</a>的方式很多，我们最常见的就是vpn，一把屠龙宝刀，像很多的老牌vpn厂商（<a href="http://www.greenjsq.info/" target="_blank" rel="external">green vpn</a>、<a href="http://ytvpn.com/" target="_blank" rel="external">云梯</a>，更多查看靠谱<a href="http://vpntuijian.com/" target="_blank" rel="external">vpn推荐网</a>)，而shadowsocks就是一把瑞士军刀，锋利小巧快速简单，适应各种场景，适应各种客户端平台，window、mac、linux、ios、android使用简单。</p>
+<p>做为一个码农，经常需要搜索技术文章，如果不能够使用 google ，那么你的生活是很痛苦的，很多资料根本搜索不到的，所以你应该知道<strong>代理</strong>，通过代理可以绕过gwf（<a href="http://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E9%95%BF%E5%9F%8E" target="_blank" rel="external">见识下强大的GFW</a>），从而去享受不被控制的生活，<a href="http://cokebar.info/archives/236" target="_blank" rel="external">科学上网</a>的方式很多，我们最常见的就是vpn，一把屠龙宝刀，像很多的老牌vpn厂商（<a href="http://www.greenjsq.info/" target="_blank" rel="external">green vpn</a>、<a href="http://ytvpn.com/" target="_blank" rel="external">云梯</a>，更多查看靠谱<a href="http://vpntuijian.com/" target="_blank" rel="external">vpn推荐网</a>)，而shadowsocks就是一把瑞士军刀，锋利小巧快速简单，适应各种场景，适应各种客户端平台，window、mac、linux、ios、android使用简单。</p>
 <h3>shadowsocks 原理</h3>
 <p>简单理解的话，Shadowsocks是将以前通过 SSH 创建的 Socks5 协议拆开成 Server 端和 client 端，下面这个原理图能简单介绍其翻墙原理，基本上和利用SSH tunnel大致类似：</p>
 <p><img src="http://static.ixirong.com/pic/ss/what-is-shadowsocks.png" alt="shadowsocks原理图"></p>
 <ol>
 <li>PC客户端（即你的电脑）发出请求基于 Socks5 协议跟 SS-Local 端进行通讯，由于这个 SS-Local 一般是本机或路由器等局域网的其他机器，不经过 GFW，所以解决 GFW 通过特征分析进行干扰的问题。</li>
 <li>SS-Local 和 SS-Server 两端通过多种可选的加密方法进行通讯，经过GFW的时候因为是常规的 TCP 包，没有明显特征码 GFW 也无法对通讯数据进行解密，因此通讯放行。</li>
-<li>SS-Server 将收到的加密数据进行解密，还原初始请求，再发送到用户需要访问的服务网站，获取响应原路再返回 SS-04，返回途中依然使用了加密，使得流量是普通 TCP 包，并成功穿过 GFW 防火墙。</li>
+<li>SS-Server 将收到的加密数据进行解密，还原初始请求，再发送到用户需要访问的服务网站，获取响应原路再返回 SS-local，返回途中依然使用了加密，使得流量是普通 TCP 包，并成功穿过 GFW 防火墙。</li>
 </ol>
 <p>详细理解请参考文章<a href="http://vc2tea.com/whats-shadowsocks/" target="_blank" rel="external">写给非专业人士看的 Shadowsocks 简介</a>，不知道GFW？请参考<a href="http://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E9%95%BF%E5%9F%8E" target="_blank" rel="external">强大的GFW长城防火墙</a></p>
 <h2>为什么要用shadowsocks？</h2>
@@ -855,7 +855,7 @@ https://github.com/shadowsocks/shadowsocks-iOS/issues/212</p>
         <div class="copyright" >
   
   &copy;  2014 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
