@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
+  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
+  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="wordpress 博客迁移到新的服务器上，其实很简单，整机迁移即可，将数据库、wordpress博客文件打包压缩后，在新的服务器上启用就好了。但中间有一些细节，比如新采购的阿里云服务器，空机器，啥也没有，需要搭建 wordpress 的运行环境，对 php 等运行原理不怎么熟悉的人来说，浪费的很多时间。 需求如下，域名 abc.com 原来采用 https:&#x2F;&#x2F;www.hostinger.c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="迁移 wordpress 博客主机">
+<meta property="og:url" content="http://www.ixirong.com/2017/08/05/how-to-change-wordpress-server/index.html">
+<meta property="og:site_name" content="自由之路">
+<meta property="og:description" content="wordpress 博客迁移到新的服务器上，其实很简单，整机迁移即可，将数据库、wordpress博客文件打包压缩后，在新的服务器上启用就好了。但中间有一些细节，比如新采购的阿里云服务器，空机器，啥也没有，需要搭建 wordpress 的运行环境，对 php 等运行原理不怎么熟悉的人来说，浪费的很多时间。 需求如下，域名 abc.com 原来采用 https:&#x2F;&#x2F;www.hostinger.c">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2017-08-05T11:23:19.000Z">
+<meta property="article:modified_time" content="2017-08-09T16:18:50.000Z">
+<meta property="article:author" content="xirong">
+<meta property="article:tag" content="wordpress博客主机迁移">
+<meta property="article:tag" content="迁移主机">
+<meta property="article:tag" content="wordpress服务器迁移">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.ixirong.com/2017/08/05/how-to-change-wordpress-server/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>迁移 wordpress 博客主机 | 自由之路</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-61803765-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由之路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-公益">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2017/08/05/how-to-change-wordpress-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xirong.jpg">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="思考生活，分享故事">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由之路">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          迁移 wordpress 博客主机
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-08-05 19:23:19" itemprop="dateCreated datePublished" datetime="2017-08-05T19:23:19+08:00">2017-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%98%BF%E9%87%8C%E4%BA%91/" itemprop="url" rel="index"><span itemprop="name">阿里云</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2017/08/05/how-to-change-wordpress-server/" class="post-meta-item leancloud_visitors" data-flag-title="迁移 wordpress 博客主机" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<p>wordpress 博客迁移到新的服务器上，其实很简单，整机迁移即可，将数据库、wordpress博客文件打包压缩后，在新的服务器上启用就好了。但中间有一些细节，比如新采购的阿里云服务器，空机器，啥也没有，需要搭建 wordpress 的运行环境，对 php 等运行原理不怎么熟悉的人来说，浪费的很多时间。</p>
+<p>需求如下，域名 abc.com 原来采用 <a href="https://www.hostinger.com.hk/" target="_blank" rel="noopener">https://www.hostinger.com.hk/</a> 的年费主机，之前采用的原因是方便，集成了 wordpress 环境，直接在后台页面操作就可以，关键是便宜些，比起国内的厂商便宜很多。hostinger有免费的主机， 推荐对速度性能要求不高的人来用一下。 现在打算将 abc.com 对应的博客迁移到阿里云上，购买的阿里云 ecs 服务器，空盘 centos 6.8 ；其实初始化时候可以直接从云市场购买 wordpress 的服务，不过后来才知道。</p>
+<p>搭建 wordpress 的运营环境，我们知道 wordpress 是用 php 写的，所以很自然的想到 lnmp 架构，好在 lnmp 搭建很方便，<a href="https://lnmp.org/" target="_blank" rel="noopener">https://lnmp.org/</a> 按照说明安装即可，等待时间看网络情况了，我大概是20分钟左右。 这里提一下 lnmp 安装后软件都去了哪些目录: <a href="https://lnmp.org/faq/lnmp-software-list.html" target="_blank" rel="noopener">https://lnmp.org/faq/lnmp-software-list.html</a></p>
+<a id="more"></a>
+<h3 id="软件位置"><a href="#软件位置" class="headerlink" title="软件位置:"></a>软件位置:</h3><ul>
+<li>Nginx：/usr/local/nginx/</li>
+<li>MySQL：/usr/local/mysql/</li>
+<li>MariaDB：/usr/local/mariadb/</li>
+<li>PHP：/usr/local/php/</li>
+<li>PHPMyAdmin：/home/wwwroot/default/phpmyadmin/</li>
+<li>默认虚拟主机网站目录：/home/wwwroot/default/</li>
+<li>Nginx日志目录：/home/wwwlogs/</li>
+</ul>
+<h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><ul>
+<li>Nginx主配置文件：/usr/local/nginx/conf/nginx.conf</li>
+<li>MySQL/MariaDB配置文件：/etc/my.cnf</li>
+<li>PHP配置文件：/usr/local/php/etc/php.ini</li>
+<li>PHP-FPM配置文件：/usr/local/php/etc/php-fpm.conf</li>
+<li>PureFtpd配置文件：/usr/local/pureftpd/etc/pure-ftpd.conf</li>
+<li>Apache配置文件：/usr/local/apache/conf/httpd.conf</li>
+</ul>
+<p>lnmp 搭建好后，php、nginx、mysql 都已经起来好了，在原主机 hostinger 后台进行备份 db 和网站文件，下载对应的 zip 包，下载后上传到新的阿里云 ecs 上面，可以采用 scp 、rz、或者其它的 ssh 工具等。</p>
+<h3 id="一、恢复-db-数据"><a href="#一、恢复-db-数据" class="headerlink" title="一、恢复 db 数据"></a>一、恢复 db 数据</h3><p>我安装的是 mariadb ，登录 : <code>/usr/local/mariadb/bin/mysql -u root -p</code>，输入安装时数据库的密码即可进入:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[tester@ixirong bin]$ /usr/<span class="built_in">local</span>/mariadb/bin/mysql -u root -p</span><br><span class="line">Enter password:</span><br><span class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</span><br><span class="line">Your MariaDB connection id is 756</span><br><span class="line">Server version: 10.1.23-MariaDB Source distribution</span><br><span class="line">Copyright (c) 2000, 2017, Oracle, MariaDB Corporation Ab and others.</span><br><span class="line">Type <span class="string">'help;'</span> or <span class="string">'\h'</span> <span class="keyword">for</span> <span class="built_in">help</span>. Type <span class="string">'\c'</span> to clear the current input statement.</span><br><span class="line"><span class="comment"># 创建数据库，执行导出的 sql 文件，即可恢复网站数据</span></span><br><span class="line">MariaDB [(none)]&gt; create database testdb;</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line">MariaDB [(none)]&gt; use testdb;</span><br><span class="line">Database changed</span><br><span class="line">MariaDB [testdb]&gt;<span class="built_in">source</span> /home/tester/abc.com.sql</span><br></pre></td></tr></table></figure>
+<h3 id="二、恢复网站-wordpress-文件"><a href="#二、恢复网站-wordpress-文件" class="headerlink" title="二、恢复网站 wordpress 文件"></a>二、恢复网站 wordpress 文件</h3><p>wordpress 备份恢复很简单，将原有 hostinger 主机上 public_html 目录下所有文件zip 包，拷贝到 ecs 虚拟机上面，解压缩即可，我放到了目录 <code>/home/tester/public_html</code>下面了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">-rw-r--r--  1 u783329617 u783329617   418 Sep 17  2016 index.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617 19935 Aug  5 08:03 license.txt</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  6956 Aug  5 08:03 readme.html</span><br><span class="line">-rwxrwxrwx  1 u783329617 u783329617 42385 Aug  4 22:42 sitemap_baidu.xml</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  5447 Aug  5 08:03 wp-activate.php</span><br><span class="line">drwxr-xr-x  9 u783329617 u783329617  4096 Sep 17  2016 wp-admin</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617   364 Sep 17  2016 wp-blog-header.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  1627 Aug  5 08:03 wp-comments-post.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  2930 Aug  5 08:03 wp-config-sample.php</span><br><span class="line">-rw-------  1 u783329617 u783329617  3519 Oct 21  2016 wp-config.php</span><br><span class="line">drwxr-xr-x 10 u783329617 u783329617  4096 Oct 21  2016 wp-content</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  3286 Sep 17  2016 wp-cron.php</span><br><span class="line">drwxr-xr-x 18 u783329617 u783329617 12288 Aug  5 08:03 wp-includes</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  8044 Sep 17  2016 wp-itapi.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  2422 Aug  5 08:03 wp-links-opml.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  3301 Aug  5 08:03 wp-load.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617 34327 Aug  5 08:03 wp-login.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  8048 Aug  5 08:03 wp-mail.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617 16200 Aug  5 08:03 wp-settings.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617 29924 Aug  5 08:03 wp-signup.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  4513 Aug  5 08:03 wp-trackback.php</span><br><span class="line">-rw-r--r--  1 u783329617 u783329617  3065 Aug  5 08:03 xmlrpc.php</span><br></pre></td></tr></table></figure>
+<p>注意: <code>wp-config.php</code> 文件里面存储着 wordpress 的数据库连接串信息，及时根据自己刚才创建的 db 的数据库信息，库名、用户名、密码、前缀信息及时更新，不更新的话，待会 nginx 配置好后通过 <a href="http://127.0.0.1" target="_blank" rel="noopener">http://127.0.0.1</a> 来访问创建也可以。</p>
+<h3 id="三、nginx-配置可访问-wordpress-内容"><a href="#三、nginx-配置可访问-wordpress-内容" class="headerlink" title="三、nginx 配置可访问 wordpress 内容"></a>三、nginx 配置可访问 wordpress 内容</h3><p>这块是重点，比如配置后出现 403 forbidden，之前的博客内容出现404页，首页 500/502 打不开等都是配置不正确的原因。<br>在配置之前，先略微了解下原因，nginx 是无法解析 php 语言的内容的，所以需要 fast-cgi 模块来处理，关于 CGI、FastCGI、PHP-FPM、PHP-CGI 分别是什么，却别又是啥，应该用哪个 !<a href="http://www.awaimai.com/371.html" target="_blank" rel="noopener">http://www.awaimai.com/371.html</a></p>
+<p>看完之后应该可以理解了，我们需要使用 php-fpm 来解析 php 程序，通过 nginx 将请求转发到 php-fpm 上来。<br>php-fpm 启动方式以及参数如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置地方，详情文件参考 https://wizardforcel.gitbooks.io/nginx-doc/content/Text/6.5_nginx_php_fpm.html</span></span><br><span class="line"><span class="comment"># /usr/local/php/etc/php-fpm.conf  </span></span><br><span class="line">[global]</span><br><span class="line">pid = /usr/<span class="built_in">local</span>/php/var/run/php-fpm.pid</span><br><span class="line">error_log = /usr/<span class="built_in">local</span>/php/var/<span class="built_in">log</span>/php-fpm.log</span><br><span class="line">log_level = notice</span><br><span class="line"></span><br><span class="line">[www]</span><br><span class="line">listen = /tmp/php-cgi.sock   <span class="comment">##注意这个地方很多教程上都是配置的 127.0.0.1:9000 </span></span><br><span class="line">listen.backlog = -1</span><br><span class="line">listen.allowed_clients = 127.0.0.1</span><br><span class="line">listen.owner = www</span><br><span class="line">listen.group = www</span><br><span class="line">listen.mode = 0666</span><br><span class="line">user = www</span><br><span class="line">group = www</span><br><span class="line">pm = dynamic</span><br><span class="line">pm.max_children = 20</span><br><span class="line">pm.start_servers = 10</span><br><span class="line">pm.min_spare_servers = 10</span><br><span class="line">pm.max_spare_servers = 20</span><br><span class="line">request_terminate_timeout = 100</span><br><span class="line">request_slowlog_timeout = 0</span><br><span class="line">slowlog = var/<span class="built_in">log</span>/slow.log</span><br></pre></td></tr></table></figure>
+<p>如果需要重启的话，直接重新加载配置即可:<code>/etc/init.d/php-fpm reload</code></p>
+<p>nginx 配置最终的配置如下，注意有注释的地方:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">server</span><br><span class="line">    &#123;</span><br><span class="line">        listen 80 default_server;    </span><br><span class="line">        server_name _;    </span><br><span class="line">        index index.php;</span><br><span class="line">        root /home/u783329617/public_html;</span><br><span class="line">        <span class="comment">#error_page   404   /404.html;</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># Deny access to PHP files in specific directory</span></span><br><span class="line">        <span class="comment">#location ~ /(wp-content|uploads|wp-includes|images)/.*\.php$ &#123; deny all; &#125;</span></span><br><span class="line"></span><br><span class="line">        include <span class="built_in">enable</span>-php.conf;  <span class="comment">##这是 php-fpm 对接的地方</span></span><br><span class="line">        include wordpress.conf;   <span class="comment">## 这是 wordpress 的配置，如果不加入，则会报404错误</span></span><br><span class="line">        access_log  /home/wwwlogs/access.log;</span><br><span class="line">    &#125;</span><br><span class="line">    include vhost/*.conf;  <span class="comment">##这是其它的域名配置</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>enable-php.conf</strong>、<strong>wordpress.conf</strong> 的配置如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># enable-php.conf</span></span><br><span class="line"> location ~ [^/]\.php(/|$)</span><br><span class="line">     &#123;</span><br><span class="line">         try_files <span class="variable">$uri</span> =404;</span><br><span class="line">         fastcgi_pass  unix:/tmp/php-cgi.sock; <span class="comment">#这个地方的配置要看/usr/local/php/etc/php-fpm.conf的 listen 处，很多教程配置都是 127.0.0.1:9000 </span></span><br><span class="line">         fastcgi_index index.php;</span><br><span class="line">         include fastcgi.conf;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># wordpress.conf</span></span><br><span class="line">location / &#123;</span><br><span class="line">     try_files <span class="variable">$uri</span> <span class="variable">$uri</span>/ /index.php?<span class="variable">$args</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment"># Add trailing slash to */wp-admin requests.</span></span><br><span class="line"> rewrite /wp-admin$ <span class="variable">$scheme</span>://<span class="variable">$host</span><span class="variable">$uri</span>/ permanent;</span><br></pre></td></tr></table></figure>
+
+<p>nginx 配置完成后重新加载文件 <code>/usr/local/nginx/sbin/nginx -s reload</code> 后直接访问 http:127.0.0.1 就能看到经典的 wordpress 的安装文件了。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>以梦为马，不负韶华</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/iwechatpay.png" alt="xirong WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ialipay.png" alt="xirong Alipay">
+        <p>Alipay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ipaypal.png" alt="xirong PayPal">
+        <p>PayPal</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/atom.xml">
+                <span class="icon">
+                  <i class="fa fa-rss"></i>
+                </span>
+
+                <span class="label">RSS</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/images/technologyNotes.jpg">
+                <span class="icon">
+                  <i class="fa fa-wechat"></i>
+                </span>
+
+                <span class="label">WeChat</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="https://t.me/freedompath">
+                <span class="icon">
+                  <i class="fa fa-telegram"></i>
+                </span>
+
+                <span class="label">Telegram</span>
+              </a>
+            </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91/" rel="tag"><i class="fa fa-tag"></i> 阿里云</a>
+              <a href="/tags/wordpress/" rel="tag"><i class="fa fa-tag"></i> wordpress</a>
+              <a href="/tags/%E5%8D%9A%E5%AE%A2/" rel="tag"><i class="fa fa-tag"></i> 博客</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/07/24/aliyun-promotion/" rel="prev" title="阿里云优惠码">
+      <i class="fa fa-chevron-left"></i> 阿里云优惠码
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#软件位置"><span class="nav-number">1.</span> <span class="nav-text">软件位置:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置文件"><span class="nav-number">2.</span> <span class="nav-text">配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一、恢复-db-数据"><span class="nav-number">3.</span> <span class="nav-text">一、恢复 db 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、恢复网站-wordpress-文件"><span class="nav-number">4.</span> <span class="nav-text">二、恢复网站 wordpress 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、nginx-配置可访问-wordpress-内容"><span class="nav-number">5.</span> <span class="nav-text">三、nginx 配置可访问 wordpress 内容</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xirong"
+      src="/images/xirong.jpg">
+  <p class="site-author-name" itemprop="name">xirong</p>
+  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2014 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
+            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2d23e56450208acec766',
+      clientSecret: '2e82dd85f9110fd86aaa0bb5b78e23712738d3f3',
+      repo        : 'xirong.github.io',
+      owner       : 'xirong',
+      admin       : ['xirong'],
+      id          : '40d0e3a1b938eb1e83631436e295785c',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

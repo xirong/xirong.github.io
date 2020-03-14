@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
+  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
+  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Mac 上最适合开发使用的终极终端 iTerm2，比自带的 term 终端有很多特性，比如竖屏操作、历史剪贴板、选中即复制、搜索高亮自动复制搜索内容、像 secureRT 样子的复制会话，记住密码登录，tux 集成等等。至于 Shell，一定要选则 zsh ，Mac 下已经自带，安装 oh my zsh 不用复杂的配置即可使用一些常用的提升效率的快捷键整理如下: 快捷键官方的介绍特点:  ⌘ +">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你所必知的 iterm2 技巧">
+<meta property="og:url" content="http://www.ixirong.com/2016/11/05/what-you-must-know-about-iterm2/index.html">
+<meta property="og:site_name" content="自由之路">
+<meta property="og:description" content="Mac 上最适合开发使用的终极终端 iTerm2，比自带的 term 终端有很多特性，比如竖屏操作、历史剪贴板、选中即复制、搜索高亮自动复制搜索内容、像 secureRT 样子的复制会话，记住密码登录，tux 集成等等。至于 Shell，一定要选则 zsh ，Mac 下已经自带，安装 oh my zsh 不用复杂的配置即可使用一些常用的提升效率的快捷键整理如下: 快捷键官方的介绍特点:  ⌘ +">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2016-11-05T13:16:09.000Z">
+<meta property="article:modified_time" content="2020-03-10T08:21:01.952Z">
+<meta property="article:author" content="xirong">
+<meta property="article:tag" content="mac">
+<meta property="article:tag" content="终端">
+<meta property="article:tag" content="iterm2">
+<meta property="article:tag" content="快捷键">
+<meta property="article:tag" content="技巧">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.ixirong.com/2016/11/05/what-you-must-know-about-iterm2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>你所必知的 iterm2 技巧 | 自由之路</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-61803765-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由之路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-公益">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/05/what-you-must-know-about-iterm2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xirong.jpg">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="思考生活，分享故事">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由之路">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          你所必知的 iterm2 技巧
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-11-05 21:16:09" itemprop="dateCreated datePublished" datetime="2016-11-05T21:16:09+08:00">2016-11-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2016/11/05/what-you-must-know-about-iterm2/" class="post-meta-item leancloud_visitors" data-flag-title="你所必知的 iterm2 技巧" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Mac 上最适合开发使用的终极终端 iTerm2，比自带的 term 终端有很多特性，比如竖屏操作、历史剪贴板、选中即复制、搜索高亮自动复制搜索内容、像 secureRT 样子的复制会话，记住密码登录，tux 集成等等。<br>至于 Shell，一定要选则 zsh ，Mac 下已经自带，安装 <code>oh my zsh</code> 不用复杂的配置即可使用<br>一些常用的提升效率的快捷键整理如下:</p>
+<h1 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h1><p>官方的介绍特点:</p>
+<ul>
+<li>⌘ + 数字在各 tab 标签直接来回切换</li>
+<li>选择即复制 + 鼠标中键粘贴，这个很实用</li>
+<li>⌘ + f 所查找的内容会被自动复制</li>
+<li>⌘ + d 横着分屏 / ⌘ + shift + d 竖着分屏</li>
+<li>⌘ + r = clear，而且只是换到新一屏，不会想 clear 一样创建一个空屏</li>
+<li>ctrl + u 清空当前行，无论光标在什么位置</li>
+<li>输入开头命令后 按 ⌘ + ; 会自动列出输入过的命令</li>
+<li>⌘ + shift + h 会列出剪切板历史</li>
+<li>可以在 Preferences &gt; keys 设置全局快捷键调出 iterm，这个也可以用过 Alfred 实现</li>
+</ul>
+<a id="more"></a>
+
+<p>一些常用的快捷键如下:</p>
+<ul>
+<li>新建标签：command + t</li>
+<li>关闭标签：command + w</li>
+<li>切换标签：command + 数字    command + 左右方向键</li>
+<li>切换全屏：command + enter</li>
+<li>查找：command + f</li>
+<li>垂直分屏：command + d</li>
+<li>水平分屏：command + shift + d</li>
+<li>切换屏幕：command + option + 方向键      command + [ 或 command + ]</li>
+<li>查看历史命令：command + </li>
+<li>查看剪贴板历史：command + shift + h</li>
+<li>清除当前行：ctrl + u</li>
+<li>到行首：ctrl + a</li>
+<li>到行尾：ctrl + e</li>
+<li>前进后退：ctrl + f/b (相当于左右方向键)</li>
+<li>上一条命令：ctrl + p</li>
+<li>搜索命令历史：ctrl + r</li>
+<li>删除当前光标的字符：ctrl + d</li>
+<li>删除光标之前的字符：ctrl + h</li>
+<li>删除光标之前的单词：ctrl + w</li>
+<li>删除到文本末尾：ctrl + k</li>
+<li>交换光标处文本：ctrl + t</li>
+<li>清屏1：command + r</li>
+<li>清屏2：ctrl + l</li>
+</ul>
+<h1 id="推荐插件"><a href="#推荐插件" class="headerlink" title="推荐插件"></a>推荐插件</h1><p>一些插件能显著提高效率，自己使用的一些在下面，方法很简单，在<code>~/.zshrc</code>文件的plugin 下面添加上你想要的插件名称就ok，oh-my-sh 自带了很多插件，可以通过 <code>ls ~/.oh-my-zsh/plugins</code> 来查看。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plugins=(git-extras git mvn svn osx brew brew-cask npm  colored-man colorize copydir <span class="built_in">history</span> sublime <span class="built_in">command</span>-not-found zsh-syntax-highlighting Z)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>git：当你处于一个 git 受控的目录下时，Shell 会明确显示 「git」和 branch，如上图所示，另外对 git 很多命令进行了简化，例如 gco=’git checkout’、gd=’git diff’、gst=’git status’、g=’git’等等，熟练使用可以大大减少 git 的命令长度，命令内容可以参考~/.oh-my-zsh/plugins/git/git.plugin.zsh</li>
+<li>textmate：mr可以创建 ruby 的框架项目，tm finename 可以用 textmate 打开指定文件。</li>
+<li>osx：tab 增强，quick-look filename 可以直接预览文件，man-preview grep 可以生成 grep手册 的pdf 版本等。</li>
+<li>git-extras: <a href="https://github.com/tj/git-extras" target="_blank" rel="noopener"> Git extras</a> 工具与 zsh 的继承，很方便，在 git 仓库目录下试试<code>git summary</code>即可看到整个仓库的汇总信息。</li>
+<li>sublime : 此插件能够在终端下使用命令<code>stt</code> 在 SublimeText 中打开当前文件夹，使用 <code>subl</code> 或者 <code>st</code> 来编辑某个特定文件，比如 <code>st 1.txt</code>，当然前提你得安装了 SublimeText。</li>
+<li>zsh-syntax-highlighting: 让你终端的每一条命令智能显示颜色，就像在 IDE 里面写代码一样，强烈推荐，安装及介绍参考 <a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">GitHub</a></li>
+<li>z : Z is awesome ，让你在不同的目录中快速跳转，比如我想访问 <code>~/work/code/project/testApp</code> ，只要是之前访问过，直接输入<code>z testApp</code> 按 tab 键直接显示完整目录，按 enter 键直接进入当前目录，即使只输入了<code>z testa</code> 也能完成同样的工作，大大提升效率，此插件是自带的可以直接使用。</li>
+<li>ag: 终端里面快速搜索当前目录下所有文件中所匹配的关键字的命令，类似与 awk，但是速度极快，速度极快，速度极快，使用<code>brew install</code> ，其实就是组件 <code>the_silver_searcher</code> ，详细参考地址 <a href="https://github.com/ggreer/the_silver_searcher" target="_blank" rel="noopener">GitHub</a> 。</li>
+<li>tree : mac 下的 tree 命令，方便排查问题，直接 <code>brew install tree</code>即可。</li>
+</ul>
+<p>一些参考文章:<br><a href="http://www.ixirong.com/2015/06/08/how-to-use-mac-efficiently/">http://www.ixirong.com/2015/06/08/how-to-use-mac-efficiently/</a><br><a href="http://www.ixirong.com/2015/04/27/strong-bash-use-oh-my-zsh/">http://www.ixirong.com/2015/04/27/strong-bash-use-oh-my-zsh/</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>以梦为马，不负韶华</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/iwechatpay.png" alt="xirong WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ialipay.png" alt="xirong Alipay">
+        <p>Alipay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ipaypal.png" alt="xirong PayPal">
+        <p>PayPal</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/atom.xml">
+                <span class="icon">
+                  <i class="fa fa-rss"></i>
+                </span>
+
+                <span class="label">RSS</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/images/technologyNotes.jpg">
+                <span class="icon">
+                  <i class="fa fa-wechat"></i>
+                </span>
+
+                <span class="label">WeChat</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="https://t.me/freedompath">
+                <span class="icon">
+                  <i class="fa fa-telegram"></i>
+                </span>
+
+                <span class="label">Telegram</span>
+              </a>
+            </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/mac/" rel="tag"><i class="fa fa-tag"></i> mac</a>
+              <a href="/tags/%E7%BB%88%E7%AB%AF/" rel="tag"><i class="fa fa-tag"></i> 终端</a>
+              <a href="/tags/iterm2/" rel="tag"><i class="fa fa-tag"></i> iterm2</a>
+              <a href="/tags/%E5%BF%AB%E6%8D%B7%E9%94%AE/" rel="tag"><i class="fa fa-tag"></i> 快捷键</a>
+              <a href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag"><i class="fa fa-tag"></i> 技巧</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/11/04/first-docker-compose/" rel="prev" title="初识 Docker Compose">
+      <i class="fa fa-chevron-left"></i> 初识 Docker Compose
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/11/08/fix-google-photo-problem-by-proxifer-and-shadowsocks/" rel="next" title="使用 Proxifier 解决 Google photo backup/Google drive mac 无法连接错误">
+      使用 Proxifier 解决 Google photo backup/Google drive mac 无法连接错误 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#快捷键"><span class="nav-number">1.</span> <span class="nav-text">快捷键</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#推荐插件"><span class="nav-number">2.</span> <span class="nav-text">推荐插件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xirong"
+      src="/images/xirong.jpg">
+  <p class="site-author-name" itemprop="name">xirong</p>
+  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2014 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
+            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2d23e56450208acec766',
+      clientSecret: '2e82dd85f9110fd86aaa0bb5b78e23712738d3f3',
+      repo        : 'xirong.github.io',
+      owner       : 'xirong',
+      admin       : ['xirong'],
+      id          : 'ed127bed2df45b8f6ec10f5ada248769',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

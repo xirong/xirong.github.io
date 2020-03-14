@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
+  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
+  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="事情如果有变坏的可能，不管这种可能性多么小，它总会发生（Anything that can go wrong will go wrong）。  - 墨菲定律（Murphy’s law)  在此之前你有想过备份数据的事情吗？ 无论有或者没有，从此刻起，你都应该好好思考怎么去保护自己数据的可用性、安全性，以避免数据丢失、数据泄露所带来的时间经济等各种损失。我想能看到这篇文章的你，对 mac 或者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac下数据备份策略">
+<meta property="og:url" content="http://www.ixirong.com/2015/12/12/how-to-backup-files/index.html">
+<meta property="og:site_name" content="自由之路">
+<meta property="og:description" content="事情如果有变坏的可能，不管这种可能性多么小，它总会发生（Anything that can go wrong will go wrong）。  - 墨菲定律（Murphy’s law)  在此之前你有想过备份数据的事情吗？ 无论有或者没有，从此刻起，你都应该好好思考怎么去保护自己数据的可用性、安全性，以避免数据丢失、数据泄露所带来的时间经济等各种损失。我想能看到这篇文章的你，对 mac 或者">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/mac/backup-files.jpg">
+<meta property="article:published_time" content="2015-12-12T15:30:13.000Z">
+<meta property="article:modified_time" content="2020-03-10T07:35:49.263Z">
+<meta property="article:author" content="xirong">
+<meta property="article:tag" content="mac数据安全">
+<meta property="article:tag" content="mac下备份数据">
+<meta property="article:tag" content="time machine使用方法">
+<meta property="article:tag" content="time machine使用技巧">
+<meta property="article:tag" content="pc 数据备份">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/mac/backup-files.jpg">
+
+<link rel="canonical" href="http://www.ixirong.com/2015/12/12/how-to-backup-files/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>Mac下数据备份策略 | 自由之路</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-61803765-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由之路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-公益">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2015/12/12/how-to-backup-files/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xirong.jpg">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="思考生活，分享故事">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由之路">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Mac下数据备份策略
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-12-12 23:30:13" itemprop="dateCreated datePublished" datetime="2015-12-12T23:30:13+08:00">2015-12-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mac/" itemprop="url" rel="index"><span itemprop="name">mac</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2015/12/12/how-to-backup-files/" class="post-meta-item leancloud_visitors" data-flag-title="Mac下数据备份策略" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/mac/backup-files.jpg" alt="backup-file"></p>
+<blockquote>
+<p>事情如果有变坏的可能，不管这种可能性多么小，它总会发生（Anything that can go wrong will go wrong）。  - 墨菲定律（Murphy’s law)</p>
+</blockquote>
+<p>在此之前你有想过备份数据的事情吗？ 无论有或者没有，从此刻起，你都应该好好思考怎么去保护自己数据的可用性、安全性，以避免数据丢失、数据泄露所带来的时间经济等各种损失。我想能看到这篇文章的你，对 mac 或者 pc 的使用上基本不会有问题，无论你从事什么职业，工作生活中少不了与电脑打交道，那么自然的你会有很多数据，写的代码，安装的各种软件，系统的配置，处理的 word 文档、excel 表格、ppt 演讲稿等等，使用电脑的时间越长，这样子的数据就越多，产生的价值也就越大，尤其是随着你的身份的变化，这些数据的影响越来越重要。以前我一直侥幸的认为，在我身上不会发生数据丢失的问题，像硬盘损坏这种概率极低的事件更不可能发生，可万万没想到，上周升级了mac 上的 iTunes ，升级过程中重启导致再也无法开机，尝试各种办法无果，最终还是去的苹果零售店维修，万幸的是数据没有丢失。由于之前没有怎么关注，许多最近的数据都没有备份，维修工程师一直强调数据很可能丢失，即使找专业的恢复团队，花费一笔不小的费用不说，还不定能全部找回，当时我滴个小心脏啊……</p>
+<a id="more"></a>
+<p>自此以后，把数据备份的事情重视起来，慢慢的在mac osx系统上形成了一套安全可行的方法，这里写出来供大家参考。</p>
+<p><strong>整体的原则是关系到系统的，比如安装的软件、bash/git/vim/zsh等各种配置，以及一些重要的工作文档，统统交给 mac 上的好助手 “time machine”，并且选择加密备份的方式；除此之外，对重要数据做到冗余备份（一份数据有多个不同的copy），存储到云服务提供商中，比如国外的icloud、drop box、google drive，国内的百度云、腾讯微云、金山快盘等。</strong></p>
+<p>Time machine 是我个人认为 osx 好用于 windows 的一个地方，如果使用time machine备份了自己的mac，即使硬盘坏掉、不幸被盗又或者不为人所抗拒的因素导致数据丢失了，重启机器，选择从 time machine中备份，即可恢复到你之前的工作状态，包括所有的机器设置、开机项、浏览的标签页、处理的文档、看的美剧进度统统跟之前一模一样，你只需要享受这么方便快捷的服务即可，这是很令人感动的；time machine还可以让文档有了历史版本，就像大学的论文，它可以演绎整个文件的变化过程，可以很方便的回到某个时间点，而不用担心内容的丢失。</p>
+<p>time machine支持的可选择功能很多，备份硬盘空间不够或者不想备份某些文件，可以选择排查文件/文件夹；备份的硬盘容量1T多，总不能全部用来备份吧，可以选择将备份盘进行分区，分区完后，一部分用来备份，另一部分正常使用存储文件就好了；备份的资料被人拿到后不是都可以看到了么，选择加密备份即可解决这个问题。</p>
+<p>当然，time machine 主要的作用还是对系统的数据和系统状态的保全，为了安全还需要综合考虑其他的备份和保全手段以及养成文档集中的习惯，比如我还选择使用网盘来冗余备份自己的重要文档。国外的dropbox、google drive，以及国内的百度云、腾讯微云、金山快盘等，都是非常不错的选择，不过也有不同点：国外的网盘对安全性、个人数据隐私上做的相对来说比国内的要好一些，至少不会检测你文件的内容是什么，从而有选择的屏蔽，缺点就是需要翻墙，对普通用户有一定的使用成本；国内的几大网盘容量超大，全终端使用基本零成本，同步速度也较快，缺点是毕竟受政治的影响，个人数据的隐私保护上是有一定差距的。无论使用哪个，最总要的是使用网盘的初衷，冗余备份数据，多一份数据安全。（通过云盘同步资料的方式在windows上也是可以使用的，win上面也可以选择此方式来备份重要的资料）</p>
+<p>嘿，屏幕前的你，对数据备份有什么好的方式或者建议，欢迎给我留言，送你关于time machine 的使用技巧。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>以梦为马，不负韶华</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/iwechatpay.png" alt="xirong WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ialipay.png" alt="xirong Alipay">
+        <p>Alipay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ipaypal.png" alt="xirong PayPal">
+        <p>PayPal</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/atom.xml">
+                <span class="icon">
+                  <i class="fa fa-rss"></i>
+                </span>
+
+                <span class="label">RSS</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/images/technologyNotes.jpg">
+                <span class="icon">
+                  <i class="fa fa-wechat"></i>
+                </span>
+
+                <span class="label">WeChat</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="https://t.me/freedompath">
+                <span class="icon">
+                  <i class="fa fa-telegram"></i>
+                </span>
+
+                <span class="label">Telegram</span>
+              </a>
+            </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/mac/" rel="tag"><i class="fa fa-tag"></i> mac</a>
+              <a href="/tags/%E5%A4%87%E4%BB%BD/" rel="tag"><i class="fa fa-tag"></i> 备份</a>
+              <a href="/tags/%E5%AE%89%E5%85%A8/" rel="tag"><i class="fa fa-tag"></i> 安全</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/10/06/thoughts-of-lastest-life/" rel="prev" title="最近的生活">
+      <i class="fa fa-chevron-left"></i> 最近的生活
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/12/13/how-to-use-time-machine/" rel="next" title="关于time machine不可不知的技巧">
+      关于time machine不可不知的技巧 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xirong"
+      src="/images/xirong.jpg">
+  <p class="site-author-name" itemprop="name">xirong</p>
+  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2014 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
+            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2d23e56450208acec766',
+      clientSecret: '2e82dd85f9110fd86aaa0bb5b78e23712738d3f3',
+      repo        : 'xirong.github.io',
+      owner       : 'xirong',
+      admin       : ['xirong'],
+      id          : '69e76af897873ae2acbfbaa69373b283',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

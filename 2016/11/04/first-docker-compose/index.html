@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
+  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
+  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a Compose file to configure your application’s services. Then, using a single command, you create">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识 Docker Compose">
+<meta property="og:url" content="http://www.ixirong.com/2016/11/04/first-docker-compose/index.html">
+<meta property="og:site_name" content="自由之路">
+<meta property="og:description" content="Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a Compose file to configure your application’s services. Then, using a single command, you create">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2016-11-04T14:57:15.000Z">
+<meta property="article:modified_time" content="2020-03-10T08:25:59.664Z">
+<meta property="article:author" content="xirong">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="虚拟化">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.ixirong.com/2016/11/04/first-docker-compose/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>初识 Docker Compose | 自由之路</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-61803765-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由之路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-公益">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/04/first-docker-compose/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xirong.jpg">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="思考生活，分享故事">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由之路">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          初识 Docker Compose
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-11-04 22:57:15" itemprop="dateCreated datePublished" datetime="2016-11-04T22:57:15+08:00">2016-11-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2016/11/04/first-docker-compose/" class="post-meta-item leancloud_visitors" data-flag-title="初识 Docker Compose" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a Compose file to configure your application’s services. Then, using a single command, you create and start all the services from your configuration.</p>
+</blockquote>
+<p>Dockerfile 可以让用户管理一个单独的应用容器；而 Compose 则允许用户在一个模板（YAML 格式）中定义一组相关联的应用容器（被称为一个 project，即项目），例如一个 Web 服务容器再加上后端的数据库服务容器等，就拿官网的 Python 例子来说，功能很简单，利用 redis 的 incr 的功能对页面的访问量进行统计。</p>
+<p>docker-compose 的安装可以参考官网，如果安装了 Docker for Mac 或者 Docker for windows 则直接就存在了。</p>
+<p>创建项目目录:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir composetest</span><br><span class="line">$ cd composetest</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>创建 Python 的程序 <code>app.py</code> ，功能就是利用 redis 的 incr 方法进行访问计数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">from flask import Flask</span><br><span class="line">from redis import Redis</span><br><span class="line"></span><br><span class="line">app &#x3D; Flask(__name__)</span><br><span class="line">redis &#x3D; Redis(host&#x3D;&#39;redis&#39;, port&#x3D;6379)</span><br><span class="line"></span><br><span class="line">@app.route(&#39;&#x2F;&#39;)</span><br><span class="line">def hello():</span><br><span class="line">    redis.incr(&#39;hits&#39;)</span><br><span class="line">    return &#39;Hello World! I have been seen %s times.&#39; % redis.get(&#39;hits&#39;)</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line">    app.run(host&#x3D;&quot;0.0.0.0&quot;, debug&#x3D;True)</span><br></pre></td></tr></table></figure>
+<p>由于 Python 依赖的 <code>flask</code>、<code>redis</code> 组件都需要另外安装，比如使用 <code>pip</code>来安装，单独设置一文件 <code>requirements.txt</code>，内容如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">flask</span><br><span class="line">redis</span><br></pre></td></tr></table></figure>
+<p>创建 service 依赖的第一个 image，<code>app.py</code> 程序的运行环境，利用 <code>Dockerfile</code> 来制作，内容如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM python:2.7 #基于 python:2.7 镜像</span><br><span class="line">ADD . &#x2F;code  #将本地目录中的内容添加到 container 的 &#x2F;code 目录下</span><br><span class="line">WORKDIR &#x2F;code  #设置程序工作目录为 &#x2F;code</span><br><span class="line">RUN pip install -r requirements.txt   #运行安装命令</span><br><span class="line">CMD python app.py  #启动程序</span><br></pre></td></tr></table></figure>
+<p><code>Dockerfile</code> 创建好就可以制作镜像了，运行<code>docker build -t compose/python_app .</code> ，成功后通过<code>docker images</code>查看即能看到:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker images                                   </span><br><span class="line">REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">compose&#x2F;python_app     latest              1a92fed00abd        59 minutes ago      680.4 MB</span><br></pre></td></tr></table></figure>
+<p>接下来制作 docker-compose 需要的配置文件 <code>docker-compose.yml</code>， version 要选择 2 ，1的版本很古老了，配置中可以看到创建了 2 个 service，<code>web</code> 和 <code>redis</code> ，各自有依赖的镜像，其中<code>web</code> 开放 container 的5000端口，并与 host 的5000端口应对，方便通过 <code>localhost:5000</code> 来访问， <code>volumes</code> 即将本地目录中的文件加载到容器的 <code>/code</code> 中，<code>depends_on</code> 表名 services <code>web</code> 是依赖另一个 service <code>redis</code>的，完整的配置如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;2&#39;</span><br><span class="line">  services:</span><br><span class="line">    web:</span><br><span class="line">      image: compose&#x2F;python_app</span><br><span class="line">      ports:</span><br><span class="line">       - &quot;5000:5000&quot;</span><br><span class="line">      volumes:</span><br><span class="line">       - .:&#x2F;code</span><br><span class="line">      depends_on:</span><br><span class="line">       - redis</span><br><span class="line">    redis:</span><br><span class="line">      image: redis</span><br></pre></td></tr></table></figure>
+<p>前提都搞定了，就差最后一步启动了，命令 <code>docker-compose  up</code> ，成功后如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Attaching to composetestbypython_redis_1</span><br><span class="line">redis_1  | 1:C 04 Nov 10:35:17.448 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server &#x2F;path&#x2F;to&#x2F;redis.conf</span><br><span class="line">redis_1  |                 _._</span><br><span class="line">redis_1  |            _.-&#96;&#96;__ &#39;&#39;-._</span><br><span class="line">redis_1  |       _.-&#96;&#96;    &#96;.  &#96;_.  &#39;&#39;-._           Redis 3.2.5 (00000000&#x2F;0) 64 bit</span><br><span class="line">redis_1  |   .-&#96;&#96; .-&#96;&#96;&#96;.  &#96;&#96;&#96;\&#x2F;    _.,_ &#39;&#39;-._</span><br><span class="line">redis_1  |  (    &#39;      ,       .-&#96;  | &#96;,    )     Running in standalone mode</span><br><span class="line">redis_1  |  |&#96;-._&#96;-...-&#96; __...-.&#96;&#96;-._|&#39;&#96; _.-&#39;|     Port: 6379</span><br><span class="line">redis_1  |  |    &#96;-._   &#96;._    &#x2F;     _.-&#39;    |     PID: 1</span><br><span class="line">redis_1  |   &#96;-._    &#96;-._  &#96;-.&#x2F;  _.-&#39;    _.-&#39;</span><br><span class="line">redis_1  |  |&#96;-._&#96;-._    &#96;-.__.-&#39;    _.-&#39;_.-&#39;|</span><br><span class="line">redis_1  |  |    &#96;-._&#96;-._        _.-&#39;_.-&#39;    |           http:&#x2F;&#x2F;redis.io</span><br><span class="line">redis_1  |   &#96;-._    &#96;-._&#96;-.__.-&#39;_.-&#39;    _.-&#39;</span><br><span class="line">redis_1  |  |&#96;-._&#96;-._    &#96;-.__.-&#39;    _.-&#39;_.-&#39;|</span><br><span class="line">redis_1  |  |    &#96;-._&#96;-._        _.-&#39;_.-&#39;    |</span><br><span class="line">redis_1  |   &#96;-._    &#96;-._&#96;-.__.-&#39;_.-&#39;    _.-&#39;</span><br><span class="line">redis_1  |       &#96;-._    &#96;-.__.-&#39;    _.-&#39;</span><br><span class="line">redis_1  |           &#96;-._        _.-&#39;</span><br><span class="line">redis_1  |               &#96;-.__.-&#39;</span><br><span class="line">redis_1  |</span><br><span class="line">redis_1  | 1:M 04 Nov 10:35:17.450 # WARNING: The TCP backlog setting of 511 cannot be enforced because &#x2F;proc&#x2F;sys&#x2F;net&#x2F;core&#x2F;somaxconn is set to the lower value of 128.</span><br><span class="line">redis_1  | 1:M 04 Nov 10:35:17.450 # Server started, Redis version 3.2.5</span><br><span class="line">redis_1  | 1:M 04 Nov 10:35:17.451 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add &#39;vm.overcommit_memory &#x3D; 1&#39; to &#x2F;etc&#x2F;sysctl.conf and then reboot or run the command &#39;sysctl vm.overcommit_memory&#x3D;1&#39; for this to take effect.</span><br><span class="line">redis_1  | 1:M 04 Nov 10:35:17.451 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command &#39;echo never &gt; &#x2F;sys&#x2F;kernel&#x2F;mm&#x2F;transparent_hugepage&#x2F;enabled&#39; as root, and add it to your &#x2F;etc&#x2F;rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.</span><br><span class="line">redis_1  | 1:M 04 Nov 10:35:17.451 * The server is now ready to accept connections on port 6379</span><br></pre></td></tr></table></figure>
+
+<p>此时通过compose 的 ps 命令也能看到 <code>docker-compose ps</code> :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker-compose ps                                                                       </span><br><span class="line">          Name                          Command               State           Ports</span><br><span class="line">---------------------------------------------------------------------------------------------</span><br><span class="line">composetestbypython_redis_1   docker-entrypoint.sh redis ...   Up      6379&#x2F;tcp</span><br><span class="line">composetestbypython_web_1     &#x2F;bin&#x2F;sh -c python app.py         Up      0.0.0.0:5000-&gt;5000&#x2F;tcp</span><br></pre></td></tr></table></figure>
+<p>ok ，在浏览器中访问 <code>http://localhost:5000</code> 就能看到最终的样子啦。</p>
+<p><code>docker-compose</code> 还有很多实用的命令，比如 logs、build、start、stop 等，可以通过 <code>docker-compose --help</code>来查看:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">Define and run multi-container applications with Docker.</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line">  docker-compose [-f &lt;arg&gt;...] [options] [COMMAND] [ARGS...]</span><br><span class="line">  docker-compose -h|--help</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  -f, --file FILE             Specify an alternate compose file (default: docker-compose.yml)</span><br><span class="line">  -p, --project-name NAME     Specify an alternate project name (default: directory name)</span><br><span class="line">  --verbose                   Show more output</span><br><span class="line">  -v, --version               Print version and exit</span><br><span class="line">  -H, --host HOST             Daemon socket to connect to</span><br><span class="line"></span><br><span class="line">  --tls                       Use TLS; implied by --tlsverify</span><br><span class="line">  --tlscacert CA_PATH         Trust certs signed only by this CA</span><br><span class="line">  --tlscert CLIENT_CERT_PATH  Path to TLS certificate file</span><br><span class="line">  --tlskey TLS_KEY_PATH       Path to TLS key file</span><br><span class="line">  --tlsverify                 Use TLS and verify the remote</span><br><span class="line">  --skip-hostname-check       Don&#39;t check the daemon&#39;s hostname against the name specified</span><br><span class="line">                              in the client certificate (for example if your docker host</span><br><span class="line">                              is an IP address)</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">  build              Build or rebuild services</span><br><span class="line">  bundle             Generate a Docker bundle from the Compose file</span><br><span class="line">  config             Validate and view the compose file</span><br><span class="line">  create             Create services</span><br><span class="line">  down               Stop and remove containers, networks, images, and volumes</span><br><span class="line">  events             Receive real time events from containers</span><br><span class="line">  exec               Execute a command in a running container</span><br><span class="line">  help               Get help on a command</span><br><span class="line">  kill               Kill containers</span><br><span class="line">  logs               View output from containers</span><br><span class="line">  pause              Pause services</span><br><span class="line">  port               Print the public port for a port binding</span><br><span class="line">  ps                 List containers</span><br><span class="line">  pull               Pulls service images</span><br><span class="line">  push               Push service images</span><br><span class="line">  restart            Restart services</span><br><span class="line">  rm                 Remove stopped containers</span><br><span class="line">  run                Run a one-off command</span><br><span class="line">  scale              Set number of containers for a service</span><br><span class="line">  start              Start services</span><br><span class="line">  stop               Stop services</span><br><span class="line">  unpause            Unpause services</span><br><span class="line">  up                 Create and start containers</span><br><span class="line">  version            Show the Docker-Compose version information</span><br></pre></td></tr></table></figure>
+
+<p>更多 <code>docker-compose</code> 例子参考官网 doc 文档 : </p>
+<ul>
+<li>Docker-compose with Django : <a href="https://docs.docker.com/compose/django/" target="_blank" rel="noopener">https://docs.docker.com/compose/django/</a></li>
+<li>Get started with Rails : <a href="https://docs.docker.com/compose/rails/" target="_blank" rel="noopener">https://docs.docker.com/compose/rails/</a></li>
+<li>Get started with WordPress :  <a href="https://docs.docker.com/compose/wordpress/" target="_blank" rel="noopener">https://docs.docker.com/compose/wordpress/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>以梦为马，不负韶华</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/iwechatpay.png" alt="xirong WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ialipay.png" alt="xirong Alipay">
+        <p>Alipay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ipaypal.png" alt="xirong PayPal">
+        <p>PayPal</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/atom.xml">
+                <span class="icon">
+                  <i class="fa fa-rss"></i>
+                </span>
+
+                <span class="label">RSS</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/images/technologyNotes.jpg">
+                <span class="icon">
+                  <i class="fa fa-wechat"></i>
+                </span>
+
+                <span class="label">WeChat</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="https://t.me/freedompath">
+                <span class="icon">
+                  <i class="fa fa-telegram"></i>
+                </span>
+
+                <span class="label">Telegram</span>
+              </a>
+            </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"><i class="fa fa-tag"></i> Docker</a>
+              <a href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag"><i class="fa fa-tag"></i> 容器</a>
+              <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 虚拟化</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/11/04/how-to-manage-personal-time/" rel="prev" title="知识管理">
+      <i class="fa fa-chevron-left"></i> 知识管理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/11/05/what-you-must-know-about-iterm2/" rel="next" title="你所必知的 iterm2 技巧">
+      你所必知的 iterm2 技巧 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xirong"
+      src="/images/xirong.jpg">
+  <p class="site-author-name" itemprop="name">xirong</p>
+  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2014 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
+            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2d23e56450208acec766',
+      clientSecret: '2e82dd85f9110fd86aaa0bb5b78e23712738d3f3',
+      repo        : 'xirong.github.io',
+      owner       : 'xirong',
+      admin       : ['xirong'],
+      id          : 'ecbc3a5b5ad15dc8fe7567eb9bea5693',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

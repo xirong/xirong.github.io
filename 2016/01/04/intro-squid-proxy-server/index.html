@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
+  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
+  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="代理（英语：Proxy），也称网络代理，是一种特殊的网络服务，允许一个网络终端（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的私密或安全，防止攻击。提供代理服务的电脑系统或其它类型的网络终端称为代理服务器（英文：Proxy Server）。  - 维基百科   一个完整的代理请求过程为：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="squid正向代理">
+<meta property="og:url" content="http://www.ixirong.com/2016/01/04/intro-squid-proxy-server/index.html">
+<meta property="og:site_name" content="自由之路">
+<meta property="og:description" content="代理（英语：Proxy），也称网络代理，是一种特殊的网络服务，允许一个网络终端（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的私密或安全，防止攻击。提供代理服务的电脑系统或其它类型的网络终端称为代理服务器（英文：Proxy Server）。  - 维基百科   一个完整的代理请求过程为：">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/picnetwork/network-proxy-machine.png">
+<meta property="article:published_time" content="2016-01-04T15:16:07.000Z">
+<meta property="article:modified_time" content="2020-03-10T07:35:49.147Z">
+<meta property="article:author" content="xirong">
+<meta property="article:tag" content="squid正向代理服务器安装配置">
+<meta property="article:tag" content="squid如何使用">
+<meta property="article:tag" content="squid允许ip访问">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/picnetwork/network-proxy-machine.png">
+
+<link rel="canonical" href="http://www.ixirong.com/2016/01/04/intro-squid-proxy-server/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>squid正向代理 | 自由之路</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-61803765-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由之路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-公益">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/01/04/intro-squid-proxy-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xirong.jpg">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="思考生活，分享故事">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由之路">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          squid正向代理
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-01-04 23:16:07" itemprop="dateCreated datePublished" datetime="2016-01-04T23:16:07+08:00">2016-01-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2016/01/04/intro-squid-proxy-server/" class="post-meta-item leancloud_visitors" data-flag-title="squid正向代理" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>代理（英语：Proxy），也称网络代理，是一种特殊的网络服务，允许一个网络终端（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的私密或安全，防止攻击。提供代理服务的电脑系统或其它类型的网络终端称为代理服务器（英文：Proxy Server）。  - <a href="https：//zh.wikipedia.org/wiki/%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8">维基百科</a></p>
+</blockquote>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/picnetwork/network-proxy-machine.png" alt="Alt text"></p>
+<p>一个完整的代理请求过程为：客户端首先与代理服务器建立连接，接着根据代理服务器所使用的代理协议，请求对目标服务器建立连接、或者获得目标服务器的指定资源（如：文件）。在后一种情况中，代理服务器可能对目标服务器的资源下載至本地缓存，如果客户端所要获取的资源在代理服务器的缓存之中，则代理服务器并不会向目标服务器发送请求，而是直接返回缓存了的资源。</p>
+<a id="more"></a>
+<h3 id="代理服务器作用"><a href="#代理服务器作用" class="headerlink" title="代理服务器作用"></a>代理服务器作用</h3><ol>
+<li>提高访问速度：通常代理服务器都设置一个较大的缓冲区，当有外界的信息通过时，同时也将其保存到缓冲区中，当其他用户再访问相同的信息时， 则直接由缓冲区中取出信息，传给用户，以提高访问速度。</li>
+<li>控制对内部资源的访问：如某大学FTP（前提是该代理地址在该资源的允许访问范围之内），使用教育网内地址段免费代理服务器，就可以用于对教育网开放的各类FTP下载上传，以及各类资料查询共享等服务。</li>
+<li>过滤内容：例如限制对特定计算机的访问，将一种语言的数据翻译成另一种语言，或是防御代理服务器两边的攻击性访问。</li>
+<li>隐藏真实IP：上网者也可以通过代理服务器隐藏自己的IP，免受攻击。但是只一个代理很难保证安全，更安全的方法是利用特定的工具建立代理链。</li>
+<li>突破自身IP访问限制：访问国外站点。中国教育网和169网等网络用户可以通过代理访问国外网站。</li>
+<li>突破内容过滤机制限制，访问被过滤网站。如防火長城對中國境內互聯網存取的限制可透過使用代理服务器瀏覽而突破。但是每到国庆、两会等敏感时期，防火长城的封锁力度会大大加强，大多数代理服务器和代理软件都会无法连接。<br>（以上来自维基百科）</li>
+</ol>
+<p>代理服务器分为两种，正向代理和反向代理，squid 就是正向代理，通俗的讲代理的是客户端，主要为了隐藏IP，突破 IP 访问限制等，而反向代理通俗的讲代理的是<strong>服务端</strong>，提供负载均衡、加密缓存等功能，比如 nginx 就可以用作反向代理。</p>
+<h3 id="squid-安装配置"><a href="#squid-安装配置" class="headerlink" title="squid 安装配置"></a>squid 安装配置</h3><blockquote>
+<p> Squid is a caching proxy for the Web supporting HTTP， HTTPS， FTP， and more. （Squid 是一个 web 缓存代理服务器，支持 http、https、ftp 等众多协议） -  <a href="http：//www.squid-cache.org/">squid 官网</a></p>
+</blockquote>
+<p>squid 的安装很简单，在 centos  上直接 <code>sudo yum install squid</code>  一步步即可安装完毕，当然你也可以选择下载源文件，编译安装，<a href="http：//os.51cto.com/art/201009/226007_all.htm">可以参考</a></p>
+<p>squid 的所有配置均在<code>/etc/squid/squid.conf</code> 文件中，下面介绍下常用的配置项。Squid 的配置文件相对规范，遵循其它 unix 程序配置的规范，忽略空行和注释掉的行(以#开始)。</p>
+<p><strong>某些指令取唯一值</strong> 在这些情形下，重复赋予该指令不同的值，将覆盖前面的值。例如，下面是一个连接超时值，第一行无效，因为第二行覆盖了它：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">connect_timeout 2 minutes</span><br><span class="line">connect_timeout 1 hour</span><br></pre></td></tr></table></figure>
+
+<p>另外，某些指令取列表值。在这些情形下，每一个新增的值都有效。”扩展方式”指令以这种方法工作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">extension_methods UNGET</span><br><span class="line">extension_methods UNPUT</span><br><span class="line">extension_methods UNPOST</span><br></pre></td></tr></table></figure>
+<p>对这些基于列表的指令，你通常能在同一行中赋予多个值： <code>extension_methods UNGET UNPUT UNPOST</code><br>许多指令有通用类型。例如，连接超时值是一个时间规范，在数字后面跟着时间单元。例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">connect_timeout 3 hours</span><br><span class="line">client_lifetime 4 days</span><br><span class="line">negative_ttl 27 minutes</span><br></pre></td></tr></table></figure>
+<p>类似的，大量的指令指向文件大小或者内存额度。例如，你可以这样编写大小规范：十进制数字后面跟 bytes，KB，MB 或 GB.例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">minimum_object_size 12 bytes</span><br><span class="line">request_header_max_size 10 KB</span><br><span class="line">maximum_object_size 187 MB</span><br></pre></td></tr></table></figure>
+
+<p>另一种值得提起的类型是触发器，它的值是 on 或者 off，许多指令使用该类型。例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server_persistent_connections on</span><br><span class="line">strip_query_terms off</span><br><span class="line">prefer_direct on</span><br></pre></td></tr></table></figure>
+<p>通常，配置文件指令能以任何顺序出现。然而，如果某个指令指向的值被其他指令所定义，那么顺序就很重要。访问控制列表是个好的例子。acl 被用在 http_access 规则之前必须 被定义：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acl Foo src 1.2.3.4</span><br><span class="line">http_access deny Foo</span><br></pre></td></tr></table></figure>
+<p>squid.conf  文件里的许多东西是大小写敏感的，例如指令名，你不能将 http_port 写成 HTTP_port。</p>
+<h3 id="日志文件"><a href="#日志文件" class="headerlink" title="日志文件"></a>日志文件</h3><p>squid 默认将日志存放在 <strong>/var/log/squid/</strong> 下（你是通过 <code>yum install squid</code>安装的话），主要包括三个文件 cache.log，access.log，store.log。<br> <code>cache.log</code> 包含状态性的和调试性的消息。当你刚开始运行 squid 时，你应密切的关注该文件。假如 squid 拒绝运行，理由也许会出现在 cache.log 文件的结尾处。在正常条件下，该文件不会变得很大。</p>
+<p><code>access.log</code> 文件包含了对 squid 发起的每个客户请求的单一行。每行平均约 150 个字节。 也就是说，在接受一百万条客户请求后，它的体积约是 150M。</p>
+<p><code>store.log</code> 文件对大多数 cache 管理员来说并非很有用。它包含了进入和离开缓存的每个目标的记录，平均记录大小典型的是 175-200 字节。然而 squid 不在 store.log 里对 cache 点击创建接口，所以它比 access.log 包含少得多的记录。</p>
+<h3 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h3><p>squid 默认的配置文件拒绝每一个客户请求，在能使用代理之前，必须在 squid.conf 文件里加入附加的访问控制规则。最简单的方法就是定义一个针对客户IP地址的 ACL 和一个访问规则，告诉 squid 允许来自这些地址的 HTTP 请求。<br>squid 有许多不同的 ACL 类型。src 类型匹配客户 IP 地址，squid 会针对客户 HTTP 请求检查 http_access 规则。这样， 你需要增加两行:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acl MyNetwork src 192.168.0.0/16</span><br><span class="line">http_access allow MyNetwork</span><br></pre></td></tr></table></figure>
+<p>注意：http_access 的顺序非常重要，一定要放在 <code># INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS</code> 注释之后，以及 <code>http_access deny all</code> 之前插入你自己的新规则。</p>
+<h3 id="启动运行"><a href="#启动运行" class="headerlink" title="启动运行"></a>启动运行</h3><p>在启动 squid 前，推荐先对配置检查，<code>squid -k parse</code> 能对不正确的配置打印出推荐的结果。<br>在初次运行 squid 之前，或者无论何时你增加了新的 cache_dir，你必须初始化 cache 目录，命令很简单: <code>squid -z</code>。</p>
+<p>一旦你已经初始化 cache 目录，就可以在终端窗口里运行 squid，将日志记录到标准错误。这样，你能轻易的定位任何错误或问题，并且确认 squid 是否成功启动。使用-N 选项来保持 squid 在前台运行，-d1 选项在标准错误里显示 1 级别的调试信息<code>squid -N -d1</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">2003/09/29 12:57:52| Starting Squid Cache</span><br><span class="line">version 2.5.STABLE4 <span class="keyword">for</span> i386-unknown-freebsd4.8...</span><br><span class="line">2003/09/29 12:57:52| Process ID 294</span><br><span class="line">2003/09/29 12:57:52| With 1064 file descriptors available</span><br><span class="line">2003/09/29 12:57:52| DNS Socket created on FD 4</span><br><span class="line">2003/09/29 12:57:52| Adding nameserver 206.107.176.2 from /etc/resolv.conf 2003/09/29 12:57:52| Adding nameserver 205.162.184.2 from /etc/resolv.conf</span><br><span class="line">2003/09/29 12:57:52| Unlinkd pipe opened on FD 9</span><br><span class="line">2003/09/29 12:57:52| Swap maxSize 102400 KB， estimated 7876 objects</span><br><span class="line">2003/09/29 12:57:52| Target number of buckets: 393</span><br><span class="line">2003/09/29 12:57:52| Using 8192 Store buckets</span><br><span class="line">2003/09/29 12:57:52| Max Mem size: 8192 KB</span><br><span class="line">2003/09/29 12:57:52| Max Swap size: 102400 KB</span><br><span class="line">2003/09/29 12:57:52| Rebuilding storage <span class="keyword">in</span> /usr/<span class="built_in">local</span>/squid/var/cache (DIRTY)</span><br><span class="line">2003/09/29 12:57:52| Using Least Load store dir selection</span><br><span class="line">2003/09/29 12:57:52| Set Current Directory to /usr/<span class="built_in">local</span>/squid/var/cache</span><br><span class="line">2003/09/29 12:57:52| Loaded Icons.</span><br><span class="line">2003/09/29 12:57:52| Accepting HTTP connections at 0.0.0.0， port 3128， FD 11.</span><br><span class="line">2003/09/29 12:57:52| Accepting ICP messages at 0.0.0.0， port 3130， FD 12.</span><br><span class="line">2003/09/29 12:57:52| WCCP Disabled.</span><br><span class="line">2003/09/29 12:57:52| Ready to serve reques</span><br></pre></td></tr></table></figure>
+<p>一旦你见到 “Ready to serve requests” 消息，就可用一些 HTTP 请求来测试 squid，配置你的浏览器使用 squid 作为代理，然后打开某个 web 页面。假如 squid 工作正常，页面被迅速载入，就象没使用 squid 一样。另外，你可以使用 squidclient 程序，它随 squid 发布:<code>squidclient http://www.baidu.com</code> 假如它正常工作，squid 的主页 html 文件会在你的终端窗口里滚动。一旦确认 squid 工 作正常，你能中断 squid 进程(例如使用 ctrl-c)并且在后台运行 squid。</p>
+<p>服务端（后台）启动 squid，命令：<code>squid -s</code> ，可以通过 <code>ps -ef|grep squid</code> 来查看启动进程。</p>
+<p>如果修改了 squid.conf 文件，不需要重启，可以使用重新加载配置文件 <code>squid -k reconfigure</code>来搞定。若想停止 squid，命令：最安全的方法 <code>squid -k shutdown</code>发送关闭信号给 squid 进程，默认等待30s 后或者结束所有的请求后关闭程序，若等不及直接<code>squid -k kill</code> 或者 找到 squid 的进程，kill 掉就能立刻停止 squid 进程。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>以梦为马，不负韶华</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/iwechatpay.png" alt="xirong WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ialipay.png" alt="xirong Alipay">
+        <p>Alipay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ipaypal.png" alt="xirong PayPal">
+        <p>PayPal</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/atom.xml">
+                <span class="icon">
+                  <i class="fa fa-rss"></i>
+                </span>
+
+                <span class="label">RSS</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/images/technologyNotes.jpg">
+                <span class="icon">
+                  <i class="fa fa-wechat"></i>
+                </span>
+
+                <span class="label">WeChat</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="https://t.me/freedompath">
+                <span class="icon">
+                  <i class="fa fa-telegram"></i>
+                </span>
+
+                <span class="label">Telegram</span>
+              </a>
+            </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/squid/" rel="tag"><i class="fa fa-tag"></i> squid</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"><i class="fa fa-tag"></i> 网络</a>
+              <a href="/tags/%E4%BB%A3%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 代理</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/01/03/book-zhouhongyi-thinking-of-internet/" rel="prev" title="《我的互联网方法论》笔记">
+      <i class="fa fa-chevron-left"></i> 《我的互联网方法论》笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/01/05/how-to-config-squid-acl/" rel="next" title="squid 访问控制">
+      squid 访问控制 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代理服务器作用"><span class="nav-number">1.</span> <span class="nav-text">代理服务器作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#squid-安装配置"><span class="nav-number">2.</span> <span class="nav-text">squid 安装配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#日志文件"><span class="nav-number">3.</span> <span class="nav-text">日志文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问控制"><span class="nav-number">4.</span> <span class="nav-text">访问控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动运行"><span class="nav-number">5.</span> <span class="nav-text">启动运行</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xirong"
+      src="/images/xirong.jpg">
+  <p class="site-author-name" itemprop="name">xirong</p>
+  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2014 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
+            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2d23e56450208acec766',
+      clientSecret: '2e82dd85f9110fd86aaa0bb5b78e23712738d3f3',
+      repo        : 'xirong.github.io',
+      owner       : 'xirong',
+      admin       : ['xirong'],
+      id          : 'af3c3c67334c9c260305a934fea85153',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

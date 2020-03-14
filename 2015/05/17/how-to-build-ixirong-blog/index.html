@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
+  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
+  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="我想写个博客，托管在 github 上面，很cool，怎么操作呢？什么是静态博客？什么是 GitHub Pages服务？为什么使用hexo？hexo怎么建立静态博客站点？完全免费可以搭建个人博客吗？我平常喜欢使用 markdown 来写东西，写博客的时候可以用吗？ wordpress 建立网站功能越来越多，但很麻烦，有没有省事的方法？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 github Pages 服务建立 ixirong.com 独立博客全过程">
+<meta property="og:url" content="http://www.ixirong.com/2015/05/17/how-to-build-ixirong-blog/index.html">
+<meta property="og:site_name" content="自由之路">
+<meta property="og:description" content="我想写个博客，托管在 github 上面，很cool，怎么操作呢？什么是静态博客？什么是 GitHub Pages服务？为什么使用hexo？hexo怎么建立静态博客站点？完全免费可以搭建个人博客吗？我平常喜欢使用 markdown 来写东西，写博客的时候可以用吗？ wordpress 建立网站功能越来越多，但很麻烦，有没有省事的方法？">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/dnspod.png">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/static.ixirong.png">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/aliyunmonitor.png">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/360cloudmonitor.png">
+<meta property="og:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/hexo/tencent-cloud.png">
+<meta property="article:published_time" content="2015-05-17T14:22:55.000Z">
+<meta property="article:modified_time" content="2020-03-10T07:35:49.146Z">
+<meta property="article:author" content="xirong">
+<meta property="article:tag" content="hexo">
+<meta property="article:tag" content="网站建设">
+<meta property="article:tag" content="github pages">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/dnspod.png">
+
+<link rel="canonical" href="http://www.ixirong.com/2015/05/17/how-to-build-ixirong-blog/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>使用 github Pages 服务建立 ixirong.com 独立博客全过程 | 自由之路</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-61803765-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自由之路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-公益">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2015/05/17/how-to-build-ixirong-blog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xirong.jpg">
+      <meta itemprop="name" content="xirong">
+      <meta itemprop="description" content="思考生活，分享故事">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自由之路">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          使用 github Pages 服务建立 ixirong.com 独立博客全过程
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-05-17 22:22:55" itemprop="dateCreated datePublished" datetime="2015-05-17T22:22:55+08:00">2015-05-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%AB%99%E5%BB%BA%E8%AE%BE/" itemprop="url" rel="index"><span itemprop="name">网站建设</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2015/05/17/how-to-build-ixirong-blog/" class="post-meta-item leancloud_visitors" data-flag-title="使用 github Pages 服务建立 ixirong.com 独立博客全过程" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <div class="post-description">我想写个博客，托管在 github 上面，很cool，怎么操作呢？什么是静态博客？什么是 GitHub Pages服务？为什么使用hexo？hexo怎么建立静态博客站点？完全免费可以搭建个人博客吗？我平常喜欢使用 markdown 来写东西，写博客的时候可以用吗？ wordpress 建立网站功能越来越多，但很麻烦，有没有省事的方法？</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>你是否有这样子的需求，只是想简单的写写文章，记录下自己的学习心得、成长经历等，都是些文字内容，不需要配置使用数据库、不想购买服务器自己搭建站点，只是想安安静静的用比较舒服的方式来写篇文章。 <code>静态博客</code>就是为此而生的，不用配置服务器、不用数据库、访问速度相当快、没有不安全漏洞的说法，最重要的，对于一个经常使用 <code>markdown</code>来写文章的人来说，她完美支持！</p>
+<blockquote>
+<p>GithubPages ,the Websites for you and your projects. Hosted directly from your GitHub repository. Just edit, push, and your changes are live.</p>
+</blockquote>
+<p>上面简单的一句话，就说明了 GithubPages 的本质：托管在github上面的个人站点页面，使用 <code>markdown</code> 来写文章，简单、易用，不用在乎太多的排版工作，而且<strong>免费</strong>。</p>
+<p>说完了这两个概念，就可以说一说 <code>ixirong.com</code> 整个站点的建立过程了，总结为使用hexo搭建博客，托管在 githubpages（国外） 和 gitcafe（国内） 上，监控使用阿里云+360云监控（两个托管商服务还是很稳定的），统计流量采用老牌 CNZZ 数据专家，站长工具采用百度站长，也参考google站长。详细如下：</p>
+<h1 id="域名申请"><a href="#域名申请" class="headerlink" title="域名申请"></a>域名申请</h1><p>域名我选择了国外的服务商 Godaddy，详情请参考 <a href="http://godaddy.idcspy.com/domain-regist" target="_blank" rel="noopener">如何在Godaddy申请域名？</a>，当然你也可以选择<a href="http://www.net.cn/" target="_blank" rel="noopener">万网</a>、<a href="http://www.xinnet.com/" target="_blank" rel="noopener">新网</a>、<a href="http://www.west263.com" target="_blank" rel="noopener">西部数码</a>或者新生高傲的<a href="http://www.google.com/intl/zh-CN/registry/" target="_blank" rel="noopener">google域名注册服务</a>。</p>
+<h1 id="域名备案"><a href="#域名备案" class="headerlink" title="域名备案"></a>域名备案</h1><p>采用 github Pages 服务，是<strong>不需要备案</strong>的，当如果你想使用七牛的自定义域名、CDN服务、站长助手的一些高级功能使用，是需要有备案的，详情请参考我的另一篇单独博客<a href="http://ixirong.com/2015/04/15/how-blog-record-by-aliyun/" target="_blank" rel="noopener"> 个人godaddy域名备案解决方案</a>。</p>
+<h1 id="域名解析"><a href="#域名解析" class="headerlink" title="域名解析"></a>域名解析</h1><p>采用顶尖老牌服务 dnspod ，稳定、高效、实时生效，详细方法请参考<a href="https://support.dnspod.cn/Kb/showarticle/tsid/42/" target="_blank" rel="noopener">Godaddy注册商域名修改DNS解析方法</a>，如有任何疑问，可以查看<a href="https://support.dnspod.cn/Support/support" target="_blank" rel="noopener">帮助中心</a>。</p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/dnspod.png" alt="ixirong.com 的 dns 解析设置图"></p>
+<h1 id="hexo-写博客"><a href="#hexo-写博客" class="headerlink" title="hexo 写博客"></a>hexo 写博客</h1><p>hexo是由Node.js驱动的一款快速、简单且功能强大的博客框架，它和jekyll相比，更快，更轻量，命令更简单（而且jekyll很多缺点）。网友已经写过这方面的好多文章了，当时我主要参考的如下，当然你也可以google搜索下使用方法</p>
+<p>2015-05-19 更新，如果你嫌下面的文章太长了，有没有一篇完整的、详细的介绍，很高兴，<a href="http://weibo.com/207775270" target="_blank" rel="noopener">@cnFeat</a>就是这样子一个人，详情见文章：<br><a href="http://www.jianshu.com/p/05289a4bc8b2" target="_blank" rel="noopener">如何搭建一个独立博客——简明Github Pages与Hexo教程</a></p>
+<ul>
+<li><a href="http://yangjian.me/workspace/building-blog-with-hexo/" target="_blank" rel="noopener">使用hexo搭建博客</a></li>
+<li><a href="http://ibruce.info/2013/11/22/hexo-your-blog/" target="_blank" rel="noopener">hexo你的博客</a></li>
+<li><a href="http://zipperary.com/2013/05/28/hexo-guide-1/" target="_blank" rel="noopener">hexo系列教程：（一）hexo介绍</a></li>
+<li><a href="http://zipperary.com/2013/05/28/hexo-guide-2/" target="_blank" rel="noopener">hexo系列教程：（二）搭建hexo博客</a></li>
+<li><a href="http://zipperary.com/2013/05/28/hexo-guide-3/" target="_blank" rel="noopener">hexo系列教程：（三）hexo博客的配置、使用</a></li>
+<li><a href="http://zipperary.com/2013/05/28/hexo-guide-4/" target="_blank" rel="noopener">hexo系列教程：（四）hexo博客的优化技巧</a></li>
+<li><a href="http://zipperary.com/2013/05/28/hexo-guide-5/" target="_blank" rel="noopener">hexo系列教程：（五）hexo博客的优化技巧续</a></li>
+<li>汇总优化技巧 <a href="http://lukang.me/2014/optimization-of-hexo.html" target="_blank" rel="noopener">Hexo 优化与定制(一)</a></li>
+<li>hexo 搭建博客同时使用 GitHub 和 GitCafe 两个服务商，国内访问 GitCafe，国外访问GitHub，<a href="http://ppting.me/2015/02/08/gitcafe/" target="_blank" rel="noopener">设置方法参见博客</a></li>
+</ul>
+<h1 id="图床静态资源"><a href="#图床静态资源" class="headerlink" title="图床静态资源"></a>图床静态资源</h1><p>云存储这东西，目前存在很多七牛云、又拍云、阿里云、腾讯云都可以用来做图片存储，ixirong.com 选择的是七牛，为什么？靠，免费啊~  当然，七牛的精力一直在做这块，还是很不错的，注册七牛云，建立个空间，上传图片，点击图片链接就可以访问了，把这些图片链接放到你的博客中使用到的地方就ok了。默认的七牛域名比较长，已经备案的域名可以申请自定义，比如<code>ixirong.com</code> 的自定义为 <code>ixirong.oss-cn-beijing.aliyuncs.com</code>域名，你可以看看下面这张图：<br><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/static.ixirong.png" alt="ixirong.oss-cn-beijing.aliyuncs.com测试"></p>
+<p><code>使用我的推广链接可以得到更多的免费流量哦，https://portal.qiniu.com/signup?code=3lkd3gonyuhjm</code></p>
+<h1 id="站点统计、监控、站长助手"><a href="#站点统计、监控、站长助手" class="headerlink" title="站点统计、监控、站长助手"></a>站点统计、监控、站长助手</h1><p>使用<a href="http://zhanzhang.baidu.com/site/index" target="_blank" rel="noopener">百度站长工具</a>来进行百度分享、百度统计、SEO优化等的调整，使用<a href="">google站长工具</a>主要是分析国外流量来源，使用<a href="http://tongji.cnzz.com/main.php?c=site&a=show&from=login">cnzz数据专家</a>进行全方位的统计分析工作。</p>
+<p>网站的监控采用<a href="http://console.aliyun.com/jiankong/" target="_blank" rel="noopener">阿里云</a>和<a href="http://jk.cloud.360.cn/Console" target="_blank" rel="noopener">360监控</a>，基本上覆盖了全国地区的检测点，两者都有免费的报警短信（1000条/月），小站点足够使用了 如下图：<br><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/aliyunmonitor.png" alt="360cloudmonitor"></p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/github/360cloudmonitor.png" alt="aliyunmonitor"></p>
+<h1 id="腾讯云CDN使用"><a href="#腾讯云CDN使用" class="headerlink" title="腾讯云CDN使用"></a>腾讯云CDN使用</h1><p>前段时间DNSPod联合腾讯云赠送免费CDN服务，我整了一个，使用体验了下，CDN的设置还是挺简单的，具体见图片即可，全国电信、联通、移动的用户访问 <a href="http://www.ixirong.com">http://www.ixirong.com</a> 速度上面应该挺快的，可以尝试下。</p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/hexo/tencent-cloud.png" alt="tencentcloud"></p>
+<p>到此，基本上<code>ixirong.com</code> 建站的整个过程就完了，当然还在不断的摸索中前进，如果你有什么好的想法，请留言或者右侧找到我的联系方式，跟我联系，如果你有什么问题，同样联系我，我会第一时间答复你，共同进步，共同成长！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>以梦为马，不负韶华</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/iwechatpay.png" alt="xirong WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ialipay.png" alt="xirong Alipay">
+        <p>Alipay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/ipaypal.png" alt="xirong PayPal">
+        <p>PayPal</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/atom.xml">
+                <span class="icon">
+                  <i class="fa fa-rss"></i>
+                </span>
+
+                <span class="label">RSS</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="/images/technologyNotes.jpg">
+                <span class="icon">
+                  <i class="fa fa-wechat"></i>
+                </span>
+
+                <span class="label">WeChat</span>
+              </a>
+            </div>
+
+            <div class="social-item">
+              <a target="_blank" class="social-link" href="https://t.me/freedompath">
+                <span class="icon">
+                  <i class="fa fa-telegram"></i>
+                </span>
+
+                <span class="label">Telegram</span>
+              </a>
+            </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/hexo/" rel="tag"><i class="fa fa-tag"></i> hexo</a>
+              <a href="/tags/%E7%BD%91%E7%AB%99%E5%BB%BA%E8%AE%BE/" rel="tag"><i class="fa fa-tag"></i> 网站建设</a>
+              <a href="/tags/github-pages/" rel="tag"><i class="fa fa-tag"></i> github pages</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/05/13/how-to-decide-to-bye-mac-economicaly/" rel="prev" title="购买苹果设备如何更经济实惠？">
+      <i class="fa fa-chevron-left"></i> 购买苹果设备如何更经济实惠？
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/05/18/how-to-install-flume-ng/" rel="next" title="分布式实时日志系统（二） 环境搭建之 flume 集群搭建/flume ng资料">
+      分布式实时日志系统（二） 环境搭建之 flume 集群搭建/flume ng资料 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#域名申请"><span class="nav-number">1.</span> <span class="nav-text">域名申请</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#域名备案"><span class="nav-number">2.</span> <span class="nav-text">域名备案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#域名解析"><span class="nav-number">3.</span> <span class="nav-text">域名解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hexo-写博客"><span class="nav-number">4.</span> <span class="nav-text">hexo 写博客</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#图床静态资源"><span class="nav-number">5.</span> <span class="nav-text">图床静态资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#站点统计、监控、站长助手"><span class="nav-number">6.</span> <span class="nav-text">站点统计、监控、站长助手</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#腾讯云CDN使用"><span class="nav-number">7.</span> <span class="nav-text">腾讯云CDN使用</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xirong"
+      src="/images/xirong.jpg">
+  <p class="site-author-name" itemprop="name">xirong</p>
+  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2014 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xirong</span>
+</div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
+            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2d23e56450208acec766',
+      clientSecret: '2e82dd85f9110fd86aaa0bb5b78e23712738d3f3',
+      repo        : 'xirong.github.io',
+      owner       : 'xirong',
+      admin       : ['xirong'],
+      id          : '33c621da0e56d834b29606596ef44f91',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
