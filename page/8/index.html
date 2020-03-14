@@ -24,15 +24,16 @@
     var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="思考生活，分享故事">
+  <meta name="description" content="学习科技理念，追求自由之路">
 <meta property="og:type" content="website">
 <meta property="og:title" content="自由之路">
 <meta property="og:url" content="http://www.ixirong.com/page/8/index.html">
 <meta property="og:site_name" content="自由之路">
-<meta property="og:description" content="思考生活，分享故事">
+<meta property="og:description" content="学习科技理念，追求自由之路">
 <meta property="og:locale" content="zh">
 <meta property="article:author" content="xirong">
 <meta property="article:tag" content="科技充电站，shadowsocks，vpn，科学上网">
+<meta property="article:tag" content="稳定翻墙">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://www.ixirong.com/page/8/">
@@ -193,7 +194,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -278,7 +279,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -317,6 +318,7 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
+            <div class="post-description">初步学习mongodb收集了一些学习资料，均来自网络上的文章，方便以后回顾！</div>
 
         </div>
       </header>
@@ -327,15 +329,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>初步学习mongodb收集了一些学习资料，均来自网络上的文章，方便以后回顾！</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2015/01/31/mongodb-librarys/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <h3 id="一步步学习"><a href="#一步步学习" class="headerlink" title="一步步学习"></a>一步步学习</h3><ul>
+<li><a href="https://github.com/geminiyellow/the-little-mongodb-book/blob/master/zh-cn/mongodb.markdown" target="_blank" rel="noopener">the little mongdb book</a>从头到尾的小例子<h3 id="mongodb设计思想"><a href="#mongodb设计思想" class="headerlink" title="mongodb设计思想"></a>mongodb设计思想</h3></li>
+<li><a href="http://blog.nosqlfan.com/html/3548.html" target="_blank" rel="noopener">NoSqlFan中MongoDB资料汇总专题</a> 里面包含的东西很多，值得参考！不过里面的PPT和视频可能需要翻墙才可以看的！</li>
+<li><a href="http://blog.nosqlfan.com/html/1743.html" target="_blank" rel="noopener">MongoDB源码研究系列文章</a></li>
+</ul>
+<h3 id="mongodb的安装部署"><a href="#mongodb的安装部署" class="headerlink" title="mongodb的安装部署"></a>mongodb的安装部署</h3><ul>
+<li><a href="http://robomongo.org/" target="_blank" rel="noopener">开源MongoDB图形化数据库管理工具</a> ，支持Mac、window、Linux三种平台；</li>
+<li><a href="http://docs.mongodb.org/manual/tutorial/install-mongodb-on-linux/?_ga=1.86192664.1251376469.1422283120" target="_blank" rel="noopener">单机mongo安装方法</a> </li>
+<li><a href="http://blog.jobbole.com/72610/" target="_blank" rel="noopener">搭建高可用MongoDB集群（一）：配置MongoDB</a></li>
+<li><a href="http://blog.jobbole.com/72624/" target="_blank" rel="noopener">搭建高可用MongoDB集群（二）： 副本集</a></li>
+<li><a href="http://blog.jobbole.com/72636/" target="_blank" rel="noopener">搭建高可用MongoDB集群（三）：深入副本集内部机制</a></li>
+<li><a href="http://blog.jobbole.com/72643/" target="_blank" rel="noopener">搭建高可用MongoDB集群（四）：分片</a></li>
+</ul>
+<h3 id="mongodb实践-优化"><a href="#mongodb实践-优化" class="headerlink" title="mongodb实践+优化"></a>mongodb实践+优化</h3><ul>
+<li><a href="http://blog.nosqlfan.com/html/4061.html" target="_blank" rel="noopener">Dex – MongoDB索引优化工具</a></li>
+</ul>
+
       
     </div>
 
@@ -359,7 +369,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -450,7 +460,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -459,7 +469,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2015/01/19/shadowsocks-md/" class="post-title-link" itemprop="url">科学上网工具shadowsocks翻墙工具使用方法及资料汇总</a>
+            <a href="/2015/01/19/shadowsocks-md/" class="post-title-link" itemprop="url">科学上网工具shadowsocks翻墙工具稳定使用方法及资料破除封锁比vpn稳定</a>
         </h2>
 
         <div class="post-meta">
@@ -482,13 +492,14 @@
             </span>
 
           
-            <span id="/2015/01/19/shadowsocks-md/" class="post-meta-item leancloud_visitors" data-flag-title="科学上网工具shadowsocks翻墙工具使用方法及资料汇总" title="Views">
+            <span id="/2015/01/19/shadowsocks-md/" class="post-meta-item leancloud_visitors" data-flag-title="科学上网工具shadowsocks翻墙工具稳定使用方法及资料破除封锁比vpn稳定" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
+            <div class="post-description">shadowsocks很不稳定吗？不稳定，被封锁，怎么解决？翻墙工具，如何翻墙？vpn翻墙不靠谱，vpn无法翻墙，vpn不稳定怎么办？速度快，安全高，跨平台包括 mac OSX shadowsocks、windows shadowsocks、android shadowsocks、ios shadowsocks等，众多服务提供商，包括shadowsocks免费账号、shadowsocks付费账号，shadowsocks的使用方法是怎么样的呢？Mac下怎么使用shadowsocks？shadowsocks windows下怎么安装使用？安卓平台怎么使用shadowsocks？shadowsocks的原理是什么？为什么shadowsocks能翻墙？shadowsocks翻墙的原理是什么？shadowsocks安全吗？shadowsocks稳定吗？</div>
 
         </div>
       </header>
@@ -499,15 +510,110 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>shadowsocks很不稳定吗？不稳定，被封锁，怎么解决？翻墙工具，如何翻墙？vpn翻墙不靠谱，vpn无法翻墙，vpn不稳定怎么办？速度快，安全高，跨平台包括 mac OSX shadowsocks、windows shadowsocks、android shadowsocks、ios shadowsocks等，众多服务提供商，包括shadowsocks免费账号、shadowsocks付费账号，shadowsocks的使用方法是怎么样的呢？Mac下怎么使用shadowsocks？shadowsocks windows下怎么安装使用？安卓平台怎么使用shadowsocks？shadowsocks的原理是什么？为什么shadowsocks能翻墙？shadowsocks翻墙的原理是什么？shadowsocks安全吗？shadowsocks稳定吗？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2015/01/19/shadowsocks-md/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <h4 id="2020-02-28-最近很不稳，经常被封锁"><a href="#2020-02-28-最近很不稳，经常被封锁" class="headerlink" title="2020-02-28 最近很不稳，经常被封锁"></a>2020-02-28 最近很不稳，经常被封锁</h4><p>相信大家也感受到了，最近很不稳定，经常无法访问Google，你懂的，疫。情。特殊时期，xirong最近这段时间也很不稳定；那么怎么解决？这里有一种方案，就是找一家靠谱的收费服务商，便宜不贵，非常稳定，即使像这种时期，服务商也会不断调整，保证稳定；</p>
+<p>特别推荐的就是xirong使用的服务商「枫叶网络」，10年老牌子了，从一家很小的创业公司到现在，有很多的业务，虚拟主机，vps、云服务器等，使用我的推广链接还享受一定优惠：<a href="https://www.fenghost.io/aff.php?aff=531" target="_blank" rel="noopener">https://www.fenghost.io/aff.php?aff=531</a>。</p>
+<hr>
+<p>感谢万能的互联网，使我们这一代，如果你想，那么你就可以知晓世界上任何的事情！搜索引擎的出现使得搜索知识比以往要容易的多，你只要知道一个概念就能找出相应的所有的知识；社交网络的出现使得你跟你喜欢的明星的交谈就在一个留言上，不像以前那样，平凡的人是根本没有渠道去做这些事情的；从以前网络的虚假到现在慢慢的越来越真实，一个 ID 在网络上就代表着真实世界中的一个人，你可以与你真实世界中的想法一样当然也可以完全不一样，但这都不能阻碍你成为<code>个性、有着独立思想、见解的人</code>，可是生活在天朝，由于种种原因，好多国外世界的资源你是无法看到的，你不能享受你应该得到的这些（xirong 认为每一个个体都有相同的权利去享受互联网带给生活中的便利），这是很令人愤恨的 ！！ 如果不能去看到更多的风景，去尝试生命更多的可能，拥有年轻心态的你怎么会甘心？</p>
+<blockquote>
+<p>Across the Great Firewall, you can reach every corner in the world.</p>
+</blockquote>
+<h2 id="什么是shadowsocks？"><a href="#什么是shadowsocks？" class="headerlink" title="什么是shadowsocks？"></a>什么是shadowsocks？</h2><blockquote>
+<p>A secure socks5 proxy , designed to protect your Internet traffic.<br>Shadowsocks 轻量级科学上网姿势，改变您的生活体验！</p>
+</blockquote>
+<p>   做为一个码农，经常需要搜索技术文章，如果不能够使用 google ，那么你的生活是很痛苦的，很多资料根本搜索不到的，所以你应该知道<strong>代理</strong>，通过代理可以绕过gwf（<a href="http://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E9%95%BF%E5%9F%8E" target="_blank" rel="noopener">见识下强大的GFW</a>），从而去享受不被控制的生活，<a href="http://cokebar.info/archives/236" target="_blank" rel="noopener">科学上网</a>的方式很多，我们最常见的就是vpn，一把屠龙宝刀，像很多的老牌vpn厂商（<a href="http://www.greenjsq.info/" target="_blank" rel="noopener">green vpn</a>、<a href="http://ytvpn.com/" target="_blank" rel="noopener">云梯</a>，更多查看靠谱<a href="http://vpntuijian.com/" target="_blank" rel="noopener">vpn推荐网</a>)，而shadowsocks就是一把瑞士军刀，锋利小巧快速简单，适应各种场景，适应各种客户端平台，window、mac、linux、ios、android使用简单。</p>
+<h3 id="shadowsocks-原理"><a href="#shadowsocks-原理" class="headerlink" title="shadowsocks 原理"></a>shadowsocks 原理</h3><p>简单理解的话，Shadowsocks是将以前通过 SSH 创建的 Socks5 协议拆开成 Server 端和 client 端，下面这个原理图能简单介绍其翻墙原理，基本上和利用SSH tunnel大致类似：</p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/ss/what-is-shadowsocks.png" alt="shadowsocks原理图"></p>
+<ol>
+<li>PC客户端（即你的电脑）发出请求基于 Socks5 协议跟 SS-Local 端进行通讯，由于这个 SS-Local 一般是本机或路由器等局域网的其他机器，不经过 GFW，所以解决 GFW 通过特征分析进行干扰的问题。</li>
+<li>SS-Local 和 SS-Server 两端通过多种可选的加密方法进行通讯，经过GFW的时候因为是常规的 TCP 包，没有明显特征码 GFW 也无法对通讯数据进行解密，因此通讯放行。</li>
+<li>SS-Server 将收到的加密数据进行解密，还原初始请求，再发送到用户需要访问的服务网站，获取响应原路再返回 SS-local，返回途中依然使用了加密，使得流量是普通 TCP 包，并成功穿过 GFW 防火墙。</li>
+</ol>
+<p>详细理解请参考文章<a href="http://vc2tea.com/whats-shadowsocks/" target="_blank" rel="noopener">写给非专业人士看的 Shadowsocks 简介</a>，不知道GFW？请参考<a href="http://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E9%95%BF%E5%9F%8E" target="_blank" rel="noopener">强大的GFW长城防火墙</a></p>
+<h2 id="为什么要用shadowsocks？"><a href="#为什么要用shadowsocks？" class="headerlink" title="为什么要用shadowsocks？"></a>为什么要用shadowsocks？</h2><ul>
+<li><p>配置简单：只需一次输入服务器ip地址、端口号、加密方式，随时即可轻松代理</p>
+</li>
+<li><p>跨平台：window、mac、Linux、ios、android安装客户端，一样轻松</p>
+</li>
+<li><p>与vpn差异</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="right">vpn</th>
+<th align="center">shadowsocks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">简单，一键翻墙</td>
+<td align="center">简单，一键翻墙</td>
+</tr>
+<tr>
+<td align="right">全局，代理浏览器、各种app、所有走网络的都经过vpn服务器</td>
+<td align="center">只有浏览器（可以手动设置代理其他app）</td>
+</tr>
+<tr>
+<td align="right">免费、收费服务商很多</td>
+<td align="center">免费、收费服务商很多</td>
+</tr>
+<tr>
+<td align="right">速度可以</td>
+<td align="center">速度很快，香港、新加坡几十毫秒</td>
+</tr>
+<tr>
+<td align="right">平台性稍差，有些做的也不错了，总体跨平台性差</td>
+<td align="center">支持各平台客户端，跨平台性强</td>
+</tr>
+</tbody></table>
+<ul>
+<li>vpn使用过程中最痛苦的莫过于，公司使用vpn、内网某些资源无法访问，需要频繁切换vpn代理</li>
+<li>shadowsocks凭借维护的pac文件自动识别是否是别gfw过滤域名，是的话走代理，否则不走代理，这点很方便，不需要你去关注，你只需要想着该google时就google</li>
+<li>其他方式比如修改host，一段时间后就被和谐了，很不稳定；GoAgent也是，不稳定，需要频繁部署代理，其实某些时候你只是想要google些资料，却因如何可以用google浪费大量时间。<ul>
+<li><strong>PS</strong>汇总这些详细方法，见<a href="https://drive.google.com/folderview?id=0B3jQIp1ENRcfUU5xZUVRWUdXRVU&usp=sharing" target="_blank" rel="noopener">Google Drive</a>，也可参考<a href="https://code.google.com/p/smartladder/" target="_blank" rel="noopener">smartladder</a>。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>安全系数高，抗封锁能力强，<a href="https://plus.google.com/u/0/109790703964908675921/posts/TtWFAQmSMVE" target="_blank" rel="noopener">为什么呢？</a>？</li>
+</ul>
+<h2 id="客户端怎么使用？"><a href="#客户端怎么使用？" class="headerlink" title="客户端怎么使用？"></a>客户端怎么使用？</h2><ul>
+<li>跨平台支持 window、mac、Android、ios、wp 客户端下载地址及使用方法 参考<a href="http://help.fyvps.com/index.php/archives/51/" target="_blank" rel="noopener">枫叶主机帮助文档 </a><ul>
+<li>还是不会用？google搜索 <a href="https://www.google.com.hk/search?q=shadowsocks+%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&oq=shadowsocks+%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&aqs=chrome..69i57j0j69i61.6446j0j7&sourceid=chrome&es_sm=119&ie=UTF-8&gws_rd=cr,ssl" target="_blank" rel="noopener">shadowsocks使用方法</a>  </li>
+</ul>
+</li>
+<li>几个常见工具<a href="https://milooo.net/download.html" target="_blank" rel="noopener">下载地址</a>，包括Autoproxy.pac文件、proxy switchsharp、ios openvpn配置等。</li>
+</ul>
+<h2 id="账号资源"><a href="#账号资源" class="headerlink" title="账号资源"></a>账号资源</h2><p>shadowsocks 客户端是很强大、稳定、快速的，跨平台，省去很多麻烦，但这依赖与稳定的服服务端，你可以自己购买vps ，搭建shadowsocks的服务器端，只需要vps的钱即可，shadowsocks 服务端开源免费（还是得感谢shadowsocks作者 <a href="https://twitter.com/clowwindy" target="_blank" rel="noopener">@clowwindy</a>的无私奉献），可以去<a href="https://github.com/shadowsocks/shadowsocks" target="_blank" rel="noopener">github</a>下载搭建，参考<a href="http://www.atgfw.org/2015/01/shadowsocks.html" target="_blank" rel="noopener">搭建教程</a>，也可以购买市场上许多服务商提供的服务，相比自己搭建，还得需要去关心服务器的稳定性， xirong 更推荐使用经济的代理服务商，便宜省事，当然，你也可以到网上到处搜寻免费的 shadowsocks账号，这也是可以的。</p>
+<p><strong>免费账号网站推荐</strong></p>
+<ol start="3">
+<li><a href="http://shadowsocks.info/" target="_blank" rel="noopener">shadowsocks info</a> 分享shadowsock相关各种知识的网站，比较基础，也有干货。</li>
+<li><a href="http://pan.baidu.com/s/1dEaQmtV" target="_blank" rel="noopener">常见免费ss账号网站列表</a> 从外面的网站上整理的，方便不能出去的用户查看</li>
+<li><a href="https://plus.google.com/u/0/communities/106442142549456855872" target="_blank" rel="noopener">google + shadowsocks翻墙圈</a> 可以随时获取别人共享的免费账号</li>
+<li><del><a href="http://pvg.v2ex.com/go/shadowsocks" target="_blank" rel="noopener">V2EX</a> shadowsocks区经常有人会分享自己的账号，也有些使用方法、心得的讨论，可以常去关注下。</del></li>
+<li><del><a href="http://shadowsocks.net/" target="_blank" rel="noopener">Shadowsocks公益组织</a> 一个由民间团体发起的，旨在分享Shadowsocks帐号的平台，你可以在该平台上分享你的ShadowSocks帐号，也可以在该平台上获取免费的帐号。</del></li>
+</ol>
+<p><strong>强烈推荐付费购买，省时间、省精力，不用去网上找各种不稳定的免费账号，便宜不贵。</strong></p>
+<ul>
+<li><a href="https://www.fengye.io/aff.php?aff=531" target="_blank" rel="noopener">枫叶主机</a> 目前提供美国，日本，香港，大陆中专、新加坡、台湾等数十条的shadowsocks收费账号，服务稳定，套餐形式以流量为单位，如分40G，60G，150G/每月流量;分别年付价格是 50元，80元，120元。适合流量不是很大，要求线路质量高的朋友，价格真心便宜。而且某些公司许多端口被封，需要使用特定的端口，枫叶主机高级套餐支持自定义shadowsocks服务端端口，省去了公司不能使用的烦恼。可以使用我的推荐码，省去不少钱。</li>
+<li><a href="https://shadowsocks.com/" target="_blank" rel="noopener">shadowsocks.com</a>  线路优质，技术成熟,多线路支持。有年付有普通版的99元，也有高大上的399元高级版套餐可选，美国，新加坡，台湾，日本等各国线路可以选择。</li>
+<li>其他，据网络资源推荐，不知道效果：<ol>
+<li><a href="http://my.ssh91.net/" target="_blank" rel="noopener">SSH91</a> 美国，日本，香港，新加坡一号通的shadowsocks账号，季付30元，年付98元，同时不定期提供18元的美国普及年付账号．选择性更多。</li>
+<li>UUDaili 免费的SSH与vpn一月1G流量,注册后可以免费送2个月使用。目前有美国，新加坡，日本的线路，美国为主，价格便宜。</li>
+<li>PGfastss、shadowcheap 等，其他的自行发掘吧。</li>
+</ol>
+</li>
+</ul>
+<p>2017-12-09 更新<br>许多朋友找到我说现在ss还能用吗，我这里很负责人的告诉各位朋友，能用！！一点不受影响。<br>附带几个新资源：</p>
+<ul>
+<li>Mac 新版 客户端：<a href="https://github.com/shadowsocks/ShadowsocksX-NG/releases/" target="_blank" rel="noopener">https://github.com/shadowsocks/ShadowsocksX-NG/releases/</a></li>
+<li>Mac 旧版 客户端：<a href="https://github.com/shadowsocks/shadowsocks-iOS/releases/" target="_blank" rel="noopener">https://github.com/shadowsocks/shadowsocks-iOS/releases/</a></li>
+<li>旧版 2.6.3 版本下载：ShadowsocksX-2.6.3.dmg</li>
+</ul>
+<p>旧版没法更新 PAC 文件列表 (GFWList) 手动解决 方法请参考 issue 212 ：<br><a href="https://github.com/shadowsocks/shadowsocks-iOS/issues/212" target="_blank" rel="noopener">https://github.com/shadowsocks/shadowsocks-iOS/issues/212</a></p>
+<p>2018-07-22 更新<br>除了 ss 之外，还有哪些免费的方法可以让人们科学上网。</p>
+<p>介绍了这么些，如果您想体验下 shadowsocks，那么尽情的使用免费账号吧，如果您感觉到了免费账号的不稳定给您带来的不方便，那么推荐使用付费服务，每年只需要支付一笔很少的费用，即可享受畅快的网络，将精力放在如何利用不受阻的网络来解决自己的问题上面，岂不是更有意义？ 在这里还是推荐下我使用的 <code><a href="https://www.fengye.io/aff.php?aff=531" target="_blank" rel="noopener">枫叶主机</a></code> 速度快、服务稳定，高级套餐支持自定义端口，使用 <code><a href="https://www.fengye.io/aff.php?aff=531" target="_blank" rel="noopener">xirong 的优惠链接</a></code> 购买可以享受 <code>10%</code> 的折扣，稳定、快速，你值得拥有！</p>
+<p>如有任何问题，欢迎留言沟通或者联系我交流~</p>
+
       
     </div>
 
@@ -531,7 +637,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -570,6 +676,7 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
+            <div class="post-description">什么是 prlsf 文件系统？prlsf系统怎么格式化？你的U盘是不是不晓得怎么回事就变成了 prlsf 系统，还不知所措？</div>
 
         </div>
       </header>
@@ -580,15 +687,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>什么是 prlsf 文件系统？prlsf系统怎么格式化？你的U盘是不是不晓得怎么回事就变成了 prlsf 系统，还不知所措？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2014/12/08/what-to-do-with-PrlSF/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <p><strong>prlsf文件系统</strong><br> 目前网络上没有关于这个格式的介绍，其实这是mac上面的一种格式，只有mac系统能认出来，所以在window、Linux上，这个格式的磁盘就是一块费盘，无法识别的！<br> 自从被美女同事格式化掉500G移动硬盘后，我的硬盘基本上好久没有动了，伤心啊~ 好多数据就这么丢了，不过还好，后来重要的文件都恢复回来了，想知道怎么操作的么？联系我吧~ 免费教你怎么搞回被格式化掉的数据！<br> 后来需要把机械硬盘弄到自己以前的pc上面，重装系统的时候，发现杯具了，启动界面卡在了f2、f12那样子的主板界面，连bios也进不了~ 尼玛，这是个什么情况，主板坏了？不应该啊，之前好好的用着，遂卸掉该硬盘换ssd的，可以进入，那么断定是机械硬盘除了问题，插到mac上查看，可以啊，正常访问，便想着在虚拟机的win7中格式化下，这才发现，这块盘是无法格式化的 <strong>prlsf文件系统</strong> ，这是什么文件系统？google了好久均无资料，遂打开mac下的磁盘工具，查看 <strong>原来是mac下的日志文件系统</strong>，想起来了，当初美女同事用的是<strong>Boot Camp助理</strong>来格式化掉的磁盘，那么肯定是格式化成了mac下默认的！</p>
+<p> 知道了原因，就好办了，格式化回来，方法如下：</p>
+<ol>
+<li>打开mac下的<strong>磁盘工具</strong>，找到显示的磁盘；</li>
+<li>选择抹掉-格式选-抹掉，等待几秒，ok搞定！</li>
+</ol>
+
       
     </div>
 
@@ -612,7 +717,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -651,6 +756,7 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
+            <div class="post-description">这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式！</div>
 
         </div>
       </header>
@@ -661,15 +767,53 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式！</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2014/11/19/the-way-to-learn-git/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <p><strong>前言：</strong><br>这是一篇git学习资料汇总的文章，自己刚刚接触git版本管理时，到处搜索寻找好的学习方案，也收集了不少资料，试图用自己的语言整理下来，方便刚刚学习git的人，有个比较好的学习模式，今后会不断尝试对文章进行修改，争取做到不会的人基本ok，会的人得到提高！</p>
+<h2 id="一、什么是git？"><a href="#一、什么是git？" class="headerlink" title="一、什么是git？"></a>一、什么是git？</h2><blockquote>
+<p>Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.</p>
+</blockquote>
+<p><a href="http://zh.wikipedia.org/wiki/Git" target="_blank" rel="noopener">git维基百科</a>上详细介绍了git的资料，包括git的创建、使用以及一些草考资料，已经挺全了，记住一点，最高效的学习方式就是<strong>读文档</strong>，找官方文档去阅读学习是最快的掌握git的方法。</p>
+<p>既然是分布式版本管理，那么和我们平常使用的svn有什么区别？</p>
+<ol>
+<li>分布式 vs 集中管理 （多份版本库 vs 一份版本库，设想下版本服务器挂了？）</li>
+<li>无需网络，随时随地进行版本控制，在没有网络的情况下你想回退到某个版本svn基本没戏；</li>
+<li>分支的新建、合并非常方便、快速，没有任何成本，基本不耗时，svn的版本基本上等同于又复制了一份代码；</li>
+</ol>
+<p><strong>stackoverflow</strong> 上关于svn和git的区别的讨论，说的很详细，请参考 <a href="http://stackoverflow.com/questions/871/why-is-git-better-than-subversion" target="_blank" rel="noopener">Why is Git better than Subversion?</a><br><strong>github</strong> 上通过版本库结构、历史、子项目（submudle）的不同来对比两者，请参考 <a href="https://help.github.com/articles/what-are-the-differences-between-svn-and-git/" target="_blank" rel="noopener">What are the differences between SVN and Git?</a></p>
+<h2 id="二、git-安装"><a href="#二、git-安装" class="headerlink" title="二、git 安装"></a>二、git 安装</h2><p> 《pro git》一书中已经写明白了<a href="http://git-scm.com/book/zh/v1/%E8%B5%B7%E6%AD%A5-%E5%AE%89%E8%A3%85-Git" target="_blank" rel="noopener">各个平台上怎么安装git</a>,如果感觉晦涩，就看这个<a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/00137396287703354d8c6c01c904c7d9ff056ae23da865a000" target="_blank" rel="noopener">廖雪峰安装git</a></p>
+<h2 id="三、git-初使用"><a href="#三、git-初使用" class="headerlink" title="三、git 初使用"></a>三、git 初使用</h2><ul>
+<li><p>对于已经熟悉svn的用户可以直接查看此文档 <a href="http://git.or.cz/course/svn.html" target="_blank" rel="noopener">Git - SVN Crash Course</a>，通过对比两个工具对同样的操作采取不同的命令来快速认识git的一些常用命令</p>
+</li>
+<li><p>对于一个新手来说，我不需要知道git的原理，不需要知道git那么多的命令，我只想用git完成一次仓库的从初始化、commit、push、branch、tag等一个流程，越简单越好，图文教程，以window下使用git为例，一步步走完整个流程，推荐 <a href="http://blog.jobbole.com/78960/" target="_blank" rel="noopener">手把手教你使用Git</a></p>
+</li>
+<li><p>比较全面讲述的git的系列文章 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="noopener">号称史上最浅显易懂的Git教程！</a></p>
+</li>
+<li><p>看完上面的几步内容，想你习对git基本上可以使用了，要掌握还得多多练习，熟能生巧，你是不是想去看看关于git的全部内容 ，<a href="http://git-scm.com/book/zh/v1" target="_blank" rel="noopener">官方中文电子版书籍</a>即可满足你，当然你可以查看最新<a href="http://git-scm.com/book/en/v2" target="_blank" rel="noopener">V2版英文</a>或者下载epub pdf等本地阅读；</p>
+</li>
+</ul>
+<h2 id="四、git-分支、tag"><a href="#四、git-分支、tag" class="headerlink" title="四、git 分支、tag"></a>四、git 分支、tag</h2><p>git 最帅气的就是对分支的处理，方便快速，你只需要一个简单的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch branch-name</span><br></pre></td></tr></table></figure>
+<p>就能开出一个叫branch-name的分支，毫秒钟搞定，但也正是因为方便，如果使用不合理就会造成<strong>分支混乱，分不清脉络</strong>， 推荐看一下阮一峰写的文章 <a href="http://www.ruanyifeng.com/blog/2012/07/git.html" target="_blank" rel="noopener">Git分支管理策略</a> ，最原始的文章就是这篇老外写的<a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="noopener">A successful Git branching model</a>，<a href="">@萌面大叔的乌托邦</a>提到开源中国已经翻译成了中文，感兴趣的可以去看看<a href="http://www.oschina.net/translate/a-successful-git-branching-model">介绍一个成功的 Git 分支模型</a></p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/git/git-branchs-messy.png" alt="杂乱的分支"></p>
+<h2 id="五、git-常见命令"><a href="#五、git-常见命令" class="headerlink" title="五、git 常见命令"></a>五、git 常见命令</h2><p>一个比较好的汇总了git的一些基本命令的pdf，可以经常看看，或者当成命令手册，推荐 <a href="http://www.cheat-sheets.org/saved-copy/git-cheat-sheet.pdf" target="_blank" rel="noopener">Git Cheat Sheet</a> ，还有一张图片 <a href="http://www.cnblogs.com/1-2-3/archive/2010/07/18/git-commands.html" target="_blank" rel="noopener">Git常用命令</a> 也不错；最近我整理了一份xmind的导图，将<strong>这两份</strong>资料都放到了画布里面，<a href="http://pan.baidu.com/s/1c052yVu" target="_blank" rel="noopener">百度网盘</a> 密码：<code>6x7u</code> 存储了，不断更新，有需要的可以下载，预览图片如下：</p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/git/git-xmind.png" alt="Git常用xmind导图整理"></p>
+<p>最强大的<strong>命令手册</strong>还得属于终端，* man git * 或者 * man git 命令 * 或者 * git –help * 或者 * git 命令 –help *，在这里可以找到任何你想要的。</p>
+<h2 id="六、git-书籍资料"><a href="#六、git-书籍资料" class="headerlink" title="六、git 书籍资料"></a>六、git 书籍资料</h2><p>-《<a href="http://git-scm.com/book/zh/v1" target="_blank" rel="noopener">Pro Git</a>》 作者Scott Chacon是github的员工，git的布道者，这本书被誉为git学习圣经，中间有好多插图描述的浅显易懂，挺适合详细学习下的，最新英文第二版《<a href="http://git-scm.com/book/en/v2" target="_blank" rel="noopener">pro git (Editon 2)</a>》；</p>
+<p>-《<a href="http://gitbook.liuhui998.com/" target="_blank" rel="noopener">Git Community Book</a>》汇聚了Git社区的很多精华,  并对git的对象模型原理等做了解释，可以深入的了解下git原理；</p>
+<p>2015-01-22 增加</p>
+<ul>
+<li>推荐的工作流程 <a href="http://documentup.com/skwp/git-workflows-book" target="_blank" rel="noopener">git workflow</a> </li>
+</ul>
+<p>2015-04-05 增加 git flow 工具</p>
+<ul>
+<li><a href="https://github.com/nvie/gitflow" target="_blank" rel="noopener">git flow 工具</a></li>
+<li><a href="http://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html" target="_blank" rel="noopener">git flow 中文备忘清单</a></li>
+<li>一个很有意思的学习 git 的小游戏 <a href="http://pcottle.github.io/learnGitBranching/" target="_blank" rel="noopener">http://pcottle.github.io/learnGitBranching/</a> </li>
+<li><a href="http://marklodato.github.io/visual-git-guide/index-zh-cn.html" target="_blank" rel="noopener">图解 git</a> 将书籍中很多<code>术语</code>用图片的方式进行讲解，很容易就懂了 </li>
+<li><a href="http://backlogtool.com/git-guide/cn/" target="_blank" rel="noopener">图文并茂-猴子都能懂的git入门教程</a> 全面，生动形象，图文并茂，简单易懂，强烈推荐！</li>
+</ul>
+<p>2015-06-02 增加<br>我在github上面整理了一个repo <a href="https://github.com/xirong/my-git" target="_blank" rel="noopener">my-git</a>，目前持续更新中，整理收集了git方便的学习资料，欢迎大家<code>fork-modify-pull request</code>，一块打造最全面的git学习！</p>
+<p>关于日常中使用git来版本管理的流程写的很不错的一本书，日常工作模式、流程怎样更合理的工作！<br>** 最后，当你开始使用git的时候，学会用终端，比如你想看关于branch，那么大胆的时候 <em>git branch –help * 查看相应的命令！ *</em></p>
+
       
     </div>
 
@@ -693,7 +837,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xirong.jpg">
       <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="思考生活，分享故事">
+      <meta itemprop="description" content="学习科技理念，追求自由之路">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -732,6 +876,7 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
+            <div class="post-description">怎么样利用intellij idea远程调试tomcat服务器？用到服务器调试的起因是在项目中遇到了**乱码问题**部分内容乱码，可是本地环境是好的，无法复现，所以排除不了问题在哪里，不知道到底是什么原因，不知道配置在哪里，配置了好多地方都不生效，最后咨询亚洲，远程调试，查看在action中返回的字符集中文下就是乱码的; 定位在编译时候的问题；</div>
 
         </div>
       </header>
@@ -742,15 +887,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>怎么样利用intellij idea远程调试tomcat服务器？用到服务器调试的起因是在项目中遇到了**乱码问题**部分内容乱码，可是本地环境是好的，无法复现，所以排除不了问题在哪里，不知道到底是什么原因，不知道配置在哪里，配置了好多地方都不生效，最后咨询亚洲，远程调试，查看在action中返回的字符集中文下就是乱码的; 定位在编译时候的问题；</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2014/11/15/idea-eclipse-remote-debug/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <p>用到服务器调试的起因是在项目中遇到了<strong>乱码问题</strong>部分内容乱码，可是本地环境是好的，无法复现，所以排除不了问题在哪里，不知道到底是什么原因，不知道配置在哪里，配置了好多地方都不生效，最后咨询亚洲，远程调试，查看在action中返回的字符集中文下就是乱码的; 定位在编译时候的问题；</p>
+<p>调试过程：</p>
+<ol>
+<li>服务器tocat停止 ** sh stop_tomcat.sh ** 即可，注意一定要是全路径才行；</li>
+<li>** tomcat/bin/catalina.sh ** 中在头部加入下面代码，连接方式有两种，为dt_shmem和dt_socket，分别表示本机调试和远程调试。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">declare -x CATALINA_OPTS&#x3D;&quot;-Xdebug -Xrunjdwp:transport&#x3D;dt_socket,server&#x3D;y,suspend&#x3D;y,address&#x3D;8000&quot;</span><br></pre></td></tr></table></figure></li>
+<li>启动tomcat ** sh start_tomcat.sh ** ,终端中查看状态 <code>tail -fn 200 catalina.out.2014-11-05.out</code><br>出现 ** Listening for transport dt_socket at address: 8000 ** 即表示ok的；</li>
+<li>idea设置，调试为远程，端口号修改8000，host为远程机器ip，启动调试，选择remote即可；</li>
+<li>访问efc.corp.elong.com ，本机idea加断点，即可了。</li>
+</ol>
+<p>eclipse 同理，可以查看 <a href="http://www.ibm.com/developerworks/cn/opensource/os-eclipse-javadebug/" target="_blank" rel="noopener">使用eclispe远程调试Java程序</a></p>
+<p><img data-src="http://ixirong.oss-cn-beijing.aliyuncs.com/pic/java/intelljidea-remote-debug.png" alt="调试图片如下"></p>
+<p>本文用到的参数含义：<br><strong>-Xdebug</strong><br>启用调试特性。<br><strong>-Xrunjdwp:<sub-options></strong><br>在目标 VM 中加载 JDWP 实现。它通过传输和 JDWP 协议与独立的调试器应用程序通信。下面介绍一些特定的子选项。<br>从 Java V5 开始，您可以使用 -agentlib:jdwp 选项，而不是 -Xdebug 和 -Xrunjdwp。但如果连接到 V5 以前的 VM，只能选择 -Xdebug 和 <strong>-Xrunjdwp</strong><br>下面简单描述 -Xrunjdwp 子选项。<br><strong>transport</strong><br>这里通常使用套接字传输。但是在 Windows 平台上也可以使用共享内存传输。<br><strong>server</strong><br>如果值为 y，目标应用程序监听将要连接的调试器应用程序。否则，它将连接到特定地址上的调试器应用程序。<br><strong>address</strong><br>这是连接的传输地址。如果服务器为 n，将尝试连接到该地址上的调试器应用程序。否则，将在这个端口监听连接。<br><strong>suspend</strong><br>如果值为 y，目标 VM 将暂停，直到调试器应用程序进行连接。</p>
+
       
     </div>
 
@@ -830,7 +979,7 @@
     <img class="site-author-image" itemprop="image" alt="xirong"
       src="/images/xirong.jpg">
   <p class="site-author-name" itemprop="name">xirong</p>
-  <div class="site-description" itemprop="description">思考生活，分享故事</div>
+  <div class="site-description" itemprop="description">学习科技理念，追求自由之路</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
