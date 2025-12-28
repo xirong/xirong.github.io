@@ -1,1364 +1,897 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/xirong_favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/xirong_favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/xirong_favicon.ico">
-  <link rel="mask-icon" href="/images/xirong_favicon.ico" color="#222">
-  <meta http-equiv="Cache-Control" content="no-transform">
-  <meta http-equiv="Cache-Control" content="no-siteapp">
-  <meta name="google-site-verification" content="5dmcaaSOc-bn_UzxUiiSsDdc92W3oVCjqOZkRl0R-Rw">
-  <meta name="baidu-site-verification" content="Xia7mO2IvK">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太阳系 3D 探索 - 柳智天的宇宙课堂</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<link rel="stylesheet" href="/css/main.css">
+        :root {
+            --cosmic-dark: #0a0a0f;
+            --nebula-purple: #1a0a2e;
+            --stellar-blue: #16213e;
+            --accent-gold: #f4d03f;
+            --accent-orange: #e67e22;
+            --accent-cyan: #00d4ff;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--cosmic-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.ixirong.com","root":"/","scheme":"Mist","version":"7.7.2","exturl":false,"sidebar":{"position":"right","width":280,"display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
+        /* 顶部标题栏 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, transparent 100%);
+            pointer-events: none;
+        }
 
-  <meta name="description" content="学习科技理念，追求自由之路">
-<meta property="og:type" content="website">
-<meta property="og:title" content="自由之路">
-<meta property="og:url" content="http://www.ixirong.com/index.html">
-<meta property="og:site_name" content="自由之路">
-<meta property="og:description" content="学习科技理念，追求自由之路">
-<meta property="og:locale" content="zh">
-<meta property="article:author" content="xirong">
-<meta property="article:tag" content="科技充电站，shadowsocks，vpn，科学上网">
-<meta property="article:tag" content="稳定翻墙">
-<meta name="twitter:card" content="summary">
+        .header > * {
+            pointer-events: auto;
+        }
 
-<link rel="canonical" href="http://www.ixirong.com/">
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 30px rgba(244, 208, 63, 0.4);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : true,
-    isPost : false
-  };
-</script>
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(244, 208, 63, 0.4); }
+            50% { box-shadow: 0 0 50px rgba(244, 208, 63, 0.7); }
+        }
 
-  <title>自由之路</title>
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61803765-1"></script>
-    <script>
-      if (CONFIG.hostname === location.hostname) {
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-61803765-1');
-      }
-    </script>
+        .logo-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
 
+        .logo-text p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
 
-  <script>
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?5a116c8f8eef91fbfaee5377ab18526b";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+        /* 控制面板 - 自动隐藏 */
+        .controls {
+            position: fixed;
+            top: 240px;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-right: none;
+            backdrop-filter: blur(20px);
+            border-radius: 15px 0 0 15px;
+            transform: translateX(calc(100% - 40px));
+            transition: transform 0.3s ease;
+        }
+        
+        .controls:hover {
+            transform: translateX(0);
+        }
+        
+        .controls::before {
+            content: '⚙️';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .controls:hover::before {
+            opacity: 0;
+        }
 
+        .control-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
 
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
 
+        .control-btn.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
+        .control-btn .icon {
+            font-size: 0.9rem;
+        }
 
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
+        /* 太阳样式选择器 - 右侧自动隐藏 */
+        .sun-style-selector {
+            position: fixed;
+            top: 100px;
+            right: 0;
+            z-index: 150;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-right: none;
+            backdrop-filter: blur(20px);
+            border-radius: 15px 0 0 15px;
+            padding: 12px 15px;
+            min-width: 180px;
+            pointer-events: auto;
+            transform: translateX(calc(100% - 40px));
+            transition: transform 0.3s ease;
+        }
+        
+        .sun-style-selector:hover {
+            transform: translateX(0);
+        }
+        
+        .sun-style-selector::before {
+            content: '☀️';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        .sun-style-selector:hover::before {
+            opacity: 0;
+        }
+        
+        .sun-style-option {
+            cursor: pointer;
+        }
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
+        .sun-style-title {
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
 
-<link rel="alternate" href="/atom.xml" title="自由之路" type="application/atom+xml">
+        .sun-style-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sun-style-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sun-style-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-orange);
+        }
+
+        .sun-style-option.active {
+            background: rgba(255, 152, 0, 0.15);
+            border-color: var(--accent-orange);
+        }
+
+        .sun-style-option input {
+            display: none;
+        }
+
+        .sun-style-radio {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .sun-style-option.active .sun-style-radio {
+            border-color: var(--accent-orange);
+        }
+
+        .sun-style-option.active .sun-style-radio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: var(--accent-orange);
+            border-radius: 50%;
+        }
+
+        .sun-style-label {
+            flex: 1;
+        }
+
+        .sun-style-label .name {
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            margin-bottom: 1px;
+        }
+
+        .sun-style-label .desc {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .sun-style-preview {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .sun-preview-simple {
+            background: radial-gradient(circle, #fff9c4, #ffeb3b, #ff9800);
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+        }
+
+        .sun-preview-realistic {
+            background: radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336, #b71c1c);
+            box-shadow: 0 0 20px rgba(255, 87, 34, 0.8);
+            animation: sun-flicker 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes sun-flicker {
+            0% { box-shadow: 0 0 20px rgba(255, 87, 34, 0.8); }
+            100% { box-shadow: 0 0 25px rgba(255, 152, 0, 0.9); }
+        }
+
+        /* 行星信息面板 */
+        .planet-info {
+            position: fixed;
+            bottom: 80px;
+            left: 30px;
+            z-index: 100;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(30px);
+            border-radius: 16px;
+            padding: 20px 25px;
+            min-width: 320px;
+            max-width: 380px;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .planet-info.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .planet-info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .planet-info-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .planet-info-close:hover {
+            background: rgba(255, 100, 100, 0.3);
+            border-color: rgba(255, 100, 100, 0.5);
+            color: #ff6b6b;
+            transform: rotate(90deg);
+        }
+
+        .planet-color-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            box-shadow: 0 0 15px currentColor;
+            flex-shrink: 0;
+        }
+
+        .planet-info-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .planet-info-header .planet-type {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        .planet-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            color: var(--accent-cyan);
+        }
+
+        .planet-description {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        
+        .planet-moons {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(100, 180, 255, 0.1);
+            border: 1px solid rgba(100, 180, 255, 0.2);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: var(--accent-cyan);
+        }
+
+        /* 比例尺展示 */
+        .scale-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .scale-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .scale-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+        }
+
+        /* 行星选择器 */
+        .planet-selector {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 12px 20px;
+            border-radius: 50px;
+        }
+
+        .planet-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .planet-dot:hover {
+            transform: scale(1.2);
+        }
+
+        .planet-dot.active {
+            border-color: white;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .planet-dot::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .planet-dot:hover::after {
+            opacity: 1;
+        }
+
+        /* 加载动画 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cosmic-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-sun {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #fff9c4, #ffeb3b, #ff9800, #f44336);
+            border-radius: 50%;
+            animation: sun-pulse 2s ease-in-out infinite;
+            box-shadow: 
+                0 0 60px rgba(255, 235, 59, 0.5),
+                0 0 100px rgba(255, 152, 0, 0.3),
+                0 0 140px rgba(244, 67, 54, 0.2);
+        }
+
+        @keyframes sun-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .loading-text {
+            margin-top: 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--accent-gold);
+            animation: text-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes text-glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .loading-progress {
+            margin-top: 20px;
+            width: 200px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            width: 0%;
+            animation: loading 2s ease-in-out forwards;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* 提示信息 */
+        .hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
+            border-radius: 15px;
+            text-align: center;
+            opacity: 0;
+            animation: hint-fade 4s ease-in-out forwards;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes hint-fade {
+            0% { opacity: 0; pointer-events: none; }
+            20% { opacity: 1; pointer-events: auto; }
+            80% { opacity: 1; pointer-events: auto; }
+            100% { opacity: 0; pointer-events: none; }
+        }
+        
+        .hint {
+            pointer-events: none;
+        }
+
+        .hint p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .hint .key {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 8px;
+            margin: 0 5px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-cyan);
+        }
+
+        /* 大小对比模式 */
+        .size-comparison {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(30px);
+            padding: 40px;
+            border-radius: 25px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .size-comparison.visible {
+            display: flex;
+        }
+
+        .size-comparison h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .size-comparison-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .size-comparison-close:hover {
+            color: var(--text-primary);
+        }
+
+        .planets-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .comparison-planet {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .comparison-planet .sphere {
+            border-radius: 50%;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .comparison-planet .name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .comparison-planet .size {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+        }
+    </style>
 </head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">自由之路</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <h1 class="site-subtitle" itemprop="description">学习科技理念，提升生活品质，追求思想自由之路</h1>
-      
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-<nav class="site-nav">
-  
-  <ul id="menu" class="menu">
-        <li class="menu-item menu-item-首页">
-
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-归档">
-
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
-
-  </li>
-        <li class="menu-item menu-item-标签">
-
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-公益">
-
-    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益</a>
-
-  </li>
-        <li class="menu-item menu-item-关于">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
-
-  </li>
-  </ul>
-
-</nav>
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-  <div class="reading-progress-bar"></div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content">
-            
-
-  <div class="posts-expand">
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2017/08/05/how-to-change-wordpress-server/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/08/05/how-to-change-wordpress-server/" class="post-title-link" itemprop="url">迁移 wordpress 博客主机</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-08-05 19:23:19" itemprop="dateCreated datePublished" datetime="2017-08-05T19:23:19+08:00">2017-08-05</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%98%BF%E9%87%8C%E4%BA%91/" itemprop="url" rel="index"><span itemprop="name">阿里云</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2017/08/05/how-to-change-wordpress-server/" class="post-meta-item leancloud_visitors" data-flag-title="迁移 wordpress 博客主机" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
+<body>
+    <!-- 加载动画 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-sun"></div>
+        <div class="loading-text">正在加载太阳系...</div>
+        <div class="loading-progress">
+            <div class="loading-bar"></div>
         </div>
-      </header>
+    </div>
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+    <!-- 3D 画布容器 -->
+    <div id="canvas-container"></div>
 
-      
-          <!-- toc -->
-
-<p>wordpress 博客迁移到新的服务器上，其实很简单，整机迁移即可，将数据库、wordpress博客文件打包压缩后，在新的服务器上启用就好了。但中间有一些细节，比如新采购的阿里云服务器，空机器，啥也没有，需要搭建 wordpress 的运行环境，对 php 等运行原理不怎么熟悉的人来说，浪费的很多时间。</p>
-<p>需求如下，域名 abc.com 原来采用 <a href="https://www.hostinger.com.hk/" target="_blank" rel="noopener">https://www.hostinger.com.hk/</a> 的年费主机，之前采用的原因是方便，集成了 wordpress 环境，直接在后台页面操作就可以，关键是便宜些，比起国内的厂商便宜很多。hostinger有免费的主机， 推荐对速度性能要求不高的人来用一下。 现在打算将 abc.com 对应的博客迁移到阿里云上，购买的阿里云 ecs 服务器，空盘 centos 6.8 ；其实初始化时候可以直接从云市场购买 wordpress 的服务，不过后来才知道。</p>
-<p>搭建 wordpress 的运营环境，我们知道 wordpress 是用 php 写的，所以很自然的想到 lnmp 架构，好在 lnmp 搭建很方便，<a href="https://lnmp.org/" target="_blank" rel="noopener">https://lnmp.org/</a> 按照说明安装即可，等待时间看网络情况了，我大概是20分钟左右。 这里提一下 lnmp 安装后软件都去了哪些目录: <a href="https://lnmp.org/faq/lnmp-software-list.html" target="_blank" rel="noopener">https://lnmp.org/faq/lnmp-software-list.html</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/08/05/how-to-change-wordpress-server/#more" rel="contents">
-                Read more &raquo;
-              </a>
+    <!-- 顶部标题 -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">☀️</div>
+            <div class="logo-text">
+                <h1>SOLAR SYSTEM</h1>
+                <p>柳智天的宇宙课堂</p>
             </div>
-          <!--/noindex-->
-        
-      
+        </div>
     </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2017/07/24/aliyun-promotion/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/07/24/aliyun-promotion/" class="post-title-link" itemprop="url">阿里云优惠码</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-07-24 07:25:42" itemprop="dateCreated datePublished" datetime="2017-07-24T07:25:42+08:00">2017-07-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%98%BF%E9%87%8C%E4%BA%91/" itemprop="url" rel="index"><span itemprop="name">阿里云</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2017/07/24/aliyun-promotion/" class="post-meta-item leancloud_visitors" data-flag-title="阿里云优惠码" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
+    <!-- 太阳样式选择器 -->
+    <div class="sun-style-selector">
+        <div class="sun-style-title">
+            <span>☀️</span>
+            <span>太阳样式</span>
         </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>几个阿里云ECS、主机、数据库、Redis 的优惠码:</p>
-<ul>
-<li><a href="https://free.aliyun.com" target="_blank" rel="noopener">新用户免费6月套餐</a></li>
-<li><a href="https://promotion.aliyun.com/ntms/act/ambassador/sharetouser.html?userCode=rse7dj9w&productCode=vm&utm_source=rse7dj9w" target="_blank" rel="noopener">云服务器ECS优惠券</a></li>
-<li><a href="https://promotion.aliyun.com/ntms/act/ambassador/sharetouser.html?userCode=rse7dj9w&productCode=qingcloud&utm_source=rse7dj9w" target="_blank" rel="noopener">独享云虚拟主机</a></li>
-<li><a href="https://promotion.aliyun.com/ntms/act/ambassador/sharetouser.html?userCode=rse7dj9w&productCode=prepaid_kvstore&utm_source=rse7dj9w" target="_blank" rel="noopener">云数据库Redis</a></li>
-<li><a href="https://promotion.aliyun.com/ntms/act/ambassador/sharetouser.html?userCode=rse7dj9w&productCode=rds&utm_source=rse7dj9w" target="_blank" rel="noopener">关系型数据库RDS</a></li>
-</ul>
-<p>关于七牛云同步插件的使用方法参考： <a href="http://www.ixirong.com/2016/10/31/how-to-use-hexo-qiniu-sync-plugin/">http://www.ixirong.com/2016/10/31/how-to-use-hexo-qiniu-sync-plugin/</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2017/06/07/how-to-change-author-in-history/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/06/07/how-to-change-author-in-history/" class="post-title-link" itemprop="url">修改git历史的author和email</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-06-07 22:30:53" itemprop="dateCreated datePublished" datetime="2017-06-07T22:30:53+08:00">2017-06-07</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/git/" itemprop="url" rel="index"><span itemprop="name">git</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2017/06/07/how-to-change-author-in-history/" class="post-meta-item leancloud_visitors" data-flag-title="修改git历史的author和email" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Git 配置文件分为三级，系统级(–system)、用户级(–global)和目录级(–local)，三者的使用优先级以离目录 (repository)最近为原则，如果三者的配置不一样，则生效优先级 <strong>目录级&gt;用户级&gt;系统级</strong>，可以通过 <code>git config --help</code> 查看更多内容。</p>
-<ul>
-<li>系统级配置存储在 <code>/etc/gitconfig</code> 文件中，可以使用 <code>git config --system user.name &quot;jim&quot;</code> ,<code>git config --sytem user.email &quot;jim.jim@gmail.com&quot;</code> 来进行配置，该配置对系统上所有用户及他们所拥有的仓库都生效的配置值。</li>
-<li>用户级存储在每个用户的 <code>~/.gitconfig</code> 中，可以使用 <code>git config --global user.name &quot;jim&quot;</code> ,<code>git config --global user.email &quot;jim.jim@gmail.com&quot;</code> 来进行配置，该配置对当前用户上所有的仓库有效。</li>
-<li>目录级存储在每个仓库下的 <code>.git/config</code> 中，可以使用 <code>git config --local user.name &quot;jim&quot;</code> , <code>git config --local user.email &quot;jim.jim@gmail.com&quot;</code> 来进行配置，只对当前仓库生效。</li>
-</ul>
-<p>如果上次提交 msg 错误/有未提交的文件应该同上一次一起提交，需要重新提交备注：<code>git commit --amend -m &#39;new msg&#39;</code> </p>
-<p>修改上次提交的 author、email可以使用 :<code>git commit --amend --author=&quot;newName &lt;newEmail&gt;&quot;</code></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/06/07/how-to-change-author-in-history/#more" rel="contents">
-                Read more &raquo;
-              </a>
+        <div class="sun-style-options">
+            <div class="sun-style-option active" data-style="simple">
+                <div class="sun-style-radio"></div>
+                <div class="sun-style-label">
+                    <div class="name">简洁模式</div>
+                    <div class="desc">卡通风格，柔和光芒</div>
+                </div>
+                <div class="sun-style-preview sun-preview-simple"></div>
             </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/12/18/how-to-speed-up-baidu-disk-download/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/12/18/how-to-speed-up-baidu-disk-download/" class="post-title-link" itemprop="url">如何加快下载百度网盘的文件</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-12-18 19:19:42" itemprop="dateCreated datePublished" datetime="2016-12-18T19:19:42+08:00">2016-12-18</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/12/18/how-to-speed-up-baidu-disk-download/" class="post-meta-item leancloud_visitors" data-flag-title="如何加快下载百度网盘的文件" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>其实目前 mac、window 下的百度云同步盘(百度网盘)下载同步速度已经可以了，加上会员可以在300<del>500kb 左右，一般的小型文件不需要折腾，但对于下载别人分享的大文件，比如500m 以上或者几个 G 的文件，这种速度下载耗时太长，<code>yangshun1029</code> 大牛就搞出来了客户端，下载速度达到 2</del>3M/s ，极大的节省了时间。原理上可以看我写的一篇文章 <a href="http://mp.weixin.qq.com/s?__biz=MzIzNzEzNDMxOA==&tempkey=hshiwX7MaWBda0wGMKR%2FNtUjpZX5GwRqvfVNMgtgkQDiddSzhzv8LUWDme4Us5dssV9o0nb7kpjv%2FsKor1fDekGcFgpFeol%2BRbBsQYIpM%2BVep5PHKDGrrmqPoVja5tnJKrnRrJ6Rl5B0na41ymVd7w%3D%3D&#rd" target="_blank" rel="noopener">突破限制，极速下载</a> 关于 Aria2 支持多协议命令行下载工具的介绍。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/12/18/how-to-speed-up-baidu-disk-download/#more" rel="contents">
-                Read more &raquo;
-              </a>
+            <div class="sun-style-option" data-style="realistic">
+                <div class="sun-style-radio"></div>
+                <div class="sun-style-label">
+                    <div class="name">炙热模式</div>
+                    <div class="desc">真实火焰，等离子体沸腾</div>
+                </div>
+                <div class="sun-style-preview sun-preview-realistic"></div>
             </div>
-          <!--/noindex-->
-        
-      
+        </div>
     </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/11/mac-shortcut-in-common-use/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/11/mac-shortcut-in-common-use/" class="post-title-link" itemprop="url">Mac 键盘快捷键</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-11 16:49:29" itemprop="dateCreated datePublished" datetime="2016-11-11T16:49:29+08:00">2016-11-11</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/11/11/mac-shortcut-in-common-use/" class="post-meta-item leancloud_visitors" data-flag-title="Mac 键盘快捷键" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>要使用键盘快捷键，请按住一个或多个修饰键，同时按快捷键的最后一个键。例如，要使用快捷键 Command-C（拷贝），请按住 Command 键并按 C 键，然后同时松开这两个键。Mac 菜单和键盘通常使用某些按键的符号，其中包括以下修饰键：</p>
-<ul>
-<li>Command ⌘</li>
-<li>Shift ⇧</li>
-<li>Option ⌥</li>
-<li>Control ⌃</li>
-<li>Caps Lock ⇪</li>
-<li>Fn</li>
-</ul>
-<p>如果你使用的是 Windows PC 专用键盘，请用 Alt 键代替 Option 键，用 Windows 标志键代替 Command 键。有些 Mac 键盘在顶行中设有特殊按键，快捷键中也会用到它们；这些按键上有音量图标、显示屏亮度图标和其他功能图标。按下图标键可执行相应功能，将其与 Fn 键组合可用作 F1、F2、F3 或其他标准功能键。 (有福利在最后哦~)</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/11/mac-shortcut-in-common-use/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/08/fix-google-photo-problem-by-proxifer-and-shadowsocks/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/08/fix-google-photo-problem-by-proxifer-and-shadowsocks/" class="post-title-link" itemprop="url">使用 Proxifier 解决 Google photo backup/Google drive mac 无法连接错误</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-08 11:39:56" itemprop="dateCreated datePublished" datetime="2016-11-08T11:39:56+08:00">2016-11-08</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/11/08/fix-google-photo-problem-by-proxifer-and-shadowsocks/" class="post-meta-item leancloud_visitors" data-flag-title="使用 Proxifier 解决 Google photo backup/Google drive mac 无法连接错误" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>google photo backup there was a problem to authorization，google drive unable to connect mac 等错误信息， 分析了下原因是这里两个 app 的连接不支持上层的 http、sock 代理，如果使用需要在 tcp 层面进行代理，这时候 Proxifier 就出现了。</p>
-<blockquote>
-<p>Proxifier allows network applications that do not support working through proxy servers to operate through a SOCKS or HTTPS proxy and chains.<br>The most advanced proxy client 。<a href="https://www.proxifier.com/index.htm" target="_blank" rel="noopener">https://www.proxifier.com/index.htm</a></p>
-</blockquote>
-<p>Proxifier是一款功能非常强大的socks5客户端，可以让不支持通过代理服务器工作的网络程序能通过HTTPS或SOCKS代理或代理链。支持 64位系统，支持Xp，Vista，Win7，MAC OS ,支持socks4，socks5，http代理协议，支持TCP，UDP协议，可以指定端口，指定IP，指定域名,指定程序等运行模式，兼容性非常好，和SOCKSCAP属于同类软件，不过SOCKSCAP已经很久没更新了，不支持64位系统。 有许多网络应用程序不支持通过代理服务器工作，Proxifier 解决了这些问题和所有限制，让您有机会不受任何限制使用你喜爱的软件。此外，它让你获得了额外的网络安全控制，创建代理隧道，并添加使用更多网络功能的权力。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/08/fix-google-photo-problem-by-proxifer-and-shadowsocks/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/05/what-you-must-know-about-iterm2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/05/what-you-must-know-about-iterm2/" class="post-title-link" itemprop="url">你所必知的 iterm2 技巧</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-05 21:16:09" itemprop="dateCreated datePublished" datetime="2016-11-05T21:16:09+08:00">2016-11-05</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/11/05/what-you-must-know-about-iterm2/" class="post-meta-item leancloud_visitors" data-flag-title="你所必知的 iterm2 技巧" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Mac 上最适合开发使用的终极终端 iTerm2，比自带的 term 终端有很多特性，比如竖屏操作、历史剪贴板、选中即复制、搜索高亮自动复制搜索内容、像 secureRT 样子的复制会话，记住密码登录，tux 集成等等。<br>至于 Shell，一定要选则 zsh ，Mac 下已经自带，安装 <code>oh my zsh</code> 不用复杂的配置即可使用<br>一些常用的提升效率的快捷键整理如下:</p>
-<h1 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h1><p>官方的介绍特点:</p>
-<ul>
-<li>⌘ + 数字在各 tab 标签直接来回切换</li>
-<li>选择即复制 + 鼠标中键粘贴，这个很实用</li>
-<li>⌘ + f 所查找的内容会被自动复制</li>
-<li>⌘ + d 横着分屏 / ⌘ + shift + d 竖着分屏</li>
-<li>⌘ + r = clear，而且只是换到新一屏，不会想 clear 一样创建一个空屏</li>
-<li>ctrl + u 清空当前行，无论光标在什么位置</li>
-<li>输入开头命令后 按 ⌘ + ; 会自动列出输入过的命令</li>
-<li>⌘ + shift + h 会列出剪切板历史</li>
-<li>可以在 Preferences &gt; keys 设置全局快捷键调出 iterm，这个也可以用过 Alfred 实现</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/05/what-you-must-know-about-iterm2/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/04/first-docker-compose/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/04/first-docker-compose/" class="post-title-link" itemprop="url">初识 Docker Compose</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-04 22:57:15" itemprop="dateCreated datePublished" datetime="2016-11-04T22:57:15+08:00">2016-11-04</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/11/04/first-docker-compose/" class="post-meta-item leancloud_visitors" data-flag-title="初识 Docker Compose" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a Compose file to configure your application’s services. Then, using a single command, you create and start all the services from your configuration.</p>
-</blockquote>
-<p>Dockerfile 可以让用户管理一个单独的应用容器；而 Compose 则允许用户在一个模板（YAML 格式）中定义一组相关联的应用容器（被称为一个 project，即项目），例如一个 Web 服务容器再加上后端的数据库服务容器等，就拿官网的 Python 例子来说，功能很简单，利用 redis 的 incr 的功能对页面的访问量进行统计。</p>
-<p>docker-compose 的安装可以参考官网，如果安装了 Docker for Mac 或者 Docker for windows 则直接就存在了。</p>
-<p>创建项目目录:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir composetest</span><br><span class="line">$ cd composetest</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/04/first-docker-compose/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/04/how-to-manage-personal-time/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/04/how-to-manage-personal-time/" class="post-title-link" itemprop="url">知识管理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-04 00:21:53" itemprop="dateCreated datePublished" datetime="2016-11-04T00:21:53+08:00">2016-11-04</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%81%8C%E4%B8%9A%E8%A7%84%E5%88%92/" itemprop="url" rel="index"><span itemprop="name">职业规划</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/11/04/how-to-manage-personal-time/" class="post-meta-item leancloud_visitors" data-flag-title="知识管理" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>转自 weekly 维护作者:<a href="https://github.com/zenany/zenany.github.io/blob/master/_posts/about_time_and_knowledge_management.md" target="_blank" rel="noopener">About Time and Knowledge Management</a></p>
-<p>关于时间管理和知识管理这两个话题，我见过最好的一个总结是：</p>
-<blockquote>
-<p>此生理想、近期计划、今日功课</p>
-</blockquote>
-<p>这是马英九的父亲马鹤凌为马英九制定的人生规划解决之道，是从我的师傅 <a href="https://github.com/nwind" target="_blank" rel="noopener">nwind</a> 的一场培训 <a href="https://speakerdeck.com/baidufe/gong-cheng-shi-de-ge-ren-fa-zhan-gui-hua" target="_blank" rel="noopener">工程师的个人发展规划</a> 中学到的。总结的很完美，但实践起来坑很多。分享一些我的实践经验，以及 <a href="https://github.com/zenany/weekly" target="_blank" rel="noopener">Weekly</a> 是怎么整理的。</p>
-<h4 id="此生理想"><a href="#此生理想" class="headerlink" title="此生理想"></a>此生理想</h4><p>很多关于时间管理和知识管理的书最后都会指向这点：<strong>你的理想是什么，你想成为什么样的人，你想要的生活是什么样的</strong>。因为只有搞清楚这点，时间和知识管理才是最高效的。拥有理想看起来很美好，然而现实是：<strong>大多数人当下并没有真正想清楚自己的理想是什么</strong>，有可能是在年龄很大时才找到属于自己理想。有时候，我们貌似有了一个理想或梦想，但行动往往会出卖我们，暴露出真相并非如此。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/04/how-to-manage-personal-time/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://www.ixirong.com/2016/11/03/programing-100-books/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xirong.jpg">
-      <meta itemprop="name" content="xirong">
-      <meta itemprop="description" content="学习科技理念，追求自由之路">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="自由之路">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/03/programing-100-books/" class="post-title-link" itemprop="url">编程系列经典图书</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-03 23:56:33" itemprop="dateCreated datePublished" datetime="2016-11-03T23:56:33+08:00">2016-11-03</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/11/03/programing-100-books/" class="post-meta-item leancloud_visitors" data-flag-title="编程系列经典图书" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>有时间多读读书，看看经典的图书有助于思想的提升。</p>
-</blockquote>
-<p>100+ 经典技术书籍，涵盖：计算机系统与网络、系统架构、算法与数据结构、前端开发、后端开发、移动开发、数据库、测试、项目与团队、程序员职业修炼、求职面试和编程相关的经典书籍。作者维护在 GitHub 上地址: <a href="https://github.com/jobbole/awesome-programming-books" target="_blank" rel="noopener">https://github.com/jobbole/awesome-programming-books</a></p>
-<h2 id="计算机系统与网络"><a href="#计算机系统与网络" class="headerlink" title="计算机系统与网络"></a>计算机系统与网络</h2><ul>
-<li>《<a href="https://www.amazon.cn/gp/product/B00AAQXKXS/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=536&amp;creative=3200&amp;creativeASIN=B00AAQXKXS&amp;linkCode=as2&amp;tag=vastwork-23" target="_blank" rel="noopener">图灵的秘密:他的生平、思想及论文解读</a>》</li>
-<li>《<a href="https://www.amazon.cn/gp/product/B0011F9OQE/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=536&amp;creative=3200&amp;creativeASIN=B0011F9OQE&amp;linkCode=as2&amp;tag=vastwork-23" target="_blank" rel="noopener">计算机系统概论</a>》</li>
-<li>《<a href="https://www.amazon.cn/gp/product/B0011F5RYM/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=536&amp;creative=3200&amp;creativeASIN=B0011F5RYM&amp;linkCode=as2&amp;tag=vastwork-23" target="_blank" rel="noopener">深入理解Linux内核</a>》</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/03/programing-100-books/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-  </div>
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
-
-
-
-          </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="xirong"
-      src="/images/xirong.jpg">
-  <p class="site-author-name" itemprop="name">xirong</p>
-  <div class="site-description" itemprop="description">学习科技理念，追求自由之路</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives">
-          <span class="site-state-item-count">77</span>
-          <span class="site-state-item-name">posts</span>
+    <!-- 控制面板 -->
+    <div class="controls">
+        <button class="control-btn" id="toggleOrbits" title="显示/隐藏轨道">
+            <span class="icon">◯</span>
+            <span>轨道线</span>
+        </button>
+        <button class="control-btn" id="toggleLabels" title="显示/隐藏标签">
+            <span class="icon">📝</span>
+            <span>标签</span>
+        </button>
+        <button class="control-btn" id="toggleAnimation" title="暂停/播放动画">
+            <span class="icon">▶️</span>
+            <span>动画</span>
+        </button>
+        <button class="control-btn" id="showComparison" title="查看大小对比">
+            <span class="icon">📊</span>
+            <span>大小对比</span>
+        </button>
+        <button class="control-btn" id="resetView" title="重置视角">
+            <span class="icon">🔄</span>
+            <span>重置视角</span>
+        </button>
+        <button class="control-btn" id="toggleRealScale" title="切换真实比例">
+            <span class="icon">📐</span>
+            <span>真实比例</span>
+        </button>
+        <a href="galaxy.html" class="control-btn" title="探索银河系" style="text-decoration: none;">
+            <span class="icon">🌌</span>
+            <span>银河系</span>
         </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-        <span class="site-state-item-count">26</span>
-        <span class="site-state-item-name">categories</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-        <span class="site-state-item-count">116</span>
-        <span class="site-state-item-name">tags</span></a>
-      </div>
-  </nav>
-</div>
-  <div class="links-of-author motion-element">
-      <span class="links-of-author-item">
-        <a href="https://github.com/xirong" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xirong" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="mailto:ixirong.liu@gmail.com" title="Mail → mailto:ixirong.liu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
-      </span>
-  </div>
-  <div class="cc-license motion-element" itemprop="license">
-    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
-  </div>
-
-
-  <div class="links-of-blogroll motion-element">
-    <div class="links-of-blogroll-title">
-      <i class="fa fa-fw fa-link"></i>
-      Links
     </div>
-    <ul class="links-of-blogroll-list">
-        <li class="links-of-blogroll-item">
-          <a href="http://www.zhoujingen.cn/blog/" title="http:&#x2F;&#x2F;www.zhoujingen.cn&#x2F;blog&#x2F;" rel="noopener" target="_blank">敏捷个人</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://www.ruanyifeng.com/blog/" title="http:&#x2F;&#x2F;www.ruanyifeng.com&#x2F;blog&#x2F;" rel="noopener" target="_blank">阮一峰</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://coolshell.cn/" title="http:&#x2F;&#x2F;coolshell.cn&#x2F;" rel="noopener" target="_blank">酷壳</a>
-        </li>
-    </ul>
-  </div>
 
-      </div>
-
+    <!-- 行星选择器 -->
+    <div class="planet-selector" id="planetSelector">
+        <div class="planet-dot" data-planet="sun" data-name="太阳" style="background: radial-gradient(circle, #fff9c4, #ff9800); color: #000;">☀</div>
+        <div class="planet-dot" data-planet="mercury" data-name="水星" style="background: #b5b5b5;">水</div>
+        <div class="planet-dot" data-planet="venus" data-name="金星" style="background: #e6c87a;">金</div>
+        <div class="planet-dot" data-planet="earth" data-name="地球" style="background: linear-gradient(135deg, #6b93d6 60%, #3d6b3d 40%);">地</div>
+        <div class="planet-dot" data-planet="moon" data-name="月球" style="background: #aaaaaa; font-size: 0.6rem;">🌙</div>
+        <div class="planet-dot" data-planet="mars" data-name="火星" style="background: #c1440e;">火</div>
+        <div class="planet-dot" data-planet="jupiter" data-name="木星" style="background: #d8ca9d;">木</div>
+        <div class="planet-dot" data-planet="saturn" data-name="土星" style="background: #ead6b8;">土</div>
+        <div class="planet-dot" data-planet="uranus" data-name="天王星" style="background: #d1e7e7;">天</div>
+        <div class="planet-dot" data-planet="neptune" data-name="海王星" style="background: #5b5ddf;">海</div>
+        <div class="planet-dot" data-planet="pluto" data-name="冥王星" style="background: #c9b59a; font-size: 0.6rem;">冥</div>
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
 
+    <!-- 行星信息面板 -->
+    <div class="planet-info" id="planetInfo">
+        <button class="planet-info-close" id="closePlanetInfo" title="关闭">✕</button>
+        <div class="planet-info-header">
+            <div class="planet-color-dot" id="planetColorDot"></div>
+            <h2 id="planetName">地球</h2>
+            <span class="planet-type" id="planetType">类地行星</span>
+        </div>
+        <div class="planet-stats">
+            <div class="stat-item">
+                <div class="stat-label">直径</div>
+                <div class="stat-value" id="planetDiameter">12,742 km</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">与太阳距离</div>
+                <div class="stat-value" id="planetDistance">1.5亿 km</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">公转周期</div>
+                <div class="stat-value" id="planetOrbitPeriod">365 天</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">相对地球大小</div>
+                <div class="stat-value" id="planetRelativeSize">1x</div>
+            </div>
+        </div>
+        <div class="planet-description" id="planetDescription">
+            地球是太阳系中唯一已知存在生命的行星，拥有液态水和适宜的大气层。
+        </div>
+        <div class="planet-moons" id="planetMoons" style="display: none;">
+        </div>
+    </div>
 
-      </div>
-    </main>
+    <!-- 比例尺 -->
+    <div class="scale-indicator">
+        <div class="scale-title">当前比例</div>
+        <div class="scale-value" id="scaleValue">教学模式</div>
+    </div>
 
-    <footer class="footer">
-      <div class="footer-inner">
-        
+    <!-- 操作提示 -->
+    <div class="hint">
+        <p>
+            <span class="key">左键拖拽</span> 旋转视角
+            <span class="key">滚轮</span> 缩放
+            <span class="key">点击行星</span> 查看详情
+        </p>
+    </div>
 
-<div class="copyright">
-  
-  &copy; 2014 – 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">xirong</span>
-</div>
+    <!-- 大小对比面板 -->
+    <div class="size-comparison" id="sizeComparison">
+        <button class="size-comparison-close" id="closeSizeComparison">✕</button>
+        <h2>🌍 行星大小真实对比</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">以地球为参考（直径 = 12,742 km）</p>
+        <div class="planets-row" id="comparisonRow">
+            <!-- 动态生成 -->
+        </div>
+    </div>
 
-        
-
-
-
-
-
-
-  <script>
-  function leancloudSelector(url) {
-    url = encodeURI(url);
-    return document.getElementById(url).querySelector('.leancloud-visitors-count');
-  }
-  if (CONFIG.page.isPost) {
-    function addCount(Counter) {
-      var visitors = document.querySelector('.leancloud_visitors');
-      var url = decodeURI(visitors.getAttribute('id'));
-      var title = visitors.dataset.flagTitle;
-
-      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
-        .then(response => response.json())
-        .then(({ results }) => {
-          if (results.length > 0) {
-            var counter = results[0];
-            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
-              .then(response => response.json())
-              .then(() => {
-                leancloudSelector(url).innerText = counter.time + 1;
-              })
-              .catch(error => {
-                console.error('Failed to save visitor count', error);
-              })
-          } else {
-              Counter('post', '/classes/Counter', { title, url, time: 1 })
-                .then(response => response.json())
-                .then(() => {
-                  leancloudSelector(url).innerText = 1;
-                })
-                .catch(error => {
-                  console.error('Failed to create', error);
-                });
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-  } else {
-    function showTime(Counter) {
-      var visitors = document.querySelectorAll('.leancloud_visitors');
-      var entries = [...visitors].map(element => {
-        return decodeURI(element.getAttribute('id'));
-      });
-
-      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
-        .then(response => response.json())
-        .then(({ results }) => {
-          if (results.length === 0) {
-            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
-              element.innerText = 0;
-            });
-            return;
-          }
-          for (let item of results) {
-            let { url, time } = item;
-            leancloudSelector(url).innerText = time;
-          }
-          for (let url of entries) {
-            var element = leancloudSelector(url);
-            if (element.innerText == '') {
-              element.innerText = 0;
-            }
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-  }
-
-  fetch('https://app-router.leancloud.cn/2/route?appId=HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz')
-    .then(response => response.json())
-    .then(({ api_server }) => {
-      var Counter = (method, url, data) => {
-        return fetch(`https://${api_server}/1.1${url}`, {
-          method,
-          headers: {
-            'X-LC-Id'     : 'HfEUHBkxIxPKFFWsM8E29K81-gzGzoHsz',
-            'X-LC-Key'    : 'j8gTHCF5cxmeGRbV0QIujeUw',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-      };
-      if (CONFIG.page.isPost) {
-        if (CONFIG.hostname !== location.hostname) return;
-        addCount(Counter);
-      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/muse.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-  <script>
-    (function(){
-      var bp = document.createElement('script');
-      var curProtocol = window.location.protocol.split(':')[0];
-      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(bp, s);
-    })();
-  </script>
-
-
-
-
-  <script>
-  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
-    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
-    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
-  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
-
-  _st('install','CMcqT-2yt1yatw_zFhNC','2.0.0');
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
+
