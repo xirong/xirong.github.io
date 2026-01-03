@@ -12,6 +12,7 @@ let heliopause; // 日球层
 let oortCloud; // 奥尔特云
 let starField; // 背景星空
 let clock;
+let raycaster, mouse;
 
 // 太阳系在银河系中的位置（距银心约26000光年，这里用单位表示）
 const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
@@ -19,11 +20,11 @@ const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
 // ============ 初始化 ============
 function init() {
     clock = new THREE.Clock();
-    
+
     // 创建场景
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020208);
-    
+
     // 创建相机
     camera = new THREE.PerspectiveCamera(
         60,
@@ -32,16 +33,16 @@ function init() {
         100000
     );
     camera.position.set(0, 12000, 8000);
-    
+
     // 创建渲染器
-    renderer = new THREE.WebGLRenderer({ 
+    renderer = new THREE.WebGLRenderer({
         antialias: true,
-        alpha: true 
+        alpha: true
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.getElementById('canvas-container').appendChild(renderer.domElement);
-    
+
     // 创建控制器
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -49,7 +50,7 @@ function init() {
     controls.minDistance = 100;
     controls.maxDistance = 30000;
     controls.target.copy(SOLAR_SYSTEM_POS);
-    
+
     // 创建场景内容
     createDistantStars();
     createMilkyWay();
@@ -58,16 +59,22 @@ function init() {
     createHeliopause();
     createOortCloud();
     addLights();
-    
+
+    // 射线检测器
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
     // 事件监听
     window.addEventListener('resize', onWindowResize);
     controls.addEventListener('change', updateScaleIndicator);
-    
+    renderer.domElement.addEventListener('click', onCanvasClick);
+    renderer.domElement.style.cursor = 'pointer';
+
     // 隐藏加载画面
     setTimeout(() => {
         document.getElementById('loadingScreen').classList.add('hidden');
     }, 2000);
-    
+
     // 开始动画
     animate();
 }
@@ -77,26 +84,26 @@ function createDistantStars() {
     const starsGeometry = new THREE.BufferGeometry();
     const starCount = 10000;
     const positions = new Float32Array(starCount * 3);
-    
+
     for (let i = 0; i < starCount; i++) {
         const radius = 30000 + Math.random() * 20000;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
-        
+
         positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
         positions[i * 3 + 2] = radius * Math.cos(phi);
     }
-    
+
     starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
+
     const starsMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
         size: 2,
         transparent: true,
         opacity: 0.6
     });
-    
+
     starField = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(starField);
 }
@@ -108,30 +115,30 @@ function createMilkyWay() {
     const positions = new Float32Array(galaxyParticles * 3);
     const colors = new Float32Array(galaxyParticles * 3);
     const sizes = new Float32Array(galaxyParticles);
-    
+
     const arms = 4; // 旋臂数量
     const galaxyRadius = 10000;
-    
+
     for (let i = 0; i < galaxyParticles; i++) {
         // 旋臂结构
         const armIndex = i % arms;
         const armAngle = (armIndex / arms) * Math.PI * 2;
-        
+
         // 使用对数螺旋
         const distance = Math.pow(Math.random(), 0.5) * galaxyRadius;
         const spiralAngle = distance * 0.0015 + armAngle;
         const spread = (Math.random() - 0.5) * distance * 0.25;
-        
-        const x = Math.cos(spiralAngle) * distance + Math.cos(spiralAngle + Math.PI/2) * spread;
-        const z = Math.sin(spiralAngle) * distance + Math.sin(spiralAngle + Math.PI/2) * spread;
+
+        const x = Math.cos(spiralAngle) * distance + Math.cos(spiralAngle + Math.PI / 2) * spread;
+        const z = Math.sin(spiralAngle) * distance + Math.sin(spiralAngle + Math.PI / 2) * spread;
         // 盘面厚度（中心厚，边缘薄）
-        const diskThickness = 150 * (1 - distance/galaxyRadius * 0.7);
+        const diskThickness = 150 * (1 - distance / galaxyRadius * 0.7);
         const y = (Math.random() - 0.5) * diskThickness;
-        
+
         positions[i * 3] = x;
         positions[i * 3 + 1] = y;
         positions[i * 3 + 2] = z;
-        
+
         // 银河系颜色
         const distRatio = distance / galaxyRadius;
         if (distRatio < 0.15) {
@@ -160,11 +167,11 @@ function createMilkyWay() {
             sizes[i] = 1 + Math.random();
         }
     }
-    
+
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    
+
     const material = new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 }
@@ -195,7 +202,7 @@ function createMilkyWay() {
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
-    
+
     milkyWay = new THREE.Points(geometry, material);
     scene.add(milkyWay);
 }
@@ -208,7 +215,7 @@ function createGalacticCenter() {
         color: 0x000000
     });
     const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
-    
+
     // 吸积盘
     const diskGeometry = new THREE.RingGeometry(120, 400, 128);
     const diskMaterial = new THREE.ShaderMaterial({
@@ -247,10 +254,10 @@ function createGalacticCenter() {
         side: THREE.DoubleSide,
         depthWrite: false
     });
-    
+
     const disk = new THREE.Mesh(diskGeometry, diskMaterial);
     disk.rotation.x = Math.PI / 2;
-    
+
     // 光晕
     const glowGeometry = new THREE.SphereGeometry(500, 32, 32);
     const glowMaterial = new THREE.ShaderMaterial({
@@ -275,9 +282,9 @@ function createGalacticCenter() {
         side: THREE.BackSide,
         depthWrite: false
     });
-    
+
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    
+
     galacticCenter = new THREE.Group();
     galacticCenter.add(blackHole);
     galacticCenter.add(disk);
@@ -289,7 +296,7 @@ function createGalacticCenter() {
 function createSolarSystemMarker() {
     solarSystem = new THREE.Group();
     solarSystem.position.copy(SOLAR_SYSTEM_POS);
-    
+
     // 太阳（一个发光的小点）
     const sunGeometry = new THREE.SphereGeometry(15, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({
@@ -297,7 +304,7 @@ function createSolarSystemMarker() {
     });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     solarSystem.add(sun);
-    
+
     // 太阳光晕
     const sunGlowGeometry = new THREE.SphereGeometry(25, 32, 32);
     const sunGlowMaterial = new THREE.ShaderMaterial({
@@ -323,7 +330,7 @@ function createSolarSystemMarker() {
     });
     const sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
     solarSystem.add(sunGlow);
-    
+
     // "你在这里"标记环
     const ringGeometry = new THREE.RingGeometry(40, 50, 64);
     const ringMaterial = new THREE.MeshBasicMaterial({
@@ -335,7 +342,7 @@ function createSolarSystemMarker() {
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.rotation.x = Math.PI / 2;
     solarSystem.add(ring);
-    
+
     // 外圈脉冲环
     const pulseRingGeometry = new THREE.RingGeometry(55, 60, 64);
     const pulseRingMaterial = new THREE.MeshBasicMaterial({
@@ -348,10 +355,10 @@ function createSolarSystemMarker() {
     pulseRing.rotation.x = Math.PI / 2;
     pulseRing.name = 'pulseRing';
     solarSystem.add(pulseRing);
-    
+
     // 标签
     createLabel(solarSystem, '☀️ 太阳系\n你在这里', 0, 80, 0);
-    
+
     scene.add(solarSystem);
 }
 
@@ -392,7 +399,7 @@ function createHeliopause() {
         side: THREE.BackSide,
         depthWrite: false
     });
-    
+
     heliopause = new THREE.Mesh(geometry, material);
     heliopause.position.copy(SOLAR_SYSTEM_POS);
     scene.add(heliopause);
@@ -403,30 +410,30 @@ function createOortCloud() {
     const particleCount = 3000;
     const innerRadius = 80;
     const outerRadius = 200;
-    
+
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
-    
+
     for (let i = 0; i < particleCount; i++) {
         // 球壳分布
         const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
-        
+
         positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
         positions[i * 3 + 2] = radius * Math.cos(phi);
-        
+
         // 淡蓝白色
         colors[i * 3] = 0.7 + Math.random() * 0.3;
         colors[i * 3 + 1] = 0.8 + Math.random() * 0.2;
         colors[i * 3 + 2] = 1.0;
     }
-    
+
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    
+
     const material = new THREE.PointsMaterial({
         size: 2,
         vertexColors: true,
@@ -434,7 +441,7 @@ function createOortCloud() {
         opacity: 0.4,
         blending: THREE.AdditiveBlending
     });
-    
+
     oortCloud = new THREE.Points(geometry, material);
     oortCloud.position.copy(SOLAR_SYSTEM_POS);
     scene.add(oortCloud);
@@ -446,30 +453,30 @@ function createLabel(parent, text, x, y, z) {
     const context = canvas.getContext('2d');
     canvas.width = 256;
     canvas.height = 128;
-    
+
     context.fillStyle = 'rgba(0, 0, 0, 0.6)';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     context.font = 'bold 24px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillStyle = '#00ffff';
-    
+
     const lines = text.split('\n');
     lines.forEach((line, index) => {
         context.fillText(line, canvas.width / 2, 40 + index * 35);
     });
-    
+
     const texture = new THREE.CanvasTexture(canvas);
-    const material = new THREE.SpriteMaterial({ 
+    const material = new THREE.SpriteMaterial({
         map: texture,
         transparent: true
     });
-    
+
     const sprite = new THREE.Sprite(material);
     sprite.scale.set(150, 75, 1);
     sprite.position.set(x, y, z);
-    
+
     parent.add(sprite);
 }
 
@@ -482,16 +489,16 @@ function addLights() {
 // ============ 动画循环 ============
 function animate() {
     requestAnimationFrame(animate);
-    
+
     const elapsed = clock.getElapsedTime();
-    
+
     controls.update();
-    
+
     // 银河系缓慢旋转
     if (milkyWay) {
         milkyWay.rotation.y += 0.0001;
     }
-    
+
     // 更新黑洞吸积盘
     if (galacticCenter) {
         galacticCenter.children.forEach(child => {
@@ -500,12 +507,12 @@ function animate() {
             }
         });
     }
-    
+
     // 更新日球层
     if (heliopause && heliopause.material.uniforms) {
         heliopause.material.uniforms.time.value = elapsed;
     }
-    
+
     // 太阳系标记脉冲
     if (solarSystem) {
         const pulseRing = solarSystem.getObjectByName('pulseRing');
@@ -515,12 +522,12 @@ function animate() {
             pulseRing.material.opacity = 0.3 + Math.sin(elapsed * 2) * 0.2;
         }
     }
-    
+
     // 奥尔特云缓慢旋转
     if (oortCloud) {
         oortCloud.rotation.y += 0.0002;
     }
-    
+
     renderer.render(scene, camera);
 }
 
@@ -535,7 +542,7 @@ function onWindowResize() {
 function updateScaleIndicator() {
     const distance = camera.position.distanceTo(SOLAR_SYSTEM_POS);
     const scaleValue = document.getElementById('scaleValue');
-    
+
     if (distance > 10000) {
         scaleValue.textContent = '银河系全景';
     } else if (distance > 3000) {
@@ -546,6 +553,32 @@ function updateScaleIndicator() {
         scaleValue.textContent = '奥尔特云';
     } else {
         scaleValue.textContent = '日球层';
+    }
+}
+
+// ============ 点击事件 ============
+function onCanvasClick(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    // 检测太阳系区域的点击
+    if (solarSystem) {
+        const solarSystemObjects = [];
+        solarSystem.traverse(obj => {
+            if (obj.isMesh) solarSystemObjects.push(obj);
+        });
+
+        // 也检测日球层和奥尔特云
+        if (heliopause) solarSystemObjects.push(heliopause);
+
+        const intersects = raycaster.intersectObjects(solarSystemObjects);
+
+        if (intersects.length > 0) {
+            // 点击了太阳系区域，跳转到太阳系页面
+            window.location.href = 'index.html';
+        }
     }
 }
 

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>银河系探索 - 柳智天的宇宙课堂</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -59,7 +62,7 @@
             pointer-events: none;
         }
 
-        .header > * {
+        .header>* {
             pointer-events: auto;
         }
 
@@ -83,8 +86,15 @@
         }
 
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }
-            50% { box-shadow: 0 0 50px rgba(139, 92, 246, 0.7); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 50px rgba(139, 92, 246, 0.7);
+            }
         }
 
         .logo-text h1 {
@@ -246,8 +256,13 @@
         }
 
         @keyframes galaxy-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -257,48 +272,9 @@
             letter-spacing: 3px;
             color: #8b5cf6;
         }
-
-        .hint {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 50;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-            padding: 20px 40px;
-            border-radius: 15px;
-            text-align: center;
-            opacity: 0;
-            animation: hint-fade 5s ease-in-out forwards;
-            animation-delay: 2s;
-            pointer-events: none;
-        }
-
-        @keyframes hint-fade {
-            0% { opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        .hint p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .hint .key {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 12px;
-            border-radius: 8px;
-            margin: 0 5px;
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent-cyan);
-        }
     </style>
 </head>
+
 <body>
     <!-- 加载动画 -->
     <div class="loading-screen" id="loadingScreen">
@@ -359,18 +335,11 @@
         <div class="value" id="scaleValue">银河系全景</div>
     </div>
 
-    <!-- 操作提示 -->
-    <div class="hint">
-        <p>
-            <span class="key">滚轮</span> 缩放查看太阳系细节
-            <span class="key">拖拽</span> 旋转视角
-        </p>
-    </div>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="galaxy.js"></script>
 </body>
-</html>
 
+</html>

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 智天号太空探险 - 小小宇航员</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a1a;
+            --primary-yellow: #ffd93d;
+            --primary-pink: #ff6b9d;
+            --primary-blue: #4ecdc4;
+            --primary-purple: #a855f7;
+            --primary-orange: #ff9f43;
+            --text-white: #ffffff;
+            --text-light: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+        }
+
+        /* 3D 画布容器 */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10, 10, 26, 0.95) 0%, transparent 100%);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: var(--text-white);
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .title-area {
+            text-align: center;
+        }
+
+        .title-area h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--primary-yellow), var(--primary-pink), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: title-glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes title-glow {
+            0% {
+                filter: drop-shadow(0 0 10px rgba(255, 217, 61, 0.5));
+            }
+
+            100% {
+                filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.8));
+            }
+        }
+
+        .title-area .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        /* 星图进度册 */
+        .badge-book {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid var(--primary-purple);
+            border-radius: 20px;
+        }
+
+        .badge-book-icon {
+            font-size: 1.5rem;
+        }
+
+        .badge-count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-yellow);
+        }
+
+        /* 主界面 - 任务选择 */
+        .main-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .menu-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .menu-title .rocket {
+            font-size: 4rem;
+            display: block;
+            animation: rocket-fly 2s ease-in-out infinite;
+        }
+
+        @keyframes rocket-fly {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 25px 60px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 320px;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .menu-btn.start-mission {
+            background: linear-gradient(135deg, var(--primary-orange), #ff6b6b);
+            color: white;
+            box-shadow: 0 8px 30px rgba(255, 159, 67, 0.5);
+        }
+
+        .menu-btn.free-explore {
+            background: linear-gradient(135deg, var(--primary-blue), #45b7d1);
+            color: white;
+            box-shadow: 0 8px 30px rgba(78, 205, 196, 0.5);
+        }
+
+        .menu-btn .icon {
+            font-size: 2rem;
+        }
+
+        /* 关卡选择界面 */
+        .level-select {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            background: rgba(10, 10, 26, 0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .level-select.visible {
+            display: flex;
+        }
+
+        .level-select-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 40px;
+            color: var(--primary-yellow);
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            max-width: 800px;
+        }
+
+        .level-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .level-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-yellow);
+            box-shadow: 0 10px 40px rgba(255, 217, 61, 0.3);
+        }
+
+        .level-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .level-card.locked:hover {
+            transform: none;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .level-card.completed {
+            border-color: var(--primary-blue);
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .level-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .level-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .level-status {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .level-badge {
+            margin-top: 10px;
+            font-size: 1.5rem;
+        }
+
+        .close-level-select {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-level-select:hover {
+            transform: rotate(90deg);
+        }
+
+        /* 游戏界面 */
+        .game-ui {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 300;
+            display: none;
+            pointer-events: none;
+        }
+
+        .game-ui.visible {
+            display: block;
+        }
+
+        .game-ui>* {
+            pointer-events: auto;
+        }
+
+        /* 任务面板 */
+        .task-panel {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 26, 0.95);
+            border: 3px solid var(--primary-yellow);
+            border-radius: 25px;
+            padding: 25px 40px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 10px 50px rgba(255, 217, 61, 0.3);
+        }
+
+        .task-instruction {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .task-hint {
+            font-size: 1rem;
+            color: var(--primary-yellow);
+            animation: hint-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes hint-pulse {
+
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* 语音播放指示 */
+        .audio-indicator {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            background: rgba(168, 85, 247, 0.9);
+            border-radius: 50px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .audio-indicator.speaking {
+            opacity: 1;
+        }
+
+        .audio-indicator .speaker-icon {
+            font-size: 1.5rem;
+            animation: speaker-bounce 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes speaker-bounce {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.2);
+            }
+        }
+
+        .audio-indicator .speech-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* 奖励动画 */
+        .reward-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 500;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reward-overlay.visible {
+            display: flex;
+        }
+
+        .reward-content {
+            text-align: center;
+            animation: reward-pop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes reward-pop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .reward-badge {
+            font-size: 8rem;
+            margin-bottom: 20px;
+            animation: badge-shine 1s ease-in-out infinite;
+        }
+
+        @keyframes badge-shine {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(255, 217, 61, 0.8));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 40px rgba(255, 217, 61, 1));
+            }
+        }
+
+        .reward-text {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+            margin-bottom: 15px;
+        }
+
+        .reward-subtext {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .reward-continue-btn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, var(--primary-blue), #45b7d1);
+            border: none;
+            border-radius: 30px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .reward-continue-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 星星特效 */
+        .stars-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 400;
+            overflow: hidden;
+        }
+
+        .star-particle {
+            position: absolute;
+            font-size: 2rem;
+            animation: star-fall 2s ease-out forwards;
+        }
+
+        @keyframes star-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-50px) rotate(0deg) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(0);
+            }
+        }
+
+        /* 加载动画 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-rocket {
+            font-size: 5rem;
+            animation: loading-rocket 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loading-rocket {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-10deg);
+            }
+
+            50% {
+                transform: translateY(-30px) rotate(10deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-yellow);
+        }
+
+        .loading-dots {
+            display: inline-block;
+            animation: loading-dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes loading-dots {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+        }
+
+        /* 选项按钮 */
+        .options-panel {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 700px;
+        }
+
+        .options-panel.visible {
+            display: flex;
+        }
+
+        .option-btn {
+            padding: 20px 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.2);
+        }
+
+        .option-btn.correct {
+            background: rgba(78, 205, 196, 0.5);
+            border-color: var(--primary-blue);
+            animation: correct-pulse 0.5s ease;
+        }
+
+        @keyframes correct-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .option-btn.wrong {
+            animation: wrong-shake 0.5s ease;
+        }
+
+        @keyframes wrong-shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .option-btn .option-icon {
+            font-size: 2rem;
+        }
+
+        /* 行星高亮效果 */
+        .highlight-ring {
+            position: absolute;
+            border: 4px solid var(--primary-yellow);
+            border-radius: 50%;
+            animation: highlight-pulse 1s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes highlight-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+                box-shadow: 0 0 20px var(--primary-yellow);
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+                box-shadow: 0 0 40px var(--primary-yellow);
+            }
+        }
+
+        /* 自由探索模式的行星信息卡 */
+        .planet-info-card {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(10, 10, 26, 0.95);
+            border: 3px solid var(--primary-blue);
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 350px;
+            display: none;
+            box-shadow: 0 10px 50px rgba(78, 205, 196, 0.3);
+        }
+
+        .planet-info-card.visible {
+            display: block;
+            animation: card-slide-in 0.4s ease;
+        }
+
+        @keyframes card-slide-in {
+            0% {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .planet-info-card .planet-name {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .planet-info-card .must-know {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 217, 61, 0.1);
+            border-radius: 10px;
+        }
+
+        .planet-info-card .fun-fact {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .planet-info-card .close-card {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        /* 导航箭头 */
+        .nav-arrows {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-arrow {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 加载动画 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-rocket">🚀</div>
+        <div class="loading-text">智天号正在启动<span class="loading-dots">...</span></div>
+    </div>
+
+    <!-- 3D 画布容器 -->
+    <div id="canvas-container"></div>
+
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <a href="index.html" class="back-btn">
+            <span>👈</span>
+            <span>回到上一步</span>
+        </a>
+        <div class="title-area">
+            <h1>🚀 智天号太空探险</h1>
+            <p class="subtitle">收集 8 枚行星徽章，成为小小宇航员！</p>
+        </div>
+        <div class="badge-book" id="badgeBook">
+            <span class="badge-book-icon">📖</span>
+            <span class="badge-count"><span id="badgeCount">0</span>/8</span>
+        </div>
+    </div>
+
+    <!-- 主菜单 -->
+    <div class="main-menu" id="mainMenu">
+        <div class="menu-title">
+            <span class="rocket">🚀</span>
+            <span>准备好出发了吗？</span>
+        </div>
+        <div class="menu-buttons">
+            <button class="menu-btn start-mission" id="startMissionBtn">
+                <span class="icon">🎯</span>
+                <span>开始任务</span>
+            </button>
+            <button class="menu-btn free-explore" id="freeExploreBtn">
+                <span class="icon">🔭</span>
+                <span>自由探索</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 关卡选择 -->
+    <div class="level-select" id="levelSelect">
+        <button class="close-level-select" id="closeLevelSelect">✕</button>
+        <h2 class="level-select-title">🗺️ 选择你的太空任务</h2>
+        <div class="levels-grid" id="levelsGrid">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 游戏 UI -->
+    <div class="game-ui" id="gameUI">
+        <!-- 语音播放指示 -->
+        <div class="audio-indicator" id="audioIndicator">
+            <span class="speaker-icon">🔊</span>
+            <span class="speech-text" id="speechText"></span>
+        </div>
+
+        <!-- 任务面板 -->
+        <div class="task-panel" id="taskPanel">
+            <div class="task-instruction" id="taskInstruction">点击地球，这是我们的家！</div>
+            <div class="task-hint" id="taskHint">👆 用手指点一点蓝色的星球</div>
+        </div>
+
+        <!-- 选项面板 -->
+        <div class="options-panel" id="optionsPanel">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 行星信息卡（自由探索模式） -->
+    <div class="planet-info-card" id="planetInfoCard">
+        <button class="close-card" id="closeCard">✕</button>
+        <div class="planet-name" id="cardPlanetName">🌍 地球</div>
+        <div class="must-know" id="cardMustKnow">这是我们的家！</div>
+        <div class="fun-fact" id="cardFunFact">地球有蓝色的大海和绿色的陆地。</div>
+    </div>
+
+    <!-- 导航箭头（自由探索模式） -->
+    <div class="nav-arrows" id="navArrows" style="display: none;">
+        <button class="nav-arrow" id="prevPlanet">◀️</button>
+        <button class="nav-arrow" id="nextPlanet">▶️</button>
+    </div>
+
+    <!-- 奖励弹窗 -->
+    <div class="reward-overlay" id="rewardOverlay">
+        <div class="reward-content">
+            <div class="reward-badge" id="rewardBadge">🏅</div>
+            <div class="reward-text" id="rewardText">太棒了！</div>
+            <div class="reward-subtext" id="rewardSubtext">你获得了地球徽章！</div>
+            <button class="reward-continue-btn" id="rewardContinueBtn">继续探险 →</button>
+        </div>
+    </div>
+
+    <!-- 星星特效容器 -->
+    <div class="stars-effect" id="starsEffect"></div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="kids.js"></script>
+</body>
+
+</html>
