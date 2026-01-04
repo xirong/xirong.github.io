@@ -2223,6 +2223,14 @@ function selectPlanet(name) {
         moonsDiv.style.display = 'none';
     }
 
+    // 显示探索按钮（仅地球）
+    const exploreBtn = document.getElementById('exploreBtn');
+    if (name === 'earth') {
+        exploreBtn.classList.add('visible');
+    } else {
+        exploreBtn.classList.remove('visible');
+    }
+
     // 设置颜色
     const colorDot = document.getElementById('planetColorDot');
     colorDot.style.background = `#${data.color.toString(16).padStart(6, '0')}`;
