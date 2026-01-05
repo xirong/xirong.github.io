@@ -88,8 +88,15 @@
         }
 
         @keyframes earth-glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(107, 147, 214, 0.4); }
-            50% { box-shadow: 0 0 50px rgba(107, 147, 214, 0.7); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(107, 147, 214, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 50px rgba(107, 147, 214, 0.7);
+            }
         }
 
         .logo-text h1 {
@@ -174,20 +181,51 @@
             font-size: 1.3rem;
         }
 
-        /* 信息面板 */
+        /* 信息面板 - 默认收起，悬停展开 */
         .info-panel {
             position: fixed;
             top: 100px;
-            right: 30px;
+            right: 0;
             z-index: 100;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
+            border-right: none;
             backdrop-filter: blur(30px);
-            border-radius: 20px;
+            border-radius: 20px 0 0 20px;
             padding: 25px;
             width: 320px;
             max-height: calc(100vh - 200px);
             overflow-y: auto;
+            transform: translateX(calc(100% - 45px));
+            transition: transform 0.3s ease;
+        }
+
+        .info-panel:hover {
+            transform: translateX(0);
+        }
+
+        .info-panel::before {
+            content: '📖';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-panel:hover::before {
+            opacity: 0;
+        }
+
+        .info-panel-content {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .info-panel:hover .info-panel-content {
+            opacity: 1;
         }
 
         .info-panel h2 {
@@ -442,8 +480,13 @@
         }
 
         @keyframes earth-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -532,17 +575,9 @@
             <span class="icon">🔄</span>
             <span>自转</span>
         </button>
-        <button class="mode-btn" data-mode="revolution" title="观察地球公转">
-            <span class="icon">☀️</span>
-            <span>公转</span>
-        </button>
-        <button class="mode-btn" data-mode="seasons" title="了解四季变化">
+        <button class="mode-btn" data-mode="revolution" title="观察地球公转与四季">
             <span class="icon">🌸</span>
-            <span>四季</span>
-        </button>
-        <button class="mode-btn" data-mode="daynight" title="昼夜交替">
-            <span class="icon">🌓</span>
-            <span>昼夜</span>
+            <span>公转与四季</span>
         </button>
     </div>
 
@@ -592,14 +627,16 @@
 
     <!-- 信息面板 -->
     <div class="info-panel" id="infoPanel">
-        <h2><span class="icon">🔄</span>地球自转</h2>
-        <div class="info-content" id="infoContent">
-            <p>地球像一个<span class="highlight">旋转的陀螺</span>，每天都在不停地转动！</p>
-            <p>地球自转一圈需要<span class="highlight">24小时</span>，这就是我们一天的时间。</p>
-            <p>当我们这边面对太阳时，就是<span class="highlight">白天</span>；背对太阳时，就是<span class="highlight">黑夜</span>。</p>
-            <div class="fun-fact">
-                <div class="fun-fact-title">🤔 智天，你知道吗？</div>
-                <p>地球自转的速度非常快！在赤道上，地球表面的移动速度达到每小时1670公里，比飞机还快呢！</p>
+        <div class="info-panel-content">
+            <h2><span class="icon">🔄</span>地球自转</h2>
+            <div class="info-content" id="infoContent">
+                <p>地球像一个<span class="highlight">旋转的陀螺</span>，每天都在不停地转动！</p>
+                <p>地球自转一圈需要<span class="highlight">24小时</span>，这就是我们一天的时间。</p>
+                <p>当我们这边面对太阳时，就是<span class="highlight">白天</span>；背对太阳时，就是<span class="highlight">黑夜</span>。</p>
+                <div class="fun-fact">
+                    <div class="fun-fact-title">🤔 智天，你知道吗？</div>
+                    <p>地球自转的速度非常快！在赤道上，地球表面的移动速度达到每小时1670公里，比飞机还快呢！</p>
+                </div>
             </div>
         </div>
     </div>

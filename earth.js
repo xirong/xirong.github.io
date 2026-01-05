@@ -1,6 +1,7 @@
 /**
  * 地球的奥秘 - 柳智天的宇宙课堂
  * 展示地球自转、公转和四季变化
+ * 改进版：更真实的颜色，中国和美国轮廓高亮
  */
 
 // ============ 全局变量 ============
@@ -9,19 +10,21 @@ let earth, sun, moon;
 let earthOrbit;
 let axisLine, axisArrow;
 let starField;
+let seasonMarkers = [];  // 保存四季标记和标签
 let clock;
 let currentMode = 'rotation';
 let animationSpeed = 1;
 let dayCount = 0;
 let yearProgress = 0;
 let orbitAngle = 0;
-let isPlaying = true;  // 是否正在播放
-let hasCompletedOrbit = false;  // 是否已完成一圈公转
+let isPlaying = true;
+let hasCompletedOrbit = false;
 
 // 地球参数
 const EARTH_RADIUS = 5;
-const EARTH_ORBIT_RADIUS = 80;
-const EARTH_TILT = 23.5 * Math.PI / 180; // 地轴倾斜角度 23.5度
+const EARTH_ORBIT_RADIUS = 80;  // 半长轴
+const EARTH_ORBIT_RADIUS_B = 72; // 半短轴（椭圆，稍微夸张以便观察）
+const EARTH_TILT = 23.5 * Math.PI / 180;
 const MOON_RADIUS = 1.2;
 const MOON_ORBIT_RADIUS = 12;
 const SUN_RADIUS = 15;
@@ -34,6 +37,7 @@ const seasonInfo = {
             <p>地球像一个<span class="highlight">旋转的陀螺</span>，每天都在不停地转动！</p>
             <p>地球自转一圈需要<span class="highlight">24小时</span>，这就是我们一天的时间。</p>
             <p>当我们这边面对太阳时，就是<span class="highlight">白天</span>；背对太阳时，就是<span class="highlight">黑夜</span>。</p>
+            <p>看！当<span class="highlight">中国</span>是白天的时候，<span class="highlight">美国</span>正好是黑夜呢！</p>
             <div class="fun-fact">
                 <div class="fun-fact-title">🤔 智天，你知道吗？</div>
                 <p>地球自转的速度非常快！在赤道上，地球表面的移动速度达到每小时1670公里，比飞机还快呢！</p>
@@ -41,40 +45,15 @@ const seasonInfo = {
         `
     },
     revolution: {
-        title: '☀️ 地球公转',
+        title: '🌸 公转与四季',
         content: `
-            <p>地球不仅会自转，还会围绕<span class="highlight">太阳</span>转圈圈！</p>
-            <p>地球绕太阳转一圈需要<span class="highlight">365天</span>，这就是一年的时间。</p>
-            <p>地球和太阳的距离大约是<span class="highlight">1.5亿公里</span>，光从太阳到地球需要8分钟！</p>
+            <p>地球围绕<span class="highlight">太阳</span>转圈圈，轨道是<span class="highlight">椭圆形</span>的！</p>
+            <p>地球绕太阳转一圈需要<span class="highlight">365天</span>，这就是一年。</p>
+            <p>为什么会有四季？秘密是<span class="highlight">地轴倾斜23.5度</span>！</p>
+            <p>北半球朝向太阳时阳光<span class="highlight">直射</span>→夏天热；远离时阳光<span class="highlight">斜射</span>→冬天冷。</p>
             <div class="fun-fact">
-                <div class="fun-fact-title">🚀 智天，你知道吗？</div>
-                <p>地球绕太阳公转的速度是每秒30公里！如果坐火箭以这个速度飞，从北京到上海只需要40秒！</p>
-            </div>
-        `
-    },
-    seasons: {
-        title: '🌸 四季变化',
-        content: `
-            <p>为什么会有<span class="highlight">春、夏、秋、冬</span>四个季节呢？</p>
-            <p>秘密就在于地球的<span class="highlight">地轴是倾斜的</span>！倾斜角度是23.5度。</p>
-            <p>当北半球朝向太阳时，阳光直射，天气变热，就是<span class="highlight">夏天</span>。</p>
-            <p>当北半球远离太阳时，阳光斜射，天气变冷，就是<span class="highlight">冬天</span>。</p>
-            <div class="fun-fact">
-                <div class="fun-fact-title">🌍 智天，你知道吗？</div>
-                <p>当我们这里是夏天的时候，澳大利亚的小朋友正在过冬天呢！因为他们在南半球。</p>
-            </div>
-        `
-    },
-    daynight: {
-        title: '🌓 昼夜交替',
-        content: `
-            <p>为什么会有<span class="highlight">白天和黑夜</span>呢？</p>
-            <p>因为地球是个<span class="highlight">大球</span>，太阳只能照亮一半！</p>
-            <p>被太阳照到的一面是<span class="highlight">白天</span>，照不到的一面是<span class="highlight">黑夜</span>。</p>
-            <p>地球不停地转，所以白天和黑夜会<span class="highlight">轮流出现</span>。</p>
-            <div class="fun-fact">
-                <div class="fun-fact-title">🌙 智天，你知道吗？</div>
-                <p>当我们睡觉的时候，地球另一边的小朋友正在吃早餐呢！这就是时差。</p>
+                <div class="fun-fact-title">🤯 智天，你知道吗？</div>
+                <p>北半球冬天时，地球反而离太阳<span class="highlight">更近</span>（近日点）！所以季节变化不是因为距离远近，而是因为地轴倾斜导致阳光照射角度不同！</p>
             </div>
         `
     }
@@ -83,38 +62,24 @@ const seasonInfo = {
 // ============ 初始化 ============
 function init() {
     clock = new THREE.Clock();
-
-    // 创建场景
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000005);
 
-    // 创建相机
-    camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        2000
-    );
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
     camera.position.set(0, 30, 50);
 
-    // 创建渲染器
-    renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true
-    });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // 创建控制器
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 15;
     controls.maxDistance = 200;
 
-    // 创建场景内容
     createStarfield();
     createSun();
     createEarth();
@@ -123,16 +88,13 @@ function init() {
     createAxisIndicator();
     addLights();
 
-    // 事件监听
     window.addEventListener('resize', onWindowResize);
     setupControls();
 
-    // 隐藏加载画面
     setTimeout(() => {
         document.getElementById('loadingScreen').classList.add('hidden');
     }, 1500);
 
-    // 开始动画
     animate();
 }
 
@@ -146,21 +108,13 @@ function createStarfield() {
         const radius = 800 + Math.random() * 500;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
-
         positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
         positions[i * 3 + 2] = radius * Math.cos(phi);
     }
 
     starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    const starsMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 1.5,
-        transparent: true,
-        opacity: 0.8
-    });
-
+    const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, transparent: true, opacity: 0.8 });
     starField = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(starField);
 }
@@ -169,13 +123,10 @@ function createStarfield() {
 function createSun() {
     const sunGeometry = new THREE.SphereGeometry(SUN_RADIUS, 64, 64);
     const sunMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            time: { value: 0 }
-        },
+        uniforms: { time: { value: 0 } },
         vertexShader: `
             varying vec3 vNormal;
             varying vec2 vUv;
-            
             void main() {
                 vNormal = normalize(normalMatrix * normal);
                 vUv = uv;
@@ -186,7 +137,6 @@ function createSun() {
             uniform float time;
             varying vec3 vNormal;
             varying vec2 vUv;
-            
             void main() {
                 vec3 color1 = vec3(1.0, 0.95, 0.5);
                 vec3 color2 = vec3(1.0, 0.6, 0.1);
@@ -203,10 +153,8 @@ function createSun() {
     sun.position.set(0, 0, 0);
     scene.add(sun);
 
-    // 太阳光晕
     const glowGeometry = new THREE.SphereGeometry(SUN_RADIUS * 1.3, 32, 32);
     const glowMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
         vertexShader: `
             varying vec3 vNormal;
             void main() {
@@ -231,7 +179,7 @@ function createSun() {
     sun.add(glow);
 }
 
-// ============ 创建地球 ============
+// ============ 创建地球 - 改进版 ============
 function createEarth() {
     const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 128, 128);
 
@@ -245,9 +193,11 @@ function createEarth() {
             varying vec2 vUv;
             varying vec3 vPosition;
             varying vec3 vWorldPosition;
+            varying vec3 vWorldNormal;
             
             void main() {
                 vNormal = normalize(normalMatrix * normal);
+                vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
                 vUv = uv;
                 vPosition = position;
                 vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
@@ -261,219 +211,8 @@ function createEarth() {
             varying vec2 vUv;
             varying vec3 vPosition;
             varying vec3 vWorldPosition;
+            varying vec3 vWorldNormal;
             
-            // 改进的噪声函数
-            vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-            vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-            vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-            
-            float snoise(vec2 v) {
-                const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-                vec2 i  = floor(v + dot(v, C.yy));
-                vec2 x0 = v - i + dot(i, C.xx);
-                vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-                vec4 x12 = x0.xyxy + C.xxzz;
-                x12.xy -= i1;
-                i = mod289(i);
-                vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-                vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-                m = m*m; m = m*m;
-                vec3 x = 2.0 * fract(p * C.www) - 1.0;
-                vec3 h = abs(x) - 0.5;
-                vec3 ox = floor(x + 0.5);
-                vec3 a0 = x - ox;
-                m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-                vec3 g;
-                g.x = a0.x * x0.x + h.x * x0.y;
-                g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-                return 130.0 * dot(m, g);
-            }
-            
-            float fbm(vec2 p) {
-                float value = 0.0;
-                float amplitude = 0.5;
-                for (int i = 0; i < 6; i++) {
-                    value += amplitude * snoise(p);
-                    p *= 2.0;
-                    amplitude *= 0.5;
-                }
-                return value;
-            }
-            
-            void main() {
-                vec2 uv = vUv;
-                
-                // 更真实的大陆形状 - 模拟真实地球
-                float continent1 = fbm(uv * 4.0 + vec2(0.0, 0.0)); // 亚欧大陆
-                float continent2 = fbm(uv * 4.0 + vec2(3.0, 1.0)); // 美洲
-                float continent3 = fbm(uv * 5.0 + vec2(1.5, 2.0)); // 非洲
-                float continent4 = fbm(uv * 6.0 + vec2(4.0, 3.0)); // 澳洲
-                
-                // 组合大陆
-                float landNoise = max(max(continent1, continent2), max(continent3, continent4));
-                landNoise += fbm(uv * 12.0) * 0.2; // 添加细节
-                
-                // 调整海陆比例 (地球约70%是海洋)
-                float landMask = smoothstep(0.35, 0.5, landNoise);
-                
-                // 更鲜艳的海洋颜色 - 深蓝色
-                vec3 deepOcean = vec3(0.0, 0.1, 0.4);      // 深海蓝
-                vec3 midOcean = vec3(0.0, 0.2, 0.6);       // 中层海蓝
-                vec3 shallowOcean = vec3(0.1, 0.4, 0.7);   // 浅海蓝绿
-                
-                float oceanDepth = fbm(uv * 15.0) * 0.5 + 0.5;
-                vec3 oceanColor = mix(deepOcean, midOcean, oceanDepth);
-                // 近岸浅水区
-                float coastDist = smoothstep(0.3, 0.45, landNoise);
-                oceanColor = mix(oceanColor, shallowOcean, coastDist * 0.6);
-                
-                // 更鲜艳的陆地颜色
-                vec3 darkForest = vec3(0.05, 0.25, 0.05);   // 深绿森林
-                vec3 forest = vec3(0.1, 0.4, 0.1);          // 森林绿
-                vec3 grassland = vec3(0.3, 0.5, 0.15);      // 草原黄绿
-                vec3 savanna = vec3(0.6, 0.5, 0.2);         // 稀树草原
-                vec3 desert = vec3(0.85, 0.7, 0.4);         // 沙漠黄
-                vec3 mountains = vec3(0.45, 0.35, 0.25);    // 山脉棕
-                vec3 snow = vec3(0.95, 0.97, 1.0);          // 雪白
-                
-                // 根据纬度和噪声混合地形
-                float latitude = abs(uv.y - 0.5) * 2.0; // 0在赤道，1在极地
-                float terrainNoise = fbm(uv * 10.0 + 5.0);
-                float heightNoise = fbm(uv * 20.0);
-                
-                // 热带雨林 (赤道附近)
-                vec3 landColor = mix(darkForest, forest, terrainNoise);
-                
-                // 温带 (中纬度)
-                float temperate = smoothstep(0.15, 0.4, latitude);
-                landColor = mix(landColor, grassland, temperate * (1.0 - terrainNoise * 0.5));
-                
-                // 沙漠带 (副热带)
-                float desertBand = smoothstep(0.2, 0.35, latitude) * smoothstep(0.5, 0.35, latitude);
-                float desertNoise = smoothstep(0.4, 0.7, terrainNoise);
-                landColor = mix(landColor, desert, desertBand * desertNoise * 0.8);
-                
-                // 稀树草原
-                landColor = mix(landColor, savanna, desertBand * (1.0 - desertNoise) * 0.5);
-                
-                // 山脉 (高海拔)
-                float mountainMask = smoothstep(0.55, 0.75, heightNoise);
-                landColor = mix(landColor, mountains, mountainMask * 0.7);
-                
-                // 山顶积雪
-                float snowLine = smoothstep(0.7, 0.85, heightNoise) * smoothstep(0.3, 0.5, latitude);
-                landColor = mix(landColor, snow, snowLine * 0.8);
-                
-                // 极地冰盖 - 更明显
-                float polarNorth = smoothstep(0.12, 0.0, uv.y);
-                float polarSouth = smoothstep(0.88, 1.0, uv.y);
-                float polar = max(polarNorth, polarSouth);
-                vec3 ice = vec3(0.92, 0.95, 1.0);
-                
-                // 混合海洋和陆地
-                vec3 surfaceColor = mix(oceanColor, landColor, landMask);
-                
-                // 添加冰盖
-                surfaceColor = mix(surfaceColor, ice, polar * 0.9);
-                
-                // 云层 - 更自然的分布
-                float clouds1 = fbm(uv * 5.0 + time * 0.003);
-                float clouds2 = fbm(uv * 8.0 - time * 0.002 + 10.0);
-                float clouds = (clouds1 + clouds2) * 0.5;
-                clouds = smoothstep(0.3, 0.65, clouds);
-                vec3 cloudColor = vec3(1.0, 1.0, 1.0);
-                surfaceColor = mix(surfaceColor, cloudColor, clouds * 0.45);
-                
-                // 大气散射效果（边缘发蓝光）
-                float fresnel = pow(1.0 - max(dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0), 3.5);
-                vec3 atmosphere = vec3(0.4, 0.7, 1.0);
-                surfaceColor = mix(surfaceColor, atmosphere, fresnel * 0.5);
-                
-                // 昼夜光照
-                float daylight = dot(normalize(vWorldPosition), normalize(sunDirection));
-                daylight = smoothstep(-0.15, 0.25, daylight);
-                
-                // 夜晚效果
-                vec3 nightColor = surfaceColor * 0.03;
-                // 城市灯光
-                float cityLights = fbm(uv * 40.0) * landMask * (1.0 - polar);
-                cityLights = smoothstep(0.55, 0.75, cityLights);
-                nightColor += vec3(1.0, 0.85, 0.5) * cityLights * 0.4;
-                
-                // 混合昼夜
-                vec3 finalColor = mix(nightColor, surfaceColor, daylight);
-                
-                // 增加整体饱和度
-                float gray = dot(finalColor, vec3(0.299, 0.587, 0.114));
-                finalColor = mix(vec3(gray), finalColor, 1.2);
-                
-                gl_FragColor = vec4(finalColor, 1.0);
-            }
-        `
-    });
-
-    earth = new THREE.Mesh(earthGeometry, earthMaterial);
-    earth.rotation.z = EARTH_TILT; // 地轴倾斜
-    earth.position.set(EARTH_ORBIT_RADIUS, 0, 0);
-    scene.add(earth);
-
-    // 大气层光晕 - 更明显的蓝色
-    const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.15, 64, 64);
-    const atmosphereMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
-                vec3 color = vec3(0.3, 0.6, 1.0);
-                gl_FragColor = vec4(color, intensity * 0.6);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide,
-        depthWrite: false
-    });
-
-    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-    earth.add(atmosphere);
-}
-
-// ============ 创建月球 ============
-function createMoon() {
-    const moonGeometry = new THREE.SphereGeometry(MOON_RADIUS, 64, 64);
-    
-    // 使用着色器创建真实的月球表面
-    const moonMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            sunDirection: { value: new THREE.Vector3(-1, 0, 0) }
-        },
-        vertexShader: `
-            varying vec3 vNormal;
-            varying vec2 vUv;
-            varying vec3 vPosition;
-            
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                vUv = uv;
-                vPosition = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform vec3 sunDirection;
-            varying vec3 vNormal;
-            varying vec2 vUv;
-            varying vec3 vPosition;
-            
-            // 噪声函数
             float hash(vec2 p) {
                 return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
             }
@@ -489,108 +228,402 @@ function createMoon() {
                 return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
             }
             
-            float fbm(vec2 p) {
-                float value = 0.0;
-                float amplitude = 0.5;
-                for (int i = 0; i < 5; i++) {
-                    value += amplitude * noise(p);
-                    p *= 2.0;
-                    amplitude *= 0.5;
+            // 检测中国
+            float isInChina(float lon, float lat) {
+                if (lon < 73.0 || lon > 135.0 || lat < 18.0 || lat > 54.0) return 0.0;
+                float china = 0.0;
+                
+                // 东北
+                if (lat > 40.0 && lat < 54.0 && lon > 119.0 && lon < 135.0) {
+                    if (lat > 43.0 && lon > 121.0 && lon < 135.0) {
+                        float headTop = 53.5 - (lon - 123.0) * 0.3;
+                        if (lat < headTop) china = 1.0;
+                    }
+                    if (lat > 40.0 && lat < 46.0 && lon > 119.0 && lon < 131.0) china = 1.0;
                 }
-                return value;
+                // 华北
+                if (lat > 36.0 && lat < 43.0 && lon > 110.0 && lon < 120.0) china = 1.0;
+                // 内蒙古
+                if (lat > 37.0 && lat < 50.0 && lon > 97.0 && lon < 126.0) {
+                    float backTop = min(42.0 + (lon - 97.0) * 0.25, 49.0);
+                    float backBottom = 37.0 + (lon - 97.0) * 0.1;
+                    if (lat < backTop && lat > backBottom) china = 1.0;
+                }
+                // 山东
+                if (lat > 34.0 && lat < 38.5 && lon > 114.0 && lon < 123.0) {
+                    china = 1.0;
+                    float bohaiDist = length(vec2(lon - 119.0, lat - 38.5));
+                    if (bohaiDist < 2.5 && lat > 37.0) china = 0.0;
+                }
+                // 华东华中
+                if (lat > 24.0 && lat < 36.0 && lon > 108.0 && lon < 123.0) {
+                    float eastCoast = 122.5 - (36.0 - lat) * 0.2;
+                    if (lon < eastCoast) china = 1.0;
+                }
+                // 福建广东
+                if (lat > 21.0 && lat < 29.0 && lon > 109.0 && lon < 120.5) {
+                    float seCoast = 120.0 - (26.0 - lat) * 0.4;
+                    if (lon < seCoast || lat > 26.0) china = 1.0;
+                }
+                // 西南
+                if (lat > 21.0 && lat < 30.0 && lon > 97.0 && lon < 112.0) {
+                    float legSouth = 21.5;
+                    if (lon < 106.0) legSouth = 21.0 + (106.0 - lon) * 0.15;
+                    if (lat > legSouth) china = 1.0;
+                    if (lon > 106.0 && lon < 110.0 && lat < 22.0) china = 0.0;
+                }
+                // 海南
+                if (lon > 108.5 && lon < 111.5 && lat > 18.0 && lat < 20.5) {
+                    if (length(vec2(lon - 110.0, lat - 19.2)) < 1.5) china = 0.9;
+                }
+                // 新疆
+                if (lat > 34.5 && lat < 49.5 && lon > 73.0 && lon < 97.0) {
+                    float xjNorth = 49.0, xjSouth = 35.0;
+                    if (lon < 80.0) {
+                        xjNorth = 44.0 - (80.0 - lon) * 0.8;
+                        xjSouth = 37.0 + (80.0 - lon) * 0.4;
+                    }
+                    if (lat < xjNorth && lat > xjSouth) china = 1.0;
+                }
+                // 西藏
+                if (lat > 26.5 && lat < 37.0 && lon > 78.0 && lon < 100.0) {
+                    float tibetSouth = 27.5 + (lon - 78.0) * 0.05;
+                    if (lat > tibetSouth) china = 1.0;
+                }
+                // 青海甘肃
+                if (lat > 32.0 && lat < 43.0 && lon > 89.0 && lon < 108.0) china = 1.0;
+                // 四川
+                if (lat > 26.0 && lat < 34.0 && lon > 97.0 && lon < 111.0) china = 1.0;
+                // 台湾
+                if (lon > 119.5 && lon < 122.5 && lat > 21.5 && lat < 25.5) {
+                    if (length(vec2((lon - 121.0) * 0.7, lat - 23.5)) < 2.2) china = 0.9;
+                }
+                return china;
             }
             
-            // 陨石坑函数
-            float crater(vec2 uv, vec2 center, float size) {
-                float dist = length(uv - center) / size;
-                // 陨石坑边缘凸起，中心凹陷
-                float rim = smoothstep(0.8, 1.0, dist) * smoothstep(1.3, 1.0, dist);
-                float bowl = smoothstep(0.0, 0.8, dist);
-                return rim * 0.3 - (1.0 - bowl) * 0.2;
+            // 检测美国本土
+            float isInUSA(float lon, float lat) {
+                if (lon < -130.0 || lon > -65.0 || lat < 24.0 || lat > 50.0) return 0.0;
+                float usa = 0.0;
+                
+                // 美国本土主体
+                if (lon > -125.0 && lon < -67.0 && lat > 25.0 && lat < 49.0) {
+                    usa = 1.0;
+                    // 五大湖区域挖空
+                    if (lon > -93.0 && lon < -76.0 && lat > 41.0 && lat < 49.0) {
+                        float lakeDist = length(vec2(lon + 84.0, lat - 45.0));
+                        if (lakeDist < 4.0) usa = 0.0;
+                    }
+                    // 西北角修正
+                    if (lon < -120.0 && lat > 46.0) {
+                        float corner = 49.0 - (lon + 125.0) * 0.5;
+                        if (lat > corner) usa = 0.0;
+                    }
+                    // 佛罗里达半岛
+                    if (lon > -88.0 && lon < -80.0 && lat > 24.5 && lat < 31.0) usa = 1.0;
+                    // 墨西哥湾沿岸
+                    if (lat < 30.0 && lon > -98.0 && lon < -88.0) {
+                        float gulfCurve = 29.0 + (lon + 93.0) * 0.1;
+                        if (lat < gulfCurve) usa = 0.0;
+                    }
+                }
+                // 阿拉斯加
+                if (lon > -170.0 && lon < -130.0 && lat > 54.0 && lat < 72.0) {
+                    usa = 0.8;
+                }
+                return usa;
+            }
+            
+            // 大陆检测
+            float getContinentMask(vec2 uv) {
+                float lon = uv.x * 360.0 - 180.0;
+                float lat = (uv.y - 0.5) * 180.0;
+                float land = 0.0;
+                
+                // 中国
+                land = max(land, isInChina(lon, lat));
+                // 美国
+                land = max(land, isInUSA(lon, lat));
+                
+                // 俄罗斯
+                if (lat > 50.0 && lat < 78.0 && lon > 30.0 && lon < 180.0) {
+                    if (isInChina(lon, lat) < 0.5) land = max(land, 0.8);
+                }
+                if (lat > 55.0 && lon > -180.0 && lon < -168.0) land = max(land, 0.75);
+                
+                // 加拿大
+                if (lon > -141.0 && lon < -52.0 && lat > 49.0 && lat < 83.0) land = max(land, 0.8);
+                
+                // 墨西哥和中美洲
+                if (lon > -118.0 && lon < -86.0 && lat > 14.0 && lat < 33.0) {
+                    if (isInUSA(lon, lat) < 0.5) land = max(land, 0.75);
+                }
+                
+                // 欧洲
+                if (lon > -12.0 && lon < 60.0 && lat > 35.0 && lat < 72.0) {
+                    float europe = smoothstep(-12.0, -5.0, lon) * smoothstep(60.0, 50.0, lon);
+                    europe *= smoothstep(35.0, 38.0, lat) * smoothstep(72.0, 68.0, lat);
+                    land = max(land, europe * 0.85);
+                }
+                
+                // 非洲
+                if (lon > -18.0 && lon < 52.0 && lat > -36.0 && lat < 38.0) {
+                    float africa = smoothstep(-18.0, -10.0, lon) * smoothstep(52.0, 45.0, lon);
+                    africa *= smoothstep(-36.0, -32.0, lat) * smoothstep(38.0, 34.0, lat);
+                    land = max(land, africa * 0.88);
+                }
+                
+                // 南美洲
+                if (lon > -82.0 && lon < -34.0 && lat > -58.0 && lat < 15.0) {
+                    float sa = smoothstep(-82.0, -78.0, lon) * smoothstep(-34.0, -38.0, lon);
+                    sa *= smoothstep(-58.0, -54.0, lat) * smoothstep(15.0, 10.0, lat);
+                    land = max(land, sa * 0.85);
+                }
+                
+                // 澳大利亚
+                if (lon > 112.0 && lon < 155.0 && lat > -45.0 && lat < -10.0) {
+                    float aus = smoothstep(112.0, 116.0, lon) * smoothstep(155.0, 150.0, lon);
+                    aus *= smoothstep(-45.0, -42.0, lat) * smoothstep(-10.0, -14.0, lat);
+                    land = max(land, aus * 0.88);
+                }
+                
+                // 日本
+                if (lon > 129.0 && lon < 146.0 && lat > 30.0 && lat < 46.0) {
+                    if (lon > 138.0 && lon < 142.0 && lat > 34.0 && lat < 42.0) land = max(land, 0.82);
+                    if (lon > 139.0 && lon < 146.0 && lat > 41.0 && lat < 46.0) land = max(land, 0.8);
+                    if (lon > 129.0 && lon < 135.0 && lat > 30.0 && lat < 35.0) land = max(land, 0.78);
+                }
+                
+                // 朝鲜半岛
+                if (lon > 124.0 && lon < 130.0 && lat > 33.0 && lat < 43.0) {
+                    float korea = smoothstep(124.0, 126.0, lon) * smoothstep(130.0, 128.5, lon);
+                    korea *= smoothstep(33.0, 35.0, lat);
+                    land = max(land, korea * 0.88);
+                }
+                
+                // 东南亚
+                if (lon > 92.0 && lon < 120.0 && lat > -10.0 && lat < 22.0) {
+                    if (isInChina(lon, lat) < 0.5) land = max(land, 0.75);
+                }
+                
+                // 印度
+                if (lon > 68.0 && lon < 90.0 && lat > 6.0 && lat < 36.0) {
+                    float india = smoothstep(68.0, 72.0, lon) * smoothstep(90.0, 86.0, lon);
+                    india *= smoothstep(6.0, 10.0, lat);
+                    land = max(land, india * 0.88);
+                }
+                
+                // 中东
+                if (lon > 25.0 && lon < 65.0 && lat > 12.0 && lat < 42.0) land = max(land, 0.7);
+                
+                // 格陵兰
+                if (lon > -75.0 && lon < -10.0 && lat > 58.0 && lat < 84.0) {
+                    float greenland = smoothstep(-75.0, -65.0, lon) * smoothstep(-10.0, -20.0, lon);
+                    greenland *= smoothstep(58.0, 62.0, lat) * smoothstep(84.0, 80.0, lat);
+                    land = max(land, greenland * 0.82);
+                }
+                
+                // 南极洲 - 更明显
+                if (lat < -60.0) {
+                    float antarctic = smoothstep(-60.0, -65.0, lat);
+                    // 添加更多细节
+                    float antNoise = noise(uv * 15.0) * 0.2;
+                    antarctic = clamp(antarctic + antNoise, 0.0, 1.0);
+                    land = max(land, antarctic);
+                }
+                
+                // 添加噪声
+                float edgeNoise = noise(uv * 80.0) * 0.06;
+                land += edgeNoise * land * 0.4;
+                
+                return clamp(land, 0.0, 1.0);
             }
             
             void main() {
                 vec2 uv = vUv;
+                float landMask = getContinentMask(uv);
+                landMask = smoothstep(0.35, 0.65, landMask);
                 
-                // 月球基础颜色 - 灰色调
-                vec3 baseGray = vec3(0.55, 0.53, 0.5);
-                vec3 darkGray = vec3(0.3, 0.28, 0.26);
-                vec3 lightGray = vec3(0.7, 0.68, 0.65);
+                float lon = uv.x * 360.0 - 180.0;
+                float lat = (uv.y - 0.5) * 180.0;
                 
-                // 月海 (较暗的区域)
-                float maria1 = fbm(uv * 3.0 + vec2(0.5, 0.3));
-                float maria2 = fbm(uv * 2.5 + vec2(2.0, 1.0));
-                float mariaMask = smoothstep(0.4, 0.6, maria1) * smoothstep(0.35, 0.55, maria2);
+                float inChina = isInChina(lon, lat) * landMask;
+                float inUSA = isInUSA(lon, lat) * landMask;
                 
-                vec3 surfaceColor = mix(baseGray, darkGray, mariaMask * 0.6);
+                // ===== 海洋 - 更真实的深蓝色 =====
+                vec3 deepOcean = vec3(0.01, 0.05, 0.18);
+                vec3 midOcean = vec3(0.02, 0.12, 0.35);
+                vec3 shallowOcean = vec3(0.05, 0.25, 0.5);
                 
-                // 高地 (较亮的区域)
-                float highlands = fbm(uv * 4.0 + vec2(1.0, 2.0));
-                surfaceColor = mix(surfaceColor, lightGray, smoothstep(0.5, 0.7, highlands) * 0.4);
+                float oceanDepth = noise(uv * 8.0) * 0.5 + 0.5;
+                vec3 oceanColor = mix(deepOcean, midOcean, oceanDepth);
+                float coastDist = smoothstep(0.25, 0.5, landMask);
+                oceanColor = mix(oceanColor, shallowOcean, coastDist * 0.4);
                 
-                // 添加大陨石坑
-                float craterEffect = 0.0;
+                // ===== 陆地 - 更自然的颜色 =====
+                vec3 forest = vec3(0.08, 0.35, 0.12);
+                vec3 grassland = vec3(0.25, 0.45, 0.15);
+                vec3 desert = vec3(0.78, 0.68, 0.42);
+                vec3 mountains = vec3(0.45, 0.38, 0.3);
+                vec3 tundra = vec3(0.55, 0.52, 0.45);
                 
-                // 大型陨石坑
-                craterEffect += crater(uv, vec2(0.3, 0.4), 0.12);
-                craterEffect += crater(uv, vec2(0.7, 0.3), 0.1);
-                craterEffect += crater(uv, vec2(0.5, 0.7), 0.15);
-                craterEffect += crater(uv, vec2(0.2, 0.6), 0.08);
-                craterEffect += crater(uv, vec2(0.8, 0.6), 0.11);
-                craterEffect += crater(uv, vec2(0.4, 0.2), 0.09);
-                craterEffect += crater(uv, vec2(0.6, 0.5), 0.07);
-                craterEffect += crater(uv, vec2(0.15, 0.25), 0.06);
-                craterEffect += crater(uv, vec2(0.85, 0.8), 0.1);
-                craterEffect += crater(uv, vec2(0.45, 0.85), 0.08);
+                float latNorm = abs(uv.y - 0.5) * 2.0;
+                float terrainNoise = noise(uv * 12.0);
                 
-                // 中型陨石坑
-                for (float i = 0.0; i < 15.0; i++) {
-                    vec2 pos = vec2(
-                        fract(sin(i * 127.1) * 43758.5453),
-                        fract(sin(i * 311.7) * 43758.5453)
-                    );
-                    float size = 0.03 + fract(sin(i * 78.233) * 43758.5453) * 0.04;
-                    craterEffect += crater(uv, pos, size) * 0.5;
+                vec3 landColor = mix(forest, grassland, terrainNoise);
+                
+                // 沙漠带
+                float desertBand = smoothstep(0.12, 0.28, latNorm) * smoothstep(0.42, 0.28, latNorm);
+                landColor = mix(landColor, desert, desertBand * smoothstep(0.45, 0.7, terrainNoise));
+                
+                // 高纬度苔原
+                float tundraBand = smoothstep(0.55, 0.75, latNorm);
+                landColor = mix(landColor, tundra, tundraBand * 0.6);
+                
+                // 山脉
+                float mountainNoise = noise(uv * 25.0);
+                landColor = mix(landColor, mountains, smoothstep(0.6, 0.8, mountainNoise) * 0.4);
+                
+                // ===== 极地冰盖 - 更真实 =====
+                vec3 ice = vec3(0.92, 0.95, 0.98);
+                vec3 snowpack = vec3(0.85, 0.88, 0.92);
+                float polarNorth = smoothstep(0.12, 0.02, uv.y);
+                float polarSouth = smoothstep(0.88, 0.98, uv.y);
+                float polar = max(polarNorth, polarSouth);
+                
+                // 南极洲明显的白色
+                if (lat < -60.0) {
+                    float antarcticIce = smoothstep(-60.0, -68.0, lat);
+                    polar = max(polar, antarcticIce * 0.95);
                 }
                 
-                // 小型陨石坑纹理
-                float smallCraters = fbm(uv * 30.0) * 0.15;
-                float tinyCraters = fbm(uv * 60.0) * 0.08;
+                vec3 polarColor = mix(snowpack, ice, noise(uv * 20.0));
                 
-                // 应用陨石坑效果到颜色
-                surfaceColor += vec3(craterEffect * 0.4);
-                surfaceColor -= vec3(smallCraters * 0.3);
-                surfaceColor += vec3(tinyCraters * 0.15);
+                // ===== 混合 =====
+                vec3 surfaceColor = mix(oceanColor, landColor, landMask);
+                surfaceColor = mix(surfaceColor, polarColor, polar);
                 
-                // 表面粗糙度
-                float roughness = fbm(uv * 50.0) * 0.1;
-                surfaceColor += vec3(roughness - 0.05);
+                // ===== 中国边界 - 金色高亮 =====
+                float chinaBorder = 0.0;
+                if (inChina > 0.3) {
+                    float dx = 0.0025;
+                    float chinaL = isInChina((uv.x - dx) * 360.0 - 180.0, lat);
+                    float chinaR = isInChina((uv.x + dx) * 360.0 - 180.0, lat);
+                    float chinaU = isInChina(lon, ((uv.y + dx) - 0.5) * 180.0);
+                    float chinaD = isInChina(lon, ((uv.y - dx) - 0.5) * 180.0);
+                    float gradient = abs(chinaL - chinaR) + abs(chinaU - chinaD);
+                    chinaBorder = smoothstep(0.2, 0.8, gradient);
+                }
                 
-                // 光照
-                vec3 lightDir = normalize(vec3(1.0, 0.5, 1.0));
-                float diff = max(dot(vNormal, lightDir), 0.0);
+                // ===== 美国边界 - 蓝色高亮 =====
+                float usaBorder = 0.0;
+                if (inUSA > 0.3) {
+                    float dx = 0.003;
+                    float usaL = isInUSA((uv.x - dx) * 360.0 - 180.0, lat);
+                    float usaR = isInUSA((uv.x + dx) * 360.0 - 180.0, lat);
+                    float usaU = isInUSA(lon, ((uv.y + dx) - 0.5) * 180.0);
+                    float usaD = isInUSA(lon, ((uv.y - dx) - 0.5) * 180.0);
+                    float gradient = abs(usaL - usaR) + abs(usaU - usaD);
+                    usaBorder = smoothstep(0.2, 0.8, gradient);
+                }
                 
-                // 增加对比度的光照
-                float shadow = smoothstep(-0.1, 0.3, diff);
-                surfaceColor *= (shadow * 0.7 + 0.3);
+                // 应用边界颜色
+                vec3 chinaBorderColor = vec3(1.0, 0.85, 0.1);  // 金色
+                vec3 usaBorderColor = vec3(0.2, 0.6, 1.0);    // 蓝色
+                surfaceColor = mix(surfaceColor, chinaBorderColor, chinaBorder * 0.85);
+                surfaceColor = mix(surfaceColor, usaBorderColor, usaBorder * 0.85);
                 
-                // 边缘稍暗
-                float edge = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 1.5);
-                surfaceColor *= (1.0 - edge * 0.2);
+                // ===== 云层 =====
+                float clouds = noise(uv * 5.0 + time * 0.002);
+                clouds += noise(uv * 10.0 - time * 0.001) * 0.5;
+                clouds = smoothstep(0.55, 0.85, clouds * 0.65);
+                surfaceColor = mix(surfaceColor, vec3(0.95), clouds * 0.25);
                 
-                // 确保颜色在合理范围
-                surfaceColor = clamp(surfaceColor, 0.15, 0.85);
+                // ===== 大气边缘 =====
+                float fresnel = pow(1.0 - max(dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0), 3.5);
+                vec3 atmosphere = vec3(0.35, 0.65, 1.0);
+                surfaceColor = mix(surfaceColor, atmosphere, fresnel * 0.35);
                 
-                gl_FragColor = vec4(surfaceColor, 1.0);
+                // ===== 昼夜光照 =====
+                float daylight = dot(vWorldNormal, normalize(sunDirection));
+                float daySide = smoothstep(-0.12, 0.18, daylight);
+                
+                vec3 dayColor = surfaceColor * 1.15;
+                
+                // 夜晚 - 城市灯光
+                vec3 nightColor = surfaceColor * 0.08;
+                float cityLights = noise(uv * 60.0) * landMask * (1.0 - polar);
+                cityLights = smoothstep(0.55, 0.78, cityLights);
+                
+                // 中国城市灯光 - 更亮
+                float chinaLights = cityLights * (1.0 + inChina * 1.5);
+                // 美国城市灯光 - 更亮
+                float usaLights = cityLights * (1.0 + inUSA * 1.5);
+                float totalLights = max(chinaLights, usaLights);
+                
+                nightColor += vec3(1.0, 0.9, 0.5) * totalLights * 0.6;
+                
+                // 夜间边界发光
+                nightColor += chinaBorderColor * chinaBorder * 0.5;
+                nightColor += usaBorderColor * usaBorder * 0.5;
+                
+                // 晨昏线
+                float twilight = smoothstep(-0.12, 0.0, daylight) * smoothstep(0.12, 0.0, daylight);
+                vec3 twilightColor = mix(nightColor, vec3(1.0, 0.45, 0.15), twilight * 0.35);
+                
+                vec3 finalColor = mix(nightColor, dayColor, daySide);
+                finalColor = mix(finalColor, twilightColor, twilight);
+                
+                gl_FragColor = vec4(finalColor, 1.0);
             }
         `
     });
 
+    earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    earth.rotation.z = EARTH_TILT;
+    earth.position.set(EARTH_ORBIT_RADIUS, 0, 0);
+    scene.add(earth);
+
+    // 大气层
+    const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.1, 64, 64);
+    const atmosphereMaterial = new THREE.ShaderMaterial({
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                vec3 color = vec3(0.3, 0.6, 1.0);
+                gl_FragColor = vec4(color, intensity * 0.45);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        depthWrite: false
+    });
+
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    earth.add(atmosphere);
+}
+
+// ============ 创建月球 ============
+function createMoon() {
+    const moonGeometry = new THREE.SphereGeometry(MOON_RADIUS, 64, 64);
+    const moonMaterial = new THREE.MeshStandardMaterial({
+        color: 0x888888,
+        roughness: 0.9,
+        metalness: 0.1
+    });
     moon = new THREE.Mesh(moonGeometry, moonMaterial);
     moon.position.set(MOON_ORBIT_RADIUS, 0, 0);
     earth.add(moon);
 
-    // 月球轨道
     const moonOrbitGeometry = new THREE.RingGeometry(MOON_ORBIT_RADIUS - 0.1, MOON_ORBIT_RADIUS + 0.1, 64);
     const moonOrbitMaterial = new THREE.MeshBasicMaterial({
         color: 0x444466,
@@ -605,91 +638,84 @@ function createMoon() {
 
 // ============ 创建地球轨道 ============
 function createEarthOrbit() {
-    const orbitGeometry = new THREE.RingGeometry(EARTH_ORBIT_RADIUS - 0.3, EARTH_ORBIT_RADIUS + 0.3, 128);
-    const orbitMaterial = new THREE.MeshBasicMaterial({
+    // 创建椭圆轨道
+    const curve = new THREE.EllipseCurve(
+        0, 0,                              // 中心点
+        EARTH_ORBIT_RADIUS,                // x半径（半长轴）
+        EARTH_ORBIT_RADIUS_B,              // y半径（半短轴）
+        0, 2 * Math.PI,                    // 起始和结束角度
+        false,                             // 顺时针
+        0                                  // 旋转
+    );
+    const points = curve.getPoints(128);
+    const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    const orbitMaterial = new THREE.LineBasicMaterial({
         color: 0x4488ff,
         transparent: true,
-        opacity: 0.2,
-        side: THREE.DoubleSide
+        opacity: 0.4
     });
-    earthOrbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+    earthOrbit = new THREE.Line(orbitGeometry, orbitMaterial);
     earthOrbit.rotation.x = Math.PI / 2;
     scene.add(earthOrbit);
 
-    // 四季位置标记和文字
+    // 四季位置（使用椭圆坐标）- 只显示夏至、秋分、冬至
     const seasonPositions = [
-        { angle: 0, label: '春分', icon: '🌸', month: '3月21日', color: 0x90EE90 },
-        { angle: Math.PI / 2, label: '夏至', icon: '☀️', month: '6月21日', color: 0xFFD700 },
+        { angle: Math.PI / 2, label: '夏至（远日点）', icon: '☀️', month: '6月21日', color: 0xFFD700 },
         { angle: Math.PI, label: '秋分', icon: '🍂', month: '9月23日', color: 0xDEB887 },
-        { angle: Math.PI * 1.5, label: '冬至', icon: '❄️', month: '12月22日', color: 0x87CEEB }
+        { angle: Math.PI * 1.5, label: '冬至（近日点）', icon: '❄️', month: '12月22日', color: 0x87CEEB }
     ];
 
     seasonPositions.forEach(pos => {
-        // 位置标记球
         const markerGeometry = new THREE.SphereGeometry(1.5, 16, 16);
         const markerMaterial = new THREE.MeshBasicMaterial({ color: pos.color });
         const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+        // 使用椭圆坐标
         marker.position.x = Math.cos(pos.angle) * EARTH_ORBIT_RADIUS;
-        marker.position.z = Math.sin(pos.angle) * EARTH_ORBIT_RADIUS;
-        marker.position.y = 0;
+        marker.position.z = Math.sin(pos.angle) * EARTH_ORBIT_RADIUS_B;
         scene.add(marker);
+        seasonMarkers.push(marker);
 
-        // 创建文字标签 (使用Canvas绘制)
         const canvas = document.createElement('canvas');
-        canvas.width = 256;
+        canvas.width = 320;
         canvas.height = 128;
         const ctx = canvas.getContext('2d');
-        
-        // 背景
         ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-        ctx.roundRect(0, 0, 256, 128, 15);
+        ctx.roundRect(0, 0, 320, 128, 15);
         ctx.fill();
-        
-        // 边框
         ctx.strokeStyle = `#${pos.color.toString(16).padStart(6, '0')}`;
         ctx.lineWidth = 3;
-        ctx.roundRect(0, 0, 256, 128, 15);
+        ctx.roundRect(0, 0, 320, 128, 15);
         ctx.stroke();
-        
-        // 图标
         ctx.font = '40px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(pos.icon, 128, 45);
-        
-        // 节气名称
-        ctx.font = 'bold 28px "Noto Sans SC", sans-serif';
+        ctx.fillText(pos.icon, 160, 45);
+        ctx.font = 'bold 24px "Noto Sans SC", sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(pos.label, 128, 80);
-        
-        // 日期
-        ctx.font = '18px "Noto Sans SC", sans-serif';
+        ctx.fillText(pos.label, 160, 80);
+        ctx.font = '16px "Noto Sans SC", sans-serif';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.fillText(pos.month, 128, 108);
+        ctx.fillText(pos.month, 160, 108);
 
         const texture = new THREE.CanvasTexture(canvas);
-        const spriteMaterial = new THREE.SpriteMaterial({ 
-            map: texture,
-            transparent: true
-        });
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
         const sprite = new THREE.Sprite(spriteMaterial);
         sprite.position.x = Math.cos(pos.angle) * (EARTH_ORBIT_RADIUS + 12);
-        sprite.position.z = Math.sin(pos.angle) * (EARTH_ORBIT_RADIUS + 12);
+        sprite.position.z = Math.sin(pos.angle) * (EARTH_ORBIT_RADIUS_B + 12);
         sprite.position.y = 8;
-        sprite.scale.set(20, 10, 1);
+        sprite.scale.set(24, 10, 1);
         scene.add(sprite);
+        seasonMarkers.push(sprite);
     });
 }
 
 // ============ 创建地轴指示器 ============
 function createAxisIndicator() {
-    // 地轴线
     const axisLength = EARTH_RADIUS * 2.5;
     const axisGeometry = new THREE.CylinderGeometry(0.1, 0.1, axisLength, 8);
     const axisMaterial = new THREE.MeshBasicMaterial({ color: 0xff4444 });
     axisLine = new THREE.Mesh(axisGeometry, axisMaterial);
     earth.add(axisLine);
 
-    // 北极标记
     const northGeometry = new THREE.ConeGeometry(0.4, 1, 8);
     const northMaterial = new THREE.MeshBasicMaterial({ color: 0xff4444 });
     const northMarker = new THREE.Mesh(northGeometry, northMaterial);
@@ -699,19 +725,16 @@ function createAxisIndicator() {
 
 // ============ 添加光源 ============
 function addLights() {
-    // 太阳光
     const sunLight = new THREE.PointLight(0xffffee, 2, 500);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    // 环境光
     const ambientLight = new THREE.AmbientLight(0x222233, 0.3);
     scene.add(ambientLight);
 }
 
 // ============ 设置控制 ============
 function setupControls() {
-    // 模式切换
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -722,7 +745,6 @@ function setupControls() {
         });
     });
 
-    // 速度控制
     const speedSlider = document.getElementById('speedSlider');
     const speedValue = document.getElementById('speedValue');
     speedSlider.addEventListener('input', () => {
@@ -730,212 +752,141 @@ function setupControls() {
         speedValue.textContent = animationSpeed.toFixed(1) + 'x';
     });
 
-    // 四季点击
     document.querySelectorAll('.season-item').forEach(item => {
         item.addEventListener('click', () => {
-            const season = item.dataset.season;
-            jumpToSeason(season);
+            jumpToSeason(item.dataset.season);
         });
     });
-    
-    // 播放/暂停按钮
+
     const playBtn = document.getElementById('playPauseBtn');
-    if (playBtn) {
-        playBtn.addEventListener('click', togglePlayPause);
-    }
+    if (playBtn) playBtn.addEventListener('click', togglePlayPause);
 }
 
-// ============ 更新信息面板 ============
 function updateInfoPanel() {
     const info = seasonInfo[currentMode];
     document.querySelector('#infoPanel h2').innerHTML = info.title;
     document.getElementById('infoContent').innerHTML = info.content;
 }
 
-// ============ 根据模式更新UI ============
 function updateUIForMode() {
     const seasonIndicator = document.getElementById('seasonIndicator');
     const axisIndicator = document.getElementById('axisIndicator');
-
-    // 重置
     seasonIndicator.classList.remove('visible');
     axisIndicator.classList.remove('visible');
-    
-    // 切换模式时重置公转状态
+
     orbitAngle = 0;
     hasCompletedOrbit = false;
     isPlaying = true;
     dayCount = 0;
     yearProgress = 0;
     updatePlayButton();
-    
-    // 隐藏完成消息
+
     const msgEl = document.getElementById('completionMessage');
-    if (msgEl) {
-        msgEl.style.display = 'none';
-    }
-    
-    // 重置地球位置
+    if (msgEl) msgEl.style.display = 'none';
+
     earth.position.x = EARTH_ORBIT_RADIUS;
     earth.position.z = 0;
 
+    // 根据模式显示/隐藏四季标记和轨道
+    const showSeasonMarkers = (currentMode === 'revolution');
+    seasonMarkers.forEach(marker => {
+        marker.visible = showSeasonMarkers;
+    });
+    if (earthOrbit) {
+        earthOrbit.visible = showSeasonMarkers;
+    }
+
     switch (currentMode) {
         case 'rotation':
-            camera.position.set(0, 10, 20);
+            // 与初始视角一致
+            camera.position.set(0, 30, 50);
             controls.target.copy(earth.position);
             break;
         case 'revolution':
             camera.position.set(0, 100, 150);
             controls.target.set(0, 0, 0);
-            break;
-        case 'seasons':
-            camera.position.set(0, 80, 120);
-            controls.target.set(0, 0, 0);
             seasonIndicator.classList.add('visible');
             axisIndicator.classList.add('visible');
-            break;
-        case 'daynight':
-            camera.position.set(20, 5, 15);
-            controls.target.copy(earth.position);
             break;
     }
 }
 
-// ============ 跳转到指定季节 ============
 function jumpToSeason(season) {
-    const seasonAngles = {
-        spring: 0,
-        summer: Math.PI / 2,
-        autumn: Math.PI,
-        winter: Math.PI * 1.5
-    };
+    const seasonAngles = { spring: 0, summer: Math.PI / 2, autumn: Math.PI, winter: Math.PI * 1.5 };
     orbitAngle = seasonAngles[season];
     updateSeasonIndicator();
 }
 
-// ============ 更新四季指示器 ============
 function updateSeasonIndicator() {
     const normalizedAngle = ((orbitAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
     let currentSeason;
-
-    if (normalizedAngle < Math.PI / 4 || normalizedAngle >= Math.PI * 7 / 4) {
-        currentSeason = 'spring';
-    } else if (normalizedAngle < Math.PI * 3 / 4) {
-        currentSeason = 'summer';
-    } else if (normalizedAngle < Math.PI * 5 / 4) {
-        currentSeason = 'autumn';
-    } else {
-        currentSeason = 'winter';
-    }
+    if (normalizedAngle < Math.PI / 4 || normalizedAngle >= Math.PI * 7 / 4) currentSeason = 'spring';
+    else if (normalizedAngle < Math.PI * 3 / 4) currentSeason = 'summer';
+    else if (normalizedAngle < Math.PI * 5 / 4) currentSeason = 'autumn';
+    else currentSeason = 'winter';
 
     document.querySelectorAll('.season-item').forEach(item => {
         item.classList.remove('active');
-        if (item.dataset.season === currentSeason) {
-            item.classList.add('active');
-        }
+        if (item.dataset.season === currentSeason) item.classList.add('active');
     });
 }
 
-// ============ 窗口大小调整 ============
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// ============ 动画循环 ============
 function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
 
-    // 更新太阳着色器
-    if (sun.material.uniforms) {
-        sun.material.uniforms.time.value = time;
-    }
+    if (sun.material.uniforms) sun.material.uniforms.time.value = time;
 
-    // 更新地球着色器
     if (earth.material.uniforms) {
         earth.material.uniforms.time.value = time;
-        // 更新太阳方向（用于昼夜效果）
         const sunDir = new THREE.Vector3().subVectors(sun.position, earth.position).normalize();
         earth.material.uniforms.sunDirection.value = sunDir;
     }
 
-    // 根据模式执行不同动画
     const speed = delta * animationSpeed;
 
-    // 只有在播放状态才执行动画
     if (isPlaying) {
         switch (currentMode) {
             case 'rotation':
-                // 自转演示 - 地球快速自转
                 earth.rotation.y += speed * 2;
                 dayCount += speed * 0.5;
                 break;
-
             case 'revolution':
-                // 公转演示 - 地球绕太阳转
-                const prevAngle = orbitAngle;
-                orbitAngle += speed * 0.3;
-                
-                // 检查是否完成一圈
+                orbitAngle += speed * 0.25;
                 if (orbitAngle >= Math.PI * 2 && !hasCompletedOrbit) {
                     orbitAngle = Math.PI * 2;
                     hasCompletedOrbit = true;
                     isPlaying = false;
                     updatePlayButton();
-                    showCompletionMessage('🎉 地球绕太阳转了一圈！这就是一年（365天）');
+                    showCompletionMessage('🌸☀️🍂❄️ 春夏秋冬，一年四季轮回完成！');
                 }
-                
+                // 椭圆轨道
                 earth.position.x = Math.cos(orbitAngle) * EARTH_ORBIT_RADIUS;
-                earth.position.z = Math.sin(orbitAngle) * EARTH_ORBIT_RADIUS;
-                earth.rotation.y += speed * 0.5;
-                yearProgress = Math.min((orbitAngle / (Math.PI * 2)) * 100, 100);
-                dayCount = yearProgress * 3.65;
-                break;
-
-            case 'seasons':
-                // 四季演示 - 慢速公转，强调地轴倾斜
-                orbitAngle += speed * 0.2;
-                
-                // 检查是否完成一圈
-                if (orbitAngle >= Math.PI * 2 && !hasCompletedOrbit) {
-                    orbitAngle = Math.PI * 2;
-                    hasCompletedOrbit = true;
-                    isPlaying = false;
-                    updatePlayButton();
-                    showCompletionMessage('🌸☀️🍂❄️ 春夏秋冬，四季轮回完成！');
-                }
-                
-                earth.position.x = Math.cos(orbitAngle) * EARTH_ORBIT_RADIUS;
-                earth.position.z = Math.sin(orbitAngle) * EARTH_ORBIT_RADIUS;
-                earth.rotation.y += speed * 0.3;
+                earth.position.z = Math.sin(orbitAngle) * EARTH_ORBIT_RADIUS_B;
+                earth.rotation.y += speed * 0.4;
                 yearProgress = Math.min((orbitAngle / (Math.PI * 2)) * 100, 100);
                 dayCount = yearProgress * 3.65;
                 updateSeasonIndicator();
                 break;
-
-            case 'daynight':
-                // 昼夜演示 - 聚焦自转
-                earth.rotation.y += speed * 1.5;
-                dayCount += speed * 0.3;
-                break;
         }
     }
 
-    // 月球绕地球转
     const moonAngle = time * 0.5;
     moon.position.x = Math.cos(moonAngle) * MOON_ORBIT_RADIUS;
     moon.position.z = Math.sin(moonAngle) * MOON_ORBIT_RADIUS;
 
-    // 更新时间显示
     document.getElementById('dayCount').textContent = `第 ${Math.floor(dayCount) + 1} 天`;
     document.getElementById('yearProgress').textContent = `公转进度: ${yearProgress.toFixed(1)}%`;
 
-    // 在公转/四季模式下，相机跟随地球
-    if (currentMode === 'rotation' || currentMode === 'daynight') {
+    if (currentMode === 'rotation') {
         controls.target.copy(earth.position);
     }
 
@@ -943,82 +894,44 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// ============ 更新播放按钮状态 ============
 function updatePlayButton() {
     const playBtn = document.getElementById('playPauseBtn');
     if (playBtn) {
-        playBtn.innerHTML = isPlaying ? 
-            '<span class="icon">⏸️</span><span>暂停</span>' : 
+        playBtn.innerHTML = isPlaying ?
+            '<span class="icon">⏸️</span><span>暂停</span>' :
             '<span class="icon">▶️</span><span>播放</span>';
     }
 }
 
-// ============ 显示完成消息 ============
 function showCompletionMessage(message) {
-    // 创建消息元素
     let msgEl = document.getElementById('completionMessage');
     if (!msgEl) {
         msgEl = document.createElement('div');
         msgEl.id = 'completionMessage';
         msgEl.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid #f4d03f;
-            border-radius: 20px;
-            padding: 30px 50px;
-            color: white;
-            font-size: 1.3rem;
-            text-align: center;
-            z-index: 1000;
-            animation: popIn 0.3s ease;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85); border: 2px solid #f4d03f; border-radius: 20px;
+            padding: 30px 50px; color: white; font-size: 1.3rem; text-align: center; z-index: 1000;
         `;
         document.body.appendChild(msgEl);
-        
-        // 添加动画样式
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes popIn {
-                0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-                100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
     }
-    
-    msgEl.innerHTML = `
-        <div style="margin-bottom: 15px;">${message}</div>
-        <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">点击「播放」按钮再转一圈</div>
-    `;
+    msgEl.innerHTML = `<div style="margin-bottom: 15px;">${message}</div>
+        <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">点击「播放」按钮再转一圈</div>`;
     msgEl.style.display = 'block';
-    
-    // 3秒后自动隐藏
-    setTimeout(() => {
-        msgEl.style.display = 'none';
-    }, 4000);
+    setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
 }
 
-// ============ 切换播放/暂停 ============
 function togglePlayPause() {
-    // 如果已完成一圈，重置
     if (hasCompletedOrbit) {
         orbitAngle = 0;
         hasCompletedOrbit = false;
         dayCount = 0;
         yearProgress = 0;
     }
-    
     isPlaying = !isPlaying;
     updatePlayButton();
-    
-    // 隐藏完成消息
     const msgEl = document.getElementById('completionMessage');
-    if (msgEl) {
-        msgEl.style.display = 'none';
-    }
+    if (msgEl) msgEl.style.display = 'none';
 }
 
-// 启动
 init();
