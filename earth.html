@@ -274,61 +274,6 @@
             gap: 5px;
         }
 
-        /* 四季指示器 */
-        .season-indicator {
-            position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: none;
-            gap: 20px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-            padding: 15px 25px;
-            border-radius: 20px;
-        }
-
-        .season-indicator.visible {
-            display: flex;
-        }
-
-        .season-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            padding: 10px 15px;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .season-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .season-item.active {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.1);
-        }
-
-        .season-item .icon {
-            font-size: 2rem;
-        }
-
-        .season-item .name {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .season-item .month {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            opacity: 0.7;
-        }
-
         /* 速度控制 */
         .speed-control {
             position: fixed;
@@ -575,34 +520,10 @@
             <span class="icon">🔄</span>
             <span>自转</span>
         </button>
-        <button class="mode-btn" data-mode="revolution" title="观察地球公转与四季">
-            <span class="icon">🌸</span>
-            <span>公转与四季</span>
+        <button class="mode-btn" data-mode="revolution" title="观察地球公转">
+            <span class="icon">🌍</span>
+            <span>公转</span>
         </button>
-    </div>
-
-    <!-- 四季指示器 -->
-    <div class="season-indicator" id="seasonIndicator">
-        <div class="season-item" data-season="spring">
-            <span class="icon">🌸</span>
-            <span class="name">春天</span>
-            <span class="month">3-5月</span>
-        </div>
-        <div class="season-item" data-season="summer">
-            <span class="icon">☀️</span>
-            <span class="name">夏天</span>
-            <span class="month">6-8月</span>
-        </div>
-        <div class="season-item" data-season="autumn">
-            <span class="icon">🍂</span>
-            <span class="name">秋天</span>
-            <span class="month">9-11月</span>
-        </div>
-        <div class="season-item" data-season="winter">
-            <span class="icon">❄️</span>
-            <span class="name">冬天</span>
-            <span class="month">12-2月</span>
-        </div>
     </div>
 
     <!-- 轴倾斜指示器 -->
@@ -620,8 +541,8 @@
         </button>
         <div class="speed-section">
             <label>演示速度</label>
-            <input type="range" class="speed-slider" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
-            <div class="speed-value" id="speedValue">1.0x</div>
+            <input type="range" class="speed-slider" id="speedSlider" min="0.1" max="5" step="0.1" value="0.5">
+            <div class="speed-value" id="speedValue">0.5x</div>
         </div>
     </div>
 

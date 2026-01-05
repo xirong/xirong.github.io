@@ -403,7 +403,7 @@
             }
         }
 
-        /* 行星信息面板 */
+        /* 行星信息面板 - 桌面版 */
         .planet-info {
             position: fixed;
             bottom: 80px;
@@ -426,6 +426,72 @@
         .planet-info.visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* 行星信息面板 - 移动设备版（iPad/iPhone） */
+        body.is-mobile .planet-info {
+            bottom: auto;
+            top: 100px;
+            left: 0;
+            right: auto;
+            border-radius: 0 16px 16px 0;
+            border-left: none;
+            min-width: 280px;
+            max-width: 320px;
+            transform: translateX(calc(-100% + 40px));
+            opacity: 1;
+            transition: transform 0.3s ease;
+        }
+
+        body.is-mobile .planet-info::before {
+            content: '📖';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        body.is-mobile .planet-info.expanded {
+            transform: translateX(0);
+        }
+
+        body.is-mobile .planet-info.expanded::before {
+            opacity: 0;
+        }
+
+        body.is-mobile .planet-info .planet-info-content {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        body.is-mobile .planet-info.expanded .planet-info-content {
+            opacity: 1;
+        }
+
+        /* 移动端展开按钮 */
+        .mobile-expand-btn {
+            display: none;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 60px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        body.is-mobile .mobile-expand-btn {
+            display: block;
+        }
+
+        body.is-mobile .planet-info.expanded .mobile-expand-btn {
+            display: none;
         }
 
         .planet-info-header {
@@ -924,39 +990,42 @@
 
     <!-- 行星信息面板 -->
     <div class="planet-info" id="planetInfo">
+        <button class="mobile-expand-btn" id="mobileExpandBtn" aria-label="展开信息面板"></button>
         <button class="planet-info-close" id="closePlanetInfo" title="关闭">✕</button>
-        <div class="planet-info-header">
-            <div class="planet-color-dot" id="planetColorDot"></div>
-            <h2 id="planetName">地球</h2>
-            <span class="planet-type" id="planetType">类地行星</span>
-        </div>
-        <div class="planet-stats">
-            <div class="stat-item">
-                <div class="stat-label">直径</div>
-                <div class="stat-value" id="planetDiameter">12,742 km</div>
+        <div class="planet-info-content">
+            <div class="planet-info-header">
+                <div class="planet-color-dot" id="planetColorDot"></div>
+                <h2 id="planetName">地球</h2>
+                <span class="planet-type" id="planetType">类地行星</span>
             </div>
-            <div class="stat-item">
-                <div class="stat-label">与太阳距离</div>
-                <div class="stat-value" id="planetDistance">1.5亿 km</div>
+            <div class="planet-stats">
+                <div class="stat-item">
+                    <div class="stat-label">直径</div>
+                    <div class="stat-value" id="planetDiameter">12,742 km</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">与太阳距离</div>
+                    <div class="stat-value" id="planetDistance">1.5亿 km</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">公转周期</div>
+                    <div class="stat-value" id="planetOrbitPeriod">365 天</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">相对地球大小</div>
+                    <div class="stat-value" id="planetRelativeSize">1x</div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-label">公转周期</div>
-                <div class="stat-value" id="planetOrbitPeriod">365 天</div>
+            <div class="planet-description" id="planetDescription">
+                地球是太阳系中唯一已知存在生命的行星，拥有液态水和适宜的大气层。
             </div>
-            <div class="stat-item">
-                <div class="stat-label">相对地球大小</div>
-                <div class="stat-value" id="planetRelativeSize">1x</div>
+            <div class="planet-moons" id="planetMoons" style="display: none;">
             </div>
+            <a href="earth.html" class="explore-btn" id="exploreBtn">
+                <span class="icon">🚀</span>
+                <span>探索地球的奥秘</span>
+            </a>
         </div>
-        <div class="planet-description" id="planetDescription">
-            地球是太阳系中唯一已知存在生命的行星，拥有液态水和适宜的大气层。
-        </div>
-        <div class="planet-moons" id="planetMoons" style="display: none;">
-        </div>
-        <a href="earth.html" class="explore-btn" id="exploreBtn">
-            <span class="icon">🚀</span>
-            <span>探索地球的奥秘</span>
-        </a>
     </div>
 
     <!-- 比例尺 -->
@@ -978,6 +1047,61 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- 设备检测脚本 -->
+    <script>
+        // 检测是否为移动设备（iPad、iPhone 或其他触摸设备）
+        function isMobileDevice() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            // 检测 iPad (包括 iPadOS 13+ 的 Desktop 模式)
+            const isIPad = /iPad/.test(userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            // 检测 iPhone
+            const isIPhone = /iPhone/.test(userAgent);
+            // 检测其他移动设备
+            const isMobile = /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            // 检测触摸设备
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            return isIPad || isIPhone || isMobile || (isTouchDevice && window.innerWidth <= 1024);
+        }
+
+        // 根据设备类型添加 class
+        if (isMobileDevice()) {
+            document.body.classList.add('is-mobile');
+
+            // 移动端信息面板交互
+            document.addEventListener('DOMContentLoaded', function () {
+                const planetInfo = document.getElementById('planetInfo');
+                const mobileExpandBtn = document.getElementById('mobileExpandBtn');
+
+                // 点击展开按钮
+                if (mobileExpandBtn) {
+                    mobileExpandBtn.addEventListener('click', function () {
+                        planetInfo.classList.add('expanded');
+                    });
+                }
+
+                // 点击面板区域展开（当收起时）
+                planetInfo.addEventListener('click', function (e) {
+                    if (!planetInfo.classList.contains('expanded') &&
+                        !e.target.classList.contains('planet-info-close')) {
+                        planetInfo.classList.add('expanded');
+                    }
+                });
+
+                // 点击关闭按钮时收起
+                const closeBtn = document.getElementById('closePlanetInfo');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        planetInfo.classList.remove('expanded');
+                    });
+                }
+            });
+        }
+    </script>
+
     <script src="app.js"></script>
 </body>
 

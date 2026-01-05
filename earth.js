@@ -13,7 +13,7 @@ let starField;
 let seasonMarkers = [];  // 保存四季标记和标签
 let clock;
 let currentMode = 'rotation';
-let animationSpeed = 1;
+let animationSpeed = 0.5;
 let dayCount = 0;
 let yearProgress = 0;
 let orbitAngle = 0;
@@ -752,11 +752,7 @@ function setupControls() {
         speedValue.textContent = animationSpeed.toFixed(1) + 'x';
     });
 
-    document.querySelectorAll('.season-item').forEach(item => {
-        item.addEventListener('click', () => {
-            jumpToSeason(item.dataset.season);
-        });
-    });
+
 
     const playBtn = document.getElementById('playPauseBtn');
     if (playBtn) playBtn.addEventListener('click', togglePlayPause);
@@ -769,9 +765,7 @@ function updateInfoPanel() {
 }
 
 function updateUIForMode() {
-    const seasonIndicator = document.getElementById('seasonIndicator');
     const axisIndicator = document.getElementById('axisIndicator');
-    seasonIndicator.classList.remove('visible');
     axisIndicator.classList.remove('visible');
 
     orbitAngle = 0;
@@ -787,13 +781,14 @@ function updateUIForMode() {
     earth.position.x = EARTH_ORBIT_RADIUS;
     earth.position.z = 0;
 
-    // 根据模式显示/隐藏四季标记和轨道
+    // 根据模式显示/隐藏四季标记（轨道始终可见）
     const showSeasonMarkers = (currentMode === 'revolution');
     seasonMarkers.forEach(marker => {
         marker.visible = showSeasonMarkers;
     });
+    // 轨道始终可见
     if (earthOrbit) {
-        earthOrbit.visible = showSeasonMarkers;
+        earthOrbit.visible = true;
     }
 
     switch (currentMode) {
@@ -805,31 +800,12 @@ function updateUIForMode() {
         case 'revolution':
             camera.position.set(0, 100, 150);
             controls.target.set(0, 0, 0);
-            seasonIndicator.classList.add('visible');
             axisIndicator.classList.add('visible');
             break;
     }
 }
 
-function jumpToSeason(season) {
-    const seasonAngles = { spring: 0, summer: Math.PI / 2, autumn: Math.PI, winter: Math.PI * 1.5 };
-    orbitAngle = seasonAngles[season];
-    updateSeasonIndicator();
-}
 
-function updateSeasonIndicator() {
-    const normalizedAngle = ((orbitAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-    let currentSeason;
-    if (normalizedAngle < Math.PI / 4 || normalizedAngle >= Math.PI * 7 / 4) currentSeason = 'spring';
-    else if (normalizedAngle < Math.PI * 3 / 4) currentSeason = 'summer';
-    else if (normalizedAngle < Math.PI * 5 / 4) currentSeason = 'autumn';
-    else currentSeason = 'winter';
-
-    document.querySelectorAll('.season-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.season === currentSeason) item.classList.add('active');
-    });
-}
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -874,7 +850,6 @@ function animate() {
                 earth.rotation.y += speed * 0.4;
                 yearProgress = Math.min((orbitAngle / (Math.PI * 2)) * 100, 100);
                 dayCount = yearProgress * 3.65;
-                updateSeasonIndicator();
                 break;
         }
     }
