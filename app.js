@@ -2363,25 +2363,32 @@ function setupControls() {
 
 // ============ 更新行星大小 ============
 function updatePlanetScales() {
-    Object.keys(planets).forEach(name => {
-        if (name === 'sun') return;
+    // 真实比例模式：以木星为基准，太阳单独处理
+    // 和大小对比面板使用相同的比例逻辑
+    const jupiterDiameter = 139820;
+    const sunScaleFactor = 2.5;  // 太阳相对木星的显示比例（实际是10倍，但为了可视性压缩）
+    const jupiterScaleFactor = 1.0;  // 木星基准
 
+    Object.keys(planets).forEach(name => {
         const planet = planets[name];
         const data = planetData[name];
 
         let scale;
         if (isRealScale) {
-            // 真实比例
-            scale = data.relativeSize * 0.1;
-        } else {
-            // 教学比例
-            if (name === 'jupiter' || name === 'saturn') {
-                scale = 1;
-            } else if (name === 'uranus' || name === 'neptune') {
-                scale = 1;
+            // 真实比例模式
+            if (name === 'sun') {
+                // 太阳：比木星大，但不是真实的10倍（否则太大）
+                scale = sunScaleFactor;
             } else {
-                scale = 1;
+                // 其他行星：以木星为基准的真实比例
+                const ratio = data.diameter / jupiterDiameter;
+                scale = jupiterScaleFactor * ratio;
+                // 最小比例，确保小天体可见
+                scale = Math.max(0.02, scale);
             }
+        } else {
+            // 教学比例：所有行星大小相近，便于观察
+            scale = 1;
         }
 
         planet.scale.setScalar(scale);
@@ -2398,18 +2405,32 @@ function generateSizeComparison() {
     const container = document.getElementById('comparisonRow');
     const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
 
-    // 地球大小作为基准 (20px)
-    const earthSize = 20;
+    // 真实直径数据 (km)
+    // 太阳: 1,392,700 | 木星: 139,820 | 土星: 116,460 | 天王星: 50,724 | 海王星: 49,244
+    // 地球: 12,742 | 金星: 12,104 | 火星: 6,779 | 水星: 4,879 | 月球: 3,474 | 冥王星: 2,377
+    
+    // 太阳是木星的 10 倍，我们让太阳 300px，木星就应该是 30px
+    // 但这样地球就太小了，所以我们分两档：
+    // 1. 太阳单独一档
+    // 2. 行星按真实比例，以木星为基准
+    
+    const sunDisplaySize = 300;
+    const jupiterDisplaySize = 140; // 木星显示 140px
+    const jupiterDiameter = 139820;
 
     allPlanets.forEach(name => {
         const data = planetData[name];
 
-        // 计算显示大小
         let displaySize;
         if (name === 'sun') {
-            displaySize = Math.min(200, data.relativeSize * earthSize * 0.1);
+            displaySize = sunDisplaySize;
         } else {
-            displaySize = Math.max(8, data.relativeSize * earthSize);
+            // 以木星为基准，按真实比例计算
+            const ratio = data.diameter / jupiterDiameter;
+            displaySize = jupiterDisplaySize * ratio;
+            
+            // 最小 5px，确保冥王星能看见
+            displaySize = Math.max(5, displaySize);
         }
 
         const div = document.createElement('div');
@@ -2419,9 +2440,10 @@ function generateSizeComparison() {
                 width: ${displaySize}px;
                 height: ${displaySize}px;
                 background: ${name === 'sun' ?
-                'radial-gradient(circle, #fff9c4, #ffeb3b, #ff9800)' :
+                'radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336)' :
                 `#${data.color.toString(16).padStart(6, '0')}`};
                 color: #${data.color.toString(16).padStart(6, '0')};
+                ${name === 'sun' ? 'box-shadow: 0 0 60px rgba(255, 152, 0, 0.8), 0 0 120px rgba(255, 87, 34, 0.5);' : ''}
             "></div>
             <div class="name">${data.nameCN}</div>
             <div class="size">${formatNumber(data.diameter)} km</div>
