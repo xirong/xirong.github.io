@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十格框 - 加减法学习工具</title>
+    <meta name="description" content="为儿童设计的互动式十格框数学学习工具">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #e74c3c;
+            --primary-blue: #3498db;
+            --accent-yellow: #f1c40f;
+            --accent-green: #2ecc71;
+            --accent-purple: #9b59b6;
+            --accent-orange: #e67e22;
+            --frame-bg: #fefefe;
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --shadow-soft: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --text-dark: #2c3e50;
+            --text-light: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Comic Neue', 'PingFang SC', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            overflow-x: hidden;
+        }
+
+        .floating-stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 18px;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(180deg);
+            }
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 6px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.3rem, 3.5vw, 2rem);
+            color: var(--text-light);
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 2px;
+            font-weight: 700;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+            border-radius: 50px;
+            margin-bottom: 8px;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.8);
+            background: transparent;
+            white-space: nowrap;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--bg-gradient-start);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-btn:hover:not(.active) {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .content-area {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .right-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .equation-display {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 15px;
+            padding: 10px 20px;
+            box-shadow: 0 8px 30px var(--shadow-medium);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 50px;
+        }
+
+        .equation-item {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .equation-item.number {
+            background: linear-gradient(145deg, var(--primary-blue), #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .equation-item.operator {
+            color: var(--accent-yellow);
+        }
+
+        .equation-item.result {
+            background: linear-gradient(145deg, var(--accent-green), #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .equation-item.pulse {
+            animation: pulse 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .big-count-display {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 15px;
+            padding: 8px 25px;
+            box-shadow: 0 8px 30px var(--shadow-medium);
+            text-align: center;
+        }
+
+        .big-count-display.compact {
+            padding: 5px 15px;
+        }
+
+        .big-count-label {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+        }
+
+        .big-count-number {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            background: linear-gradient(145deg, var(--accent-purple), #8e44ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .big-count-display.compact .big-count-number {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+        }
+
+        .big-count-target {
+            font-size: 0.65rem;
+            color: #95a5a6;
+        }
+
+        .ten-frame-wrapper {
+            background: linear-gradient(145deg, #fff, #f5f5f5);
+            border-radius: 15px;
+            padding: 12px;
+            box-shadow: 0 12px 40px var(--shadow-medium);
+            position: relative;
+        }
+
+        .ten-frame-wrapper.compact {
+            padding: 6px;
+            border-radius: 10px;
+        }
+
+        .ten-frame-label {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, var(--accent-yellow), var(--accent-orange));
+            color: white;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            box-shadow: 0 3px 10px rgba(230, 126, 34, 0.4);
+            white-space: nowrap;
+        }
+
+        .double-frame-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ten-frame {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 5px;
+            background: linear-gradient(145deg, #ecf0f1, #dfe6e9);
+            border-radius: 12px;
+            padding: 8px;
+            border: 2px solid #bdc3c7;
+        }
+
+        .hundred-frame {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 3px;
+            background: linear-gradient(145deg, #ecf0f1, #dfe6e9);
+            border-radius: 12px;
+            padding: 8px;
+            border: 2px solid #bdc3c7;
+            width: min(50vw, 45vh);
+            height: min(50vw, 45vh);
+        }
+
+        .hundred-frame .frame-cell {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            border: 1px dashed #ccc;
+        }
+
+        .hundred-frame .cell-number {
+            font-size: clamp(0.5rem, 1.2vw, 0.8rem);
+        }
+
+        .hundred-frame .chip {
+            width: 90%;
+            height: 90%;
+        }
+
+        .thousand-frame {
+            display: grid;
+            grid-template-columns: repeat(40, 1fr);
+            grid-template-rows: repeat(25, 1fr);
+            gap: 1px;
+            background: linear-gradient(145deg, #ecf0f1, #dfe6e9);
+            border-radius: 8px;
+            padding: 4px;
+            border: 2px solid #bdc3c7;
+            width: 55vw;
+            height: 55vh;
+        }
+
+        .thousand-frame .frame-cell {
+            width: 100%;
+            height: 100%;
+            border-radius: 2px;
+            border: none;
+            background: #f0f0f0;
+        }
+
+        .thousand-frame .frame-cell:hover {
+            transform: none;
+            background: #e0e0e0;
+        }
+
+        .thousand-frame .cell-number {
+            display: none;
+        }
+
+        .thousand-frame .chip {
+            width: 100%;
+            height: 100%;
+            box-shadow: none;
+        }
+
+        .tenthousand-frame {
+            display: grid;
+            grid-template-columns: repeat(100, 1fr);
+            grid-template-rows: repeat(100, 1fr);
+            gap: 0px;
+            background: linear-gradient(145deg, #ecf0f1, #dfe6e9);
+            border-radius: 8px;
+            padding: 3px;
+            border: 2px solid #bdc3c7;
+            width: 95vw;
+            height: 68vh;
+        }
+
+        .tenthousand-frame .frame-cell {
+            width: 100%;
+            height: 100%;
+            border-radius: 0px;
+            border: none;
+            background: #f0f0f0;
+        }
+
+        .tenthousand-frame .frame-cell:hover {
+            transform: none;
+            background: #d0d0d0;
+        }
+
+        .tenthousand-frame .cell-number {
+            display: none;
+        }
+
+        .tenthousand-frame .chip {
+            width: 100%;
+            height: 100%;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .frame-cell {
+            width: clamp(40px, 7vw, 55px);
+            height: clamp(40px, 7vw, 55px);
+            background: var(--frame-bg);
+            border-radius: 8px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .frame-cell:hover {
+            border-color: var(--primary-blue);
+            background: rgba(52, 152, 219, 0.1);
+            transform: scale(1.05);
+        }
+
+        .frame-cell.highlight {
+            border-color: var(--accent-green);
+            border-style: solid;
+            background: rgba(46, 204, 113, 0.2);
+        }
+
+        .cell-number {
+            position: absolute;
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: #d5d8dc;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .chip {
+            width: clamp(32px, 6vw, 45px);
+            height: clamp(32px, 6vw, 45px);
+            border-radius: 50%;
+            cursor: grab;
+            transition: all 0.2s ease;
+            position: absolute;
+            z-index: 100;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .chip.red {
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, var(--primary-red));
+            box-shadow: 0 3px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        .chip.blue {
+            background: radial-gradient(circle at 30% 30%, #74b9ff, var(--primary-blue));
+            box-shadow: 0 3px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .chip:hover {
+            transform: scale(1.1);
+        }
+
+        .chip.dragging {
+            cursor: grabbing;
+            transform: scale(1.15);
+            z-index: 1000;
+        }
+
+        .chip.placed {
+            position: relative;
+            animation: place-bounce 0.2s ease-out;
+        }
+
+        @keyframes place-bounce {
+            0% {
+                transform: scale(0.5);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .chip-storage {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chip-storage.horizontal {
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .chip-group {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 6px 25px var(--shadow-medium);
+            position: relative;
+        }
+
+        .chip-group.compact {
+            padding: 8px;
+        }
+
+        .chip-group-label {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.65rem;
+            color: var(--text-dark);
+            box-shadow: 0 2px 6px var(--shadow-soft);
+            white-space: nowrap;
+        }
+
+        .chip-group.compact .chip-group-label {
+            font-size: 0.55rem;
+        }
+
+        .chip-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            min-height: 45px;
+            align-items: center;
+        }
+
+        .chip-row.double-row {
+            grid-template-rows: repeat(2, 1fr);
+            min-height: 90px;
+        }
+
+        .chip-row.hundred-row {
+            grid-template-rows: repeat(10, 1fr);
+            min-height: auto;
+            gap: 2px;
+        }
+
+        .chip-row.hundred-row .chip-slot {
+            width: clamp(14px, 2vw, 20px);
+            height: clamp(14px, 2vw, 20px);
+            border-width: 1px;
+        }
+
+        .chip-row.hundred-row .chip {
+            width: clamp(10px, 1.5vw, 16px);
+            height: clamp(10px, 1.5vw, 16px);
+        }
+
+        .chip-slot {
+            width: clamp(35px, 6vw, 45px);
+            height: clamp(35px, 6vw, 45px);
+            border-radius: 50%;
+            border: 2px dashed #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chip-slot:empty {
+            opacity: 0.5;
+        }
+
+        .count-display {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .count-item {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 10px;
+            padding: 6px 12px;
+            text-align: center;
+            box-shadow: 0 3px 12px var(--shadow-soft);
+            min-width: 60px;
+        }
+
+        .count-item.red-count .count-number {
+            color: var(--primary-red);
+        }
+
+        .count-item.blue-count .count-number {
+            color: var(--primary-blue);
+        }
+
+        .count-item.total-count .count-number {
+            background: linear-gradient(145deg, var(--accent-green), #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .count-label {
+            font-size: 0.65rem;
+            color: #7f8c8d;
+        }
+
+        .count-number {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .control-btn.random {
+            background: linear-gradient(145deg, var(--accent-purple), #8e44ad);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+        }
+
+        .control-btn.fill {
+            background: linear-gradient(145deg, var(--accent-green), #27ae60);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+        }
+
+        .control-btn.clear {
+            background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.4);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .hint-bubble {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .hint-bubble.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(46, 204, 113, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .success-emoji {
+            font-size: 4rem;
+            animation: success-bounce 0.6s ease-out;
+        }
+
+        .success-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            color: white;
+            margin-top: 8px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes success-bounce {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (min-width: 768px) {
+            .content-area {
+                flex-wrap: nowrap;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .content-area {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floating-stars" id="floatingStars"></div>
+    <div class="title-container">
+        <h1 id="mainTitle">🧮 十格框学习</h1>
+        <p class="subtitle" id="subtitleText">拖动圆片，轻松学会10以内加减法！</p>
+    </div>
+    <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="ten">10以内</button>
+        <button class="mode-btn" data-mode="twenty">20以内</button>
+        <button class="mode-btn" data-mode="hundred">认识100</button>
+        <button class="mode-btn" data-mode="thousand">认识1000</button>
+        <button class="mode-btn" data-mode="tenthousand">认识10000</button>
+    </div>
+    <div class="main-container">
+        <div class="equation-display" id="equationDisplay">
+            <span class="equation-item number" id="redCount">0</span>
+            <span class="equation-item operator">+</span>
+            <span class="equation-item number" id="blueCount">0</span>
+            <span class="equation-item operator">=</span>
+            <span class="equation-item result" id="totalCount">0</span>
+        </div>
+        <div class="big-count-display hidden" id="bigCountDisplay">
+            <div class="big-count-label">已放入</div>
+            <div class="big-count-number" id="bigCountNumber">0</div>
+            <div class="big-count-target" id="bigCountTarget">目标：100 个</div>
+        </div>
+        <div class="content-area" id="contentArea">
+            <div class="left-section">
+                <div class="ten-frame-wrapper" id="frameWrapper">
+                    <div class="ten-frame-label" id="frameLabel">✨ 十格框</div>
+                    <div id="framesContainer">
+                        <div class="ten-frame" id="tenFrame"></div>
+                    </div>
+                </div>
+                <div class="count-display" id="countDisplay">
+                    <div class="count-item red-count">
+                        <div class="count-label">🔴 红色</div>
+                        <div class="count-number" id="redCountDisplay">0</div>
+                    </div>
+                    <div class="count-item blue-count">
+                        <div class="count-label">🔵 蓝色</div>
+                        <div class="count-number" id="blueCountDisplay">0</div>
+                    </div>
+                    <div class="count-item total-count">
+                        <div class="count-label">✨ 总共</div>
+                        <div class="count-number" id="totalCountDisplay">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-section" id="rightSection">
+                <div class="chip-storage" id="chipStorage">
+                    <div class="chip-group" id="redChipGroup">
+                        <div class="chip-group-label">🔴 红色圆片</div>
+                        <div class="chip-row" id="redChips"></div>
+                    </div>
+                    <div class="chip-group" id="blueChipGroup">
+                        <div class="chip-group-label">🔵 蓝色圆片</div>
+                        <div class="chip-row" id="blueChips"></div>
+                    </div>
+                </div>
+                <div class="controls" id="controlsArea">
+                    <button class="control-btn random" id="randomBtn" onclick="randomExample()">🎲 随机出题</button>
+                    <button class="control-btn fill hidden" id="fillBtn" onclick="fillAll()">✨ 一键填满</button>
+                    <button class="control-btn clear" onclick="clearAll()">🗑️ 清空</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hint-bubble" id="hintBubble"></div>
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-emoji">🎉</div>
+        <div class="success-text" id="successText">太棒了！</div>
+    </div>
+
+    <script>
+        const state = { mode: 'ten', cells: [], maxCells: 10, maxChips: 5, draggedChip: null, filling: false };
+        const framesContainer = document.getElementById('framesContainer');
+        const redChipsContainer = document.getElementById('redChips');
+        const blueChipsContainer = document.getElementById('blueChips');
+        const hintBubble = document.getElementById('hintBubble');
+        const successOverlay = document.getElementById('successOverlay');
+
+        function init() {
+            createFloatingStars();
+            setupModeToggle();
+            switchMode('ten');
+        }
+
+        function createFloatingStars() {
+            const container = document.getElementById('floatingStars');
+            const emojis = ['⭐', '✨', '🌟', '💫'];
+            for (let i = 0; i < 8; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 6 + 's';
+                star.style.animationDuration = (4 + Math.random() * 4) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        function setupModeToggle() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    switchMode(btn.dataset.mode);
+                });
+            });
+        }
+
+        function switchMode(mode) {
+            state.mode = mode;
+            state.filling = false;
+            const equationDisplay = document.getElementById('equationDisplay');
+            const bigCountDisplay = document.getElementById('bigCountDisplay');
+            const countDisplay = document.getElementById('countDisplay');
+            const randomBtn = document.getElementById('randomBtn');
+            const fillBtn = document.getElementById('fillBtn');
+            const mainTitle = document.getElementById('mainTitle');
+            const chipStorage = document.getElementById('chipStorage');
+            const frameWrapper = document.getElementById('frameWrapper');
+
+            frameWrapper.classList.remove('compact');
+            bigCountDisplay.classList.remove('compact');
+
+            if (mode === 'ten') {
+                state.maxCells = 10; state.maxChips = 5;
+                mainTitle.textContent = '🧮 十格框学习';
+                document.getElementById('subtitleText').textContent = '拖动圆片，轻松学会10以内加减法！';
+                document.getElementById('frameLabel').textContent = '✨ 十格框';
+                equationDisplay.classList.remove('hidden'); bigCountDisplay.classList.add('hidden');
+                countDisplay.classList.remove('hidden'); randomBtn.classList.remove('hidden');
+                fillBtn.classList.add('hidden'); chipStorage.classList.remove('hidden');
+            } else if (mode === 'twenty') {
+                state.maxCells = 20; state.maxChips = 10;
+                mainTitle.textContent = '🧮 二十格框学习';
+                document.getElementById('subtitleText').textContent = '拖动圆片，轻松学会20以内加减法！';
+                document.getElementById('frameLabel').textContent = '✨ 二十格框';
+                equationDisplay.classList.remove('hidden'); bigCountDisplay.classList.add('hidden');
+                countDisplay.classList.remove('hidden'); randomBtn.classList.remove('hidden');
+                fillBtn.classList.add('hidden'); chipStorage.classList.remove('hidden');
+            } else if (mode === 'hundred') {
+                state.maxCells = 100; state.maxChips = 50;
+                mainTitle.textContent = '💯 认识100';
+                document.getElementById('subtitleText').textContent = '拖动圆片，感受100有多大！';
+                document.getElementById('frameLabel').textContent = '🔢 百格框';
+                document.getElementById('bigCountTarget').textContent = '目标：100 个';
+                equationDisplay.classList.add('hidden'); bigCountDisplay.classList.remove('hidden');
+                countDisplay.classList.add('hidden'); randomBtn.classList.add('hidden');
+                fillBtn.classList.remove('hidden'); chipStorage.classList.remove('hidden');
+            } else if (mode === 'thousand') {
+                state.maxCells = 1000; state.maxChips = 0;
+                mainTitle.textContent = '🔥 认识1000';
+                document.getElementById('subtitleText').textContent = '感受1000有多么大！';
+                document.getElementById('frameLabel').textContent = '📊 千格框';
+                document.getElementById('bigCountTarget').textContent = '目标：1000 个';
+                equationDisplay.classList.add('hidden'); bigCountDisplay.classList.remove('hidden');
+                countDisplay.classList.add('hidden'); randomBtn.classList.add('hidden');
+                fillBtn.classList.remove('hidden'); chipStorage.classList.add('hidden');
+            } else {
+                // tenthousand
+                state.maxCells = 10000; state.maxChips = 0;
+                mainTitle.textContent = '🌟 认识10000';
+                document.getElementById('subtitleText').textContent = '感受一万有多么大！';
+                document.getElementById('frameLabel').textContent = '🏆 万格框';
+                document.getElementById('bigCountTarget').textContent = '目标：10000 个';
+                equationDisplay.classList.add('hidden'); bigCountDisplay.classList.remove('hidden');
+                bigCountDisplay.classList.add('compact');
+                frameWrapper.classList.add('compact');
+                countDisplay.classList.add('hidden'); randomBtn.classList.add('hidden');
+                fillBtn.classList.remove('hidden'); chipStorage.classList.add('hidden');
+            }
+
+            state.cells = Array(state.maxCells).fill(null);
+            createFrames();
+            if (mode !== 'thousand' && mode !== 'tenthousand') createChips();
+            updateDisplay();
+        }
+
+        function createFrames() {
+            framesContainer.innerHTML = '';
+            if (state.mode === 'ten') {
+                framesContainer.appendChild(createSingleFrame(0, 10, 'ten-frame'));
+            } else if (state.mode === 'twenty') {
+                const c = document.createElement('div'); c.className = 'double-frame-container';
+                c.appendChild(createSingleFrame(0, 10, 'ten-frame'));
+                c.appendChild(createSingleFrame(10, 20, 'ten-frame'));
+                framesContainer.appendChild(c);
+            } else if (state.mode === 'hundred') {
+                framesContainer.appendChild(createSingleFrame(0, 100, 'hundred-frame'));
+            } else if (state.mode === 'thousand') {
+                framesContainer.appendChild(createSingleFrame(0, 1000, 'thousand-frame'));
+            } else {
+                framesContainer.appendChild(createSingleFrame(0, 10000, 'tenthousand-frame'));
+            }
+        }
+
+        function createSingleFrame(start, end, frameClass) {
+            const frame = document.createElement('div');
+            frame.className = frameClass;
+            for (let i = start; i < end; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'frame-cell';
+                cell.dataset.index = i;
+                if (state.mode !== 'thousand' && state.mode !== 'tenthousand') {
+                    const num = document.createElement('span');
+                    num.className = 'cell-number';
+                    num.textContent = i + 1;
+                    cell.appendChild(num);
+                    cell.addEventListener('dragover', handleDragOver);
+                    cell.addEventListener('dragleave', handleDragLeave);
+                    cell.addEventListener('drop', handleDrop);
+                    cell.addEventListener('click', () => removeChipFromCell(i));
+                }
+                frame.appendChild(cell);
+            }
+            return frame;
+        }
+
+        function createChips() {
+            redChipsContainer.innerHTML = ''; blueChipsContainer.innerHTML = '';
+            const chipStorage = document.getElementById('chipStorage');
+            const redChipGroup = document.getElementById('redChipGroup');
+            const blueChipGroup = document.getElementById('blueChipGroup');
+            if (state.mode === 'hundred') {
+                redChipsContainer.classList.add('hundred-row'); redChipsContainer.classList.remove('double-row');
+                blueChipsContainer.classList.add('hundred-row'); blueChipsContainer.classList.remove('double-row');
+                chipStorage.classList.add('horizontal');
+                redChipGroup.classList.add('compact'); blueChipGroup.classList.add('compact');
+            } else if (state.mode === 'twenty') {
+                redChipsContainer.classList.add('double-row'); redChipsContainer.classList.remove('hundred-row');
+                blueChipsContainer.classList.add('double-row'); blueChipsContainer.classList.remove('hundred-row');
+                chipStorage.classList.remove('horizontal');
+                redChipGroup.classList.remove('compact'); blueChipGroup.classList.remove('compact');
+            } else {
+                redChipsContainer.classList.remove('double-row', 'hundred-row');
+                blueChipsContainer.classList.remove('double-row', 'hundred-row');
+                chipStorage.classList.remove('horizontal');
+                redChipGroup.classList.remove('compact'); blueChipGroup.classList.remove('compact');
+            }
+            for (let i = 0; i < state.maxChips; i++) {
+                createChip('red', redChipsContainer);
+                createChip('blue', blueChipsContainer);
+            }
+        }
+
+        function createChip(color, container) {
+            const slot = document.createElement('div'); slot.className = 'chip-slot';
+            const chip = document.createElement('div'); chip.className = `chip ${color}`; chip.dataset.color = color; chip.draggable = true;
+            chip.addEventListener('dragstart', handleDragStart); chip.addEventListener('dragend', handleDragEnd);
+            chip.addEventListener('touchstart', handleTouchStart, { passive: false });
+            chip.addEventListener('touchmove', handleTouchMove, { passive: false });
+            chip.addEventListener('touchend', handleChipTouchEnd);
+            slot.appendChild(chip); container.appendChild(slot);
+        }
+
+        function handleDragStart(e) { state.draggedChip = e.target; e.target.classList.add('dragging'); highlightEmptyCells(true); }
+        function handleDragEnd(e) { e.target.classList.remove('dragging'); state.draggedChip = null; highlightEmptyCells(false); }
+        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('highlight'); }
+        function handleDragLeave(e) { e.currentTarget.classList.remove('highlight'); }
+        function handleDrop(e) { e.preventDefault(); const cell = e.currentTarget; cell.classList.remove('highlight'); const idx = parseInt(cell.dataset.index); if (state.draggedChip && state.cells[idx] === null) placeChipInCell(state.draggedChip, idx); }
+        function handleTouchStart(e) { e.preventDefault(); const chip = e.target; state.draggedChip = chip; chip.classList.add('dragging'); const t = e.touches[0]; chip.style.position = 'fixed'; chip.style.left = (t.clientX - 18) + 'px'; chip.style.top = (t.clientY - 18) + 'px'; highlightEmptyCells(true); }
+        function handleTouchMove(e) { e.preventDefault(); if (state.draggedChip) { const t = e.touches[0]; state.draggedChip.style.left = (t.clientX - 18) + 'px'; state.draggedChip.style.top = (t.clientY - 18) + 'px'; } }
+        function handleChipTouchEnd(e) { if (state.draggedChip) { const t = e.changedTouches[0]; const target = findDropTarget(t.clientX, t.clientY); if (target !== null) placeChipInCell(state.draggedChip, target); else { state.draggedChip.style.position = ''; state.draggedChip.style.left = ''; state.draggedChip.style.top = ''; } state.draggedChip.classList.remove('dragging'); state.draggedChip = null; highlightEmptyCells(false); } }
+        function findDropTarget(x, y) { const cells = document.querySelectorAll('.frame-cell'); for (let c of cells) { const r = c.getBoundingClientRect(); if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) { const idx = parseInt(c.dataset.index); if (state.cells[idx] === null) return idx; } } return null; }
+
+        function placeChipInCell(chip, idx) {
+            const color = chip.dataset.color;
+            const cell = document.querySelector(`.frame-cell[data-index="${idx}"]`);
+            const newChip = document.createElement('div'); newChip.className = `chip ${color} placed`;
+            const num = cell.querySelector('.cell-number'); if (num) num.style.display = 'none';
+            cell.appendChild(newChip); state.cells[idx] = color; chip.remove();
+            if (state.mode !== 'thousand' && state.mode !== 'tenthousand') playPlaceSound();
+            updateDisplay(); checkMilestone();
+        }
+
+        function placeChipInCellDirect(idx, color) {
+            const cell = document.querySelector(`.frame-cell[data-index="${idx}"]`);
+            if (!cell || state.cells[idx] !== null) return;
+            const newChip = document.createElement('div'); newChip.className = `chip ${color} placed`;
+            cell.appendChild(newChip); state.cells[idx] = color; updateDisplay();
+        }
+
+        function removeChipFromCell(idx) {
+            if (state.cells[idx] !== null) {
+                const color = state.cells[idx];
+                const cell = document.querySelector(`.frame-cell[data-index="${idx}"]`);
+                const chip = cell.querySelector('.chip');
+                if (chip) {
+                    chip.remove(); const num = cell.querySelector('.cell-number'); if (num) num.style.display = '';
+                    const container = color === 'red' ? redChipsContainer : blueChipsContainer;
+                    const slot = container.querySelector('.chip-slot:empty');
+                    if (slot) createChipInSlot(color, slot);
+                }
+                state.cells[idx] = null; updateDisplay();
+            }
+        }
+
+        function createChipInSlot(color, slot) {
+            const chip = document.createElement('div'); chip.className = `chip ${color}`; chip.dataset.color = color; chip.draggable = true;
+            chip.addEventListener('dragstart', handleDragStart); chip.addEventListener('dragend', handleDragEnd);
+            chip.addEventListener('touchstart', handleTouchStart, { passive: false });
+            chip.addEventListener('touchmove', handleTouchMove, { passive: false });
+            chip.addEventListener('touchend', handleChipTouchEnd);
+            slot.appendChild(chip);
+        }
+
+        function highlightEmptyCells(on) { document.querySelectorAll('.frame-cell').forEach(c => { const idx = parseInt(c.dataset.index); if (state.cells[idx] === null) c.classList.toggle('highlight', on); }); }
+
+        function updateDisplay() {
+            const red = state.cells.filter(c => c === 'red').length;
+            const blue = state.cells.filter(c => c === 'blue').length;
+            const total = red + blue;
+            if (state.mode === 'hundred' || state.mode === 'thousand' || state.mode === 'tenthousand') {
+                document.getElementById('bigCountNumber').textContent = total;
+            } else {
+                document.getElementById('redCount').textContent = red;
+                document.getElementById('blueCount').textContent = blue;
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('redCountDisplay').textContent = red;
+                document.getElementById('blueCountDisplay').textContent = blue;
+                document.getElementById('totalCountDisplay').textContent = total;
+            }
+        }
+
+        function checkMilestone() {
+            const total = state.cells.filter(c => c !== null).length;
+            if (state.mode === 'tenthousand') {
+                if (total === 1000) showHint('🔥 1000个了！');
+                else if (total === 2500) showHint('🎯 2500个，四分之一！');
+                else if (total === 5000) showHint('🌟 5000个，一半啦！');
+                else if (total === 7500) showHint('💪 7500个！');
+                else if (total === 10000) { document.getElementById('successText').textContent = '10000个！超级厉害！'; showSuccess(); }
+            } else if (state.mode === 'thousand') {
+                if (total === 100) showHint('💯 100个了！');
+                else if (total === 500) showHint('🌟 500个，一半啦！');
+                else if (total === 1000) { document.getElementById('successText').textContent = '1000个！太厉害了！'; showSuccess(); }
+            } else if (state.mode === 'hundred') {
+                if (total === 50) showHint('🌟 50个，一半啦！');
+                else if (total === 100) { document.getElementById('successText').textContent = '100个！太棒了！'; showSuccess(); }
+            } else {
+                if (total === state.maxCells / 2) showHint('🎯 一半了！');
+                else if (total === state.maxCells) { document.getElementById('successText').textContent = '太棒了！'; showSuccess(); }
+            }
+        }
+
+        function showHint(msg) { hintBubble.textContent = msg; hintBubble.classList.add('show'); setTimeout(() => hintBubble.classList.remove('show'), 2000); }
+        function showSuccess() { successOverlay.classList.add('show'); setTimeout(() => successOverlay.classList.remove('show'), 2500); }
+
+        function clearAll() { state.filling = false; state.cells = Array(state.maxCells).fill(null); createFrames(); if (state.mode !== 'thousand' && state.mode !== 'tenthousand') createChips(); updateDisplay(); showHint('🔄 已清空！'); }
+        function resetBoard() { state.cells = Array(state.maxCells).fill(null); createFrames(); if (state.mode !== 'thousand' && state.mode !== 'tenthousand') createChips(); updateDisplay(); }
+
+        function fillAll() {
+            if (state.filling) return;
+            state.filling = true;
+            resetBoard();
+            showHint('✨ 开始填充...');
+            setTimeout(() => {
+                const total = state.maxCells;
+                const delayStep = state.mode === 'tenthousand' ? 10 : 100; // 1万时加快速度
+                let delay = 0;
+                for (let i = 0; i < total; i++) {
+                    setTimeout(() => {
+                        if (!state.filling) return;
+                        const color = (i % 2 === 0) ? 'red' : 'blue';
+                        if (state.mode === 'thousand' || state.mode === 'tenthousand') {
+                            placeChipInCellDirect(i, color);
+                        } else {
+                            const container = color === 'red' ? redChipsContainer : blueChipsContainer;
+                            const slot = container.querySelector('.chip-slot:not(:empty)');
+                            if (slot) { const chip = slot.querySelector('.chip'); if (chip) placeChipInCell(chip, i); }
+                            else placeChipInCellDirect(i, color);
+                        }
+                        if (i % 100 === 0 && state.mode === 'tenthousand') updateDisplay(); // 每100个更新一次显示
+                        checkMilestone();
+                    }, delay);
+                    delay += delayStep;
+                }
+                setTimeout(() => { if (state.filling) { showHint(`🎉 ${total}个全部填满了！`); state.filling = false; } }, delay + 500);
+            }, 300);
+        }
+
+        function randomExample() {
+            clearAll();
+            const maxRed = state.maxChips;
+            const redNum = Math.floor(Math.random() * (maxRed + 1));
+            const blueNum = Math.floor(Math.random() * Math.min(maxRed + 1, state.maxCells - redNum + 1));
+            setTimeout(() => {
+                let placed = 0;
+                for (let i = 0; i < state.maxCells && placed < redNum; i++) {
+                    if (state.cells[i] === null) { const slot = redChipsContainer.querySelector('.chip-slot:not(:empty)'); if (slot) { const chip = slot.querySelector('.chip'); if (chip) placeChipInCell(chip, i); } placed++; }
+                }
+                setTimeout(() => {
+                    placed = 0;
+                    for (let i = 0; i < state.maxCells && placed < blueNum; i++) {
+                        if (state.cells[i] === null) { const slot = blueChipsContainer.querySelector('.chip-slot:not(:empty)'); if (slot) { const chip = slot.querySelector('.chip'); if (chip) placeChipInCell(chip, i); } placed++; }
+                    }
+                    showHint(`🎲 ${redNum} + ${blueNum} = ?`);
+                }, 300);
+            }, 300);
+        }
+
+        function playPlaceSound() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = 800; osc.type = 'sine'; gain.gain.setValueAtTime(0.12, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05); osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.05); } catch (e) { } }
+
+        init();
+    </script>
+</body>
+
+</html>
