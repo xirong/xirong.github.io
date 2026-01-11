@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEGO Technic Elevator - Giant KONE 精细复刻版 V2</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             min-height: 100vh;
@@ -50,84 +55,137 @@
         }
 
         /* 梁的6个面 */
-        .bf-front { transform: translateZ(var(--depth, 6px)); }
-        .bf-back { transform: translateZ(calc(-1 * var(--depth, 6px))) rotateY(180deg); }
-        .bf-left { transform: rotateY(-90deg) translateZ(var(--depth, 6px)); }
-        .bf-right { transform: rotateY(90deg) translateZ(var(--w-half, 6px)); }
-        .bf-top { transform: rotateX(90deg) translateZ(var(--h-half, 6px)); }
-        .bf-bottom { transform: rotateX(-90deg) translateZ(var(--h-half, 6px)); }
+        .bf-front {
+            transform: translateZ(var(--depth, 6px));
+        }
+
+        .bf-back {
+            transform: translateZ(calc(-1 * var(--depth, 6px))) rotateY(180deg);
+        }
+
+        .bf-left {
+            transform: rotateY(-90deg) translateZ(var(--depth, 6px));
+        }
+
+        .bf-right {
+            transform: rotateY(90deg) translateZ(var(--w-half, 6px));
+        }
+
+        .bf-top {
+            transform: rotateX(90deg) translateZ(var(--h-half, 6px));
+        }
+
+        .bf-bottom {
+            transform: rotateX(-90deg) translateZ(var(--h-half, 6px));
+        }
 
         /* 黑色梁 - 增强纹理 */
         .beam-black .bf-front,
         .beam-black .bf-back {
             background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 30%, #353535 50%, #2d2d2d 70%, #1a1a1a 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -1px 2px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.3);
         }
+
         .beam-black .bf-left,
-        .beam-black .bf-right { background: linear-gradient(180deg, #252525 0%, #1a1a1a 100%); }
+        .beam-black .bf-right {
+            background: linear-gradient(180deg, #252525 0%, #1a1a1a 100%);
+        }
+
         .beam-black .bf-top,
-        .beam-black .bf-bottom { background: linear-gradient(90deg, #202020 0%, #2a2a2a 50%, #202020 100%); }
+        .beam-black .bf-bottom {
+            background: linear-gradient(90deg, #202020 0%, #2a2a2a 50%, #202020 100%);
+        }
 
         /* 深灰色梁 */
         .beam-dgray .bf-front,
         .beam-dgray .bf-back {
             background: linear-gradient(90deg, #404040 0%, #555 30%, #606060 50%, #555 70%, #404040 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.2);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
         }
+
         .beam-dgray .bf-left,
-        .beam-dgray .bf-right { background: linear-gradient(180deg, #505050 0%, #404040 100%); }
+        .beam-dgray .bf-right {
+            background: linear-gradient(180deg, #505050 0%, #404040 100%);
+        }
+
         .beam-dgray .bf-top,
-        .beam-dgray .bf-bottom { background: linear-gradient(90deg, #454545 0%, #555 50%, #454545 100%); }
+        .beam-dgray .bf-bottom {
+            background: linear-gradient(90deg, #454545 0%, #555 50%, #454545 100%);
+        }
 
         /* 浅灰色梁 - 真实乐高浅灰色 */
         .beam-lgray .bf-front,
         .beam-lgray .bf-back {
             background: linear-gradient(90deg, #a0a0a0 0%, #bbb 30%, #c8c8c8 50%, #bbb 70%, #a0a0a0 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.15);
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.15);
         }
+
         .beam-lgray .bf-left,
-        .beam-lgray .bf-right { background: linear-gradient(180deg, #b5b5b5 0%, #a0a0a0 100%); }
+        .beam-lgray .bf-right {
+            background: linear-gradient(180deg, #b5b5b5 0%, #a0a0a0 100%);
+        }
+
         .beam-lgray .bf-top,
-        .beam-lgray .bf-bottom { background: linear-gradient(90deg, #aaa 0%, #bbb 50%, #aaa 100%); }
+        .beam-lgray .bf-bottom {
+            background: linear-gradient(90deg, #aaa 0%, #bbb 50%, #aaa 100%);
+        }
 
         /* 黄色梁 */
         .beam-yellow .bf-front,
         .beam-yellow .bf-back {
             background: linear-gradient(90deg, #d4a00d 0%, #f4c430 30%, #ffd84a 50%, #f4c430 70%, #d4a00d 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.2);
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
         }
+
         .beam-yellow .bf-left,
-        .beam-yellow .bf-right { background: linear-gradient(180deg, #e8b815 0%, #d4a00d 100%); }
+        .beam-yellow .bf-right {
+            background: linear-gradient(180deg, #e8b815 0%, #d4a00d 100%);
+        }
+
         .beam-yellow .bf-top,
-        .beam-yellow .bf-bottom { background: linear-gradient(90deg, #dab012 0%, #f0c020 50%, #dab012 100%); }
+        .beam-yellow .bf-bottom {
+            background: linear-gradient(90deg, #dab012 0%, #f0c020 50%, #dab012 100%);
+        }
 
         /* 橙色梁 */
         .beam-orange .bf-front,
         .beam-orange .bf-back {
             background: linear-gradient(90deg, #e67300 0%, #ff9020 30%, #ffa040 50%, #ff9020 70%, #e67300 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.2);
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
         }
+
         .beam-orange .bf-left,
-        .beam-orange .bf-right { background: linear-gradient(180deg, #f08000 0%, #e67300 100%); }
+        .beam-orange .bf-right {
+            background: linear-gradient(180deg, #f08000 0%, #e67300 100%);
+        }
+
         .beam-orange .bf-top,
-        .beam-orange .bf-bottom { background: linear-gradient(90deg, #f08000 0%, #ff8c00 50%, #f08000 100%); }
+        .beam-orange .bf-bottom {
+            background: linear-gradient(90deg, #f08000 0%, #ff8c00 50%, #f08000 100%);
+        }
 
         /* 白色梁 */
         .beam-white .bf-front,
         .beam-white .bf-back {
             background: linear-gradient(90deg, #e8e8e8 0%, #f5f5f5 30%, #fff 50%, #f5f5f5 70%, #e8e8e8 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.1);
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), inset 0 -1px 2px rgba(0, 0, 0, 0.1);
         }
+
         .beam-white .bf-left,
-        .beam-white .bf-right { background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%); }
+        .beam-white .bf-right {
+            background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+        }
+
         .beam-white .bf-top,
-        .beam-white .bf-bottom { background: linear-gradient(90deg, #f0f0f0 0%, #fafafa 50%, #f0f0f0 100%); }
+        .beam-white .bf-bottom {
+            background: linear-gradient(90deg, #f0f0f0 0%, #fafafa 50%, #f0f0f0 100%);
+        }
 
         /* Technic圆孔 - 增强版 */
         .holes-container {
@@ -142,9 +200,9 @@
             position: absolute;
             border-radius: 50%;
             box-shadow:
-                inset 0 1px 3px rgba(0,0,0,0.9),
-                inset 0 -1px 1px rgba(255,255,255,0.2),
-                0 0.5px 0 rgba(255,255,255,0.15);
+                inset 0 1px 3px rgba(0, 0, 0, 0.9),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.2),
+                0 0.5px 0 rgba(255, 255, 255, 0.15);
         }
 
         /* 圆孔内的十字轴孔 */
@@ -163,18 +221,23 @@
         .beam-black .technic-hole {
             background: radial-gradient(circle, #000 0%, #0a0a0a 60%, #151515 100%);
         }
+
         .beam-dgray .technic-hole {
             background: radial-gradient(circle, #252525 0%, #333 60%, #404040 100%);
         }
+
         .beam-lgray .technic-hole {
             background: radial-gradient(circle, #606060 0%, #757575 60%, #8a8a8a 100%);
         }
+
         .beam-yellow .technic-hole {
             background: radial-gradient(circle, #8a6a08 0%, #a57a0a 60%, #b58510 100%);
         }
+
         .beam-orange .technic-hole {
             background: radial-gradient(circle, #8a4500 0%, #a55500 60%, #b56500 100%);
         }
+
         .beam-white .technic-hole {
             background: radial-gradient(circle, #808080 0%, #909090 60%, #a0a0a0 100%);
         }
@@ -192,26 +255,31 @@
             height: 100%;
             border-radius: 50%;
             box-shadow:
-                inset 2px 2px 3px rgba(255,255,255,0.4),
-                inset -2px -2px 3px rgba(0,0,0,0.4),
-                0 1px 2px rgba(0,0,0,0.3);
+                inset 2px 2px 3px rgba(255, 255, 255, 0.4),
+                inset -2px -2px 3px rgba(0, 0, 0, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .pin-black .pin-body {
             background: radial-gradient(circle at 30% 30%, #555 0%, #333 50%, #1a1a1a 100%);
         }
+
         .pin-yellow .pin-body {
             background: radial-gradient(circle at 30% 30%, #ffe060 0%, #f4c430 50%, #c9a00c 100%);
         }
+
         .pin-blue .pin-body {
             background: radial-gradient(circle at 30% 30%, #5aa0e9 0%, #3498db 50%, #1a6aaa 100%);
         }
+
         .pin-red .pin-body {
             background: radial-gradient(circle at 30% 30%, #ff6b6b 0%, #e74c3c 50%, #a93226 100%);
         }
+
         .pin-gray .pin-body {
             background: radial-gradient(circle at 30% 30%, #b0b0b0 0%, #888 50%, #606060 100%);
         }
+
         .pin-tan .pin-body {
             background: radial-gradient(circle at 30% 30%, #e8d4a0 0%, #d4b896 50%, #b8986a 100%);
         }
@@ -240,9 +308,9 @@
             background: radial-gradient(circle at 35% 35%, #ffe580 0%, #f4c430 35%, #d4a00d 70%, #b08010 100%);
             transform: translateZ(6px);
             box-shadow:
-                inset 0 3px 8px rgba(255,255,255,0.6),
-                inset 0 -3px 8px rgba(0,0,0,0.3),
-                0 2px 4px rgba(0,0,0,0.2);
+                inset 0 3px 8px rgba(255, 255, 255, 0.6),
+                inset 0 -3px 8px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .gear-disc-back {
@@ -269,7 +337,7 @@
             transform: translate(-50%, -50%) translateZ(7px);
             background: radial-gradient(circle, #1a1a1a 0%, #2a2a2a 70%, #3a3a3a 100%);
             border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
         }
 
         .gear-cross {
@@ -284,7 +352,7 @@
             content: '';
             position: absolute;
             background: #0a0a0a;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .gear-cross::before {
@@ -318,7 +386,7 @@
             background: linear-gradient(180deg, #ffd84a 0%, #f4c430 50%, #d4a00d 100%);
             border-radius: 3px 3px 0 0;
             transform-origin: center bottom;
-            box-shadow: 0 -1px 3px rgba(0,0,0,0.25);
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.25);
         }
 
         .gear-tooth::before {
@@ -343,13 +411,23 @@
         }
 
         @keyframes gearSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @keyframes gearSpinR {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(-360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(-360deg);
+            }
         }
 
         .gear.spinning .gear-body {
@@ -376,7 +454,7 @@
         .pulley-front {
             background: radial-gradient(circle at 35% 35%, #b0b0b0 0%, #909090 40%, #707070 80%, #505050 100%);
             transform: translateZ(6px);
-            box-shadow: inset 0 3px 6px rgba(255,255,255,0.4), inset 0 -3px 6px rgba(0,0,0,0.4);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.4);
         }
 
         .pulley-back {
@@ -391,7 +469,7 @@
             transform: translate(-50%, -50%) translateZ(7px);
             border: 5px solid #4a4a4a;
             border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         .pulley-center {
@@ -401,7 +479,7 @@
             transform: translate(-50%, -50%) translateZ(7px);
             background: radial-gradient(circle, #1a1a1a 0%, #333 100%);
             border-radius: 50%;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
         }
 
         /* ===================== 电梯轿厢 - 用Technic梁构建 ===================== */
@@ -434,8 +512,8 @@
             border: 3px solid #999;
             border-radius: 4px;
             box-shadow:
-                inset 0 2px 5px rgba(255,255,255,0.8),
-                inset 0 -2px 5px rgba(0,0,0,0.1);
+                inset 0 2px 5px rgba(255, 255, 255, 0.8),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .car-back-panel {
@@ -495,7 +573,7 @@
             background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
             border-radius: 4px;
             overflow: hidden;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.7);
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.7);
         }
 
         .door-inner {
@@ -515,20 +593,32 @@
             width: 50%;
             height: 100%;
             background: linear-gradient(180deg,
-                #f8f8f8 0%,
-                #f0f0f0 15%,
-                #e8e8e8 40%,
-                #e0e0e0 60%,
-                #d8d8d8 85%,
-                #d0d0d0 100%);
+                    #f8f8f8 0%,
+                    #f0f0f0 15%,
+                    #e8e8e8 40%,
+                    #e0e0e0 60%,
+                    #d8d8d8 85%,
+                    #d0d0d0 100%);
             transition: transform 1s ease-in-out;
         }
 
-        .door-left { left: 0; border-right: 2px solid #aaa; }
-        .door-right { right: 0; border-left: 2px solid #aaa; }
+        .door-left {
+            left: 0;
+            border-right: 2px solid #aaa;
+        }
 
-        .door-left.open { transform: translateX(-96%); }
-        .door-right.open { transform: translateX(96%); }
+        .door-right {
+            right: 0;
+            border-left: 2px solid #aaa;
+        }
+
+        .door-left.open {
+            transform: translateX(-96%);
+        }
+
+        .door-right.open {
+            transform: translateX(96%);
+        }
 
         /* 门上的横纹 */
         .door-lines {
@@ -537,13 +627,11 @@
             left: 6%;
             right: 6%;
             height: 92%;
-            background: repeating-linear-gradient(
-                180deg,
-                transparent 0px,
-                transparent 12px,
-                #c0c0c0 12px,
-                #c0c0c0 13px
-            );
+            background: repeating-linear-gradient(180deg,
+                    transparent 0px,
+                    transparent 12px,
+                    #c0c0c0 12px,
+                    #c0c0c0 13px);
         }
 
         /* Giant KONE标志 */
@@ -555,34 +643,82 @@
             font-size: 8px;
             font-weight: bold;
             color: #1a5490;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             padding: 3px 8px;
             border-radius: 2px;
             letter-spacing: 0.8px;
             white-space: nowrap;
             border: 1px solid #bbb;
             font-family: Arial, sans-serif;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         /* ===================== 钢缆 ===================== */
         .cable {
             position: absolute;
-            width: 2px;
-            background: linear-gradient(90deg, #1a1a1a 0%, #404040 50%, #1a1a1a 100%);
+            width: 4px;
+            background: linear-gradient(90deg, #111 0%, #444 30%, #555 50%, #444 70%, #111 100%);
             transform-style: preserve-3d;
-            box-shadow: 1px 0 2px rgba(0,0,0,0.4);
+            box-shadow:
+                0 0 4px rgba(0, 0, 0, 0.6),
+                1px 1px 2px rgba(0, 0, 0, 0.4),
+                -1px 0 2px rgba(80, 80, 80, 0.3);
+            border-radius: 2px;
         }
 
-        /* 钢缆纹理 */
+        /* 钢缆纹理 - 更清晰的螺旋纹理 */
         .cable-textured {
-            background: repeating-linear-gradient(
-                180deg,
-                #1a1a1a 0px,
-                #1a1a1a 3px,
-                #333 3px,
-                #333 5px
-            );
+            background: repeating-linear-gradient(180deg,
+                    #222 0px,
+                    #222 2px,
+                    #444 2px,
+                    #444 4px,
+                    #333 4px,
+                    #333 6px);
+        }
+
+        /* 配重缆绳 - 略有不同的颜色以区分 */
+        .cable-counterweight {
+            background: repeating-linear-gradient(180deg,
+                    #1a1a1a 0px,
+                    #1a1a1a 2px,
+                    #3a3a3a 2px,
+                    #3a3a3a 4px);
+        }
+
+        /* ===================== 链条导轨 - 乐高Technic链条 ===================== */
+        .chain-guide {
+            position: absolute;
+            width: 8px;
+            background: repeating-linear-gradient(180deg,
+                    #1a1a1a 0px,
+                    #1a1a1a 4px,
+                    #333 4px,
+                    #333 5px,
+                    #1a1a1a 5px,
+                    #1a1a1a 8px,
+                    #444 8px,
+                    #444 9px);
+            transform-style: preserve-3d;
+            box-shadow:
+                1px 0 2px rgba(0, 0, 0, 0.5),
+                -1px 0 2px rgba(60, 60, 60, 0.3);
+            border-radius: 1px;
+        }
+
+        .chain-guide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: repeating-linear-gradient(180deg,
+                    #555 0px,
+                    #555 3px,
+                    #333 3px,
+                    #333 6px);
         }
 
         /* ===================== 红色缓冲弹簧 - 增强版 ===================== */
@@ -595,21 +731,19 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                180deg,
-                #e74c3c 0px,
-                #e74c3c 5px,
-                #c0392b 5px,
-                #c0392b 7px,
-                #a93226 7px,
-                #a93226 8px
-            );
+            background: repeating-linear-gradient(180deg,
+                    #e74c3c 0px,
+                    #e74c3c 5px,
+                    #c0392b 5px,
+                    #c0392b 7px,
+                    #a93226 7px,
+                    #a93226 8px);
             border-radius: 6px;
             transform: translateZ(10px);
             box-shadow:
-                inset 4px 0 6px rgba(255,100,100,0.3),
-                inset -4px 0 6px rgba(0,0,0,0.3),
-                2px 2px 4px rgba(0,0,0,0.3);
+                inset 4px 0 6px rgba(255, 100, 100, 0.3),
+                inset -4px 0 6px rgba(0, 0, 0, 0.3),
+                2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .spring-cap {
@@ -620,11 +754,16 @@
             background: linear-gradient(180deg, #d63031 0%, #a93226 50%, #7f1d1d 100%);
             border-radius: 3px;
             transform: translateZ(10px);
-            box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
         }
 
-        .spring-top { top: -2px; }
-        .spring-bottom { bottom: -2px; }
+        .spring-top {
+            top: -2px;
+        }
+
+        .spring-bottom {
+            bottom: -2px;
+        }
 
         /* ===================== 配重块 ===================== */
         .counterweight {
@@ -642,7 +781,7 @@
             height: 100%;
             background: linear-gradient(90deg, #555 0%, #777 30%, #888 50%, #777 70%, #555 100%);
             transform: translateZ(15px);
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .cw-back {
@@ -658,8 +797,13 @@
             background: linear-gradient(180deg, #606060 0%, #4a4a4a 100%);
         }
 
-        .cw-left { transform: rotateY(-90deg) translateZ(18px); }
-        .cw-right { transform: rotateY(90deg) translateZ(18px); }
+        .cw-left {
+            transform: rotateY(-90deg) translateZ(18px);
+        }
+
+        .cw-right {
+            transform: rotateY(90deg) translateZ(18px);
+        }
 
         /* 配重块的层叠效果 */
         .cw-weights {
@@ -668,16 +812,14 @@
             left: 5px;
             right: 5px;
             bottom: 8px;
-            background: repeating-linear-gradient(
-                180deg,
-                #9a9a9a 0px,
-                #9a9a9a 14px,
-                #666 14px,
-                #666 16px
-            );
+            background: repeating-linear-gradient(180deg,
+                    #9a9a9a 0px,
+                    #9a9a9a 14px,
+                    #666 14px,
+                    #666 16px);
             transform: translateZ(16px);
             border-radius: 2px;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
         }
 
         /* ===================== 楼层门框 ===================== */
@@ -701,7 +843,7 @@
             font-size: 14px;
             font-family: 'Courier New', monospace;
             text-shadow: 0 0 10px rgba(46, 204, 113, 0.7);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
         }
 
         /* ===================== 警告标志 ===================== */
@@ -717,7 +859,7 @@
             border-left: 22px solid transparent;
             border-right: 22px solid transparent;
             border-bottom: 38px solid #f4c430;
-            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.4));
+            filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.4));
         }
 
         .warning-border {
@@ -777,7 +919,7 @@
             position: absolute;
             background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 50%, #d8d8d8 100%);
             border-radius: 6px;
-            box-shadow: inset 0 0 25px rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.1);
         }
 
         /* 底座圆钉 - 真实乐高风格 */
@@ -788,9 +930,9 @@
             background: radial-gradient(circle at 35% 35%, #fff 0%, #e8e8e8 40%, #d0d0d0 100%);
             border-radius: 50%;
             box-shadow:
-                inset 0 3px 4px rgba(255,255,255,0.6),
-                inset 0 -3px 4px rgba(0,0,0,0.15),
-                0 3px 4px rgba(0,0,0,0.25);
+                inset 0 3px 4px rgba(255, 255, 255, 0.6),
+                inset 0 -3px 4px rgba(0, 0, 0, 0.15),
+                0 3px 4px rgba(0, 0, 0, 0.25);
         }
 
         .base-stud-blue {
@@ -806,7 +948,7 @@
             background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
             padding: 15px;
             border-radius: 12px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
             z-index: 100;
             width: 180px;
         }
@@ -949,7 +1091,7 @@
             height: 100%;
             background: linear-gradient(90deg, #2a2a2a 0%, #4a4a4a 50%, #2a2a2a 100%);
             border-radius: 2px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .axle-body.yellow {
@@ -961,7 +1103,7 @@
             position: absolute;
             background: linear-gradient(90deg, #3a3a3a 0%, #5a5a5a 50%, #3a3a3a 100%);
             border-radius: 2px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         /* 电机外壳 */
@@ -975,9 +1117,9 @@
             background: radial-gradient(ellipse at 30% 30%, #6a6a6a 0%, #4a4a4a 50%, #2a2a2a 100%);
             border-radius: 6px;
             box-shadow:
-                inset 3px 3px 6px rgba(255,255,255,0.15),
-                inset -3px -3px 6px rgba(0,0,0,0.4),
-                2px 2px 4px rgba(0,0,0,0.3);
+                inset 3px 3px 6px rgba(255, 255, 255, 0.15),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.4),
+                2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .motor-shaft {
@@ -986,20 +1128,27 @@
             border-radius: 50%;
         }
 
-        /* 门指示灯 */
+        /* 门指示灯 - 加大版 */
         .door-indicator {
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #ff7070 0%, #c0392b 100%);
-            box-shadow: 0 0 6px rgba(192, 57, 43, 0.6);
+            background: radial-gradient(circle at 30% 30%, #ff8080 0%, #ff4040 50%, #c0392b 100%);
+            box-shadow:
+                0 0 8px rgba(255, 64, 64, 0.8),
+                0 0 16px rgba(192, 57, 43, 0.5),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s;
         }
 
         .door-indicator.green {
-            background: radial-gradient(circle at 30% 30%, #70ff70 0%, #27ae60 100%);
-            box-shadow: 0 0 6px rgba(39, 174, 96, 0.6);
+            background: radial-gradient(circle at 30% 30%, #80ff80 0%, #40ff40 50%, #27ae60 100%);
+            box-shadow:
+                0 0 8px rgba(64, 255, 64, 0.8),
+                0 0 16px rgba(39, 174, 96, 0.5),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3);
         }
 
         /* L型角件 */
@@ -1021,6 +1170,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="main-area">
         <div class="scene">
@@ -1097,9 +1247,9 @@
             beam.style.cssText = `
                 left: ${x}px; bottom: ${y}px;
                 width: ${w}px; height: ${h}px;
-                --depth: ${d/2}px;
-                --w-half: ${w/2}px;
-                --h-half: ${h/2}px;
+                --depth: ${d / 2}px;
+                --w-half: ${w / 2}px;
+                --h-half: ${h / 2}px;
                 transform: translateZ(${z}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg);
             `;
 
@@ -1140,7 +1290,7 @@
             if (holes && holeCount > 0) {
                 const holesContainer = document.createElement('div');
                 holesContainer.className = 'holes-container';
-                holesContainer.style.setProperty('--depth', `${d/2 + 1}px`);
+                holesContainer.style.setProperty('--depth', `${d / 2 + 1}px`);
 
                 for (let i = 0; i < holeCount; i++) {
                     const hole = document.createElement('div');
@@ -1150,14 +1300,14 @@
                         const startY = (h - (holeCount - 1) * holeSpacing) / 2 - holeSize / 2;
                         hole.style.cssText = `
                             width: ${holeSize}px; height: ${holeSize}px;
-                            left: ${w/2 - holeSize/2}px;
+                            left: ${w / 2 - holeSize / 2}px;
                             top: ${startY + i * holeSpacing}px;
                         `;
                     } else {
                         const startX = (w - (holeCount - 1) * holeSpacing) / 2 - holeSize / 2;
                         hole.style.cssText = `
                             width: ${holeSize}px; height: ${holeSize}px;
-                            top: ${h/2 - holeSize/2}px;
+                            top: ${h / 2 - holeSize / 2}px;
                             left: ${startX + i * holeSpacing}px;
                         `;
                     }
@@ -1318,6 +1468,26 @@
             return spring;
         }
 
+        // 创建链条导轨
+        function createChainGuide(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                height = 100,
+                parent = world
+            } = opts;
+
+            const chain = document.createElement('div');
+            chain.className = 'chain-guide';
+            chain.style.cssText = `
+                left: ${x}px; top: ${y}px;
+                height: ${height}px;
+                transform: translateZ(${z}px);
+            `;
+
+            parent.appendChild(chain);
+            return chain;
+        }
+
         // 创建电机
         function createMotor(opts) {
             const {
@@ -1337,7 +1507,7 @@
             motor.innerHTML = `
                 <div class="motor-body" style="width: ${w}px; height: ${h}px; transform: translateZ(10px);"></div>
                 <div class="motor-body" style="width: ${w}px; height: ${h}px; transform: translateZ(-10px);"></div>
-                <div class="motor-shaft" style="width: 10px; height: 10px; top: ${h/2 - 5}px; right: -15px; transform: translateZ(0);"></div>
+                <div class="motor-shaft" style="width: 10px; height: 10px; top: ${h / 2 - 5}px; right: -15px; transform: translateZ(0);"></div>
             `;
 
             parent.appendChild(motor);
@@ -1409,8 +1579,9 @@
         const basePlate = document.createElement('div');
         basePlate.className = 'base-plate';
         basePlate.style.cssText = `
-            left: 50%; margin-left: -${FRAME_W/2 + 25}px;
+            left: 50%; margin-left: -${FRAME_W / 2 + 25}px;
             width: ${FRAME_W + 50}px; height: 35px;
+            bottom: 0;
         `;
 
         const baseTop = document.createElement('div');
@@ -1838,15 +2009,44 @@
             size: 35, teeth: 12, spokes: 3
         });
 
-        // ========== 滑轮组 ==========
+        // ========== 滑轮组 - 仿真乐高机械结构 ==========
+
+        // 最上层小滑轮组 (4个) - 导向滑轮，位于顶梁下方
+        createPulley({ x: 120, y: topY + 78, z: 30, size: 26 });
+        createPulley({ x: 155, y: topY + 78, z: 30, size: 26 });
+        createPulley({ x: FRAME_W - 155, y: topY + 78, z: 30, size: 26 });
+        createPulley({ x: FRAME_W - 120, y: topY + 78, z: 30, size: 26 });
+
+        // 中层大滑轮组 (4个) - 主导向滑轮
+        createPulley({ x: 115, y: topY + 60, z: 45, size: 38 });
+        createPulley({ x: 170, y: topY + 60, z: 45, size: 38 });
+        createPulley({ x: FRAME_W - 170, y: topY + 60, z: 45, size: 38 });
+        createPulley({ x: FRAME_W - 115, y: topY + 60, z: 45, size: 38 });
+
+        // 下层滑轮组 (4个) - 缆绳出口滑轮
         createPulley({ x: 115, y: topY + 45, z: 55, size: 38 });
         createPulley({ x: FRAME_W - 153, y: topY + 45, z: 55, size: 38 });
         createPulley({ x: 115, y: topY + 45, z: -55, size: 38 });
         createPulley({ x: FRAME_W - 153, y: topY + 45, z: -55, size: 38 });
 
-        // 额外滑轮
+        // 中央配重缆绳滑轮
         createPulley({ x: FRAME_W / 2 - 16, y: topY + 50, z: 40, size: 32 });
         createPulley({ x: FRAME_W / 2 - 16, y: topY + 50, z: -40, size: 32 });
+
+        // 后方配重导向滑轮
+        createPulley({ x: FRAME_W / 2 - 10, y: topY + 70, z: -70, size: 30 });
+        createPulley({ x: FRAME_W / 2 + 10, y: topY + 70, z: -70, size: 30 });
+
+        // ========== 链条导轨 - 顶部垂直链条 ==========
+        // 前侧链条导轨
+        createChainGuide({ x: 137, y: 45, z: 35, height: 65 });
+        createChainGuide({ x: 167, y: 45, z: 35, height: 65 });
+        createChainGuide({ x: FRAME_W - 167, y: 45, z: 35, height: 65 });
+        createChainGuide({ x: FRAME_W - 137, y: 45, z: 35, height: 65 });
+
+        // 后侧链条导轨
+        createChainGuide({ x: FRAME_W / 2 - 15, y: 35, z: -60, height: 55 });
+        createChainGuide({ x: FRAME_W / 2 + 15, y: 35, z: -60, height: 55 });
 
         // ========== 电机 ==========
         createMotor({ x: FRAME_W / 2 - 25, y: topY + 18, z: 0, w: 50, h: 40 });
@@ -1860,7 +2060,7 @@
         // ========== 警告标志 ==========
         const warning = document.createElement('div');
         warning.className = 'warning-sign';
-        warning.style.cssText = `left: ${FRAME_W/2 - 22}px; bottom: ${topY - 45}px; transform: translateZ(102px);`;
+        warning.style.cssText = `left: ${FRAME_W / 2 - 22}px; bottom: ${topY - 45}px; transform: translateZ(102px);`;
         warning.innerHTML = `
             <div class="warning-body">
                 <div class="warning-icon">⚠</div>
@@ -1870,10 +2070,14 @@
         world.appendChild(warning);
 
         // ========== 红色弹簧缓冲器 ==========
-        createSpring({ x: 120, y: 42, z: 55, w: 24, h: 50 });
-        createSpring({ x: FRAME_W - 144, y: 42, z: 55, w: 24, h: 50 });
-        createSpring({ x: 120, y: 42, z: -55, w: 24, h: 50 });
-        createSpring({ x: FRAME_W - 144, y: 42, z: -55, w: 24, h: 50 });
+        const SPRING_MAX_H = 50;  // 弹簧最大高度
+        const SPRING_MIN_H = 20;  // 弹簧压缩后最小高度
+        const springs = [
+            createSpring({ x: 120, y: 42, z: 55, w: 24, h: SPRING_MAX_H }),
+            createSpring({ x: FRAME_W - 144, y: 42, z: 55, w: 24, h: SPRING_MAX_H }),
+            createSpring({ x: 120, y: 42, z: -55, w: 24, h: SPRING_MAX_H }),
+            createSpring({ x: FRAME_W - 144, y: 42, z: -55, w: 24, h: SPRING_MAX_H })
+        ];
 
         // ========== 楼层标识 ==========
         for (let floor = 1; floor <= 4; floor++) {
@@ -1890,7 +2094,7 @@
             const indicator = document.createElement('div');
             indicator.className = 'door-indicator';
             indicator.id = `indicator${floor}`;
-            indicator.style.cssText = `left: ${FRAME_W / 2 - 4}px; bottom: ${iy}px; transform: translateZ(105px);`;
+            indicator.style.cssText = `left: ${FRAME_W / 2 - 7}px; bottom: ${iy}px; transform: translateZ(105px);`;
             world.appendChild(indicator);
         }
 
@@ -1906,6 +2110,21 @@
             const cable = document.createElement('div');
             cable.className = 'cable cable-textured';
             cable.id = `cable${i + 1}`;
+            cable.style.cssText = `left: ${pos.x}px; top: 80px; transform: translateZ(${pos.z}px);`;
+            world.appendChild(cable);
+            return cable;
+        });
+
+        // ========== 配重缆绳 ==========
+        const cwCablePositions = [
+            { x: FRAME_W / 2 - 12, z: -75 },  // 配重左侧
+            { x: FRAME_W / 2 + 12, z: -75 }   // 配重右侧
+        ];
+
+        const cwCables = cwCablePositions.map((pos, i) => {
+            const cable = document.createElement('div');
+            cable.className = 'cable cable-counterweight';
+            cable.id = `cwCable${i + 1}`;
             cable.style.cssText = `left: ${pos.x}px; top: 80px; transform: translateZ(${pos.z}px);`;
             world.appendChild(cable);
             return cable;
@@ -1939,12 +2158,16 @@
         const elevatorCar = document.createElement('div');
         elevatorCar.className = 'elevator-car';
         elevatorCar.id = 'elevatorCar';
+        // 框架中心位置：(45 + FRAME_W - 55) / 2 = (FRAME_W - 10) / 2
+        const frameCenter = (FRAME_W - 10) / 2;
         elevatorCar.style.cssText = `
-            margin-left: -${CAR_W/2}px;
+            left: ${frameCenter}px;
+            margin-left: -${CAR_W / 2}px;
             width: ${CAR_W}px; height: ${CAR_H}px;
             --car-width: ${CAR_W}px;
             --car-height: ${CAR_H}px;
             --car-depth: ${CAR_D}px;
+            transform: translateZ(-10px);
         `;
 
         const carFrame = document.createElement('div');
@@ -2107,7 +2330,7 @@
             rotY: -25
         };
 
-        const floors = { 1: 645, 2: 485, 3: 325, 4: 165 };
+        const floors = { 1: 772, 2: 612, 3: 452, 4: 292 };
         state.pos = floors[1];
 
         const doorL = document.getElementById('doorLeft');
@@ -2133,11 +2356,36 @@
         function updatePos() {
             elevatorCar.style.bottom = (950 - state.pos - CAR_H) + 'px';
 
-            const cableH = state.pos - 40;
+            // 钢缆长度：从顶部(top=80)延伸到轿厢顶部，轿厢越低钢缆越长
+            const cableH = state.pos - 80;
             cables.forEach(c => c.style.height = Math.max(0, cableH) + 'px');
 
-            const cwTop = 700 - (state.pos - 165);
-            cw.style.top = Math.max(150, Math.min(620, cwTop)) + 'px';
+            // 配重：与轿厢反向运动，轿厢在1层(pos=772)时配重在顶部，轿厢在4层(pos=292)时配重在底部
+            const cwBottom = 50 + (state.pos - 292) * 0.8;
+            cw.style.bottom = Math.max(50, Math.min(550, cwBottom)) + 'px';
+
+            // 配重缆绳长度：从顶部(80px)到配重顶部
+            // 配重高度110px，所以配重顶部 = cwBottom + 110
+            // 缆绳长度 = 总框架高度(950) - 80(顶部) - (cwBottom + 110)
+            const cwTop = 950 - cwBottom - 110;  // 配重顶部距离顶部的距离
+            const cwCableH = cwTop - 80;  // 从top:80开始到配重顶部
+            cwCables.forEach(c => c.style.height = Math.max(0, cwCableH) + 'px');
+
+            // 弹簧压缩：只有当轿厢接触弹簧时才压缩
+            // 弹簧顶部位置 = 42(bottom) + 50(高度) = 92px
+            // 轿厢底部位置 = 950 - state.pos - CAR_H
+            const carBottom = 950 - state.pos - CAR_H;
+            const springTopWhenFull = 42 + SPRING_MAX_H;  // 弹簧完全伸展时的顶部位置
+
+            let springH = SPRING_MAX_H;  // 默认完全伸展
+            if (carBottom < springTopWhenFull) {
+                // 轿厢正在压弹簧
+                const compression = springTopWhenFull - carBottom;
+                springH = Math.max(SPRING_MIN_H, SPRING_MAX_H - compression);
+            }
+            springs.forEach(s => {
+                s.style.height = springH + 'px';
+            });
         }
 
         updatePos();
@@ -2300,7 +2548,7 @@
         audioBtn.addEventListener('click', () => {
             state.audio = !state.audio;
             audioBtn.classList.toggle('on', state.audio);
-            if (state.audio) audio.play().catch(() => {});
+            if (state.audio) audio.play().catch(() => { });
             else audio.pause();
         });
 
@@ -2361,4 +2609,5 @@
         setTimeout(openDoors, 500);
     </script>
 </body>
+
 </html>
