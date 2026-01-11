@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凑十法 - 凑十好朋友</title>
+    <meta name="description" content="凑十法互动学习工具，帮助孩子掌握凑十的好朋友组合">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #e74c3c;
+            --primary-blue: #3498db;
+            --accent-yellow: #f1c40f;
+            --accent-green: #2ecc71;
+            --accent-purple: #9b59b6;
+            --accent-orange: #e67e22;
+            --accent-pink: #e91e63;
+            --bg-gradient-start: #11998e;
+            --bg-gradient-end: #38ef7d;
+            --shadow-soft: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --text-dark: #2c3e50;
+            --text-light: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .floating-decorations {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .decoration {
+            position: absolute;
+            font-size: 24px;
+            animation: floatAround 8s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes floatAround {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-25px) rotate(15deg);
+            }
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 15px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            color: var(--text-light);
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin-top: 5px;
+            font-weight: 700;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.85);
+            background: transparent;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--bg-gradient-start);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 1;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* 模式一：认识好朋友 */
+        .learn-mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .number-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .num-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .num-btn:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .num-btn:active {
+            transform: scale(0.95);
+        }
+
+        .num-btn.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 4px white, 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .num-btn:nth-child(1) {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+        }
+
+        .num-btn:nth-child(2) {
+            background: linear-gradient(145deg, #e67e22, #d35400);
+        }
+
+        .num-btn:nth-child(3) {
+            background: linear-gradient(145deg, #f1c40f, #f39c12);
+        }
+
+        .num-btn:nth-child(4) {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+        }
+
+        .num-btn:nth-child(5) {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+        }
+
+        .num-btn:nth-child(6) {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+        }
+
+        .num-btn:nth-child(7) {
+            background: linear-gradient(145deg, #1abc9c, #16a085);
+        }
+
+        .num-btn:nth-child(8) {
+            background: linear-gradient(145deg, #e91e63, #c2185b);
+        }
+
+        .num-btn:nth-child(9) {
+            background: linear-gradient(145deg, #607d8b, #455a64);
+        }
+
+        .ten-frame-container {
+            background: linear-gradient(145deg, #fff, #f5f5f5);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .ten-frame {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            background: linear-gradient(145deg, #ecf0f1, #dfe6e9);
+            border-radius: 15px;
+            padding: 12px;
+            border: 3px solid #bdc3c7;
+        }
+
+        .frame-cell {
+            width: 50px;
+            height: 50px;
+            background: #fefefe;
+            border-radius: 10px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .frame-cell .chip {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .frame-cell .chip.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .frame-cell .chip.red {
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #e74c3c);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
+        }
+
+        .frame-cell .chip.blue {
+            background: radial-gradient(circle at 30% 30%, #74b9ff, #3498db);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
+        }
+
+        .equation-display {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 20px;
+            padding: 20px 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+        }
+
+        .eq-num {
+            color: var(--primary-red);
+        }
+
+        .eq-num.blue {
+            color: var(--primary-blue);
+        }
+
+        .eq-op {
+            color: var(--accent-yellow);
+        }
+
+        .eq-result {
+            color: var(--accent-green);
+        }
+
+        .rhyme-box {
+            background: linear-gradient(145deg, #fff9c4, #fff59d);
+            border-radius: 20px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 3px solid #fdd835;
+        }
+
+        .rhyme-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+            color: #f57f17;
+        }
+
+        .rhyme-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        /* 模式二：快速配对 */
+        .quiz-mode {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+        }
+
+        .quiz-mode.active {
+            display: flex;
+        }
+
+        .quiz-question {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 25px;
+            padding: 30px 50px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .quiz-label {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .quiz-number {
+            font-family: 'Fredoka One', cursive;
+            font-size: 5rem;
+            background: linear-gradient(145deg, var(--accent-purple), #8e44ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-hint {
+            font-size: 1.2rem;
+            color: #95a5a6;
+            margin-top: 10px;
+        }
+
+        .answer-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .answer-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            color: var(--text-dark);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(145deg, var(--accent-green), #27ae60);
+            color: white;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .answer-btn.wrong {
+            background: linear-gradient(145deg, var(--primary-red), #c0392b);
+            color: white;
+            animation: wrongShake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes wrongShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .quiz-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 15px;
+            padding: 15px 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .stat-value {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--accent-purple);
+        }
+
+        .stat-item.timer .stat-value {
+            color: var(--primary-red);
+        }
+
+        .stat-item.score .stat-value {
+            color: var(--accent-green);
+        }
+
+        .quiz-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .control-btn.start {
+            background: linear-gradient(145deg, var(--accent-green), #27ae60);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .control-btn.reset {
+            background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.4);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 模式三：凑十计算 */
+        .calc-mode {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .calc-mode.active {
+            display: flex;
+        }
+
+        .calc-problem {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 25px;
+            padding: 25px 50px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calc-num1 {
+            color: var(--primary-red);
+        }
+
+        .calc-op {
+            color: var(--accent-yellow);
+        }
+
+        .calc-num2 {
+            color: var(--primary-blue);
+        }
+
+        .calc-eq {
+            color: #7f8c8d;
+        }
+
+        .calc-answer {
+            width: 80px;
+            height: 60px;
+            border: 4px solid var(--accent-purple);
+            border-radius: 15px;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: var(--accent-purple);
+            outline: none;
+        }
+
+        .steps-container {
+            background: linear-gradient(145deg, #fff, #f8f8f8);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .step {
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            opacity: 0.4;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: translateX(0);
+            background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+        }
+
+        .step-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            color: var(--accent-green);
+            margin-bottom: 8px;
+        }
+
+        .step-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            flex-wrap: wrap;
+        }
+
+        .step-chips {
+            display: flex;
+            gap: 4px;
+        }
+
+        .mini-chip {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+        }
+
+        .mini-chip.red {
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #e74c3c);
+        }
+
+        .mini-chip.blue {
+            background: radial-gradient(circle at 30% 30%, #74b9ff, #3498db);
+        }
+
+        .calc-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* 成功动画 */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(46, 204, 113, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .success-emoji {
+            font-size: 5rem;
+            animation: bounce 0.6s ease-out;
+        }
+
+        .success-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: white;
+            margin-top: 10px;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .learn-mode {
+            display: flex;
+        }
+
+        .learn-mode.hidden {
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floating-decorations" id="decorations"></div>
+
+    <div class="title-container">
+        <h1>🤝 凑十好朋友</h1>
+        <p class="subtitle" id="subtitleText">点击数字，找到它的好朋友！</p>
+    </div>
+
+    <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="learn">认识好朋友</button>
+        <button class="mode-btn" data-mode="quiz">快速配对</button>
+        <button class="mode-btn" data-mode="calc">凑十计算</button>
+        <a href="num.html" class="mode-btn"
+            style="text-decoration:none;background:linear-gradient(145deg,#667eea,#764ba2);color:white;">🧮 十格框</a>
+    </div>
+
+    <div class="main-container">
+        <!-- 模式一：认识好朋友 -->
+        <div class="learn-mode" id="learnMode">
+            <div class="number-buttons">
+                <button class="num-btn" data-num="1">1</button>
+                <button class="num-btn" data-num="2">2</button>
+                <button class="num-btn" data-num="3">3</button>
+                <button class="num-btn" data-num="4">4</button>
+                <button class="num-btn" data-num="5">5</button>
+                <button class="num-btn" data-num="6">6</button>
+                <button class="num-btn" data-num="7">7</button>
+                <button class="num-btn" data-num="8">8</button>
+                <button class="num-btn" data-num="9">9</button>
+            </div>
+
+            <div class="ten-frame-container">
+                <div class="ten-frame" id="tenFrame">
+                    <!-- 10个格子 -->
+                </div>
+            </div>
+
+            <div class="equation-display" id="equationDisplay">
+                <span class="eq-num" id="eqNum1">?</span>
+                <span class="eq-op">+</span>
+                <span class="eq-num blue" id="eqNum2">?</span>
+                <span class="eq-op">=</span>
+                <span class="eq-result" id="eqResult">10</span>
+            </div>
+
+            <div class="rhyme-box" id="rhymeBox">
+                <div class="rhyme-icon">🎵</div>
+                <div class="rhyme-text" id="rhymeText">点击上方数字，看看它的好朋友是谁！</div>
+            </div>
+        </div>
+
+        <!-- 模式二：快速配对 -->
+        <div class="quiz-mode" id="quizMode">
+            <div class="quiz-stats">
+                <div class="stat-item timer">
+                    <div class="stat-label">⏱️ 剩余时间</div>
+                    <div class="stat-value" id="timerDisplay">30</div>
+                </div>
+                <div class="stat-item score">
+                    <div class="stat-label">⭐ 得分</div>
+                    <div class="stat-value" id="scoreDisplay">0</div>
+                </div>
+            </div>
+
+            <div class="quiz-question">
+                <div class="quiz-label">找好朋友</div>
+                <div class="quiz-number" id="quizNumber">?</div>
+                <div class="quiz-hint">它的好朋友是几？</div>
+            </div>
+
+            <div class="answer-buttons" id="answerButtons">
+                <button class="answer-btn" data-ans="1">1</button>
+                <button class="answer-btn" data-ans="2">2</button>
+                <button class="answer-btn" data-ans="3">3</button>
+                <button class="answer-btn" data-ans="4">4</button>
+                <button class="answer-btn" data-ans="5">5</button>
+                <button class="answer-btn" data-ans="6">6</button>
+                <button class="answer-btn" data-ans="7">7</button>
+                <button class="answer-btn" data-ans="8">8</button>
+                <button class="answer-btn" data-ans="9">9</button>
+            </div>
+
+            <div class="quiz-controls">
+                <button class="control-btn start" id="startQuizBtn" onclick="startQuiz()">🎮 开始挑战</button>
+                <button class="control-btn reset" onclick="resetQuiz()">🔄 重新开始</button>
+            </div>
+        </div>
+
+        <!-- 模式三：凑十计算 -->
+        <div class="calc-mode" id="calcMode">
+            <div class="calc-problem">
+                <span class="calc-num1" id="calcNum1">8</span>
+                <span class="calc-op">+</span>
+                <span class="calc-num2" id="calcNum2">5</span>
+                <span class="calc-eq">=</span>
+                <input type="number" class="calc-answer" id="calcAnswer" min="0" max="20">
+            </div>
+
+            <div class="steps-container">
+                <div class="step" id="step1">
+                    <div class="step-title">第一步：大数想凑10</div>
+                    <div class="step-content" id="step1Content">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-title">第二步：小数来分解</div>
+                    <div class="step-content" id="step2Content">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-title">第三步：先凑10，再加剩余</div>
+                    <div class="step-content" id="step3Content">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-controls">
+                <button class="control-btn start" onclick="showCalcSteps()">👀 看解题步骤</button>
+                <button class="control-btn start" onclick="checkCalcAnswer()">✅ 检查答案</button>
+                <button class="control-btn reset" onclick="newCalcProblem()">🎲 换一题</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-emoji">🎉</div>
+        <div class="success-text" id="successText">太棒了！</div>
+    </div>
+
+    <script>
+        // 凑十口诀
+        const rhymes = {
+            1: { friend: 9, text: "一九一九好朋友！" },
+            2: { friend: 8, text: "二八二八手拉手！" },
+            3: { friend: 7, text: "三七三七真亲密！" },
+            4: { friend: 6, text: "四六四六一起走！" },
+            5: { friend: 5, text: "五五凑成一双手！" },
+            6: { friend: 4, text: "四六四六一起走！" },
+            7: { friend: 3, text: "三七三七真亲密！" },
+            8: { friend: 2, text: "二八二八手拉手！" },
+            9: { friend: 1, text: "一九一九好朋友！" }
+        };
+
+        // 状态
+        const state = {
+            mode: 'learn',
+            quizRunning: false,
+            quizTimer: null,
+            timeLeft: 30,
+            score: 0,
+            currentQuestion: 0,
+            calcNum1: 8,
+            calcNum2: 5
+        };
+
+        // 初始化
+        function init() {
+            createDecorations();
+            createTenFrame();
+            setupModeToggle();
+            setupNumberButtons();
+            setupAnswerButtons();
+            setupCalcInput();
+            newCalcProblem();
+        }
+
+        // 创建装饰
+        function createDecorations() {
+            const container = document.getElementById('decorations');
+            const emojis = ['⭐', '✨', '🌟', '💫', '🎯', '🎈'];
+            for (let i = 0; i < 10; i++) {
+                const dec = document.createElement('div');
+                dec.className = 'decoration';
+                dec.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                dec.style.left = Math.random() * 100 + '%';
+                dec.style.top = Math.random() * 100 + '%';
+                dec.style.animationDelay = Math.random() * 5 + 's';
+                dec.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(dec);
+            }
+        }
+
+        // 创建十格框
+        function createTenFrame() {
+            const frame = document.getElementById('tenFrame');
+            frame.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'frame-cell';
+                cell.dataset.index = i;
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                cell.appendChild(chip);
+                frame.appendChild(cell);
+            }
+        }
+
+        // 模式切换
+        function setupModeToggle() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    switchMode(btn.dataset.mode);
+                });
+            });
+        }
+
+        function switchMode(mode) {
+            state.mode = mode;
+            document.getElementById('learnMode').classList.toggle('hidden', mode !== 'learn');
+            document.getElementById('quizMode').classList.toggle('active', mode === 'quiz');
+            document.getElementById('calcMode').classList.toggle('active', mode === 'calc');
+
+            if (mode === 'learn') {
+                document.getElementById('subtitleText').textContent = '点击数字，找到它的好朋友！';
+            } else if (mode === 'quiz') {
+                document.getElementById('subtitleText').textContent = '限时挑战，快速找好朋友！';
+                resetQuiz();
+            } else {
+                document.getElementById('subtitleText').textContent = '用凑十法计算加法！';
+            }
+        }
+
+        // 数字按钮点击
+        function setupNumberButtons() {
+            document.querySelectorAll('.num-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    showMakeTen(parseInt(btn.dataset.num));
+                });
+            });
+        }
+
+        // 显示凑十动画
+        function showMakeTen(num) {
+            const friend = 10 - num;
+            const cells = document.querySelectorAll('.frame-cell');
+
+            // 重置所有格子
+            cells.forEach(cell => {
+                const chip = cell.querySelector('.chip');
+                chip.classList.remove('show', 'red', 'blue');
+            });
+
+            // 显示红球（选中的数）
+            for (let i = 0; i < num; i++) {
+                setTimeout(() => {
+                    const chip = cells[i].querySelector('.chip');
+                    chip.classList.add('red', 'show');
+                }, i * 100);
+            }
+
+            // 显示蓝球（好朋友）
+            for (let i = num; i < 10; i++) {
+                setTimeout(() => {
+                    const chip = cells[i].querySelector('.chip');
+                    chip.classList.add('blue', 'show');
+                }, 500 + (i - num) * 100);
+            }
+
+            // 更新算式
+            document.getElementById('eqNum1').textContent = num;
+            document.getElementById('eqNum2').textContent = friend;
+
+            // 更新口诀
+            setTimeout(() => {
+                document.getElementById('rhymeText').textContent = rhymes[num].text;
+            }, 500);
+        }
+
+        // 答案按钮
+        function setupAnswerButtons() {
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!state.quizRunning) return;
+                    checkQuizAnswer(parseInt(btn.dataset.ans), btn);
+                });
+            });
+        }
+
+        // 开始答题
+        function startQuiz() {
+            state.quizRunning = true;
+            state.timeLeft = 30;
+            state.score = 0;
+            document.getElementById('scoreDisplay').textContent = '0';
+            document.getElementById('startQuizBtn').disabled = true;
+            document.getElementById('startQuizBtn').textContent = '答题中...';
+
+            // 清除按钮状态
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+            });
+
+            nextQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            state.quizTimer = setInterval(() => {
+                state.timeLeft--;
+                document.getElementById('timerDisplay').textContent = state.timeLeft;
+
+                if (state.timeLeft <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            state.currentQuestion = Math.floor(Math.random() * 9) + 1;
+            document.getElementById('quizNumber').textContent = state.currentQuestion;
+
+            // 清除按钮状态
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+            });
+        }
+
+        function checkQuizAnswer(answer, btn) {
+            const correct = 10 - state.currentQuestion;
+
+            if (answer === correct) {
+                btn.classList.add('correct');
+                state.score++;
+                document.getElementById('scoreDisplay').textContent = state.score;
+                setTimeout(nextQuestion, 300);
+            } else {
+                btn.classList.add('wrong');
+                setTimeout(() => btn.classList.remove('wrong'), 300);
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(state.quizTimer);
+            state.quizRunning = false;
+            document.getElementById('startQuizBtn').disabled = false;
+            document.getElementById('startQuizBtn').textContent = '🎮 开始挑战';
+
+            showSuccess(`得分：${state.score}分！`);
+        }
+
+        function resetQuiz() {
+            clearInterval(state.quizTimer);
+            state.quizRunning = false;
+            state.timeLeft = 30;
+            state.score = 0;
+            document.getElementById('timerDisplay').textContent = '30';
+            document.getElementById('scoreDisplay').textContent = '0';
+            document.getElementById('quizNumber').textContent = '?';
+            document.getElementById('startQuizBtn').disabled = false;
+            document.getElementById('startQuizBtn').textContent = '🎮 开始挑战';
+
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+            });
+        }
+
+        // 凑十计算
+        function setupCalcInput() {
+            document.getElementById('calcAnswer').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkCalcAnswer();
+            });
+        }
+
+        function newCalcProblem() {
+            // 生成需要进位的加法题：结果在11-18之间
+            const num1 = Math.floor(Math.random() * 4) + 6; // 6-9
+            const num2 = Math.floor(Math.random() * (10 - (10 - num1))) + (11 - num1); // 确保需要进位
+
+            state.calcNum1 = num1;
+            state.calcNum2 = num2;
+
+            document.getElementById('calcNum1').textContent = num1;
+            document.getElementById('calcNum2').textContent = num2;
+            document.getElementById('calcAnswer').value = '';
+
+            // 重置步骤
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            updateCalcSteps();
+        }
+
+        function updateCalcSteps() {
+            const num1 = state.calcNum1;
+            const num2 = state.calcNum2;
+            const need = 10 - num1; // 凑成10需要几
+            const remain = num2 - need; // 剩余几
+            const result = num1 + num2;
+
+            // 步骤1
+            const step1 = document.getElementById('step1Content');
+            step1.innerHTML = `
+                <div class="step-chips">${'<div class="mini-chip red"></div>'.repeat(num1)}</div>
+                <span>想凑成10，需要</span>
+                <strong style="color:#3498db;font-size:1.5rem;">${need}</strong>
+            `;
+
+            // 步骤2
+            const step2 = document.getElementById('step2Content');
+            step2.innerHTML = `
+                <div class="step-chips">${'<div class="mini-chip blue"></div>'.repeat(num2)}</div>
+                <span>分成</span>
+                <strong style="color:#3498db;">${need}</strong>
+                <span>和</span>
+                <strong style="color:#3498db;">${remain}</strong>
+            `;
+
+            // 步骤3
+            const step3 = document.getElementById('step3Content');
+            step3.innerHTML = `
+                <span>${num1} + ${need} = 10，再加 ${remain} = </span>
+                <strong style="color:#2ecc71;font-size:1.8rem;">${result}</strong>
+            `;
+        }
+
+        function showCalcSteps() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, i) => {
+                setTimeout(() => {
+                    step.classList.add('active');
+                }, i * 800);
+            });
+        }
+
+        function checkCalcAnswer() {
+            const answer = parseInt(document.getElementById('calcAnswer').value);
+            const correct = state.calcNum1 + state.calcNum2;
+
+            if (answer === correct) {
+                showSuccess('回答正确！');
+                setTimeout(newCalcProblem, 1500);
+            } else {
+                document.getElementById('calcAnswer').style.borderColor = '#e74c3c';
+                setTimeout(() => {
+                    document.getElementById('calcAnswer').style.borderColor = '#9b59b6';
+                }, 500);
+            }
+        }
+
+        function showSuccess(text) {
+            document.getElementById('successText').textContent = text;
+            document.getElementById('successOverlay').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('successOverlay').classList.remove('show');
+            }, 1500);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
