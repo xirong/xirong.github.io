@@ -3,787 +3,905 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEGO Technic Elevator - Giant KONE</title>
+    <title>LEGO Technic Elevator - Giant KONE 精细复刻版 V2</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             min-height: 100vh;
-            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
+            background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 50%, #c0c0c0 100%);
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .main-area {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
         }
 
         .scene {
-            width: 500px;
-            height: 800px;
-            perspective: 1500px;
+            width: 700px;
+            height: 950px;
+            perspective: 2400px;
             perspective-origin: 50% 45%;
         }
 
-        .elevator-3d {
+        .elevator-world {
             width: 100%;
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            animation: autoRotate 14s linear infinite;
+            transform: rotateX(-8deg) rotateY(-25deg);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .elevator-3d.paused {
-            animation-play-state: paused;
-        }
-
-        @keyframes autoRotate {
-            from { transform: rotateX(-8deg) rotateY(0deg); }
-            to { transform: rotateX(-8deg) rotateY(360deg); }
-        }
-
-        /* ==================== 基座 ==================== */
-        .base-platform {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 280px;
-            height: 40px;
-            transform-style: preserve-3d;
-        }
-
-        .base-top {
-            position: absolute;
-            width: 280px;
-            height: 200px;
-            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 50%, #d8d8d8 100%);
-            transform: rotateX(90deg) translateZ(20px);
-            border-radius: 8px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-        }
-
-        .base-front {
-            position: absolute;
-            width: 280px;
-            height: 40px;
-            background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
-            transform: translateZ(100px);
-            border-radius: 0 0 8px 8px;
-        }
-
-        .base-back {
-            position: absolute;
-            width: 280px;
-            height: 40px;
-            background: linear-gradient(180deg, #e0e0e0 0%, #c0c0c0 100%);
-            transform: translateZ(-100px) rotateY(180deg);
-            border-radius: 0 0 8px 8px;
-        }
-
-        .base-left {
-            position: absolute;
-            width: 200px;
-            height: 40px;
-            background: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 100%);
-            transform: rotateY(-90deg) translateZ(140px);
-            border-radius: 0 0 8px 8px;
-        }
-
-        .base-right {
-            position: absolute;
-            width: 200px;
-            height: 40px;
-            background: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 100%);
-            transform: rotateY(90deg) translateZ(140px);
-            border-radius: 0 0 8px 8px;
-        }
-
-        /* 基座上的圆形装饰 */
-        .base-circle {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: radial-gradient(circle at 30% 30%, #fff 0%, #e0e0e0 100%);
-            border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 1px 2px rgba(255,255,255,0.8);
-        }
-
-        /* ==================== 黑色主框架立柱 ==================== */
-        .frame-beam {
+        /* ===================== LEGO Technic 梁组件 - 增强版 ===================== */
+        .technic-beam {
             position: absolute;
             transform-style: preserve-3d;
         }
 
-        .beam-v {
-            width: 20px;
-            height: 650px;
-        }
-
-        .beam-v .face {
+        .beam-face {
             position: absolute;
-            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            backface-visibility: visible;
         }
 
-        .beam-v .f-front {
-            width: 20px;
-            height: 650px;
-            transform: translateZ(10px);
-        }
+        /* 梁的6个面 */
+        .bf-front { transform: translateZ(var(--depth, 6px)); }
+        .bf-back { transform: translateZ(calc(-1 * var(--depth, 6px))) rotateY(180deg); }
+        .bf-left { transform: rotateY(-90deg) translateZ(var(--depth, 6px)); }
+        .bf-right { transform: rotateY(90deg) translateZ(var(--w-half, 6px)); }
+        .bf-top { transform: rotateX(90deg) translateZ(var(--h-half, 6px)); }
+        .bf-bottom { transform: rotateX(-90deg) translateZ(var(--h-half, 6px)); }
 
-        .beam-v .f-back {
-            width: 20px;
-            height: 650px;
-            transform: translateZ(-10px) rotateY(180deg);
+        /* 黑色梁 - 增强纹理 */
+        .beam-black .bf-front,
+        .beam-black .bf-back {
+            background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 30%, #353535 50%, #2d2d2d 70%, #1a1a1a 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -1px 2px rgba(0,0,0,0.3);
         }
+        .beam-black .bf-left,
+        .beam-black .bf-right { background: linear-gradient(180deg, #252525 0%, #1a1a1a 100%); }
+        .beam-black .bf-top,
+        .beam-black .bf-bottom { background: linear-gradient(90deg, #202020 0%, #2a2a2a 50%, #202020 100%); }
 
-        .beam-v .f-left {
-            width: 20px;
-            height: 650px;
-            transform: rotateY(-90deg) translateZ(10px);
-            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+        /* 深灰色梁 */
+        .beam-dgray .bf-front,
+        .beam-dgray .bf-back {
+            background: linear-gradient(90deg, #404040 0%, #555 30%, #606060 50%, #555 70%, #404040 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.2);
         }
+        .beam-dgray .bf-left,
+        .beam-dgray .bf-right { background: linear-gradient(180deg, #505050 0%, #404040 100%); }
+        .beam-dgray .bf-top,
+        .beam-dgray .bf-bottom { background: linear-gradient(90deg, #454545 0%, #555 50%, #454545 100%); }
 
-        .beam-v .f-right {
-            width: 20px;
-            height: 650px;
-            transform: rotateY(90deg) translateZ(10px);
-            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+        /* 浅灰色梁 - 真实乐高浅灰色 */
+        .beam-lgray .bf-front,
+        .beam-lgray .bf-back {
+            background: linear-gradient(90deg, #a0a0a0 0%, #bbb 30%, #c8c8c8 50%, #bbb 70%, #a0a0a0 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.15);
         }
+        .beam-lgray .bf-left,
+        .beam-lgray .bf-right { background: linear-gradient(180deg, #b5b5b5 0%, #a0a0a0 100%); }
+        .beam-lgray .bf-top,
+        .beam-lgray .bf-bottom { background: linear-gradient(90deg, #aaa 0%, #bbb 50%, #aaa 100%); }
 
-        /* Technic 孔洞 */
+        /* 黄色梁 */
+        .beam-yellow .bf-front,
+        .beam-yellow .bf-back {
+            background: linear-gradient(90deg, #d4a00d 0%, #f4c430 30%, #ffd84a 50%, #f4c430 70%, #d4a00d 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.2);
+        }
+        .beam-yellow .bf-left,
+        .beam-yellow .bf-right { background: linear-gradient(180deg, #e8b815 0%, #d4a00d 100%); }
+        .beam-yellow .bf-top,
+        .beam-yellow .bf-bottom { background: linear-gradient(90deg, #dab012 0%, #f0c020 50%, #dab012 100%); }
+
+        /* 橙色梁 */
+        .beam-orange .bf-front,
+        .beam-orange .bf-back {
+            background: linear-gradient(90deg, #e67300 0%, #ff9020 30%, #ffa040 50%, #ff9020 70%, #e67300 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.2);
+        }
+        .beam-orange .bf-left,
+        .beam-orange .bf-right { background: linear-gradient(180deg, #f08000 0%, #e67300 100%); }
+        .beam-orange .bf-top,
+        .beam-orange .bf-bottom { background: linear-gradient(90deg, #f08000 0%, #ff8c00 50%, #f08000 100%); }
+
+        /* 白色梁 */
+        .beam-white .bf-front,
+        .beam-white .bf-back {
+            background: linear-gradient(90deg, #e8e8e8 0%, #f5f5f5 30%, #fff 50%, #f5f5f5 70%, #e8e8e8 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.1);
+        }
+        .beam-white .bf-left,
+        .beam-white .bf-right { background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%); }
+        .beam-white .bf-top,
+        .beam-white .bf-bottom { background: linear-gradient(90deg, #f0f0f0 0%, #fafafa 50%, #f0f0f0 100%); }
+
+        /* Technic圆孔 - 增强版 */
         .holes-container {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 0;
-            gap: 8px;
+            transform: translateZ(var(--depth, 6px));
+            pointer-events: none;
         }
 
-        .t-hole {
-            width: 12px;
-            height: 12px;
-            background: radial-gradient(circle, #000 40%, #1a1a1a 100%);
+        .technic-hole {
+            position: absolute;
             border-radius: 50%;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.9);
-            flex-shrink: 0;
+            box-shadow:
+                inset 0 1px 3px rgba(0,0,0,0.9),
+                inset 0 -1px 1px rgba(255,255,255,0.2),
+                0 0.5px 0 rgba(255,255,255,0.15);
         }
 
-        /* 立柱位置 */
-        .beam-fl { left: 60px; bottom: 60px; transform: translateZ(90px); }
-        .beam-fr { right: 60px; bottom: 60px; transform: translateZ(90px); }
-        .beam-bl { left: 60px; bottom: 60px; transform: translateZ(-90px); }
-        .beam-br { right: 60px; bottom: 60px; transform: translateZ(-90px); }
-
-        /* ==================== 灰色横梁 ==================== */
-        .h-beam {
+        /* 圆孔内的十字轴孔 */
+        .technic-hole::after {
+            content: '';
             position: absolute;
-            transform-style: preserve-3d;
-        }
-
-        .h-beam-h {
-            width: 180px;
-            height: 16px;
-        }
-
-        .h-beam-h .hb-front {
-            position: absolute;
-            width: 180px;
-            height: 16px;
-            background: linear-gradient(180deg, #6a6a6a 0%, #5a5a5a 50%, #4a4a4a 100%);
-            transform: translateZ(8px);
-        }
-
-        .h-beam-h .hb-top {
-            position: absolute;
-            width: 180px;
-            height: 16px;
-            background: linear-gradient(90deg, #7a7a7a 0%, #6a6a6a 100%);
-            transform: rotateX(90deg) translateZ(8px);
-        }
-
-        /* ==================== 顶部机械室 ==================== */
-        .machinery {
-            position: absolute;
-            top: 30px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 260px;
-            height: 70px;
+            width: 40%;
+            height: 40%;
+            transform: translate(-50%, -50%);
+            background: inherit;
+            border-radius: 0;
+        }
+
+        .beam-black .technic-hole {
+            background: radial-gradient(circle, #000 0%, #0a0a0a 60%, #151515 100%);
+        }
+        .beam-dgray .technic-hole {
+            background: radial-gradient(circle, #252525 0%, #333 60%, #404040 100%);
+        }
+        .beam-lgray .technic-hole {
+            background: radial-gradient(circle, #606060 0%, #757575 60%, #8a8a8a 100%);
+        }
+        .beam-yellow .technic-hole {
+            background: radial-gradient(circle, #8a6a08 0%, #a57a0a 60%, #b58510 100%);
+        }
+        .beam-orange .technic-hole {
+            background: radial-gradient(circle, #8a4500 0%, #a55500 60%, #b56500 100%);
+        }
+        .beam-white .technic-hole {
+            background: radial-gradient(circle, #808080 0%, #909090 60%, #a0a0a0 100%);
+        }
+
+        /* 连接销 - 更真实 */
+        .pin {
+            position: absolute;
+            border-radius: 50%;
             transform-style: preserve-3d;
         }
 
-        .machinery .m-front {
+        .pin-body {
             position: absolute;
-            width: 260px;
-            height: 70px;
-            background: linear-gradient(180deg, #5a5a5a 0%, #4a4a4a 50%, #3a3a3a 100%);
-            transform: translateZ(95px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 25px;
-            border-radius: 4px;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow:
+                inset 2px 2px 3px rgba(255,255,255,0.4),
+                inset -2px -2px 3px rgba(0,0,0,0.4),
+                0 1px 2px rgba(0,0,0,0.3);
         }
 
-        .machinery .m-back {
-            position: absolute;
-            width: 260px;
-            height: 70px;
-            background: linear-gradient(180deg, #4a4a4a 0%, #3a3a3a 100%);
-            transform: translateZ(-95px) rotateY(180deg);
-            border-radius: 4px;
+        .pin-black .pin-body {
+            background: radial-gradient(circle at 30% 30%, #555 0%, #333 50%, #1a1a1a 100%);
+        }
+        .pin-yellow .pin-body {
+            background: radial-gradient(circle at 30% 30%, #ffe060 0%, #f4c430 50%, #c9a00c 100%);
+        }
+        .pin-blue .pin-body {
+            background: radial-gradient(circle at 30% 30%, #5aa0e9 0%, #3498db 50%, #1a6aaa 100%);
+        }
+        .pin-red .pin-body {
+            background: radial-gradient(circle at 30% 30%, #ff6b6b 0%, #e74c3c 50%, #a93226 100%);
+        }
+        .pin-gray .pin-body {
+            background: radial-gradient(circle at 30% 30%, #b0b0b0 0%, #888 50%, #606060 100%);
+        }
+        .pin-tan .pin-body {
+            background: radial-gradient(circle at 30% 30%, #e8d4a0 0%, #d4b896 50%, #b8986a 100%);
         }
 
-        .machinery .m-left {
-            position: absolute;
-            width: 190px;
-            height: 70px;
-            background: linear-gradient(180deg, #4a4a4a 0%, #3a3a3a 100%);
-            transform: rotateY(-90deg) translateZ(130px);
-            border-radius: 4px;
-        }
-
-        .machinery .m-right {
-            position: absolute;
-            width: 190px;
-            height: 70px;
-            background: linear-gradient(180deg, #5a5a5a 0%, #4a4a4a 100%);
-            transform: rotateY(90deg) translateZ(130px);
-            border-radius: 4px;
-        }
-
-        .machinery .m-top {
-            position: absolute;
-            width: 260px;
-            height: 190px;
-            background: linear-gradient(135deg, #6a6a6a 0%, #5a5a5a 100%);
-            transform: rotateX(90deg) translateZ(35px);
-            border-radius: 4px;
-        }
-
-        /* 黄色齿轮 */
+        /* ===================== 齿轮组件 - 大幅增强 ===================== */
         .gear {
-            width: 50px;
-            height: 50px;
-            position: relative;
+            position: absolute;
             transform-style: preserve-3d;
         }
 
         .gear-body {
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle at 35% 35%, #ffe066 0%, #f1c40f 40%, #d4ac0d 100%);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .gear-disc {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            box-shadow: inset 0 3px 6px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.3);
-            position: relative;
+        }
+
+        .gear-disc-front {
+            background: radial-gradient(circle at 35% 35%, #ffe580 0%, #f4c430 35%, #d4a00d 70%, #b08010 100%);
+            transform: translateZ(6px);
+            box-shadow:
+                inset 0 3px 8px rgba(255,255,255,0.6),
+                inset 0 -3px 8px rgba(0,0,0,0.3),
+                0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .gear-disc-back {
+            background: radial-gradient(circle at 65% 65%, #c9a00c 0%, #a08008 50%, #8a6a05 100%);
+            transform: translateZ(-6px);
+        }
+
+        /* 齿轮边缘厚度 */
+        .gear-edge {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 12px solid;
+            border-color: #b08010;
+            transform: translateZ(0);
+            box-sizing: border-box;
         }
 
         .gear-center {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 16px;
-            height: 16px;
-            background: radial-gradient(circle, #333 0%, #1a1a1a 100%);
+            transform: translate(-50%, -50%) translateZ(7px);
+            background: radial-gradient(circle, #1a1a1a 0%, #2a2a2a 70%, #3a3a3a 100%);
             border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
         }
 
-        .gear-teeth {
+        .gear-cross {
             position: absolute;
-            top: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateZ(8px);
+        }
+
+        .gear-cross::before,
+        .gear-cross::after {
+            content: '';
+            position: absolute;
+            background: #0a0a0a;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .gear-cross::before {
+            width: 100%;
+            height: 30%;
+            top: 35%;
             left: 0;
+        }
+
+        .gear-cross::after {
+            width: 30%;
+            height: 100%;
+            left: 35%;
+            top: 0;
+        }
+
+        .gear-teeth-container {
+            position: absolute;
             width: 100%;
             height: 100%;
+            transform-style: preserve-3d;
         }
 
-        .tooth {
+        .gear-tooth {
             position: absolute;
-            width: 10px;
-            height: 8px;
-            background: linear-gradient(180deg, #f4d03f 0%, #d4ac0d 100%);
             top: -4px;
             left: 50%;
             margin-left: -5px;
-            transform-origin: center 29px;
+            width: 10px;
+            height: 8px;
+            background: linear-gradient(180deg, #ffd84a 0%, #f4c430 50%, #d4a00d 100%);
+            border-radius: 3px 3px 0 0;
+            transform-origin: center bottom;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.25);
+        }
+
+        .gear-tooth::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #c9a00c 0%, #a08008 100%);
+            transform: translateZ(-12px);
             border-radius: 3px 3px 0 0;
         }
 
-        @keyframes gearRotate {
+        /* 齿轮辐条 */
+        .gear-spoke {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: linear-gradient(90deg, #b08010 0%, #d4a00d 50%, #b08010 100%);
+            transform-origin: left center;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        @keyframes gearSpin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        @keyframes gearRotateR {
+        @keyframes gearSpinR {
             from { transform: rotate(0deg); }
             to { transform: rotate(-360deg); }
         }
 
-        .gear.spin .gear-teeth { animation: gearRotate 1.2s linear infinite; }
-        .gear.spin-r .gear-teeth { animation: gearRotateR 1.2s linear infinite; }
+        .gear.spinning .gear-body {
+            animation: gearSpin 2s linear infinite;
+        }
 
-        /* 灰色滑轮 */
+        .gear.spinning-r .gear-body {
+            animation: gearSpinR 2s linear infinite;
+        }
+
+        /* 滑轮 - 增强版 */
         .pulley {
-            width: 35px;
-            height: 35px;
-            background: radial-gradient(circle at 35% 35%, #9a9a9a 0%, #7a7a7a 50%, #5a5a5a 100%);
-            border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3);
-            position: relative;
+            position: absolute;
+            transform-style: preserve-3d;
         }
 
-        .pulley::before {
-            content: '';
+        .pulley-disc {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .pulley-front {
+            background: radial-gradient(circle at 35% 35%, #b0b0b0 0%, #909090 40%, #707070 80%, #505050 100%);
+            transform: translateZ(6px);
+            box-shadow: inset 0 3px 6px rgba(255,255,255,0.4), inset 0 -3px 6px rgba(0,0,0,0.4);
+        }
+
+        .pulley-back {
+            background: radial-gradient(circle at 65% 65%, #707070 0%, #555 100%);
+            transform: translateZ(-6px);
+        }
+
+        .pulley-groove {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 10px;
-            height: 10px;
-            background: #333;
+            transform: translate(-50%, -50%) translateZ(7px);
+            border: 5px solid #4a4a4a;
             border-radius: 50%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
         }
 
-        .pulley::after {
-            content: '';
+        .pulley-center {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 28px;
-            height: 28px;
-            border: 3px solid #5a5a5a;
+            transform: translate(-50%, -50%) translateZ(7px);
+            background: radial-gradient(circle, #1a1a1a 0%, #333 100%);
             border-radius: 50%;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* ==================== 电梯轿厢 - 白色 ==================== */
+        /* ===================== 电梯轿厢 - 用Technic梁构建 ===================== */
         .elevator-car {
             position: absolute;
             left: 50%;
-            margin-left: -80px;
-            width: 160px;
-            height: 140px;
             transform-style: preserve-3d;
             z-index: 10;
         }
 
-        .car-body {
+        .car-frame {
             position: absolute;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
         }
 
-        .car-face {
+        /* 轿厢面板 - Technic风格 */
+        .car-panel {
             position: absolute;
-            backface-visibility: visible;
+            transform-style: preserve-3d;
         }
 
-        .car-front {
-            width: 160px;
-            height: 140px;
-            background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%);
-            transform: translateZ(75px);
-            border: 3px solid #888;
+        .car-front-panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: translateZ(var(--car-depth));
+            background: linear-gradient(180deg, #f8f8f8 0%, #eee 30%, #e5e5e5 70%, #ddd 100%);
+            border: 3px solid #999;
             border-radius: 4px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            box-shadow:
+                inset 0 2px 5px rgba(255,255,255,0.8),
+                inset 0 -2px 5px rgba(0,0,0,0.1);
         }
 
-        .car-back {
-            width: 160px;
-            height: 140px;
-            background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 100%);
-            transform: translateZ(-75px) rotateY(180deg);
-            border: 3px solid #777;
-            border-radius: 4px;
+        .car-back-panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: translateZ(calc(-1 * var(--car-depth))) rotateY(180deg);
+            background: linear-gradient(180deg, #e8e8e8 0%, #d8d8d8 100%);
+            border: 2px solid #888;
+            border-radius: 3px;
         }
 
-        .car-left {
-            width: 150px;
-            height: 140px;
-            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
-            transform: rotateY(-90deg) translateZ(80px);
-            border: 3px solid #888;
-            border-radius: 4px;
+        .car-side-panel {
+            position: absolute;
+            width: calc(var(--car-depth) * 2);
+            height: 100%;
+            background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+            border: 2px solid #999;
+            border-radius: 3px;
         }
 
-        .car-right {
-            width: 150px;
-            height: 140px;
-            background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
-            transform: rotateY(90deg) translateZ(80px);
-            border: 3px solid #888;
-            border-radius: 4px;
+        .car-side-left {
+            transform: rotateY(-90deg) translateZ(calc(var(--car-width) / 2));
         }
 
-        .car-top {
-            width: 160px;
-            height: 150px;
-            background: linear-gradient(135deg, #f0f0f0 0%, #d8d8d8 100%);
-            transform: rotateX(90deg) translateZ(70px);
-            border: 3px solid #888;
+        .car-side-right {
+            transform: rotateY(90deg) translateZ(calc(var(--car-width) / 2));
         }
 
-        .car-bottom {
-            width: 160px;
-            height: 150px;
-            background: linear-gradient(135deg, #c8c8c8 0%, #a8a8a8 100%);
-            transform: rotateX(-90deg) translateZ(70px);
-            border: 3px solid #777;
+        .car-top-panel {
+            position: absolute;
+            width: 100%;
+            height: calc(var(--car-depth) * 2);
+            transform: rotateX(90deg) translateZ(0);
+            background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+            border: 2px solid #888;
+            border-radius: 3px;
+        }
+
+        .car-bottom-panel {
+            position: absolute;
+            width: 100%;
+            height: calc(var(--car-depth) * 2);
+            transform: rotateX(-90deg) translateZ(var(--car-height));
+            background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+            border: 2px solid #888;
+            border-radius: 3px;
         }
 
         /* 电梯门 */
         .door-frame {
             position: absolute;
-            top: 12px;
-            left: 15px;
-            right: 15px;
-            bottom: 12px;
-            background: #f8f8f8;
-            border: 4px solid #666;
+            top: 10px;
+            left: 12px;
+            right: 12px;
+            bottom: 10px;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.7);
+        }
+
+        .door-inner {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: #d8d8d8;
             border-radius: 3px;
             overflow: hidden;
         }
 
-        .door {
+        .door-panel {
             position: absolute;
             top: 0;
             width: 50%;
             height: 100%;
-            background: linear-gradient(180deg, #fff 0%, #f0f0f0 30%, #e0e0e0 70%, #d0d0d0 100%);
-            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: linear-gradient(180deg,
+                #f8f8f8 0%,
+                #f0f0f0 15%,
+                #e8e8e8 40%,
+                #e0e0e0 60%,
+                #d8d8d8 85%,
+                #d0d0d0 100%);
+            transition: transform 1s ease-in-out;
         }
 
-        .door-l {
-            left: 0;
-            border-right: 2px solid #aaa;
-        }
+        .door-left { left: 0; border-right: 2px solid #aaa; }
+        .door-right { right: 0; border-left: 2px solid #aaa; }
 
-        .door-r {
-            right: 0;
-            border-left: 2px solid #aaa;
-        }
+        .door-left.open { transform: translateX(-96%); }
+        .door-right.open { transform: translateX(96%); }
 
-        .door-l.open { transform: translateX(-95%); }
-        .door-r.open { transform: translateX(95%); }
-
-        /* 门上横纹 */
-        .door-stripes {
+        /* 门上的横纹 */
+        .door-lines {
             position: absolute;
-            top: 10%;
-            left: 5%;
-            right: 5%;
-            height: 80%;
+            top: 4%;
+            left: 6%;
+            right: 6%;
+            height: 92%;
             background: repeating-linear-gradient(
                 180deg,
                 transparent 0px,
-                transparent 16px,
-                #ccc 16px,
-                #ccc 18px
+                transparent 12px,
+                #c0c0c0 12px,
+                #c0c0c0 13px
             );
         }
 
-        /* Giant KONE 蓝色标志 */
-        .kone-logo {
+        /* Giant KONE标志 */
+        .kone-label {
             position: absolute;
-            bottom: 15px;
+            bottom: 6px;
             left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
+            transform: translateX(-50%) translateZ(2px);
+            font-size: 8px;
             font-weight: bold;
             color: #1a5490;
-            letter-spacing: 1px;
-            text-shadow: 0 1px 1px rgba(255,255,255,0.8);
-            white-space: nowrap;
-            z-index: 20;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.95);
             padding: 3px 8px;
             border-radius: 2px;
-            border: 1px solid #ccc;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+            border: 1px solid #bbb;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        /* ==================== 钢缆 ==================== */
+        /* ===================== 钢缆 ===================== */
         .cable {
             position: absolute;
-            width: 3px;
-            background: linear-gradient(90deg, #1a1a1a 0%, #3a3a3a 50%, #1a1a1a 100%);
-            top: 65px;
-            border-radius: 1px;
+            width: 2px;
+            background: linear-gradient(90deg, #1a1a1a 0%, #404040 50%, #1a1a1a 100%);
             transform-style: preserve-3d;
+            box-shadow: 1px 0 2px rgba(0,0,0,0.4);
         }
 
-        .cable-1 { left: 135px; transform: translateZ(50px); }
-        .cable-2 { left: 165px; transform: translateZ(50px); }
-        .cable-3 { left: 135px; transform: translateZ(-50px); }
-        .cable-4 { left: 165px; transform: translateZ(-50px); }
-
-        /* ==================== 配重块 - 灰色 ==================== */
-        .counterweight {
-            position: absolute;
-            right: 70px;
-            width: 35px;
-            height: 110px;
-            transform-style: preserve-3d;
-            transform: translateZ(-70px);
-        }
-
-        .cw-front {
-            position: absolute;
-            width: 35px;
-            height: 110px;
-            background: linear-gradient(90deg, #5a5a5a 0%, #7a7a7a 50%, #5a5a5a 100%);
-            transform: translateZ(12px);
-            border-radius: 3px;
-        }
-
-        .cw-back {
-            position: absolute;
-            width: 35px;
-            height: 110px;
-            background: #4a4a4a;
-            transform: translateZ(-12px) rotateY(180deg);
-            border-radius: 3px;
-        }
-
-        .cw-left {
-            position: absolute;
-            width: 24px;
-            height: 110px;
-            background: #4a4a4a;
-            transform: rotateY(-90deg) translateZ(17px);
-            border-radius: 3px;
-        }
-
-        .cw-right {
-            position: absolute;
-            width: 24px;
-            height: 110px;
-            background: #6a6a6a;
-            transform: rotateY(90deg) translateZ(17px);
-            border-radius: 3px;
-        }
-
-        .cw-plates {
-            position: absolute;
-            top: 5px;
-            left: 4px;
-            right: 4px;
-            bottom: 5px;
+        /* 钢缆纹理 */
+        .cable-textured {
             background: repeating-linear-gradient(
                 180deg,
-                #8a8a8a 0px,
-                #8a8a8a 12px,
-                #6a6a6a 12px,
-                #6a6a6a 14px
+                #1a1a1a 0px,
+                #1a1a1a 3px,
+                #333 3px,
+                #333 5px
             );
-            border-radius: 2px;
-            transform: translateZ(13px);
         }
 
-        /* ==================== 红色缓冲弹簧 ==================== */
-        .buffer {
+        /* ===================== 红色缓冲弹簧 - 增强版 ===================== */
+        .spring-buffer {
             position: absolute;
-            bottom: 65px;
-            width: 25px;
-            height: 45px;
             transform-style: preserve-3d;
         }
 
-        .buffer-body {
+        .spring-coil {
             position: absolute;
-            width: 25px;
-            height: 45px;
-            background: linear-gradient(90deg, #b83227 0%, #e74c3c 50%, #b83227 100%);
-            transform: translateZ(12px);
-            border-radius: 4px;
-        }
-
-        .buffer-coils {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            right: 3px;
-            bottom: 3px;
+            width: 100%;
+            height: 100%;
             background: repeating-linear-gradient(
                 180deg,
                 #e74c3c 0px,
                 #e74c3c 5px,
                 #c0392b 5px,
-                #c0392b 7px
+                #c0392b 7px,
+                #a93226 7px,
+                #a93226 8px
             );
-            border-radius: 3px;
-            transform: translateZ(13px);
+            border-radius: 6px;
+            transform: translateZ(10px);
+            box-shadow:
+                inset 4px 0 6px rgba(255,100,100,0.3),
+                inset -4px 0 6px rgba(0,0,0,0.3),
+                2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .buffer-l { left: 100px; transform: translateZ(60px); }
-        .buffer-r { right: 100px; transform: translateZ(60px); }
+        .spring-cap {
+            position: absolute;
+            width: 130%;
+            height: 10px;
+            left: -15%;
+            background: linear-gradient(180deg, #d63031 0%, #a93226 50%, #7f1d1d 100%);
+            border-radius: 3px;
+            transform: translateZ(10px);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+        }
 
-        /* ==================== 黄色扶手 ==================== */
-        .handrail {
+        .spring-top { top: -2px; }
+        .spring-bottom { bottom: -2px; }
+
+        /* ===================== 配重块 ===================== */
+        .counterweight {
             position: absolute;
             transform-style: preserve-3d;
         }
 
-        .hr-v {
-            width: 10px;
-            height: 50px;
-        }
-
-        .hr-v .hr-front {
+        .cw-panel {
             position: absolute;
-            width: 10px;
-            height: 50px;
-            background: linear-gradient(90deg, #d4ac0d 0%, #f1c40f 50%, #d4ac0d 100%);
-            transform: translateZ(5px);
-            border-radius: 5px;
+            border-radius: 2px;
         }
 
-        .hr-v .hr-side {
+        .cw-front {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #555 0%, #777 30%, #888 50%, #777 70%, #555 100%);
+            transform: translateZ(15px);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3);
+        }
+
+        .cw-back {
+            width: 100%;
+            height: 100%;
+            background: #4a4a4a;
+            transform: translateZ(-15px) rotateY(180deg);
+        }
+
+        .cw-side {
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(180deg, #606060 0%, #4a4a4a 100%);
+        }
+
+        .cw-left { transform: rotateY(-90deg) translateZ(18px); }
+        .cw-right { transform: rotateY(90deg) translateZ(18px); }
+
+        /* 配重块的层叠效果 */
+        .cw-weights {
             position: absolute;
-            width: 10px;
-            height: 50px;
-            background: #b8960b;
-            transform: rotateY(90deg) translateZ(5px);
-            border-radius: 5px;
+            top: 8px;
+            left: 5px;
+            right: 5px;
+            bottom: 8px;
+            background: repeating-linear-gradient(
+                180deg,
+                #9a9a9a 0px,
+                #9a9a9a 14px,
+                #666 14px,
+                #666 16px
+            );
+            transform: translateZ(16px);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
         }
 
-        .hr-h {
-            width: 40px;
-            height: 10px;
-        }
-
-        .hr-h .hr-front {
+        /* ===================== 楼层门框 ===================== */
+        .floor-door-frame {
             position: absolute;
-            width: 40px;
-            height: 10px;
-            background: linear-gradient(180deg, #f4d03f 0%, #f1c40f 50%, #d4ac0d 100%);
-            transform: translateZ(5px);
-            border-radius: 5px;
+            transform-style: preserve-3d;
         }
 
-        .hr-h .hr-top {
+        /* ===================== 楼层标识 ===================== */
+        .floor-marker {
             position: absolute;
-            width: 40px;
-            height: 10px;
-            background: #f9e076;
-            transform: rotateX(90deg) translateZ(5px);
-            border-radius: 5px;
+            width: 32px;
+            height: 26px;
+            background: linear-gradient(180deg, #1a252f 0%, #0f1419 100%);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(46, 204, 113, 0.7);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
         }
 
-        /* ==================== 警告标志 ==================== */
-        .warning {
-            position: absolute;
-            top: 115px;
-            left: 50%;
-            transform: translateX(-50%) translateZ(96px);
-        }
-
+        /* ===================== 警告标志 ===================== */
         .warning-sign {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        .warning-body {
+            position: relative;
             width: 0;
             height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-bottom: 45px solid #f1c40f;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));
-            position: relative;
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-bottom: 38px solid #f4c430;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.4));
         }
 
-        .warning-sign::after {
-            content: '⚠';
+        .warning-border {
             position: absolute;
-            top: 18px;
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 32px solid #1a1a1a;
+            top: 4px;
+            left: 4px;
+        }
+
+        .warning-inner {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-bottom: 28px solid #f4c430;
+            top: 6px;
+            left: 6px;
+        }
+
+        .warning-icon {
+            position: absolute;
+            top: 14px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
-            color: #2c3e50;
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: bold;
         }
 
-        /* ==================== 控制面板 ==================== */
+        .warning-text {
+            position: absolute;
+            top: 42px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6px;
+            color: #1a1a1a;
+            white-space: nowrap;
+            background: #f4c430;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        /* ===================== 底座 ===================== */
+        .base-plate {
+            position: absolute;
+            bottom: 0;
+            transform-style: preserve-3d;
+        }
+
+        .base-top-face {
+            position: absolute;
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 50%, #d8d8d8 100%);
+            border-radius: 6px;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.1);
+        }
+
+        /* 底座圆钉 - 真实乐高风格 */
+        .base-stud {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 35% 35%, #fff 0%, #e8e8e8 40%, #d0d0d0 100%);
+            border-radius: 50%;
+            box-shadow:
+                inset 0 3px 4px rgba(255,255,255,0.6),
+                inset 0 -3px 4px rgba(0,0,0,0.15),
+                0 3px 4px rgba(0,0,0,0.25);
+        }
+
+        .base-stud-blue {
+            background: radial-gradient(circle at 35% 35%, #5aa0e9 0%, #3498db 40%, #2070b0 100%);
+        }
+
+        /* ===================== 控制面板 ===================== */
         .control-panel {
             position: fixed;
-            right: 25px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
             z-index: 100;
-            border: 1px solid #3a3a3a;
+            width: 180px;
+        }
+
+        .panel-section {
+            margin-bottom: 12px;
         }
 
         .panel-title {
-            color: #f1c40f;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-
-        .status-box {
-            background: #0a0a0a;
-            padding: 10px 15px;
-            border-radius: 6px;
-            text-align: center;
-            border: 2px solid #2a2a2a;
-        }
-
-        .status-floor {
-            color: #2ecc71;
-            font-size: 32px;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 0 12px rgba(46, 204, 113, 0.6);
-        }
-
-        .status-dir {
-            color: #f1c40f;
+            color: #f4c430;
             font-size: 10px;
-            margin-top: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .view-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .view-btn {
+            padding: 8px 4px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #3a3a3a 100%);
+            color: #fff;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .view-btn:hover {
+            background: linear-gradient(180deg, #5a5a5a 0%, #4a4a4a 100%);
+        }
+
+        .view-btn.active {
+            background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .floor-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
         }
 
         .floor-btn {
-            width: 50px;
-            height: 50px;
+            padding: 12px 0;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             background: linear-gradient(180deg, #4a4a4a 0%, #3a3a3a 100%);
             color: #fff;
-            font-size: 20px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
             transition: all 0.15s;
         }
 
         .floor-btn:hover {
             background: linear-gradient(180deg, #5a5a5a 0%, #4a4a4a 100%);
-            transform: translateY(-1px);
         }
 
         .floor-btn.active {
-            background: linear-gradient(180deg, #f4d03f 0%, #f1c40f 100%);
+            background: linear-gradient(180deg, #f8d840 0%, #f4c430 100%);
             color: #1a1a1a;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+            box-shadow: 0 0 15px rgba(244, 196, 48, 0.5);
         }
 
-        .ctrl-row {
+        .status-display {
+            background: #0a0a0a;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .status-floor {
+            color: #2ecc71;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 12px rgba(46, 204, 113, 0.6);
+        }
+
+        .status-text {
+            color: #f4c430;
+            font-size: 9px;
+            margin-top: 3px;
+        }
+
+        .ctrl-buttons {
             display: flex;
             gap: 8px;
             justify-content: center;
@@ -798,7 +916,6 @@
             color: #fff;
             font-size: 14px;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
             transition: all 0.15s;
         }
 
@@ -811,7 +928,6 @@
             box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
         }
 
-        /* 提示 */
         .hint {
             position: fixed;
             bottom: 15px;
@@ -819,237 +935,1164 @@
             transform: translateX(-50%);
             color: #666;
             font-size: 11px;
-            letter-spacing: 1px;
         }
 
-        /* 楼层指示 */
-        .floor-indicator {
+        /* 轴/杆 */
+        .axle {
             position: absolute;
-            left: 25px;
-            width: 35px;
-            height: 28px;
-            background: linear-gradient(180deg, #1a252f 0%, #0f1419 100%);
-            border-radius: 4px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #2ecc71;
-            font-weight: bold;
-            font-size: 16px;
-            font-family: 'Courier New', monospace;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-            transform: translateZ(96px);
-            text-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
+            transform-style: preserve-3d;
         }
 
-        .fi-1 { bottom: 125px; }
-        .fi-2 { bottom: 275px; }
-        .fi-3 { bottom: 425px; }
-        .fi-4 { bottom: 575px; }
+        .axle-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #2a2a2a 0%, #4a4a4a 50%, #2a2a2a 100%);
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .axle-body.yellow {
+            background: linear-gradient(90deg, #b08010 0%, #f4c430 50%, #b08010 100%);
+        }
+
+        /* 配重导轨 */
+        .cw-rail {
+            position: absolute;
+            background: linear-gradient(90deg, #3a3a3a 0%, #5a5a5a 50%, #3a3a3a 100%);
+            border-radius: 2px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* 电机外壳 */
+        .motor {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        .motor-body {
+            position: absolute;
+            background: radial-gradient(ellipse at 30% 30%, #6a6a6a 0%, #4a4a4a 50%, #2a2a2a 100%);
+            border-radius: 6px;
+            box-shadow:
+                inset 3px 3px 6px rgba(255,255,255,0.15),
+                inset -3px -3px 6px rgba(0,0,0,0.4),
+                2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .motor-shaft {
+            position: absolute;
+            background: linear-gradient(90deg, #2a2a2a 0%, #4a4a4a 50%, #2a2a2a 100%);
+            border-radius: 50%;
+        }
+
+        /* 门指示灯 */
+        .door-indicator {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff7070 0%, #c0392b 100%);
+            box-shadow: 0 0 6px rgba(192, 57, 43, 0.6);
+            transition: all 0.3s;
+        }
+
+        .door-indicator.green {
+            background: radial-gradient(circle at 30% 30%, #70ff70 0%, #27ae60 100%);
+            box-shadow: 0 0 6px rgba(39, 174, 96, 0.6);
+        }
+
+        /* L型角件 */
+        .l-bracket {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        .l-bracket-h {
+            position: absolute;
+            background: linear-gradient(180deg, #8a8a8a 0%, #6a6a6a 100%);
+            border-radius: 2px;
+        }
+
+        .l-bracket-v {
+            position: absolute;
+            background: linear-gradient(90deg, #7a7a7a 0%, #6a6a6a 100%);
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body>
-    <div class="scene">
-        <div class="elevator-3d" id="elevator3d">
-            <!-- 白色基座 -->
-            <div class="base-platform">
-                <div class="base-top">
-                    <div class="base-circle" style="top: 15px; left: 15px;"></div>
-                    <div class="base-circle" style="top: 15px; right: 15px;"></div>
-                    <div class="base-circle" style="bottom: 15px; left: 15px;"></div>
-                    <div class="base-circle" style="bottom: 15px; right: 15px;"></div>
-                    <div class="base-circle" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
-                </div>
-                <div class="base-front"></div>
-                <div class="base-back"></div>
-                <div class="base-left"></div>
-                <div class="base-right"></div>
-            </div>
-
-            <!-- 顶部机械室 -->
-            <div class="machinery">
-                <div class="m-front">
-                    <div class="gear" id="gear1">
-                        <div class="gear-body">
-                            <div class="gear-teeth">
-                                <div class="tooth" style="transform: rotate(0deg);"></div>
-                                <div class="tooth" style="transform: rotate(45deg);"></div>
-                                <div class="tooth" style="transform: rotate(90deg);"></div>
-                                <div class="tooth" style="transform: rotate(135deg);"></div>
-                                <div class="tooth" style="transform: rotate(180deg);"></div>
-                                <div class="tooth" style="transform: rotate(225deg);"></div>
-                                <div class="tooth" style="transform: rotate(270deg);"></div>
-                                <div class="tooth" style="transform: rotate(315deg);"></div>
-                            </div>
-                            <div class="gear-center"></div>
-                        </div>
-                    </div>
-                    <div class="pulley"></div>
-                    <div class="gear" id="gear2">
-                        <div class="gear-body">
-                            <div class="gear-teeth">
-                                <div class="tooth" style="transform: rotate(0deg);"></div>
-                                <div class="tooth" style="transform: rotate(45deg);"></div>
-                                <div class="tooth" style="transform: rotate(90deg);"></div>
-                                <div class="tooth" style="transform: rotate(135deg);"></div>
-                                <div class="tooth" style="transform: rotate(180deg);"></div>
-                                <div class="tooth" style="transform: rotate(225deg);"></div>
-                                <div class="tooth" style="transform: rotate(270deg);"></div>
-                                <div class="tooth" style="transform: rotate(315deg);"></div>
-                            </div>
-                            <div class="gear-center"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="m-back"></div>
-                <div class="m-left"></div>
-                <div class="m-right"></div>
-                <div class="m-top"></div>
-            </div>
-
-            <!-- 警告标志 -->
-            <div class="warning">
-                <div class="warning-sign"></div>
-            </div>
-
-            <!-- 黑色立柱 - 前左 -->
-            <div class="frame-beam beam-v beam-fl">
-                <div class="face f-front"><div class="holes-container" id="h1"></div></div>
-                <div class="face f-back"></div>
-                <div class="face f-left"></div>
-                <div class="face f-right"></div>
-            </div>
-
-            <!-- 黑色立柱 - 前右 -->
-            <div class="frame-beam beam-v beam-fr">
-                <div class="face f-front"><div class="holes-container" id="h2"></div></div>
-                <div class="face f-back"></div>
-                <div class="face f-left"></div>
-                <div class="face f-right"></div>
-            </div>
-
-            <!-- 黑色立柱 - 后左 -->
-            <div class="frame-beam beam-v beam-bl">
-                <div class="face f-front"></div>
-                <div class="face f-back"><div class="holes-container"></div></div>
-                <div class="face f-left"></div>
-                <div class="face f-right"></div>
-            </div>
-
-            <!-- 黑色立柱 - 后右 -->
-            <div class="frame-beam beam-v beam-br">
-                <div class="face f-front"></div>
-                <div class="face f-back"><div class="holes-container"></div></div>
-                <div class="face f-left"></div>
-                <div class="face f-right"></div>
-            </div>
-
-            <!-- 楼层指示 -->
-            <div class="floor-indicator fi-1">1</div>
-            <div class="floor-indicator fi-2">2</div>
-            <div class="floor-indicator fi-3">3</div>
-            <div class="floor-indicator fi-4">4</div>
-
-            <!-- 黄色扶手 - 每层 -->
-            <div class="handrail hr-v" style="left: 45px; bottom: 115px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-v" style="right: 45px; bottom: 115px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-h" style="left: 45px; bottom: 165px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-            <div class="handrail hr-h" style="right: 45px; bottom: 165px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-
-            <div class="handrail hr-v" style="left: 45px; bottom: 265px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-v" style="right: 45px; bottom: 265px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-h" style="left: 45px; bottom: 315px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-            <div class="handrail hr-h" style="right: 45px; bottom: 315px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-
-            <div class="handrail hr-v" style="left: 45px; bottom: 415px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-v" style="right: 45px; bottom: 415px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-h" style="left: 45px; bottom: 465px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-            <div class="handrail hr-h" style="right: 45px; bottom: 465px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-
-            <div class="handrail hr-v" style="left: 45px; bottom: 565px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-v" style="right: 45px; bottom: 565px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-side"></div></div>
-            <div class="handrail hr-h" style="left: 45px; bottom: 615px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-            <div class="handrail hr-h" style="right: 45px; bottom: 615px; transform: translateZ(96px);"><div class="hr-front"></div><div class="hr-top"></div></div>
-
-            <!-- 钢缆 -->
-            <div class="cable cable-1" id="cable1"></div>
-            <div class="cable cable-2" id="cable2"></div>
-            <div class="cable cable-3" id="cable3"></div>
-            <div class="cable cable-4" id="cable4"></div>
-
-            <!-- 配重块 -->
-            <div class="counterweight" id="counterweight">
-                <div class="cw-front"><div class="cw-plates"></div></div>
-                <div class="cw-back"></div>
-                <div class="cw-left"></div>
-                <div class="cw-right"></div>
-            </div>
-
-            <!-- 红色缓冲器 -->
-            <div class="buffer buffer-l">
-                <div class="buffer-body"></div>
-                <div class="buffer-coils"></div>
-            </div>
-            <div class="buffer buffer-r">
-                <div class="buffer-body"></div>
-                <div class="buffer-coils"></div>
-            </div>
-
-            <!-- 电梯轿厢 -->
-            <div class="elevator-car" id="elevatorCar">
-                <div class="car-body">
-                    <div class="car-face car-front">
-                        <div class="door-frame">
-                            <div class="door door-l" id="doorL"><div class="door-stripes"></div></div>
-                            <div class="door door-r" id="doorR"><div class="door-stripes"></div></div>
-                        </div>
-                        <div class="kone-logo">Giant KONE</div>
-                    </div>
-                    <div class="car-face car-back"></div>
-                    <div class="car-face car-left"></div>
-                    <div class="car-face car-right"></div>
-                    <div class="car-face car-top"></div>
-                    <div class="car-face car-bottom"></div>
-                </div>
-            </div>
+    <div class="main-area">
+        <div class="scene">
+            <div class="elevator-world" id="elevatorWorld"></div>
         </div>
     </div>
 
     <!-- 控制面板 -->
     <div class="control-panel">
-        <div class="panel-title">Floor</div>
-        <div class="status-box">
-            <div class="status-floor" id="statusFloor">1</div>
-            <div class="status-dir" id="statusDir">IDLE</div>
+        <div class="panel-section">
+            <div class="panel-title">视角切换</div>
+            <div class="view-buttons">
+                <button class="view-btn" data-view="front">正面</button>
+                <button class="view-btn" data-view="back">背面</button>
+                <button class="view-btn" data-view="left">左侧</button>
+                <button class="view-btn" data-view="right">右侧</button>
+                <button class="view-btn" data-view="top">俯视</button>
+                <button class="view-btn active" data-view="3d">3D视角</button>
+            </div>
         </div>
-        <button class="floor-btn" data-floor="4">4</button>
-        <button class="floor-btn" data-floor="3">3</button>
-        <button class="floor-btn" data-floor="2">2</button>
-        <button class="floor-btn active" data-floor="1">1</button>
-        <div class="ctrl-row">
-            <button class="ctrl-btn" id="rotateBtn" title="自动旋转">🔄</button>
-            <button class="ctrl-btn" id="autoBtn" title="自动运行">▶</button>
-            <button class="ctrl-btn" id="audioBtn" title="音乐">🔊</button>
+
+        <div class="panel-section">
+            <div class="panel-title">楼层</div>
+            <div class="status-display">
+                <div class="status-floor" id="statusFloor">1</div>
+                <div class="status-text" id="statusText">IDLE</div>
+            </div>
+            <div class="floor-buttons">
+                <button class="floor-btn active" data-floor="1">1</button>
+                <button class="floor-btn" data-floor="2">2</button>
+                <button class="floor-btn" data-floor="3">3</button>
+                <button class="floor-btn" data-floor="4">4</button>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="panel-title">控制</div>
+            <div class="ctrl-buttons">
+                <button class="ctrl-btn on" id="rotateBtn" title="自动旋转">🔄</button>
+                <button class="ctrl-btn" id="autoBtn" title="自动演示">▶</button>
+                <button class="ctrl-btn" id="audioBtn" title="音乐">🔊</button>
+            </div>
         </div>
     </div>
 
-    <div class="hint">点击楼层按钮控制 · 按 1-4 快捷选择</div>
+    <div class="hint">拖拽旋转视角 · 点击视角按钮切换 · 按 1-4 选择楼层</div>
 
     <audio id="audio" loop>
         <source src="download.m4a" type="audio/mp4">
     </audio>
 
     <script>
-        // 生成孔洞
-        document.querySelectorAll('.holes-container').forEach(c => {
-            for (let i = 0; i < 42; i++) {
-                const h = document.createElement('div');
-                h.className = 't-hole';
-                c.appendChild(h);
+        const world = document.getElementById('elevatorWorld');
+
+        // ===================== 构建函数 =====================
+
+        // 创建Technic梁 - 增强版
+        function createBeam(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                w, h, d = 12,
+                color = 'black',
+                rotX = 0, rotY = 0, rotZ = 0,
+                holes = false,
+                holeDir = 'vertical',
+                holeCount = 0,
+                holeSize = 7,
+                holeSpacing = 10,
+                parent = world
+            } = opts;
+
+            const beam = document.createElement('div');
+            beam.className = `technic-beam beam-${color}`;
+            beam.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${w}px; height: ${h}px;
+                --depth: ${d/2}px;
+                --w-half: ${w/2}px;
+                --h-half: ${h/2}px;
+                transform: translateZ(${z}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg);
+            `;
+
+            // 前后面
+            const front = document.createElement('div');
+            front.className = 'beam-face bf-front';
+            front.style.cssText = `width: ${w}px; height: ${h}px;`;
+            beam.appendChild(front);
+
+            const back = document.createElement('div');
+            back.className = 'beam-face bf-back';
+            back.style.cssText = `width: ${w}px; height: ${h}px;`;
+            beam.appendChild(back);
+
+            // 左右面
+            const left = document.createElement('div');
+            left.className = 'beam-face bf-left';
+            left.style.cssText = `width: ${d}px; height: ${h}px;`;
+            beam.appendChild(left);
+
+            const right = document.createElement('div');
+            right.className = 'beam-face bf-right';
+            right.style.cssText = `width: ${d}px; height: ${h}px;`;
+            beam.appendChild(right);
+
+            // 上下面
+            const top = document.createElement('div');
+            top.className = 'beam-face bf-top';
+            top.style.cssText = `width: ${w}px; height: ${d}px;`;
+            beam.appendChild(top);
+
+            const bottom = document.createElement('div');
+            bottom.className = 'beam-face bf-bottom';
+            bottom.style.cssText = `width: ${w}px; height: ${d}px;`;
+            beam.appendChild(bottom);
+
+            // 添加圆孔
+            if (holes && holeCount > 0) {
+                const holesContainer = document.createElement('div');
+                holesContainer.className = 'holes-container';
+                holesContainer.style.setProperty('--depth', `${d/2 + 1}px`);
+
+                for (let i = 0; i < holeCount; i++) {
+                    const hole = document.createElement('div');
+                    hole.className = 'technic-hole';
+
+                    if (holeDir === 'vertical') {
+                        const startY = (h - (holeCount - 1) * holeSpacing) / 2 - holeSize / 2;
+                        hole.style.cssText = `
+                            width: ${holeSize}px; height: ${holeSize}px;
+                            left: ${w/2 - holeSize/2}px;
+                            top: ${startY + i * holeSpacing}px;
+                        `;
+                    } else {
+                        const startX = (w - (holeCount - 1) * holeSpacing) / 2 - holeSize / 2;
+                        hole.style.cssText = `
+                            width: ${holeSize}px; height: ${holeSize}px;
+                            top: ${h/2 - holeSize/2}px;
+                            left: ${startX + i * holeSpacing}px;
+                        `;
+                    }
+                    holesContainer.appendChild(hole);
+                }
+                beam.appendChild(holesContainer);
             }
+
+            parent.appendChild(beam);
+            return beam;
+        }
+
+        // 创建连接销
+        function createPin(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                size = 7,
+                color = 'black',
+                parent = world
+            } = opts;
+
+            const pin = document.createElement('div');
+            pin.className = `pin pin-${color}`;
+            pin.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${size}px; height: ${size}px;
+                transform: translateZ(${z}px);
+            `;
+
+            const body = document.createElement('div');
+            body.className = 'pin-body';
+            pin.appendChild(body);
+
+            parent.appendChild(pin);
+            return pin;
+        }
+
+        // 创建齿轮 - 增强版
+        function createGear(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                size = 50,
+                teeth = 16,
+                id = '',
+                spokes = 4,
+                parent = world
+            } = opts;
+
+            const gear = document.createElement('div');
+            gear.className = 'gear';
+            if (id) gear.id = id;
+            gear.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${size}px; height: ${size}px;
+                transform: translateZ(${z}px);
+            `;
+
+            const body = document.createElement('div');
+            body.className = 'gear-body';
+
+            // 齿轮盘面
+            const discFront = document.createElement('div');
+            discFront.className = 'gear-disc gear-disc-front';
+            body.appendChild(discFront);
+
+            const discBack = document.createElement('div');
+            discBack.className = 'gear-disc gear-disc-back';
+            body.appendChild(discBack);
+
+            // 齿轮齿
+            const radius = size / 2 + 4;
+            for (let i = 0; i < teeth; i++) {
+                const tooth = document.createElement('div');
+                tooth.className = 'gear-tooth';
+                tooth.style.transformOrigin = `center ${radius}px`;
+                tooth.style.transform = `rotate(${i * (360 / teeth)}deg)`;
+                body.appendChild(tooth);
+            }
+
+            // 辐条
+            const spokeLength = size * 0.35;
+            for (let i = 0; i < spokes; i++) {
+                const spoke = document.createElement('div');
+                spoke.className = 'gear-spoke';
+                spoke.style.width = `${spokeLength}px`;
+                spoke.style.transform = `translate(-50%, -50%) rotate(${i * (360 / spokes)}deg) translateX(${size * 0.15}px) translateZ(7px)`;
+                body.appendChild(spoke);
+            }
+
+            gear.appendChild(body);
+
+            // 中心孔
+            const center = document.createElement('div');
+            center.className = 'gear-center';
+            center.style.cssText = `width: ${size * 0.22}px; height: ${size * 0.22}px;`;
+            gear.appendChild(center);
+
+            // 十字轴孔
+            const cross = document.createElement('div');
+            cross.className = 'gear-cross';
+            cross.style.cssText = `width: ${size * 0.15}px; height: ${size * 0.15}px;`;
+            gear.appendChild(cross);
+
+            parent.appendChild(gear);
+            return gear;
+        }
+
+        // 创建滑轮
+        function createPulley(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                size = 32,
+                parent = world
+            } = opts;
+
+            const pulley = document.createElement('div');
+            pulley.className = 'pulley';
+            pulley.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${size}px; height: ${size}px;
+                transform: translateZ(${z}px);
+            `;
+
+            pulley.innerHTML = `
+                <div class="pulley-disc pulley-front"></div>
+                <div class="pulley-disc pulley-back"></div>
+                <div class="pulley-groove" style="width: ${size * 0.7}px; height: ${size * 0.7}px;"></div>
+                <div class="pulley-center" style="width: ${size * 0.22}px; height: ${size * 0.22}px;"></div>
+            `;
+
+            parent.appendChild(pulley);
+            return pulley;
+        }
+
+        // 创建弹簧
+        function createSpring(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                w = 22, h = 45,
+                parent = world
+            } = opts;
+
+            const spring = document.createElement('div');
+            spring.className = 'spring-buffer';
+            spring.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${w}px; height: ${h}px;
+                transform: translateZ(${z}px);
+            `;
+
+            spring.innerHTML = `
+                <div class="spring-coil"></div>
+                <div class="spring-cap spring-top"></div>
+                <div class="spring-cap spring-bottom"></div>
+            `;
+
+            parent.appendChild(spring);
+            return spring;
+        }
+
+        // 创建电机
+        function createMotor(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                w = 45, h = 35,
+                parent = world
+            } = opts;
+
+            const motor = document.createElement('div');
+            motor.className = 'motor';
+            motor.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${w}px; height: ${h}px;
+                transform: translateZ(${z}px);
+            `;
+
+            motor.innerHTML = `
+                <div class="motor-body" style="width: ${w}px; height: ${h}px; transform: translateZ(10px);"></div>
+                <div class="motor-body" style="width: ${w}px; height: ${h}px; transform: translateZ(-10px);"></div>
+                <div class="motor-shaft" style="width: 10px; height: 10px; top: ${h/2 - 5}px; right: -15px; transform: translateZ(0);"></div>
+            `;
+
+            parent.appendChild(motor);
+            return motor;
+        }
+
+        // 创建轴
+        function createAxle(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                length = 50,
+                thickness = 5,
+                color = 'black',
+                rotX = 0, rotY = 0, rotZ = 0,
+                parent = world
+            } = opts;
+
+            const axle = document.createElement('div');
+            axle.className = 'axle';
+            axle.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                width: ${length}px; height: ${thickness}px;
+                transform: translateZ(${z}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg);
+            `;
+
+            const body = document.createElement('div');
+            body.className = `axle-body ${color === 'yellow' ? 'yellow' : ''}`;
+            axle.appendChild(body);
+
+            parent.appendChild(axle);
+            return axle;
+        }
+
+        // 创建L型角件
+        function createLBracket(opts) {
+            const {
+                x = 0, y = 0, z = 0,
+                hLen = 30, vLen = 20, thickness = 8,
+                parent = world
+            } = opts;
+
+            const bracket = document.createElement('div');
+            bracket.className = 'l-bracket';
+            bracket.style.cssText = `
+                left: ${x}px; bottom: ${y}px;
+                transform: translateZ(${z}px);
+            `;
+
+            bracket.innerHTML = `
+                <div class="l-bracket-h" style="width: ${hLen}px; height: ${thickness}px; bottom: 0;"></div>
+                <div class="l-bracket-v" style="width: ${thickness}px; height: ${vLen}px; left: 0;"></div>
+            `;
+
+            parent.appendChild(bracket);
+            return bracket;
+        }
+
+        // ===================== 构建电梯结构 =====================
+
+        const FRAME_W = 320;
+        const FRAME_D = 200;
+        const FRAME_H = 750;
+        const FLOOR_H = 160;
+        const CAR_W = 150;
+        const CAR_H = 120;
+        const CAR_D = 60;
+
+        // ========== 底座 ==========
+        const basePlate = document.createElement('div');
+        basePlate.className = 'base-plate';
+        basePlate.style.cssText = `
+            left: 50%; margin-left: -${FRAME_W/2 + 25}px;
+            width: ${FRAME_W + 50}px; height: 35px;
+        `;
+
+        const baseTop = document.createElement('div');
+        baseTop.className = 'base-top-face';
+        baseTop.style.cssText = `
+            width: ${FRAME_W + 50}px; height: ${FRAME_D + 50}px;
+            transform: rotateX(90deg) translateZ(18px);
+        `;
+
+        // 底座圆钉 - 更多更真实
+        const studPositions = [];
+        for (let sx = 25; sx <= FRAME_W + 25; sx += 40) {
+            for (let sy = 25; sy <= FRAME_D + 25; sy += 40) {
+                studPositions.push([sx, sy, (sx + sy) % 80 === 0]);
+            }
+        }
+        studPositions.forEach(([sx, sy, isBlue]) => {
+            const stud = document.createElement('div');
+            stud.className = `base-stud ${isBlue ? 'base-stud-blue' : ''}`;
+            stud.style.cssText = `left: ${sx - 10}px; top: ${sy - 10}px;`;
+            baseTop.appendChild(stud);
         });
 
-        // 状态
+        basePlate.appendChild(baseTop);
+        world.appendChild(basePlate);
+
+        // ========== 主框架立柱 - 4根黑色 ==========
+        const pillarPositions = [
+            { x: 55, z: 90 },   // 前左
+            { x: FRAME_W - 55, z: 90 },  // 前右
+            { x: 55, z: -90 },  // 后左
+            { x: FRAME_W - 55, z: -90 }  // 后右
+        ];
+
+        pillarPositions.forEach((p) => {
+            createBeam({
+                x: p.x - 7, y: 40, z: p.z,
+                w: 14, h: FRAME_H - 50, d: 14,
+                color: 'black',
+                holes: true, holeDir: 'vertical',
+                holeCount: Math.floor((FRAME_H - 50) / 12),
+                holeSpacing: 12
+            });
+        });
+
+        // ========== 前面橙色立柱 ==========
+        createBeam({
+            x: 30, y: 40, z: 95,
+            w: 14, h: FRAME_H - 80, d: 14,
+            color: 'orange',
+            holes: true, holeDir: 'vertical',
+            holeCount: Math.floor((FRAME_H - 80) / 12),
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: FRAME_W - 44, y: 40, z: 95,
+            w: 14, h: FRAME_H - 80, d: 14,
+            color: 'orange',
+            holes: true, holeDir: 'vertical',
+            holeCount: Math.floor((FRAME_H - 80) / 12),
+            holeSpacing: 12
+        });
+
+        // ========== 底部横梁 ==========
+        // 前横梁
+        createBeam({
+            x: 65, y: 45, z: 90,
+            w: FRAME_W - 130, h: 14, d: 14,
+            color: 'dgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: Math.floor((FRAME_W - 130) / 12),
+            holeSpacing: 12
+        });
+
+        // 后横梁
+        createBeam({
+            x: 65, y: 45, z: -90,
+            w: FRAME_W - 130, h: 14, d: 14,
+            color: 'dgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: Math.floor((FRAME_W - 130) / 12),
+            holeSpacing: 12
+        });
+
+        // 侧梁
+        createBeam({
+            x: 52, y: 45, z: 0,
+            w: 14, h: 180, d: 14,
+            color: 'dgray',
+            rotY: 90,
+            holes: true, holeDir: 'vertical',
+            holeCount: 15,
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: FRAME_W - 66, y: 45, z: 0,
+            w: 14, h: 180, d: 14,
+            color: 'dgray',
+            rotY: 90,
+            holes: true, holeDir: 'vertical',
+            holeCount: 15,
+            holeSpacing: 12
+        });
+
+        // ========== 每层横梁和门框 ==========
+        for (let floor = 1; floor <= 4; floor++) {
+            const baseY = 40 + floor * FLOOR_H;
+
+            // 前横梁 - 浅灰
+            createBeam({
+                x: 65, y: baseY, z: 90,
+                w: FRAME_W - 130, h: 12, d: 12,
+                color: 'lgray',
+                holes: true, holeDir: 'horizontal',
+                holeCount: Math.floor((FRAME_W - 130) / 12),
+                holeSpacing: 12
+            });
+
+            // 后横梁 - 浅灰
+            createBeam({
+                x: 65, y: baseY, z: -90,
+                w: FRAME_W - 130, h: 12, d: 12,
+                color: 'lgray',
+                holes: true, holeDir: 'horizontal',
+                holeCount: Math.floor((FRAME_W - 130) / 12),
+                holeSpacing: 12
+            });
+
+            // 侧面短梁
+            createBeam({
+                x: 52, y: baseY, z: 0,
+                w: 12, h: 180, d: 12,
+                color: 'lgray',
+                rotY: 90
+            });
+
+            createBeam({
+                x: FRAME_W - 64, y: baseY, z: 0,
+                w: 12, h: 180, d: 12,
+                color: 'lgray',
+                rotY: 90
+            });
+
+            // ========== 楼层门框 - 白色Technic梁 ==========
+            const fy = 40 + (floor - 1) * FLOOR_H + 18;
+
+            // 左门框
+            createBeam({
+                x: 70, y: fy, z: 98,
+                w: 12, h: CAR_H + 25, d: 8,
+                color: 'white',
+                holes: true, holeDir: 'vertical',
+                holeCount: Math.floor((CAR_H + 25) / 10),
+                holeSize: 6,
+                holeSpacing: 10
+            });
+
+            // 右门框
+            createBeam({
+                x: FRAME_W - 82, y: fy, z: 98,
+                w: 12, h: CAR_H + 25, d: 8,
+                color: 'white',
+                holes: true, holeDir: 'vertical',
+                holeCount: Math.floor((CAR_H + 25) / 10),
+                holeSize: 6,
+                holeSpacing: 10
+            });
+
+            // 上门框
+            createBeam({
+                x: 70, y: fy + CAR_H + 15, z: 98,
+                w: FRAME_W - 140, h: 12, d: 8,
+                color: 'white',
+                holes: true, holeDir: 'horizontal',
+                holeCount: Math.floor((FRAME_W - 140) / 10),
+                holeSize: 6,
+                holeSpacing: 10
+            });
+
+            // 下门框
+            createBeam({
+                x: 70, y: fy, z: 98,
+                w: FRAME_W - 140, h: 10, d: 8,
+                color: 'white'
+            });
+        }
+
+        // ========== 斜撑 ==========
+        for (let i = 0; i < 4; i++) {
+            const by = 60 + i * FLOOR_H;
+
+            // 前面斜撑
+            createBeam({
+                x: 60, y: by, z: 92,
+                w: 12, h: 110, d: 12,
+                color: 'dgray',
+                rotZ: 32
+            });
+
+            createBeam({
+                x: FRAME_W - 95, y: by, z: 92,
+                w: 12, h: 110, d: 12,
+                color: 'dgray',
+                rotZ: -32
+            });
+
+            // 后面斜撑
+            createBeam({
+                x: 60, y: by, z: -92,
+                w: 12, h: 110, d: 12,
+                color: 'dgray',
+                rotZ: 32
+            });
+
+            createBeam({
+                x: FRAME_W - 95, y: by, z: -92,
+                w: 12, h: 110, d: 12,
+                color: 'dgray',
+                rotZ: -32
+            });
+        }
+
+        // 侧面斜撑
+        for (let i = 0; i < 4; i++) {
+            const by = 60 + i * FLOOR_H;
+            createBeam({
+                x: 52, y: by, z: 45,
+                w: 12, h: 110, d: 12,
+                color: 'dgray',
+                rotY: 90,
+                rotZ: 28
+            });
+
+            createBeam({
+                x: 52, y: by, z: -45,
+                w: 12, h: 110, d: 12,
+                color: 'dgray',
+                rotY: 90,
+                rotZ: 28
+            });
+        }
+
+        // ========== 黄色安全栏杆 ==========
+        for (let floor = 1; floor <= 4; floor++) {
+            const hy = 40 + (floor - 1) * FLOOR_H + 25;
+
+            // 左侧栏杆
+            createBeam({
+                x: 22, y: hy, z: 100,
+                w: 10, h: 55, d: 10,
+                color: 'yellow'
+            });
+            createBeam({
+                x: 22, y: hy + 55, z: 100,
+                w: 40, h: 10, d: 10,
+                color: 'yellow'
+            });
+            createBeam({
+                x: 52, y: hy + 20, z: 100,
+                w: 10, h: 45, d: 10,
+                color: 'yellow'
+            });
+
+            // 右侧栏杆
+            createBeam({
+                x: FRAME_W - 32, y: hy, z: 100,
+                w: 10, h: 55, d: 10,
+                color: 'yellow'
+            });
+            createBeam({
+                x: FRAME_W - 62, y: hy + 55, z: 100,
+                w: 40, h: 10, d: 10,
+                color: 'yellow'
+            });
+            createBeam({
+                x: FRAME_W - 62, y: hy + 20, z: 100,
+                w: 10, h: 45, d: 10,
+                color: 'yellow'
+            });
+        }
+
+        // ========== 顶部机械室 - 大幅增强 ==========
+        const topY = FRAME_H;
+
+        // 顶部主框架梁 - 浅灰色
+        createBeam({
+            x: 45, y: topY, z: 100,
+            w: FRAME_W - 90, h: 16, d: 16,
+            color: 'lgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: Math.floor((FRAME_W - 90) / 12),
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: 45, y: topY, z: -100,
+            w: FRAME_W - 90, h: 16, d: 16,
+            color: 'lgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: Math.floor((FRAME_W - 90) / 12),
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: 38, y: topY, z: 0,
+            w: 16, h: 200, d: 16,
+            color: 'lgray',
+            rotY: 90
+        });
+
+        createBeam({
+            x: FRAME_W - 54, y: topY, z: 0,
+            w: 16, h: 200, d: 16,
+            color: 'lgray',
+            rotY: 90
+        });
+
+        // 顶部垂直支撑
+        createBeam({
+            x: 50, y: topY, z: 95,
+            w: 12, h: 70, d: 12,
+            color: 'lgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: 6,
+            holeSpacing: 10
+        });
+
+        createBeam({
+            x: FRAME_W - 62, y: topY, z: 95,
+            w: 12, h: 70, d: 12,
+            color: 'lgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: 6,
+            holeSpacing: 10
+        });
+
+        createBeam({
+            x: 50, y: topY, z: -95,
+            w: 12, h: 70, d: 12,
+            color: 'lgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: 6,
+            holeSpacing: 10
+        });
+
+        createBeam({
+            x: FRAME_W - 62, y: topY, z: -95,
+            w: 12, h: 70, d: 12,
+            color: 'lgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: 6,
+            holeSpacing: 10
+        });
+
+        // 顶部横向加强梁
+        createBeam({
+            x: 55, y: topY + 60, z: 95,
+            w: FRAME_W - 110, h: 14, d: 14,
+            color: 'lgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: Math.floor((FRAME_W - 110) / 12),
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: 55, y: topY + 60, z: -95,
+            w: FRAME_W - 110, h: 14, d: 14,
+            color: 'lgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: Math.floor((FRAME_W - 110) / 12),
+            holeSpacing: 12
+        });
+
+        // 顶部侧面梁
+        createBeam({
+            x: 45, y: topY + 60, z: 0,
+            w: 14, h: 190, d: 14,
+            color: 'lgray',
+            rotY: 90
+        });
+
+        createBeam({
+            x: FRAME_W - 59, y: topY + 60, z: 0,
+            w: 14, h: 190, d: 14,
+            color: 'lgray',
+            rotY: 90
+        });
+
+        // 顶部中央横梁
+        createBeam({
+            x: FRAME_W / 2 - 60, y: topY + 35, z: 100,
+            w: 120, h: 12, d: 12,
+            color: 'lgray',
+            holes: true, holeDir: 'horizontal',
+            holeCount: 10,
+            holeSpacing: 12
+        });
+
+        // ========== 大齿轮 - 黄色 ==========
+        const gear1 = createGear({
+            x: 100, y: topY + 25, z: 105,
+            size: 65, teeth: 24, id: 'gear1', spokes: 6
+        });
+
+        const gear2 = createGear({
+            x: FRAME_W - 165, y: topY + 25, z: 105,
+            size: 65, teeth: 24, id: 'gear2', spokes: 6
+        });
+
+        const gear3 = createGear({
+            x: FRAME_W / 2 - 25, y: topY + 32, z: 105,
+            size: 45, teeth: 16, id: 'gear3', spokes: 4
+        });
+
+        // 顶部小齿轮
+        createGear({
+            x: 155, y: topY + 35, z: 105,
+            size: 35, teeth: 12, spokes: 3
+        });
+
+        createGear({
+            x: FRAME_W - 190, y: topY + 35, z: 105,
+            size: 35, teeth: 12, spokes: 3
+        });
+
+        // ========== 滑轮组 ==========
+        createPulley({ x: 115, y: topY + 45, z: 55, size: 38 });
+        createPulley({ x: FRAME_W - 153, y: topY + 45, z: 55, size: 38 });
+        createPulley({ x: 115, y: topY + 45, z: -55, size: 38 });
+        createPulley({ x: FRAME_W - 153, y: topY + 45, z: -55, size: 38 });
+
+        // 额外滑轮
+        createPulley({ x: FRAME_W / 2 - 16, y: topY + 50, z: 40, size: 32 });
+        createPulley({ x: FRAME_W / 2 - 16, y: topY + 50, z: -40, size: 32 });
+
+        // ========== 电机 ==========
+        createMotor({ x: FRAME_W / 2 - 25, y: topY + 18, z: 0, w: 50, h: 40 });
+
+        // ========== 轴 ==========
+        createAxle({ x: 125, y: topY + 53, z: 105, length: 30, thickness: 6, rotY: 90 });
+        createAxle({ x: FRAME_W - 155, y: topY + 53, z: 105, length: 30, thickness: 6, rotY: 90 });
+        createAxle({ x: 130, y: topY + 53, z: 55, length: 100, thickness: 7, color: 'yellow', rotY: 90 });
+        createAxle({ x: FRAME_W - 160, y: topY + 53, z: 55, length: 100, thickness: 7, color: 'yellow', rotY: 90 });
+
+        // ========== 警告标志 ==========
+        const warning = document.createElement('div');
+        warning.className = 'warning-sign';
+        warning.style.cssText = `left: ${FRAME_W/2 - 22}px; bottom: ${topY - 45}px; transform: translateZ(102px);`;
+        warning.innerHTML = `
+            <div class="warning-body">
+                <div class="warning-icon">⚠</div>
+            </div>
+            <div class="warning-text">当心机械伤人</div>
+        `;
+        world.appendChild(warning);
+
+        // ========== 红色弹簧缓冲器 ==========
+        createSpring({ x: 120, y: 42, z: 55, w: 24, h: 50 });
+        createSpring({ x: FRAME_W - 144, y: 42, z: 55, w: 24, h: 50 });
+        createSpring({ x: 120, y: 42, z: -55, w: 24, h: 50 });
+        createSpring({ x: FRAME_W - 144, y: 42, z: -55, w: 24, h: 50 });
+
+        // ========== 楼层标识 ==========
+        for (let floor = 1; floor <= 4; floor++) {
+            const marker = document.createElement('div');
+            marker.className = 'floor-marker';
+            marker.style.cssText = `left: 8px; bottom: ${40 + (floor - 1) * FLOOR_H + 65}px; transform: translateZ(108px);`;
+            marker.textContent = floor;
+            world.appendChild(marker);
+        }
+
+        // ========== 门指示灯 ==========
+        for (let floor = 1; floor <= 4; floor++) {
+            const iy = 40 + (floor - 1) * FLOOR_H + CAR_H + 38;
+            const indicator = document.createElement('div');
+            indicator.className = 'door-indicator';
+            indicator.id = `indicator${floor}`;
+            indicator.style.cssText = `left: ${FRAME_W / 2 - 4}px; bottom: ${iy}px; transform: translateZ(105px);`;
+            world.appendChild(indicator);
+        }
+
+        // ========== 钢缆 ==========
+        const cablePositions = [
+            { x: 130, z: 40 },
+            { x: 175, z: 40 },
+            { x: 130, z: -40 },
+            { x: 175, z: -40 }
+        ];
+
+        const cables = cablePositions.map((pos, i) => {
+            const cable = document.createElement('div');
+            cable.className = 'cable cable-textured';
+            cable.id = `cable${i + 1}`;
+            cable.style.cssText = `left: ${pos.x}px; top: 80px; transform: translateZ(${pos.z}px);`;
+            world.appendChild(cable);
+            return cable;
+        });
+
+        // ========== 配重块（框架内部后方） ==========
+        const counterweight = document.createElement('div');
+        counterweight.className = 'counterweight';
+        counterweight.id = 'counterweight';
+        counterweight.style.cssText = `left: ${FRAME_W / 2 - 18}px; width: 36px; height: 110px; transform: translateZ(-75px);`;
+        counterweight.innerHTML = `
+            <div class="cw-panel cw-front"><div class="cw-weights"></div></div>
+            <div class="cw-panel cw-back"></div>
+            <div class="cw-panel cw-side cw-left"></div>
+            <div class="cw-panel cw-side cw-right"></div>
+        `;
+        world.appendChild(counterweight);
+
+        // 配重导轨
+        const cwRail1 = document.createElement('div');
+        cwRail1.className = 'cw-rail';
+        cwRail1.style.cssText = `left: ${FRAME_W / 2 - 28}px; bottom: 45px; width: 8px; height: ${FRAME_H - 90}px; transform: translateZ(-65px);`;
+        world.appendChild(cwRail1);
+
+        const cwRail2 = document.createElement('div');
+        cwRail2.className = 'cw-rail';
+        cwRail2.style.cssText = `left: ${FRAME_W / 2 + 20}px; bottom: 45px; width: 8px; height: ${FRAME_H - 90}px; transform: translateZ(-65px);`;
+        world.appendChild(cwRail2);
+
+        // ========== 电梯轿厢（框架内部中央） ==========
+        const elevatorCar = document.createElement('div');
+        elevatorCar.className = 'elevator-car';
+        elevatorCar.id = 'elevatorCar';
+        elevatorCar.style.cssText = `
+            margin-left: -${CAR_W/2}px;
+            width: ${CAR_W}px; height: ${CAR_H}px;
+            --car-width: ${CAR_W}px;
+            --car-height: ${CAR_H}px;
+            --car-depth: ${CAR_D}px;
+        `;
+
+        const carFrame = document.createElement('div');
+        carFrame.className = 'car-frame';
+
+        // 轿厢面板
+        const carFront = document.createElement('div');
+        carFront.className = 'car-front-panel';
+        carFront.innerHTML = `
+            <div class="door-frame">
+                <div class="door-inner">
+                    <div class="door-panel door-left" id="doorLeft">
+                        <div class="door-lines"></div>
+                    </div>
+                    <div class="door-panel door-right" id="doorRight">
+                        <div class="door-lines"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kone-label">Giant KONE</div>
+        `;
+        carFrame.appendChild(carFront);
+
+        const carBack = document.createElement('div');
+        carBack.className = 'car-back-panel';
+        carFrame.appendChild(carBack);
+
+        const carLeft = document.createElement('div');
+        carLeft.className = 'car-side-panel car-side-left';
+        carFrame.appendChild(carLeft);
+
+        const carRight = document.createElement('div');
+        carRight.className = 'car-side-panel car-side-right';
+        carFrame.appendChild(carRight);
+
+        const carTop = document.createElement('div');
+        carTop.className = 'car-top-panel';
+        carFrame.appendChild(carTop);
+
+        const carBottom = document.createElement('div');
+        carBottom.className = 'car-bottom-panel';
+        carFrame.appendChild(carBottom);
+
+        elevatorCar.appendChild(carFrame);
+
+        // 轿厢Technic边框梁
+        createBeam({ x: -8, y: -8, z: CAR_D + 8, w: 10, h: CAR_H + 16, d: 10, color: 'white', parent: elevatorCar });
+        createBeam({ x: CAR_W - 2, y: -8, z: CAR_D + 8, w: 10, h: CAR_H + 16, d: 10, color: 'white', parent: elevatorCar });
+        createBeam({ x: -8, y: CAR_H - 2, z: CAR_D + 8, w: CAR_W + 16, h: 10, d: 10, color: 'white', parent: elevatorCar });
+        createBeam({ x: -8, y: -8, z: CAR_D + 8, w: CAR_W + 16, h: 10, d: 10, color: 'white', parent: elevatorCar });
+
+        // 轿厢顶部钢缆连接梁
+        createBeam({ x: 15, y: CAR_H + 8, z: 0, w: CAR_W - 30, h: 10, d: 10, color: 'lgray', parent: elevatorCar });
+
+        // 轿厢底部加强梁
+        createBeam({ x: 15, y: -15, z: 35, w: CAR_W - 30, h: 10, d: 10, color: 'lgray', parent: elevatorCar });
+        createBeam({ x: 15, y: -15, z: -35, w: CAR_W - 30, h: 10, d: 10, color: 'lgray', parent: elevatorCar });
+
+        // 钢缆连接销
+        createPin({ x: 40, y: CAR_H + 12, z: 40, size: 10, color: 'gray', parent: elevatorCar });
+        createPin({ x: 40, y: CAR_H + 12, z: -40, size: 10, color: 'gray', parent: elevatorCar });
+        createPin({ x: CAR_W - 50, y: CAR_H + 12, z: 40, size: 10, color: 'gray', parent: elevatorCar });
+        createPin({ x: CAR_W - 50, y: CAR_H + 12, z: -40, size: 10, color: 'gray', parent: elevatorCar });
+
+        world.appendChild(elevatorCar);
+
+        // ========== 连接销 - 更多细节 ==========
+        // 立柱连接销
+        for (let i = 0; i < 55; i += 4) {
+            const pinY = 50 + i * 12;
+            if (pinY < FRAME_H - 60) {
+                const colors = ['blue', 'black', 'tan', 'black'];
+                const c = colors[i % 4];
+                createPin({ x: 56, y: pinY, z: 97, size: 6, color: c });
+                createPin({ x: FRAME_W - 62, y: pinY, z: 97, size: 6, color: c });
+            }
+        }
+
+        // 橙色梁连接销
+        for (let i = 0; i < 50; i += 5) {
+            const pinY = 50 + i * 12;
+            if (pinY < FRAME_H - 80) {
+                createPin({ x: 36, y: pinY, z: 102, size: 6, color: 'yellow' });
+                createPin({ x: FRAME_W - 42, y: pinY, z: 102, size: 6, color: 'yellow' });
+            }
+        }
+
+        // 顶部连接销
+        for (let i = 0; i < 7; i++) {
+            createPin({ x: 60 + i * 32, y: topY + 8, z: 103, size: 7, color: 'gray' });
+        }
+
+        // ========== 更多侧面导轨 ==========
+        createBeam({
+            x: 72, y: 50, z: 0,
+            w: 10, h: FRAME_H - 100, d: 10,
+            color: 'lgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: Math.floor((FRAME_H - 100) / 12),
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: FRAME_W - 82, y: 50, z: 0,
+            w: 10, h: FRAME_H - 100, d: 10,
+            color: 'lgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: Math.floor((FRAME_H - 100) / 12),
+            holeSpacing: 12
+        });
+
+        // ========== 后侧结构 ==========
+        createBeam({
+            x: 75, y: 40, z: -98,
+            w: 14, h: FRAME_H - 80, d: 14,
+            color: 'dgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: Math.floor((FRAME_H - 80) / 12),
+            holeSpacing: 12
+        });
+
+        createBeam({
+            x: FRAME_W - 89, y: 40, z: -98,
+            w: 14, h: FRAME_H - 80, d: 14,
+            color: 'dgray',
+            holes: true, holeDir: 'vertical',
+            holeCount: Math.floor((FRAME_H - 80) / 12),
+            holeSpacing: 12
+        });
+
+        // ========== L型角件 ==========
+        for (let floor = 1; floor <= 4; floor++) {
+            const ly = 40 + (floor - 1) * FLOOR_H + 20;
+            createLBracket({ x: 62, y: ly, z: 88, hLen: 28, vLen: 24 });
+            createLBracket({ x: FRAME_W - 90, y: ly, z: 88, hLen: 28, vLen: 24 });
+        }
+
+        // ===================== 电梯逻辑 =====================
+
+        const views = {
+            front: { x: 0, y: 0 },
+            back: { x: 0, y: 180 },
+            left: { x: 0, y: 90 },
+            right: { x: 0, y: -90 },
+            top: { x: -75, y: 0 },
+            '3d': { x: -8, y: -25 }
+        };
+
         const state = {
             floor: 1,
             target: 1,
@@ -1057,72 +2100,73 @@
             pos: 0,
             vel: 0,
             doorsOpen: false,
-            autoMode: false,
-            audioPlaying: false
+            autoRotate: true,
+            autoDemo: false,
+            audio: false,
+            rotX: -8,
+            rotY: -25
         };
 
-        // 楼层位置
-        const floors = { 1: 555, 2: 405, 3: 255, 4: 105 };
+        const floors = { 1: 645, 2: 485, 3: 325, 4: 165 };
+        state.pos = floors[1];
 
-        // DOM
-        const car = document.getElementById('elevatorCar');
-        const doorL = document.getElementById('doorL');
-        const doorR = document.getElementById('doorR');
-        const cables = [1,2,3,4].map(i => document.getElementById('cable'+i));
+        const doorL = document.getElementById('doorLeft');
+        const doorR = document.getElementById('doorRight');
         const cw = document.getElementById('counterweight');
-        const gear1 = document.getElementById('gear1');
-        const gear2 = document.getElementById('gear2');
+        const gears = ['gear1', 'gear2', 'gear3'].map(id => document.getElementById(id));
         const statusFloor = document.getElementById('statusFloor');
-        const statusDir = document.getElementById('statusDir');
+        const statusText = document.getElementById('statusText');
         const rotateBtn = document.getElementById('rotateBtn');
         const autoBtn = document.getElementById('autoBtn');
         const audioBtn = document.getElementById('audioBtn');
         const audio = document.getElementById('audio');
-        const elevator3d = document.getElementById('elevator3d');
 
-        // 初始化
-        state.pos = floors[1];
-        updatePos();
-        setTimeout(openDoors, 600);
-
-        // 物理参数
-        const PHY = { maxV: 2.8, acc: 0.07, dec: 0.11, threshold: 1.5 };
+        function updateIndicators() {
+            for (let f = 1; f <= 4; f++) {
+                const ind = document.getElementById(`indicator${f}`);
+                if (ind) {
+                    ind.classList.toggle('green', f === state.floor && state.doorsOpen);
+                }
+            }
+        }
 
         function updatePos() {
-            car.style.bottom = (800 - state.pos - 140) + 'px';
-            const cableH = state.pos - 50;
-            cables.forEach(c => c.style.height = cableH + 'px');
-            const cwPos = 600 - (state.pos - 105);
-            cw.style.top = Math.max(120, Math.min(500, cwPos)) + 'px';
+            elevatorCar.style.bottom = (950 - state.pos - CAR_H) + 'px';
+
+            const cableH = state.pos - 40;
+            cables.forEach(c => c.style.height = Math.max(0, cableH) + 'px');
+
+            const cwTop = 700 - (state.pos - 165);
+            cw.style.top = Math.max(150, Math.min(620, cwTop)) + 'px';
         }
+
+        updatePos();
 
         function openDoors() {
             state.doorsOpen = true;
             doorL.classList.add('open');
             doorR.classList.add('open');
+            updateIndicators();
         }
 
         function closeDoors() {
             state.doorsOpen = false;
             doorL.classList.remove('open');
             doorR.classList.remove('open');
+            updateIndicators();
         }
 
         function startGears(dir) {
-            gear1.classList.add(dir > 0 ? 'spin' : 'spin-r');
-            gear2.classList.add(dir > 0 ? 'spin-r' : 'spin');
+            gears[0].classList.add(dir > 0 ? 'spinning' : 'spinning-r');
+            gears[1].classList.add(dir > 0 ? 'spinning-r' : 'spinning');
+            gears[2].classList.add(dir > 0 ? 'spinning' : 'spinning-r');
         }
 
         function stopGears() {
-            gear1.classList.remove('spin', 'spin-r');
-            gear2.classList.remove('spin', 'spin-r');
+            gears.forEach(g => g.classList.remove('spinning', 'spinning-r'));
         }
 
-        function updateBtns(f) {
-            document.querySelectorAll('.floor-btn').forEach(b => {
-                b.classList.toggle('active', parseInt(b.dataset.floor) === f);
-            });
-        }
+        const PHY = { maxV: 2.8, acc: 0.07, dec: 0.12, threshold: 2 };
 
         let animId = null;
 
@@ -1141,12 +2185,12 @@
                 updatePos();
                 state.floor = state.target;
                 statusFloor.textContent = state.floor;
-                statusDir.textContent = 'ARRIVED';
+                statusText.textContent = 'ARRIVED';
                 setTimeout(() => {
                     openDoors();
-                    statusDir.textContent = 'IDLE';
-                    if (state.autoMode) setTimeout(autoNext, 2500);
-                }, 350);
+                    statusText.textContent = 'IDLE';
+                    if (state.autoDemo) setTimeout(autoNext, 2500);
+                }, 300);
                 return;
             }
 
@@ -1160,21 +2204,7 @@
             state.pos += state.vel;
             updatePos();
 
-            const near = getNearest(state.pos);
-            if (near !== parseInt(statusFloor.textContent)) {
-                statusFloor.textContent = near;
-            }
-
             animId = requestAnimationFrame(animate);
-        }
-
-        function getNearest(p) {
-            let n = 1, m = Infinity;
-            for (let f in floors) {
-                const d = Math.abs(floors[f] - p);
-                if (d < m) { m = d; n = parseInt(f); }
-            }
-            return n;
         }
 
         function goTo(f) {
@@ -1182,138 +2212,153 @@
                 if (f === state.floor && !state.doorsOpen) openDoors();
                 return;
             }
+
             closeDoors();
+            updateFloorBtns(f);
+
             setTimeout(() => {
                 state.target = f;
                 state.moving = true;
                 state.vel = 0;
                 const dir = f > state.floor ? -1 : 1;
-                statusDir.textContent = dir < 0 ? '▲ UP' : '▼ DOWN';
+                statusText.textContent = dir < 0 ? '▲ UP' : '▼ DOWN';
                 startGears(dir);
                 if (animId) cancelAnimationFrame(animId);
                 animate();
-            }, 1300);
+            }, 1200);
         }
 
-        // 自动模式
+        function updateFloorBtns(f) {
+            document.querySelectorAll('.floor-btn').forEach(b => {
+                b.classList.toggle('active', parseInt(b.dataset.floor) === f);
+            });
+        }
+
         let autoSeq = [1, 2, 3, 4, 3, 2];
         let autoIdx = 0;
 
         function autoNext() {
-            if (!state.autoMode) return;
+            if (!state.autoDemo) return;
             autoIdx = (autoIdx + 1) % autoSeq.length;
-            const nextF = autoSeq[autoIdx];
-            updateBtns(nextF);
-            goTo(nextF);
+            goTo(autoSeq[autoIdx]);
         }
 
-        // 事件
-        document.querySelectorAll('.floor-btn').forEach(b => {
-            b.addEventListener('click', () => {
-                const f = parseInt(b.dataset.floor);
-                updateBtns(f);
-                goTo(f);
+        function setView(name) {
+            const v = views[name];
+            state.rotX = v.x;
+            state.rotY = v.y;
+            world.style.transform = `rotateX(${v.x}deg) rotateY(${v.y}deg)`;
+
+            document.querySelectorAll('.view-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.view === name);
             });
+
+            if (state.autoRotate) {
+                state.autoRotate = false;
+                rotateBtn.classList.remove('on');
+            }
+        }
+
+        let rotateAngle = -25;
+        function autoRotateLoop() {
+            if (state.autoRotate) {
+                rotateAngle += 0.22;
+                world.style.transform = `rotateX(-8deg) rotateY(${rotateAngle}deg)`;
+            }
+            requestAnimationFrame(autoRotateLoop);
+        }
+        autoRotateLoop();
+
+        // 事件绑定
+        document.querySelectorAll('.view-btn').forEach(b => {
+            b.addEventListener('click', () => setView(b.dataset.view));
+        });
+
+        document.querySelectorAll('.floor-btn').forEach(b => {
+            b.addEventListener('click', () => goTo(parseInt(b.dataset.floor)));
         });
 
         document.addEventListener('keydown', e => {
-            if (e.key >= '1' && e.key <= '4') {
-                const f = parseInt(e.key);
-                updateBtns(f);
-                goTo(f);
-            }
+            if (e.key >= '1' && e.key <= '4') goTo(parseInt(e.key));
         });
 
-        // 旋转控制
-        let rotating = true;
         rotateBtn.addEventListener('click', () => {
-            rotating = !rotating;
-            elevator3d.classList.toggle('paused', !rotating);
-            rotateBtn.classList.toggle('on', rotating);
-        });
-        rotateBtn.classList.add('on');
-
-        // 自动运行
-        autoBtn.addEventListener('click', () => {
-            state.autoMode = !state.autoMode;
-            autoBtn.classList.toggle('on', state.autoMode);
-            autoBtn.textContent = state.autoMode ? '⏸' : '▶';
-            if (state.autoMode && !state.moving) autoNext();
-        });
-
-        // 音频
-        audioBtn.addEventListener('click', () => {
-            if (state.audioPlaying) {
-                audio.pause();
-                audioBtn.classList.remove('on');
-            } else {
-                audio.play().catch(() => {});
-                audioBtn.classList.add('on');
+            state.autoRotate = !state.autoRotate;
+            rotateBtn.classList.toggle('on', state.autoRotate);
+            if (state.autoRotate) {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
             }
-            state.audioPlaying = !state.audioPlaying;
+        });
+
+        autoBtn.addEventListener('click', () => {
+            state.autoDemo = !state.autoDemo;
+            autoBtn.classList.toggle('on', state.autoDemo);
+            autoBtn.textContent = state.autoDemo ? '⏸' : '▶';
+            if (state.autoDemo && !state.moving) autoNext();
+        });
+
+        audioBtn.addEventListener('click', () => {
+            state.audio = !state.audio;
+            audioBtn.classList.toggle('on', state.audio);
+            if (state.audio) audio.play().catch(() => {});
+            else audio.pause();
         });
 
         // 拖拽旋转
-        let drag = false, px = 0, py = 0, rx = -8, ry = 0;
+        let drag = false, px = 0, py = 0;
 
         document.addEventListener('mousedown', e => {
             if (e.target.closest('.control-panel')) return;
-            if (rotating) {
-                rotating = false;
-                elevator3d.classList.add('paused');
-                rotateBtn.classList.remove('on');
-                const st = getComputedStyle(elevator3d);
-                const tr = st.transform;
-                if (tr && tr !== 'none') {
-                    const m = new DOMMatrix(tr);
-                    ry = Math.atan2(m.m13, m.m33) * 180 / Math.PI;
-                }
-            }
             drag = true;
             px = e.clientX;
             py = e.clientY;
+            if (state.autoRotate) {
+                state.autoRotate = false;
+                rotateBtn.classList.remove('on');
+                state.rotY = rotateAngle;
+            }
         });
 
         document.addEventListener('mousemove', e => {
             if (!drag) return;
-            const dx = e.clientX - px;
-            const dy = e.clientY - py;
-            ry += dx * 0.5;
-            rx -= dy * 0.3;
-            rx = Math.max(-35, Math.min(15, rx));
-            elevator3d.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+            state.rotY += (e.clientX - px) * 0.4;
+            state.rotX -= (e.clientY - py) * 0.3;
+            state.rotX = Math.max(-85, Math.min(25, state.rotX));
+            world.style.transform = `rotateX(${state.rotX}deg) rotateY(${state.rotY}deg)`;
             px = e.clientX;
             py = e.clientY;
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
         });
 
         document.addEventListener('mouseup', () => drag = false);
 
-        // 触摸
+        // 触摸支持
         document.addEventListener('touchstart', e => {
             if (e.target.closest('.control-panel')) return;
-            if (rotating) {
-                rotating = false;
-                elevator3d.classList.add('paused');
-                rotateBtn.classList.remove('on');
-            }
             drag = true;
             px = e.touches[0].clientX;
             py = e.touches[0].clientY;
+            if (state.autoRotate) {
+                state.autoRotate = false;
+                rotateBtn.classList.remove('on');
+                state.rotY = rotateAngle;
+            }
         });
 
         document.addEventListener('touchmove', e => {
             if (!drag) return;
-            const dx = e.touches[0].clientX - px;
-            const dy = e.touches[0].clientY - py;
-            ry += dx * 0.5;
-            rx -= dy * 0.3;
-            rx = Math.max(-35, Math.min(15, rx));
-            elevator3d.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+            state.rotY += (e.touches[0].clientX - px) * 0.4;
+            state.rotX -= (e.touches[0].clientY - py) * 0.3;
+            state.rotX = Math.max(-85, Math.min(25, state.rotX));
+            world.style.transform = `rotateX(${state.rotX}deg) rotateY(${state.rotY}deg)`;
             px = e.touches[0].clientX;
             py = e.touches[0].clientY;
         });
 
         document.addEventListener('touchend', () => drag = false);
+
+        // 初始开门
+        setTimeout(openDoors, 500);
     </script>
 </body>
 </html>
