@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>中国省份拼图 - 认识祖国</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0a0a1a;
+            --bg-gradient: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a2a 100%);
+            --primary-cyan: #00d9ff;
+            --primary-yellow: #ffd93d;
+            --primary-green: #26de81;
+            --primary-red: #ff6b6b;
+            --text-white: #ffffff;
+            --text-light: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* 星空背景 */
+        .stars-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10,10,26,0.98) 0%, rgba(10,10,26,0.8) 70%, transparent 100%);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .title-area h1 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--primary-cyan);
+        }
+
+        .stats-area {
+            display: flex;
+            gap: 10px;
+        }
+        .stat-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: rgba(0,217,255,0.15);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .stat-box.progress {
+            background: rgba(255,217,61,0.15);
+            border-color: var(--primary-yellow);
+        }
+
+        /* 主游戏区域 */
+        .game-container {
+            position: fixed;
+            top: 55px;
+            left: 0; right: 0; bottom: 0;
+            display: flex;
+            z-index: 1;
+        }
+
+        /* 地图区域 */
+        .map-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            min-height: 0;
+        }
+
+        #mapContainer {
+            width: 100%;
+            height: 100%;
+            max-width: 750px;
+            position: relative;
+        }
+
+        #mapContainer svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 目标轮廓样式 */
+        .state.target {
+            fill: rgba(255,255,255,0.08) !important;
+            stroke: rgba(255,255,255,0.3);
+            stroke-width: 0.5;
+            stroke-dasharray: 3 2;
+            cursor: default;
+        }
+        .state.target.highlight {
+            fill: rgba(255,217,61,0.3) !important;
+            stroke: var(--primary-yellow);
+            stroke-width: 2;
+            stroke-dasharray: none;
+        }
+        .state.placed {
+            cursor: pointer;
+            stroke: #ffffff;
+            stroke-width: 1;
+        }
+
+        /* 拼图块区域 */
+        .puzzle-area {
+            width: 320px;
+            min-width: 320px;
+            background: linear-gradient(270deg, rgba(10,10,26,0.98) 0%, rgba(10,10,26,0.9) 90%, transparent 100%);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .puzzle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 5px;
+        }
+
+        .puzzle-title {
+            font-size: 0.85rem;
+            color: var(--primary-cyan);
+            font-weight: 700;
+        }
+
+        .puzzle-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 拼图块滚动容器 */
+        .puzzle-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 5px;
+            align-content: flex-start;
+        }
+
+        .puzzle-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .puzzle-scroll::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        .puzzle-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary-cyan);
+            border-radius: 3px;
+        }
+
+        /* 拼图块 - 省份形状容器 */
+        .puzzle-piece {
+            position: relative;
+            cursor: grab;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+        .puzzle-piece:hover {
+            transform: scale(1.08);
+            filter: brightness(1.2);
+            z-index: 10;
+        }
+        .puzzle-piece.dragging {
+            cursor: grabbing;
+            opacity: 0.7;
+            z-index: 100;
+        }
+        .puzzle-piece.placed {
+            display: none;
+        }
+        .puzzle-piece svg {
+            display: block;
+        }
+        .puzzle-piece .province-shape {
+            stroke: #ffffff;
+            stroke-width: 1.5;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* 省份标签 */
+        .piece-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.8);
+        }
+        .piece-emoji {
+            font-size: 1.2rem;
+            display: block;
+        }
+        .piece-name {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+        }
+
+        /* 拖拽幽灵 */
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2000;
+            opacity: 0.9;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+        .drag-ghost svg {
+            display: block;
+        }
+        .drag-ghost .province-shape {
+            stroke: var(--primary-yellow);
+            stroke-width: 3;
+        }
+        .drag-ghost .piece-label {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        /* 省份信息弹窗 */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+        .modal.visible { display: flex; }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3a, #0a0a2a);
+            border: 3px solid var(--primary-cyan);
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 380px;
+            width: 90%;
+            position: relative;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px; right: 12px;
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .province-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .province-icon { font-size: 3.5rem; }
+        .province-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-yellow);
+            margin: 8px 0 5px;
+        }
+        .province-type {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .detail-emoji { font-size: 2rem; }
+        .detail-label { font-size: 0.8rem; color: var(--text-light); }
+        .detail-value { font-size: 1.1rem; font-weight: 700; }
+
+        .fun-fact {
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(155,89,182,0.2), rgba(142,68,173,0.2));
+            border: 2px solid #9b59b6;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .fun-fact-title { font-size: 0.85rem; color: #9b59b6; margin-bottom: 6px; }
+
+        /* 完成弹窗 */
+        .celebration-icon {
+            font-size: 4rem;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        .knowledge-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+        .knowledge-title {
+            font-size: 1rem;
+            color: var(--primary-cyan);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .knowledge-item {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .knowledge-number {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+        }
+        .knowledge-label { font-size: 0.8rem; color: var(--text-light); }
+
+        .play-again-btn {
+            padding: 12px 35px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-green));
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+            border: 2px solid var(--primary-cyan);
+            animation: toastIn 0.3s ease;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* 加载 */
+        .loading {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-gradient);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading.hidden { display: none; }
+        .loading-icon { font-size: 4rem; animation: spin 2s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 15px; font-size: 1.2rem; color: var(--primary-cyan); }
+    </style>
+</head>
+
+<body>
+    <!-- 加载界面 -->
+    <div class="loading" id="loadingScreen">
+        <div class="loading-icon">🗺️</div>
+        <div class="loading-text">正在加载中国地图...</div>
+    </div>
+
+    <!-- 星空背景 -->
+    <div class="stars-bg" id="starsBg"></div>
+
+    <!-- 顶部导航 -->
+    <header class="top-nav">
+        <a href="../xirong.github.io/learn.html" class="back-btn">⬅️ 返回</a>
+        <div class="title-area">
+            <h1>🗺️ 中国省份拼图</h1>
+        </div>
+        <div class="stats-area">
+            <div class="stat-box">⏱️ <span id="timerText">0:00</span></div>
+            <div class="stat-box progress">🧩 <span id="progressText">0/34</span></div>
+        </div>
+    </header>
+
+    <!-- 主游戏区域 -->
+    <main class="game-container">
+        <!-- 地图区域 -->
+        <div class="map-area">
+            <div id="mapContainer"></div>
+        </div>
+
+        <!-- 拼图块区域 -->
+        <div class="puzzle-area">
+            <div class="puzzle-header">
+                <span class="puzzle-title">🧩 拖拽省份到地图</span>
+                <div class="puzzle-controls">
+                    <button class="control-btn" id="hintBtn">💡提示</button>
+                    <button class="control-btn" id="resetBtn">🔄重置</button>
+                </div>
+            </div>
+            <div class="puzzle-scroll" id="puzzleScroll"></div>
+        </div>
+    </main>
+
+    <!-- 拖拽幽灵 -->
+    <div class="drag-ghost" id="dragGhost" style="display: none;"></div>
+
+    <!-- 省份信息弹窗 -->
+    <div class="modal" id="provinceModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="province-header">
+                <div class="province-icon" id="provinceIcon">🏛️</div>
+                <h2 id="provinceName">北京</h2>
+                <span class="province-type" id="provinceType">直辖市</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-emoji" id="foodEmoji">🦆</span>
+                <div>
+                    <div class="detail-label">特色美食</div>
+                    <div class="detail-value" id="foodName">北京烤鸭</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <span class="detail-emoji" id="landmarkEmoji">🏯</span>
+                <div>
+                    <div class="detail-label">著名景点</div>
+                    <div class="detail-value" id="landmarkName">长城</div>
+                </div>
+            </div>
+            <div class="fun-fact">
+                <div class="fun-fact-title">💡 你知道吗？</div>
+                <div id="funFactText">北京是中国的首都！</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成弹窗 -->
+    <div class="modal" id="completionModal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="celebration-icon">🎉</div>
+            <h2 style="color: var(--primary-yellow); margin: 15px 0;">太棒了！</h2>
+            <p>你完成了中国地图拼图！</p>
+            <div style="display: flex; justify-content: center; gap: 25px; margin: 20px 0;">
+                <div style="text-align: center;">
+                    <div style="font-size: 1.8rem; font-weight: 900; color: var(--primary-cyan);" id="completionTime">0:00</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">用时</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.8rem; font-weight: 900; color: var(--primary-cyan);">34</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">省份</div>
+                </div>
+            </div>
+            <div class="knowledge-section">
+                <div class="knowledge-title">🎓 中国行政区划</div>
+                <div class="knowledge-grid">
+                    <div class="knowledge-item">
+                        <div class="knowledge-number">23</div>
+                        <div class="knowledge-label">个省</div>
+                    </div>
+                    <div class="knowledge-item">
+                        <div class="knowledge-number">5</div>
+                        <div class="knowledge-label">个自治区</div>
+                    </div>
+                    <div class="knowledge-item">
+                        <div class="knowledge-number">4</div>
+                        <div class="knowledge-label">个直辖市</div>
+                    </div>
+                    <div class="knowledge-item">
+                        <div class="knowledge-number">2</div>
+                        <div class="knowledge-label">个特别行政区</div>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 1rem; color: var(--primary-yellow);">
+                    23 + 5 + 4 + 2 = <strong>34</strong>
+                </p>
+            </div>
+            <button class="play-again-btn" id="playAgainBtn">再玩一次 🔄</button>
+        </div>
+    </div>
+
+    <script src="js/province-info.js"></script>
+    <script>
+        // ============ 全局变量 ============
+        let svgDoc = null;
+        let provinces = {};
+        let placedCount = 0;
+        let startTime = Date.now();
+        let timerInterval = null;
+        let currentDragging = null;
+        let dragGhost = null;
+
+        // 拼图块尺寸配置
+        const PIECE_MAX_SIZE = 70; // 最大尺寸
+
+        // ============ 初始化 ============
+        async function init() {
+            generateStars();
+            await loadMap();
+            setupGame();
+            bindEvents();
+            startTimer();
+
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 500);
+        }
+
+        // ============ 生成星空 ============
+        function generateStars() {
+            const bg = document.getElementById('starsBg');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                bg.appendChild(star);
+            }
+        }
+
+        // ============ 加载地图 ============
+        async function loadMap() {
+            const response = await fetch('china-map.svg');
+            const svgText = await response.text();
+            document.getElementById('mapContainer').innerHTML = svgText;
+            svgDoc = document.querySelector('#mapContainer svg');
+            svgDoc.setAttribute('viewBox', '0 0 595.28 504');
+        }
+
+        // ============ 设置游戏 ============
+        function setupGame() {
+            const puzzleScroll = document.getElementById('puzzleScroll');
+            puzzleScroll.innerHTML = '';
+
+            // 获取所有省份元素
+            const stateElements = svgDoc.querySelectorAll('.state');
+
+            stateElements.forEach(el => {
+                const classes = el.getAttribute('class').split(' ');
+                const stateClass = classes.find(c => c !== 'state');
+                if (!stateClass) return;
+
+                const info = ProvinceInfo[stateClass];
+                if (!info) return;
+
+                // 设置为目标轮廓
+                el.classList.add('target');
+                el.setAttribute('data-province', stateClass);
+
+                // 获取省份边界框
+                const bbox = el.getBBox();
+
+                // 保存省份信息
+                provinces[stateClass] = {
+                    targetElement: el,
+                    info: info,
+                    placed: false,
+                    bbox: bbox,
+                    pathData: el.getAttribute('d') || null,
+                    points: el.getAttribute('points') || null,
+                    tagName: el.tagName.toLowerCase()
+                };
+            });
+
+            // 创建拼图块（随机顺序）
+            const provinceKeys = Object.keys(provinces);
+            shuffleArray(provinceKeys);
+
+            provinceKeys.forEach(key => {
+                const province = provinces[key];
+                const piece = createPuzzlePiece(key, province);
+                puzzleScroll.appendChild(piece);
+                provinces[key].pieceElement = piece;
+            });
+        }
+
+        // ============ 创建拼图块（真实省份形状）============
+        function createPuzzlePiece(key, province) {
+            const info = province.info;
+            const bbox = province.bbox;
+
+            // 计算缩放比例，使拼图块适应指定大小
+            const scale = Math.min(PIECE_MAX_SIZE / bbox.width, PIECE_MAX_SIZE / bbox.height);
+            const width = bbox.width * scale;
+            const height = bbox.height * scale;
+
+            // 创建容器
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.setAttribute('data-province', key);
+            piece.style.width = width + 'px';
+            piece.style.height = height + 'px';
+
+            // 创建SVG
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+            svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+
+            // 复制省份形状
+            let shape;
+            if (province.tagName === 'path') {
+                shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                shape.setAttribute('d', province.pathData);
+            } else {
+                shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                shape.setAttribute('points', province.points);
+            }
+            shape.classList.add('province-shape');
+            shape.setAttribute('fill', info.color);
+
+            svg.appendChild(shape);
+            piece.appendChild(svg);
+
+            // 添加标签（emoji + 名称）
+            const label = document.createElement('div');
+            label.className = 'piece-label';
+            label.innerHTML = `
+                <span class="piece-emoji">${info.landmark.emoji}</span>
+                <span class="piece-name">${info.name}</span>
+            `;
+            piece.appendChild(label);
+
+            // 存储缩放信息
+            province.scale = scale;
+            province.pieceWidth = width;
+            province.pieceHeight = height;
+
+            return piece;
+        }
+
+        // ============ 打乱数组 ============
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // ============ 绑定事件 ============
+        function bindEvents() {
+            dragGhost = document.getElementById('dragGhost');
+
+            // 鼠标事件
+            document.addEventListener('mousedown', handleDragStart);
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+
+            // 触摸事件
+            document.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+
+            // 控制按钮
+            document.getElementById('hintBtn').onclick = showHint;
+            document.getElementById('resetBtn').onclick = resetGame;
+            document.getElementById('playAgainBtn').onclick = () => {
+                document.getElementById('completionModal').classList.remove('visible');
+                resetGame();
+            };
+
+            // 弹窗关闭
+            document.getElementById('modalClose').onclick = () => {
+                document.getElementById('provinceModal').classList.remove('visible');
+            };
+            document.getElementById('provinceModal').onclick = (e) => {
+                if (e.target.id === 'provinceModal') {
+                    document.getElementById('provinceModal').classList.remove('visible');
+                }
+            };
+        }
+
+        // ============ 拖拽处理 ============
+        function handleDragStart(e) {
+            const piece = e.target.closest('.puzzle-piece');
+            if (!piece || piece.classList.contains('placed')) return;
+
+            e.preventDefault();
+            const key = piece.getAttribute('data-province');
+            const province = provinces[key];
+
+            currentDragging = {
+                key: key,
+                piece: piece,
+                province: province
+            };
+
+            piece.classList.add('dragging');
+
+            // 创建幽灵元素（复制拼图块）
+            dragGhost.innerHTML = piece.innerHTML;
+            dragGhost.style.width = province.pieceWidth + 'px';
+            dragGhost.style.height = province.pieceHeight + 'px';
+            dragGhost.style.display = 'block';
+
+            updateGhostPosition(e.clientX, e.clientY);
+
+            // 高亮目标
+            province.targetElement.classList.add('highlight');
+        }
+
+        function handleDragMove(e) {
+            if (!currentDragging) return;
+            e.preventDefault();
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            updateGhostPosition(e.clientX, e.clientY);
+            checkHover(e.clientX, e.clientY);
+        }
+
+        // 保存最后的鼠标位置
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        function handleDragEnd(e) {
+            if (!currentDragging) return;
+
+            const key = currentDragging.key;
+            const piece = currentDragging.piece;
+            const province = currentDragging.province;
+
+            // 获取最终位置（使用保存的鼠标位置）
+            const dropX = lastMouseX;
+            const dropY = lastMouseY;
+
+            piece.classList.remove('dragging');
+            dragGhost.style.display = 'none';
+            province.targetElement.classList.remove('highlight');
+            province.targetElement.style.fill = '';
+            province.targetElement.style.stroke = '';
+
+            // 转换为SVG坐标
+            const point = svgDoc.createSVGPoint();
+            point.x = dropX;
+            point.y = dropY;
+            const svgPoint = point.matrixTransform(svgDoc.getScreenCTM().inverse());
+
+            // 检查是否在目标区域内
+            const bbox = province.bbox;
+            const margin = 30; // 增加容错边距
+            const isInside =
+                svgPoint.x >= bbox.x - margin &&
+                svgPoint.x <= bbox.x + bbox.width + margin &&
+                svgPoint.y >= bbox.y - margin &&
+                svgPoint.y <= bbox.y + bbox.height + margin;
+
+            if (isInside) {
+                placeProvince(key);
+            }
+
+            currentDragging = null;
+        }
+
+        // ============ 触摸事件 ============
+        function handleTouchStart(e) {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+            const piece = elem ? elem.closest('.puzzle-piece') : null;
+            if (!piece) return;
+
+            handleDragStart({
+                target: piece,
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                preventDefault: () => e.preventDefault()
+            });
+        }
+
+        function handleTouchMove(e) {
+            if (!currentDragging || e.touches.length !== 1) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            lastMouseX = touch.clientX;
+            lastMouseY = touch.clientY;
+            updateGhostPosition(touch.clientX, touch.clientY);
+            checkHover(touch.clientX, touch.clientY);
+        }
+
+        function handleTouchEnd(e) {
+            handleDragEnd(e);
+        }
+
+        // ============ 辅助函数 ============
+        function updateGhostPosition(x, y) {
+            dragGhost.style.left = x + 'px';
+            dragGhost.style.top = y + 'px';
+        }
+
+        function checkHover(x, y) {
+            if (!currentDragging) return;
+
+            const province = currentDragging.province;
+            const point = svgDoc.createSVGPoint();
+            point.x = x;
+            point.y = y;
+            const svgPoint = point.matrixTransform(svgDoc.getScreenCTM().inverse());
+
+            const bbox = province.bbox;
+            const margin = 20;
+            const isNear =
+                svgPoint.x >= bbox.x - margin &&
+                svgPoint.x <= bbox.x + bbox.width + margin &&
+                svgPoint.y >= bbox.y - margin &&
+                svgPoint.y <= bbox.y + bbox.height + margin;
+
+            if (isNear) {
+                province.targetElement.style.fill = 'rgba(38, 222, 129, 0.4)';
+                province.targetElement.style.stroke = '#26de81';
+            } else {
+                province.targetElement.style.fill = '';
+                province.targetElement.style.stroke = '';
+            }
+        }
+
+        function placeProvince(key) {
+            const province = provinces[key];
+
+            // 隐藏拼图块
+            province.pieceElement.classList.add('placed');
+
+            // 设置目标样式
+            province.targetElement.classList.remove('target');
+            province.targetElement.classList.remove('highlight');
+            province.targetElement.classList.add('placed');
+            province.targetElement.setAttribute('fill', province.info.color);
+            province.targetElement.style.fill = '';
+            province.targetElement.style.stroke = '';
+
+            // 在地图上添加省份标签（emoji + 名称）
+            addProvinceLabel(key, province);
+
+            // 点击查看详情
+            province.targetElement.onclick = () => showProvinceInfo(province.info);
+
+            province.placed = true;
+            placedCount++;
+            updateProgress();
+            showToast(`✅ ${province.info.name} 放对了！`);
+            playSound('success');
+
+            if (placedCount >= Object.keys(provinces).length) {
+                setTimeout(showCompletion, 500);
+            }
+        }
+
+        // 在地图上添加省份标签
+        function addProvinceLabel(key, province) {
+            const bbox = province.bbox;
+            const info = province.info;
+
+            // 计算省份中心位置
+            const centerX = bbox.x + bbox.width / 2;
+            const centerY = bbox.y + bbox.height / 2;
+
+            // 根据省份大小调整字体
+            const size = Math.min(bbox.width, bbox.height);
+            const fontSize = Math.max(8, Math.min(16, size / 4));
+            const emojiSize = Math.max(12, Math.min(24, size / 3));
+
+            // 创建foreignObject来显示HTML内容
+            const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+            fo.setAttribute('x', centerX - 30);
+            fo.setAttribute('y', centerY - 20);
+            fo.setAttribute('width', 60);
+            fo.setAttribute('height', 40);
+            fo.setAttribute('class', 'province-label-fo');
+            fo.setAttribute('data-province', key);
+            fo.style.pointerEvents = 'none'; // 允许点击穿透到底层省份
+
+            // 创建标签内容
+            const div = document.createElement('div');
+            div.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                pointer-events: none;
+            `;
+            div.innerHTML = `
+                <span style="font-size: ${emojiSize}px; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${info.landmark.emoji}</span>
+                <span style="font-size: ${fontSize}px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9); white-space: nowrap;">${info.name}</span>
+            `;
+
+            fo.appendChild(div);
+            svgDoc.appendChild(fo);
+
+            // 保存标签引用
+            province.labelElement = fo;
+        }
+
+        function updateProgress() {
+            document.getElementById('progressText').textContent = `${placedCount}/34`;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const seconds = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timerText').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function resetGame() {
+            Object.keys(provinces).forEach(key => {
+                const province = provinces[key];
+                province.placed = false;
+                province.pieceElement.classList.remove('placed');
+                province.targetElement.classList.add('target');
+                province.targetElement.classList.remove('placed');
+                province.targetElement.classList.remove('highlight');
+                province.targetElement.removeAttribute('fill');
+                province.targetElement.style.fill = '';
+                province.targetElement.style.stroke = '';
+                province.targetElement.onclick = null;
+
+                // 移除标签
+                if (province.labelElement) {
+                    province.labelElement.remove();
+                    province.labelElement = null;
+                }
+            });
+
+            // 重新打乱
+            const puzzleScroll = document.getElementById('puzzleScroll');
+            const pieces = Array.from(puzzleScroll.children);
+            shuffleArray(pieces);
+            pieces.forEach(piece => puzzleScroll.appendChild(piece));
+
+            placedCount = 0;
+            updateProgress();
+            startTime = Date.now();
+        }
+
+        function showHint() {
+            const unplaced = Object.entries(provinces).filter(([k, p]) => !p.placed);
+            if (unplaced.length === 0) return;
+
+            const [key, province] = unplaced[Math.floor(Math.random() * unplaced.length)];
+            province.targetElement.classList.add('highlight');
+            province.pieceElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            province.pieceElement.style.animation = 'pulse 0.4s ease 3';
+
+            showToast(`💡 找找 ${province.info.name}（${province.info.landmark.emoji}）`);
+
+            setTimeout(() => {
+                if (!province.placed) {
+                    province.targetElement.classList.remove('highlight');
+                }
+                province.pieceElement.style.animation = '';
+            }, 3000);
+        }
+
+        function showProvinceInfo(info) {
+            document.getElementById('provinceIcon').textContent = info.landmark.emoji;
+            document.getElementById('provinceName').textContent = info.name;
+            document.getElementById('provinceType').textContent = info.type;
+            document.getElementById('foodEmoji').textContent = info.food.emoji;
+            document.getElementById('foodName').textContent = info.food.name;
+            document.getElementById('landmarkEmoji').textContent = info.landmark.emoji;
+            document.getElementById('landmarkName').textContent = info.landmark.name;
+            document.getElementById('funFactText').textContent = info.funFact;
+            document.getElementById('provinceModal').classList.add('visible');
+        }
+
+        function showCompletion() {
+            const seconds = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('completionTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('completionModal').classList.add('visible');
+            playSound('complete');
+        }
+
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                gain.gain.value = 0.1;
+
+                if (type === 'success') {
+                    osc.frequency.value = 800;
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } else if (type === 'complete') {
+                    [523, 659, 784, 1047].forEach((f, i) => {
+                        setTimeout(() => {
+                            const o = ctx.createOscillator();
+                            const g = ctx.createGain();
+                            o.connect(g);
+                            g.connect(ctx.destination);
+                            o.frequency.value = f;
+                            g.gain.value = 0.1;
+                            o.start();
+                            o.stop(ctx.currentTime + 0.2);
+                        }, i * 150);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // 脉冲动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.15); filter: brightness(1.3); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 启动
+        init();
+    </script>
+</body>
+
+</html>
