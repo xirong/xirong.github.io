@@ -740,10 +740,10 @@
                     }
 
                     void main() {
-                        // 基础岩石颜色
-                        vec3 rockDark = vec3(0.15, 0.12, 0.1);
-                        vec3 rockLight = vec3(0.4, 0.35, 0.3);
-                        vec3 rockRust = vec3(0.5, 0.3, 0.2);
+                        // 基础岩石颜色 - 更亮更清晰
+                        vec3 rockDark = vec3(0.35, 0.28, 0.22);
+                        vec3 rockLight = vec3(0.65, 0.58, 0.50);
+                        vec3 rockRust = vec3(0.70, 0.45, 0.30);
 
                         float n = noise(vPosition * 2.0);
                         float n2 = noise(vPosition * 5.0);
@@ -754,19 +754,19 @@
                         // 陨石坑纹理
                         float craters = noise(vPosition * 8.0);
                         craters = smoothstep(0.5, 0.7, craters);
-                        rockColor = mix(rockColor, rockDark * 0.5, craters * 0.5);
+                        rockColor = mix(rockColor, rockDark * 0.7, craters * 0.4);
 
                         // 金属光泽（铁陨石特征）
                         float metallic = noise(vPosition * 3.0 + 10.0);
-                        vec3 metalColor = vec3(0.6, 0.55, 0.5);
-                        rockColor = mix(rockColor, metalColor, metallic * 0.2);
+                        vec3 metalColor = vec3(0.75, 0.70, 0.65);
+                        rockColor = mix(rockColor, metalColor, metallic * 0.25);
 
-                        // 光照
+                        // 光照 - 更亮
                         vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
                         float diff = max(dot(vNormal, lightDir), 0.0);
-                        float ambient = 0.3;
+                        float ambient = 0.45;
 
-                        vec3 finalColor = rockColor * (diff * 0.7 + ambient);
+                        vec3 finalColor = rockColor * (diff * 0.6 + ambient);
 
                         gl_FragColor = vec4(finalColor, 1.0);
                     }
@@ -855,68 +855,198 @@
             // 屏幕闪白
             const flash = document.getElementById('impactFlash');
             flash.classList.add('active');
-            setTimeout(() => flash.classList.remove('active'), 200);
-
-            // 相机震动
-            const originalPos = camera.position.clone();
-            let shakeTime = 0;
-            const shakeInterval = setInterval(() => {
-                shakeTime += 0.05;
-                if (shakeTime > 1) {
-                    camera.position.copy(originalPos);
-                    clearInterval(shakeInterval);
-                    return;
-                }
-                const intensity = (1 - shakeTime) * 5;
-                camera.position.x = originalPos.x + (Math.random() - 0.5) * intensity;
-                camera.position.y = originalPos.y + (Math.random() - 0.5) * intensity;
-                camera.position.z = originalPos.z + (Math.random() - 0.5) * intensity;
-            }, 16);
-
-            // 创建爆炸粒子
-            createExplosionParticles(impactPoint);
-
-            // 创建冲击波
-            createShockwave(impactPoint);
-
-            // 更新地球材质（显示陨石坑）
-            // 注意：需要将世界坐标转换为地球模型空间坐标
-            // 因为地球可能已经旋转过，需要应用逆旋转
-            const impactDir = impactPoint.clone().normalize();
-            // 应用地球旋转的逆变换
-            const inverseRotation = new THREE.Quaternion().setFromEuler(earth.rotation).invert();
-            impactDir.applyQuaternion(inverseRotation);
-            earth.material.uniforms.impactPoint.value.copy(impactDir);
-
-            // 渐进显示陨石坑
-            let craterGrowth = 0;
-            const craterInterval = setInterval(() => {
-                craterGrowth += 0.02;
-                if (craterGrowth > 0.35) {
-                    clearInterval(craterInterval);
-                    earth.material.uniforms.impactStrength.value = 0;
-                    return;
-                }
-                earth.material.uniforms.craterSize.value = craterGrowth;
-                earth.material.uniforms.impactStrength.value = 0;
-            }, 25);
+            setTimeout(() => flash.classList.remove('active'), 400);
 
             // 隐藏陨石
             asteroid.visible = false;
             asteroidTrail.visible = false;
-
-            // 停止地球自转
             earthRotationEnabled = false;
-
-            // 保存撞击点用于相机动画
+            controls.enabled = false;
             impactPointGlobal = impactPoint.clone();
 
-            // 延迟后将相机推近到陨石坑
+            // === 关键：闪白期间将相机瞬间切到撞击面，让爆炸可见 ===
+            const impactNormal = impactPoint.clone().normalize();
+            const viewPos = impactNormal.clone().multiplyScalar(EARTH_RADIUS + 120);
+            viewPos.y += 20;
+            camera.position.copy(viewPos);
+            const lookTarget = impactNormal.clone().multiplyScalar(EARTH_RADIUS);
+            controls.target.copy(lookTarget);
+            camera.lookAt(lookTarget);
+
+            // 相机震动 - 基于新位置
+            const shakeOrigin = camera.position.clone();
+            let shakeTime = 0;
+            const shakeInterval = setInterval(() => {
+                shakeTime += 0.03;
+                if (shakeTime > 1.5) {
+                    camera.position.copy(shakeOrigin);
+                    clearInterval(shakeInterval);
+                    return;
+                }
+                const intensity = (1 - shakeTime / 1.5) * 8;
+                camera.position.x = shakeOrigin.x + (Math.random() - 0.5) * intensity;
+                camera.position.y = shakeOrigin.y + (Math.random() - 0.5) * intensity;
+                camera.position.z = shakeOrigin.z + (Math.random() - 0.5) * intensity;
+            }, 16);
+
+            // 坐标转换
+            const impactDir = impactPoint.clone().normalize();
+            const inverseRotation = new THREE.Quaternion().setFromEuler(earth.rotation).invert();
+            impactDir.applyQuaternion(inverseRotation);
+            earth.material.uniforms.impactPoint.value.copy(impactDir);
+
+            // === 第1阶段：爆炸 + 碎片飞溅（0-0.5秒）===
+            createExplosionParticles(impactPoint);   // 火焰粒子
+            createRockDebris(impactPoint);            // 岩石碎片
+            createShockwave(impactPoint);             // 冲击波
+
+            document.getElementById('impactStatus').textContent = '撞击！！';
+
+            // === 第2阶段：熊熊烈火（0.5-3秒）===
+            setTimeout(() => {
+                createFireball(impactPoint);  // 持续燃烧的火球
+                document.getElementById('impactStatus').textContent = '熊熊大火...';
+            }, 500);
+
+            // === 第3阶段：火焰消退 + 显示陨石坑（3-5秒）===
+            setTimeout(() => {
+                document.getElementById('impactStatus').textContent = '火焰消退...';
+                let craterGrowth = 0;
+                const craterInterval = setInterval(() => {
+                    craterGrowth += 0.015;
+                    if (craterGrowth > 0.35) {
+                        clearInterval(craterInterval);
+                        earth.material.uniforms.impactStrength.value = 0;
+                        return;
+                    }
+                    earth.material.uniforms.craterSize.value = craterGrowth;
+                    earth.material.uniforms.impactStrength.value = 0;
+                }, 30);
+            }, 3000);
+
+            // === 第4阶段：相机推近（5秒后）===
             setTimeout(() => {
                 zoomToCrater(impactPoint);
-            }, 1500);
+            }, 5000);
+        }
 
-            document.getElementById('impactStatus').textContent = '撞击完成！';
+        // ============ 岩石碎片 ============
+        function createRockDebris(center) {
+            const debrisCount = 60;
+            for (let i = 0; i < debrisCount; i++) {
+                const size = Math.random() * 1.5 + 0.5;
+                const geometry = new THREE.IcosahedronGeometry(size, 0);
+                const material = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color(
+                        0.4 + Math.random() * 0.3,
+                        0.3 + Math.random() * 0.2,
+                        0.2 + Math.random() * 0.1
+                    )
+                });
+                const debris = new THREE.Mesh(geometry, material);
+                debris.position.copy(center);
+
+                // 从撞击点向外飞散
+                const vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2
+                );
+                vel.add(center.clone().normalize().multiplyScalar(0.8));
+                vel.normalize().multiplyScalar(Math.random() * 2.5 + 1);
+
+                debris.userData.velocity = vel;
+                debris.userData.rotSpeed = new THREE.Vector3(
+                    Math.random() * 0.2, Math.random() * 0.2, Math.random() * 0.2
+                );
+                debris.userData.life = 1.0;
+                debris.userData.fadeSpeed = 0.005 + Math.random() * 0.005;
+
+                scene.add(debris);
+                debrisParticles.push(debris);
+            }
+        }
+
+        // ============ 持续燃烧的火球 ============
+        function createFireball(center) {
+            // 多波火焰粒子
+            for (let wave = 0; wave < 3; wave++) {
+                setTimeout(() => {
+                    const particleCount = 600;
+                    const geometry = new THREE.BufferGeometry();
+                    const positions = new Float32Array(particleCount * 3);
+                    const velocities = [];
+                    const colors = new Float32Array(particleCount * 3);
+
+                    const surfacePoint = center.clone().normalize().multiplyScalar(EARTH_RADIUS + 2);
+
+                    for (let i = 0; i < particleCount; i++) {
+                        // 火焰粒子围绕撞击点生成
+                        const spread = 8;
+                        positions[i * 3] = surfacePoint.x + (Math.random() - 0.5) * spread;
+                        positions[i * 3 + 1] = surfacePoint.y + (Math.random() - 0.5) * spread;
+                        positions[i * 3 + 2] = surfacePoint.z + (Math.random() - 0.5) * spread;
+
+                        // 火焰向上升腾
+                        const upDir = center.clone().normalize();
+                        const vel = new THREE.Vector3(
+                            (Math.random() - 0.5) * 0.8,
+                            (Math.random() - 0.5) * 0.8,
+                            (Math.random() - 0.5) * 0.8
+                        );
+                        vel.add(upDir.multiplyScalar(Math.random() * 1.5 + 0.5));
+                        velocities.push(vel);
+
+                        // 火焰颜色：白→黄→橙→红→黑烟
+                        const t = Math.random();
+                        if (t < 0.15) {
+                            // 白色高温核心
+                            colors[i * 3] = 1.0;
+                            colors[i * 3 + 1] = 0.95;
+                            colors[i * 3 + 2] = 0.8;
+                        } else if (t < 0.4) {
+                            // 亮黄色
+                            colors[i * 3] = 1.0;
+                            colors[i * 3 + 1] = 0.8;
+                            colors[i * 3 + 2] = 0.2;
+                        } else if (t < 0.7) {
+                            // 橙色
+                            colors[i * 3] = 1.0;
+                            colors[i * 3 + 1] = 0.4;
+                            colors[i * 3 + 2] = 0.05;
+                        } else if (t < 0.9) {
+                            // 深红
+                            colors[i * 3] = 0.8;
+                            colors[i * 3 + 1] = 0.15;
+                            colors[i * 3 + 2] = 0.0;
+                        } else {
+                            // 黑烟
+                            colors[i * 3] = 0.15;
+                            colors[i * 3 + 1] = 0.12;
+                            colors[i * 3 + 2] = 0.1;
+                        }
+                    }
+
+                    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+                    const material = new THREE.PointsMaterial({
+                        size: 2.5,
+                        vertexColors: true,
+                        transparent: true,
+                        opacity: 0.9,
+                        blending: THREE.AdditiveBlending,
+                        depthWrite: false
+                    });
+
+                    const fire = new THREE.Points(geometry, material);
+                    fire.userData.velocities = velocities;
+                    fire.userData.life = 1.0;
+                    fire.userData.fadeSpeed = 0.006;
+                    scene.add(fire);
+                    debrisParticles.push(fire);
+                }, wave * 400);
+            }
         }
 
         // ============ 相机推近陨石坑 ============
@@ -1147,29 +1277,57 @@
                 }
             }
 
-            // 更新爆炸粒子
-            debrisParticles.forEach((explosion, index) => {
-                if (explosion.userData.life > 0) {
-                    explosion.userData.life -= 0.008;
-                    explosion.material.opacity = explosion.userData.life;
+            // 更新爆炸粒子和碎片（倒序遍历避免splice问题）
+            for (let i = debrisParticles.length - 1; i >= 0; i--) {
+                const obj = debrisParticles[i];
 
-                    const positions = explosion.geometry.attributes.position.array;
-                    const velocities = explosion.userData.velocities;
-
-                    for (let i = 0; i < velocities.length; i++) {
-                        positions[i * 3] += velocities[i].x * 0.5;
-                        positions[i * 3 + 1] += velocities[i].y * 0.5;
-                        positions[i * 3 + 2] += velocities[i].z * 0.5;
-
-                        // 减速
-                        velocities[i].multiplyScalar(0.98);
+                if (obj.isMesh) {
+                    // 岩石碎片（Mesh对象）
+                    obj.userData.life -= obj.userData.fadeSpeed;
+                    if (obj.userData.life <= 0) {
+                        scene.remove(obj);
+                        debrisParticles.splice(i, 1);
+                        continue;
                     }
-                    explosion.geometry.attributes.position.needsUpdate = true;
+                    // 移动
+                    obj.position.add(obj.userData.velocity);
+                    // 旋转翻滚
+                    obj.rotation.x += obj.userData.rotSpeed.x;
+                    obj.rotation.y += obj.userData.rotSpeed.y;
+                    obj.rotation.z += obj.userData.rotSpeed.z;
+                    // 重力（向地球中心）
+                    const gravity = obj.position.clone().normalize().multiplyScalar(-0.01);
+                    obj.userData.velocity.add(gravity);
+                    // 减速
+                    obj.userData.velocity.multiplyScalar(0.995);
+                    // 淡出
+                    obj.material.transparent = true;
+                    obj.material.opacity = obj.userData.life;
                 } else {
-                    scene.remove(explosion);
-                    debrisParticles.splice(index, 1);
+                    // 粒子系统（Points对象）
+                    const fadeSpeed = obj.userData.fadeSpeed || 0.008;
+                    obj.userData.life -= fadeSpeed;
+
+                    if (obj.userData.life <= 0) {
+                        scene.remove(obj);
+                        debrisParticles.splice(i, 1);
+                        continue;
+                    }
+
+                    obj.material.opacity = obj.userData.life;
+
+                    const positions = obj.geometry.attributes.position.array;
+                    const velocities = obj.userData.velocities;
+
+                    for (let j = 0; j < velocities.length; j++) {
+                        positions[j * 3] += velocities[j].x * 0.5;
+                        positions[j * 3 + 1] += velocities[j].y * 0.5;
+                        positions[j * 3 + 2] += velocities[j].z * 0.5;
+                        velocities[j].multiplyScalar(0.98);
+                    }
+                    obj.geometry.attributes.position.needsUpdate = true;
                 }
-            });
+            }
 
             // 更新冲击波
             if (shockwave) {
