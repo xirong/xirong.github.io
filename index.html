@@ -1,1108 +1,239 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太阳系 3D 探索 - 柳智天的宇宙课堂</title>
+    <title>智天的学习乐园</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --cosmic-dark: #0a0a0f;
-            --nebula-purple: #1a0a2e;
-            --stellar-blue: #16213e;
-            --accent-gold: #f4d03f;
-            --accent-orange: #e67e22;
-            --accent-cyan: #00d4ff;
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Noto Sans SC', sans-serif;
-            background: var(--cosmic-dark);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a2a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        #canvas-container {
+        .stars {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* 顶部标题栏 */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, transparent 100%);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
+            z-index: 0;
         }
 
-        .header>* {
-            pointer-events: auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+        .star {
+            position: absolute;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 0 30px rgba(244, 208, 63, 0.4);
-            animation: pulse-glow 3s ease-in-out infinite;
+            background: #fff;
+            animation: twinkle 3s infinite alternate;
         }
 
-        @keyframes pulse-glow {
-
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(244, 208, 63, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 50px rgba(244, 208, 63, 0.7);
-            }
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
 
-        .logo-text h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d9ff, #ffd93d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: 2px;
+            margin-bottom: 8px;
         }
 
-        .logo-text p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            letter-spacing: 1px;
+        .header p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.6);
         }
 
-        /* 儿童模式入口按钮 */
-        .kids-mode-btn {
+        .themes {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-            background-size: 300% 300%;
-            animation: rainbow-bg 3s ease infinite;
-            border-radius: 50px;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .theme-section h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-left: 4px;
+        }
+
+        .theme-section h2 .emoji {
+            margin-right: 8px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            display: block;
             text-decoration: none;
             color: #fff;
-            font-family: 'Noto Sans SC', sans-serif;
-            font-weight: 600;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kids-mode-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
-        }
-
-        .kids-mode-btn .rocket-icon {
-            font-size: 1.5rem;
-            animation: rocket-bounce 1s ease-in-out infinite;
-        }
-
-        @keyframes rocket-bounce {
-
-            0%,
-            100% {
-                transform: translateY(0) rotate(-10deg);
-            }
-
-            50% {
-                transform: translateY(-5px) rotate(10deg);
-            }
-        }
-
-        @keyframes rainbow-bg {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .kids-mode-btn .badge {
-            position: absolute;
-            top: -8px;
-            right: -5px;
-            background: #ff4757;
-            color: white;
-            font-size: 0.6rem;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-weight: 500;
-        }
-
-        .controls {
-            position: fixed;
-            top: 290px;
-            right: 0;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 8px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-right: none;
-            backdrop-filter: blur(20px);
-            border-radius: 12px 0 0 12px;
-            transform: translateX(calc(100% - 36px));
-            transition: transform 0.3s ease;
-        }
-
-        .controls:hover {
-            transform: translateX(0);
-        }
-
-        .controls::before {
-            content: '⚙️';
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .controls:hover::before {
-            opacity: 0;
-        }
-
-        .control-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 6px 10px;
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
-        }
-
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--accent-cyan);
-        }
-
-        .control-btn.active {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: var(--accent-cyan);
-        }
-
-        .control-btn .icon {
-            font-size: 0.9rem;
-        }
-
-        /* 太阳样式选择器 - 右侧自动隐藏 */
-        .sun-style-selector {
-            position: fixed;
-            top: 90px;
-            right: 0;
-            z-index: 150;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-right: none;
-            backdrop-filter: blur(20px);
-            border-radius: 12px 0 0 12px;
-            padding: 10px 12px;
-            min-width: 160px;
-            pointer-events: auto;
-            transform: translateX(calc(100% - 36px));
-            transition: transform 0.3s ease;
-        }
-
-        .sun-style-selector:hover {
-            transform: translateX(0);
-        }
-
-        .sun-style-selector::before {
-            content: '☀️';
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            opacity: 0.8;
-            pointer-events: none;
-        }
-
-        .sun-style-selector:hover::before {
-            opacity: 0;
-        }
-
-        .sun-style-option {
-            cursor: pointer;
-        }
-
-        .sun-style-title {
-            font-size: 0.7rem;
-            color: var(--accent-gold);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 500;
-        }
-
-        .sun-style-options {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .sun-style-option {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .sun-style-option:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent-orange);
-        }
-
-        .sun-style-option.active {
-            background: rgba(255, 152, 0, 0.15);
-            border-color: var(--accent-orange);
-        }
-
-        .sun-style-option input {
-            display: none;
-        }
-
-        .sun-style-radio {
-            width: 14px;
-            height: 14px;
-            border: 2px solid var(--text-secondary);
-            border-radius: 50%;
-            position: relative;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .sun-style-option.active .sun-style-radio {
-            border-color: var(--accent-orange);
-        }
-
-        .sun-style-option.active .sun-style-radio::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
-            background: var(--accent-orange);
-            border-radius: 50%;
-        }
-
-        .sun-style-label {
-            flex: 1;
-        }
-
-        .sun-style-label .name {
-            font-size: 0.7rem;
-            color: var(--text-primary);
-            margin-bottom: 1px;
-        }
-
-        .sun-style-label .desc {
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-        }
-
-        .sun-style-preview {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .sun-preview-simple {
-            background: radial-gradient(circle, #fff9c4, #ffeb3b, #ff9800);
-            box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
-        }
-
-        .sun-preview-realistic {
-            background: radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336, #b71c1c);
-            box-shadow: 0 0 20px rgba(255, 87, 34, 0.8);
-            animation: sun-flicker 0.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes sun-flicker {
-            0% {
-                box-shadow: 0 0 20px rgba(255, 87, 34, 0.8);
-            }
-
-            100% {
-                box-shadow: 0 0 25px rgba(255, 152, 0, 0.9);
-            }
-        }
-
-        /* 行星信息面板 - 桌面版 */
-        .planet-info {
-            position: fixed;
-            bottom: 80px;
-            left: 30px;
-            z-index: 100;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(30px);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px;
-            padding: 20px 25px;
-            min-width: 320px;
-            max-width: 380px;
-            max-height: calc(100vh - 180px);
-            overflow-y: auto;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 24px;
+            transition: all 0.3s ease;
         }
 
-        .planet-info.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .card:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
         }
 
-        /* 行星信息面板 - 移动设备版（iPad/iPhone） */
-        body.is-mobile .planet-info {
-            bottom: auto;
-            top: 100px;
-            left: 0;
-            right: auto;
-            border-radius: 0 16px 16px 0;
-            border-left: none;
-            min-width: 280px;
-            max-width: 320px;
-            transform: translateX(calc(-100% + 40px));
-            opacity: 1;
-            transition: transform 0.3s ease;
-        }
-
-        body.is-mobile .planet-info::before {
-            content: '📖';
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2rem;
-            opacity: 0.8;
-            transition: opacity 0.3s ease;
-        }
-
-        body.is-mobile .planet-info.expanded {
-            transform: translateX(0);
-        }
-
-        body.is-mobile .planet-info.expanded::before {
-            opacity: 0;
-        }
-
-        body.is-mobile .planet-info .planet-info-content {
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        body.is-mobile .planet-info.expanded .planet-info-content {
-            opacity: 1;
-        }
-
-        /* 移动端展开按钮 */
-        .mobile-expand-btn {
-            display: none;
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 30px;
-            height: 60px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        body.is-mobile .mobile-expand-btn {
+        .card .icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
             display: block;
         }
 
-        body.is-mobile .planet-info.expanded .mobile-expand-btn {
-            display: none;
+        .card .title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
-        .planet-info-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .planet-info-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            color: var(--text-secondary);
+        .card .desc {
             font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-        .planet-info-close:hover {
-            background: rgba(255, 100, 100, 0.3);
-            border-color: rgba(255, 100, 100, 0.5);
-            color: #ff6b6b;
-            transform: rotate(90deg);
-        }
-
-        .planet-color-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            box-shadow: 0 0 15px currentColor;
-            flex-shrink: 0;
-        }
-
-        .planet-info-header h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .planet-info-header .planet-type {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            background: rgba(255, 255, 255, 0.1);
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-left: auto;
-        }
-
-        .planet-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .stat-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .stat-label {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
-            color: var(--accent-cyan);
-        }
-
-        .planet-description {
-            margin-top: 15px;
-            padding-top: 12px;
-            border-top: 1px solid var(--glass-border);
-            font-size: 0.8rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-        }
-
-        .planet-moons {
-            margin-top: 12px;
-            padding: 10px 12px;
-            background: rgba(100, 180, 255, 0.1);
-            border: 1px solid rgba(100, 180, 255, 0.2);
-            border-radius: 10px;
-            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
             line-height: 1.5;
-            color: var(--accent-cyan);
         }
 
-        /* 探索更多按钮 */
-        .explore-btn {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            margin-top: 15px;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #6b93d6, #3d6b3d);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(107, 147, 214, 0.3);
-        }
+        /* 各主题颜色 */
+        .theme-space .card:hover { border-color: #00d9ff; }
+        .theme-math .card:hover { border-color: #ffd93d; }
+        .theme-puzzle .card:hover { border-color: #26de81; }
+        .theme-eng .card:hover { border-color: #ff6b6b; }
 
-        .explore-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(107, 147, 214, 0.5);
-        }
-
-        .explore-btn.visible {
-            display: flex;
-        }
-
-        .explore-btn .icon {
-            font-size: 1.2rem;
-        }
-
-        /* 比例尺展示 */
-        .scale-indicator {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 100;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .scale-title {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .scale-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: var(--accent-gold);
-        }
-
-        /* 行星选择器 */
-        .planet-selector {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: flex;
-            gap: 8px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-            padding: 12px 20px;
-            border-radius: 50px;
-        }
-
-        .planet-dot {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            border: 2px solid transparent;
-            position: relative;
-        }
-
-        .planet-dot:hover {
-            transform: scale(1.2);
-        }
-
-        .planet-dot.active {
-            border-color: white;
-            box-shadow: 0 0 20px currentColor;
-        }
-
-        .planet-dot::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-            color: var(--text-secondary);
-        }
-
-        .planet-dot:hover::after {
-            opacity: 1;
-        }
-
-        /* 加载动画 */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--cosmic-dark);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-sun {
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, #fff9c4, #ffeb3b, #ff9800, #f44336);
-            border-radius: 50%;
-            animation: sun-pulse 2s ease-in-out infinite;
-            box-shadow:
-                0 0 60px rgba(255, 235, 59, 0.5),
-                0 0 100px rgba(255, 152, 0, 0.3),
-                0 0 140px rgba(244, 67, 54, 0.2);
-        }
-
-        @keyframes sun-pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        .loading-text {
-            margin-top: 40px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            color: var(--accent-gold);
-            animation: text-glow 2s ease-in-out infinite;
-        }
-
-        @keyframes text-glow {
-
-            0%,
-            100% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .loading-progress {
-            margin-top: 20px;
-            width: 200px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .loading-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
-            width: 0%;
-            animation: loading 2s ease-in-out forwards;
-        }
-
-        @keyframes loading {
-            0% {
-                width: 0%;
-            }
-
-            100% {
-                width: 100%;
-            }
-        }
-
-
-        /* 大小对比模式 */
-        .size-comparison {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 200;
-            background: rgba(10, 10, 15, 0.95);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(30px);
-            padding: 40px;
-            border-radius: 25px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .size-comparison.visible {
-            display: flex;
-        }
-
-        .size-comparison h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .size-comparison-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .size-comparison-close:hover {
-            color: var(--text-primary);
-        }
-
-        .planets-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 30px;
-            padding: 30px;
-        }
-
-        .comparison-planet {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .comparison-planet .sphere {
-            border-radius: 50%;
-            box-shadow: 0 0 20px currentColor;
-        }
-
-        .comparison-planet .name {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .comparison-planet .size {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            color: var(--accent-cyan);
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .cards { grid-template-columns: 1fr; }
+            .container { padding: 24px 16px 40px; }
         }
     </style>
 </head>
-
 <body>
-    <!-- 加载动画 -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-sun"></div>
-        <div class="loading-text">正在加载太阳系...</div>
-        <div class="loading-progress">
-            <div class="loading-bar"></div>
-        </div>
-    </div>
+    <div class="stars" id="stars"></div>
 
-    <!-- 3D 画布容器 -->
-    <div id="canvas-container"></div>
-
-    <!-- 顶部标题 -->
-    <div class="header">
-        <div class="logo">
-            <div class="logo-icon">☀️</div>
-            <div class="logo-text">
-                <h1>SOLAR SYSTEM</h1>
-                <p>柳智天的宇宙课堂</p>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>智天的学习乐园</h1>
+            <p>探索宇宙 / 玩转数学 / 拼图世界 / 机械奥秘</p>
         </div>
-        <a href="kids.html" class="kids-mode-btn" style="display: none;">
-            <span class="rocket-icon">🚀</span>
-            <span class="btn-text">智天号出发！</span>
-            <span class="badge">儿童模式</span>
-        </a>
-    </div>
 
-    <!-- 太阳样式选择器 -->
-    <div class="sun-style-selector">
-        <div class="sun-style-title">
-            <span>☀️</span>
-            <span>太阳样式</span>
-        </div>
-        <div class="sun-style-options">
-            <div class="sun-style-option active" data-style="simple">
-                <div class="sun-style-radio"></div>
-                <div class="sun-style-label">
-                    <div class="name">简洁模式</div>
-                    <div class="desc">卡通风格，柔和光芒</div>
-                </div>
-                <div class="sun-style-preview sun-preview-simple"></div>
-            </div>
-            <div class="sun-style-option" data-style="realistic">
-                <div class="sun-style-radio"></div>
-                <div class="sun-style-label">
-                    <div class="name">炙热模式</div>
-                    <div class="desc">真实火焰，等离子体沸腾</div>
-                </div>
-                <div class="sun-style-preview sun-preview-realistic"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 控制面板 -->
-    <div class="controls">
-        <button class="control-btn" id="showComparison" title="查看大小对比">
-            <span class="icon">📊</span>
-            <span>大小对比</span>
-        </button>
-        <button class="control-btn" id="resetView" title="重置视角">
-            <span class="icon">🔄</span>
-            <span>重置视角</span>
-        </button>
-        <button class="control-btn" id="toggleRealScale" title="切换真实比例">
-            <span class="icon">📐</span>
-            <span>真实比例</span>
-        </button>
-        <a href="galaxy.html" class="control-btn" title="探索银河系" style="text-decoration: none;">
-            <span class="icon">🌌</span>
-            <span>银河系</span>
-        </a>
-    </div>
-
-    <!-- 行星选择器 -->
-    <div class="planet-selector" id="planetSelector">
-        <div class="planet-dot" data-planet="sun" data-name="太阳"
-            style="background: radial-gradient(circle, #fff9c4, #ff9800); color: #000;">☀</div>
-        <div class="planet-dot" data-planet="mercury" data-name="水星" style="background: #b5b5b5;">水</div>
-        <div class="planet-dot" data-planet="venus" data-name="金星" style="background: #e6c87a;">金</div>
-        <div class="planet-dot" data-planet="earth" data-name="地球"
-            style="background: linear-gradient(135deg, #6b93d6 60%, #3d6b3d 40%);">地</div>
-        <div class="planet-dot" data-planet="moon" data-name="月球" style="background: #aaaaaa; font-size: 0.6rem;">🌙
-        </div>
-        <div class="planet-dot" data-planet="mars" data-name="火星" style="background: #c1440e;">火</div>
-        <div class="planet-dot" data-planet="jupiter" data-name="木星" style="background: #d8ca9d;">木</div>
-        <div class="planet-dot" data-planet="saturn" data-name="土星" style="background: #ead6b8;">土</div>
-        <div class="planet-dot" data-planet="uranus" data-name="天王星" style="background: #d1e7e7;">天</div>
-        <div class="planet-dot" data-planet="neptune" data-name="海王星" style="background: #5b5ddf;">海</div>
-        <div class="planet-dot" data-planet="pluto" data-name="冥王星" style="background: #c9b59a; font-size: 0.6rem;">冥
-        </div>
-    </div>
-
-    <!-- 行星信息面板 -->
-    <div class="planet-info" id="planetInfo">
-        <button class="mobile-expand-btn" id="mobileExpandBtn" aria-label="展开信息面板"></button>
-        <button class="planet-info-close" id="closePlanetInfo" title="关闭">✕</button>
-        <div class="planet-info-content">
-            <div class="planet-info-header">
-                <div class="planet-color-dot" id="planetColorDot"></div>
-                <h2 id="planetName">地球</h2>
-                <span class="planet-type" id="planetType">类地行星</span>
-            </div>
-            <div class="planet-stats">
-                <div class="stat-item">
-                    <div class="stat-label">直径</div>
-                    <div class="stat-value" id="planetDiameter">12,742 km</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">与太阳距离</div>
-                    <div class="stat-value" id="planetDistance">1.5亿 km</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">公转周期</div>
-                    <div class="stat-value" id="planetOrbitPeriod">365 天</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">相对地球大小</div>
-                    <div class="stat-value" id="planetRelativeSize">1x</div>
+        <div class="themes">
+            <div class="theme-section theme-space">
+                <h2><span class="emoji">🚀</span>太空天文</h2>
+                <div class="cards">
+                    <a class="card" href="space/solar-system.html">
+                        <span class="icon">🪐</span>
+                        <div class="title">太阳系 3D 探索</div>
+                        <div class="desc">在三维空间中探索八大行星和太阳系</div>
+                    </a>
+                    <a class="card" href="space/kids.html">
+                        <span class="icon">🚀</span>
+                        <div class="title">智天号太空探险</div>
+                        <div class="desc">驾驶飞船完成星际任务，收集行星徽章</div>
+                    </a>
+                    <a class="card" href="space/earth.html">
+                        <span class="icon">🌍</span>
+                        <div class="title">地球的奥秘</div>
+                        <div class="desc">了解地球的自转、公转和四季变化</div>
+                    </a>
+                    <a class="card" href="space/galaxy.html">
+                        <span class="icon">🌌</span>
+                        <div class="title">银河系探索</div>
+                        <div class="desc">从太阳系飞向银河系，探索宇宙尺度</div>
+                    </a>
                 </div>
             </div>
-            <div class="planet-description" id="planetDescription">
-                地球是太阳系中唯一已知存在生命的行星，拥有液态水和适宜的大气层。
+
+            <div class="theme-section theme-math">
+                <h2><span class="emoji">🔢</span>数学</h2>
+                <div class="cards">
+                    <a class="card" href="math/num.html">
+                        <span class="icon">🧮</span>
+                        <div class="title">十格框加减法</div>
+                        <div class="desc">用十格框学习 10 以内加减法</div>
+                    </a>
+                    <a class="card" href="math/make-ten.html">
+                        <span class="icon">🤝</span>
+                        <div class="title">凑十好朋友</div>
+                        <div class="desc">学习凑十法，快速口算小能手</div>
+                    </a>
+                </div>
             </div>
-            <div class="planet-moons" id="planetMoons" style="display: none;">
+
+            <div class="theme-section theme-puzzle">
+                <h2><span class="emoji">🧩</span>地理拼图</h2>
+                <div class="cards">
+                    <a class="card" href="puzzle/china.html">
+                        <span class="icon">🇨🇳</span>
+                        <div class="title">中国省份拼图</div>
+                        <div class="desc">拖拽拼图认识祖国 34 个省级行政区</div>
+                    </a>
+                    <a class="card" href="puzzle/us.html">
+                        <span class="icon">🇺🇸</span>
+                        <div class="title">美国州份拼图</div>
+                        <div class="desc">拖拽拼图认识美国 50 个州</div>
+                    </a>
+                </div>
             </div>
-            <a href="earth.html" class="explore-btn" id="exploreBtn">
-                <span class="icon">🚀</span>
-                <span>探索地球的奥秘</span>
-            </a>
+
+            <div class="theme-section theme-eng">
+                <h2><span class="emoji">⚙️</span>机械工程</h2>
+                <div class="cards">
+                    <a class="card" href="engineering/elevator.html">
+                        <span class="icon">🏗️</span>
+                        <div class="title">乐高电梯模拟</div>
+                        <div class="desc">3D 模拟乐高积木电梯的运行原理</div>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 比例尺 -->
-    <div class="scale-indicator">
-        <div class="scale-title">当前比例</div>
-        <div class="scale-value" id="scaleValue">教学模式</div>
-    </div>
-
-    <!-- 大小对比面板 -->
-    <div class="size-comparison" id="sizeComparison">
-        <button class="size-comparison-close" id="closeSizeComparison">✕</button>
-        <h2>🌍 行星大小真实对比</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 30px;">以地球为参考（直径 = 12,742 km）</p>
-        <div class="planets-row" id="comparisonRow">
-            <!-- 动态生成 -->
-        </div>
-    </div>
-
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-    <!-- 设备检测脚本 -->
     <script>
-        // 检测是否为移动设备（iPad、iPhone 或其他触摸设备）
-        function isMobileDevice() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            // 检测 iPad (包括 iPadOS 13+ 的 Desktop 模式)
-            const isIPad = /iPad/.test(userAgent) ||
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            // 检测 iPhone
-            const isIPhone = /iPhone/.test(userAgent);
-            // 检测其他移动设备
-            const isMobile = /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-            // 检测触摸设备
-            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-            return isIPad || isIPhone || isMobile || (isTouchDevice && window.innerWidth <= 1024);
-        }
-
-        // 根据设备类型添加 class
-        if (isMobileDevice()) {
-            document.body.classList.add('is-mobile');
-
-            // 移动端信息面板交互
-            document.addEventListener('DOMContentLoaded', function () {
-                const planetInfo = document.getElementById('planetInfo');
-                const mobileExpandBtn = document.getElementById('mobileExpandBtn');
-
-                // 点击展开按钮
-                if (mobileExpandBtn) {
-                    mobileExpandBtn.addEventListener('click', function () {
-                        planetInfo.classList.add('expanded');
-                    });
-                }
-
-                // 点击面板区域展开（当收起时）
-                planetInfo.addEventListener('click', function (e) {
-                    if (!planetInfo.classList.contains('expanded') &&
-                        !e.target.classList.contains('planet-info-close')) {
-                        planetInfo.classList.add('expanded');
-                    }
-                });
-
-                // 点击关闭按钮时收起
-                const closeBtn = document.getElementById('closePlanetInfo');
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        planetInfo.classList.remove('expanded');
-                    });
-                }
-            });
+        const starsEl = document.getElementById('stars');
+        for (let i = 0; i < 80; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            const size = Math.random() * 2.5 + 0.5;
+            s.style.cssText = `
+                width: ${size}px; height: ${size}px;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation-delay: ${Math.random() * 3}s;
+                animation-duration: ${2 + Math.random() * 3}s;
+            `;
+            starsEl.appendChild(s);
         }
     </script>
-
-    <script src="app.js"></script>
 </body>
-
 </html>

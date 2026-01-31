@@ -577,7 +577,7 @@ function onCanvasClick(event) {
 
         if (intersects.length > 0) {
             // 点击了太阳系区域，跳转到太阳系页面
-            window.location.href = 'index.html';
+            window.location.href = 'solar-system.html';
         }
     }
 }

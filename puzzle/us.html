@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>美国州拼图 - Learn USA States</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0a1628;
+            --bg-gradient: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0a1a3a 100%);
+            --primary-cyan: #00d9ff;
+            --primary-yellow: #ffd93d;
+            --primary-green: #26de81;
+            --primary-red: #ff6b6b;
+            --primary-blue: #4A90D9;
+            --text-white: #ffffff;
+            --text-light: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* 星空背景 */
+        .stars-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10,22,40,0.98) 0%, rgba(10,22,40,0.8) 70%, transparent 100%);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .title-area h1 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--primary-blue);
+        }
+
+        .stats-area {
+            display: flex;
+            gap: 10px;
+        }
+        .stat-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: rgba(74,144,217,0.15);
+            border: 2px solid var(--primary-blue);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .stat-box.progress {
+            background: rgba(255,217,61,0.15);
+            border-color: var(--primary-yellow);
+        }
+
+        /* 主游戏区域 */
+        .game-container {
+            position: fixed;
+            top: 55px;
+            left: 0; right: 0; bottom: 0;
+            display: flex;
+            z-index: 1;
+        }
+
+        /* 地图区域 */
+        .map-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            min-height: 0;
+        }
+
+        #mapContainer {
+            width: 100%;
+            height: 100%;
+            max-width: 900px;
+            position: relative;
+        }
+
+        #mapContainer svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 目标轮廓样式 */
+        .state.target {
+            fill: rgba(255,255,255,0.08) !important;
+            stroke: rgba(255,255,255,0.3) !important;
+            stroke-width: 0.5 !important;
+            stroke-dasharray: 3 2;
+            cursor: default;
+        }
+        .state.target.highlight {
+            fill: rgba(255,217,61,0.3) !important;
+            stroke: var(--primary-yellow) !important;
+            stroke-width: 2 !important;
+            stroke-dasharray: none;
+        }
+        .state.placed {
+            cursor: pointer;
+            stroke: #ffffff !important;
+            stroke-width: 1 !important;
+        }
+
+        /* 拼图块区域 */
+        .puzzle-area {
+            width: 340px;
+            min-width: 340px;
+            background: linear-gradient(270deg, rgba(10,22,40,0.98) 0%, rgba(10,22,40,0.9) 90%, transparent 100%);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .puzzle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 5px;
+        }
+
+        .puzzle-title {
+            font-size: 0.85rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .puzzle-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 拼图块滚动容器 */
+        .puzzle-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 5px;
+            align-content: flex-start;
+        }
+
+        .puzzle-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .puzzle-scroll::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        .puzzle-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 3px;
+        }
+
+        /* 拼图块 - 州形状容器 */
+        .puzzle-piece {
+            position: relative;
+            cursor: grab;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+        .puzzle-piece:hover {
+            transform: scale(1.08);
+            filter: brightness(1.2);
+            z-index: 10;
+        }
+        .puzzle-piece.dragging {
+            cursor: grabbing;
+            opacity: 0.7;
+            z-index: 100;
+        }
+        .puzzle-piece.placed {
+            display: none;
+        }
+        .puzzle-piece svg {
+            display: block;
+        }
+        .puzzle-piece .state-shape {
+            stroke: #ffffff;
+            stroke-width: 1.5;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* 州标签 */
+        .piece-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.8);
+        }
+        .piece-emoji {
+            font-size: 1.1rem;
+            display: block;
+        }
+        .piece-name {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+        }
+
+        /* 拖拽幽灵 */
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2000;
+            opacity: 0.9;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+        .drag-ghost svg {
+            display: block;
+        }
+        .drag-ghost .state-shape {
+            stroke: var(--primary-yellow);
+            stroke-width: 3;
+        }
+        .drag-ghost .piece-label {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        /* 州信息弹窗 */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+        .modal.visible { display: flex; }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a2a4a, #0a1a3a);
+            border: 3px solid var(--primary-blue);
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px; right: 12px;
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .state-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .state-icon { font-size: 3.5rem; }
+        .state-header h2 {
+            font-size: 1.6rem;
+            color: var(--primary-yellow);
+            margin: 8px 0 5px;
+        }
+        .state-type {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .detail-emoji { font-size: 2rem; }
+        .detail-label { font-size: 0.8rem; color: var(--text-light); }
+        .detail-value { font-size: 1.1rem; font-weight: 700; }
+
+        .fun-fact {
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(74,144,217,0.2), rgba(74,144,217,0.1));
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .fun-fact-title { font-size: 0.85rem; color: var(--primary-blue); margin-bottom: 6px; }
+
+        /* 完成弹窗 */
+        .celebration-icon {
+            font-size: 4rem;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        .knowledge-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+        .knowledge-title {
+            font-size: 1rem;
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .knowledge-item {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .knowledge-number {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+        }
+        .knowledge-label { font-size: 0.8rem; color: var(--text-light); }
+
+        .play-again-btn {
+            padding: 12px 35px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+            border: 2px solid var(--primary-blue);
+            animation: toastIn 0.3s ease;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* 加载 */
+        .loading {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-gradient);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading.hidden { display: none; }
+        .loading-icon { font-size: 4rem; animation: spin 2s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 15px; font-size: 1.2rem; color: var(--primary-blue); }
+    </style>
+</head>
+
+<body>
+    <!-- 加载界面 -->
+    <div class="loading" id="loadingScreen">
+        <div class="loading-icon">🗽</div>
+        <div class="loading-text">Loading USA Map...</div>
+    </div>
+
+    <!-- 星空背景 -->
+    <div class="stars-bg" id="starsBg"></div>
+
+    <!-- 顶部导航 -->
+    <header class="top-nav">
+        <a href="../index.html" class="back-btn">⬅️ Back</a>
+        <div class="title-area">
+            <h1>🗽 USA States Puzzle</h1>
+        </div>
+        <div class="stats-area">
+            <div class="stat-box">⏱️ <span id="timerText">0:00</span></div>
+            <div class="stat-box progress">🧩 <span id="progressText">0/51</span></div>
+        </div>
+    </header>
+
+    <!-- 主游戏区域 -->
+    <main class="game-container">
+        <!-- 地图区域 -->
+        <div class="map-area">
+            <div id="mapContainer"></div>
+        </div>
+
+        <!-- 拼图块区域 -->
+        <div class="puzzle-area">
+            <div class="puzzle-header">
+                <span class="puzzle-title">🧩 Drag States to Map</span>
+                <div class="puzzle-controls">
+                    <button class="control-btn" id="hintBtn">💡Hint</button>
+                    <button class="control-btn" id="resetBtn">🔄Reset</button>
+                </div>
+            </div>
+            <div class="puzzle-scroll" id="puzzleScroll"></div>
+        </div>
+    </main>
+
+    <!-- 拖拽幽灵 -->
+    <div class="drag-ghost" id="dragGhost" style="display: none;"></div>
+
+    <!-- 州信息弹窗 -->
+    <div class="modal" id="stateModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="state-header">
+                <div class="state-icon" id="stateIcon">🗽</div>
+                <h2 id="stateName">New York</h2>
+                <span class="state-type" id="stateType">State</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-emoji" id="foodEmoji">🍕</span>
+                <div>
+                    <div class="detail-label">Famous Food</div>
+                    <div class="detail-value" id="foodName">NYC Pizza</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <span class="detail-emoji" id="landmarkEmoji">🗽</span>
+                <div>
+                    <div class="detail-label">Famous Landmark</div>
+                    <div class="detail-value" id="landmarkName">Statue of Liberty</div>
+                </div>
+            </div>
+            <div class="fun-fact">
+                <div class="fun-fact-title">💡 Fun Fact</div>
+                <div id="funFactText">NYC has over 800 languages!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成弹窗 -->
+    <div class="modal" id="completionModal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="celebration-icon">🎉</div>
+            <h2 style="color: var(--primary-yellow); margin: 15px 0;">Awesome!</h2>
+            <p>You completed the USA Map!</p>
+            <div style="display: flex; justify-content: center; gap: 25px; margin: 20px 0;">
+                <div style="text-align: center;">
+                    <div style="font-size: 1.8rem; font-weight: 900; color: var(--primary-blue);" id="completionTime">0:00</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">Time</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.8rem; font-weight: 900; color: var(--primary-blue);">51</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">Regions</div>
+                </div>
+            </div>
+            <div class="knowledge-section">
+                <div class="knowledge-title">🎓 USA Administrative Divisions</div>
+                <div class="knowledge-grid">
+                    <div class="knowledge-item">
+                        <div class="knowledge-number">50</div>
+                        <div class="knowledge-label">States</div>
+                    </div>
+                    <div class="knowledge-item">
+                        <div class="knowledge-number">1</div>
+                        <div class="knowledge-label">District (D.C.)</div>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 1rem; color: var(--primary-yellow);">
+                    50 + 1 = <strong>51</strong>
+                </p>
+            </div>
+            <button class="play-again-btn" id="playAgainBtn">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <script src="js/us-state-info.js"></script>
+    <script>
+        // ============ 全局变量 ============
+        let svgDoc = null;
+        let states = {};
+        let placedCount = 0;
+        let totalStates = 0;
+        let startTime = Date.now();
+        let timerInterval = null;
+        let currentDragging = null;
+        let dragGhost = null;
+
+        // 拼图块尺寸配置
+        const PIECE_MAX_SIZE = 65;
+
+        // 保存最后的鼠标位置
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        // ============ 初始化 ============
+        async function init() {
+            generateStars();
+            await loadMap();
+            setupGame();
+            bindEvents();
+            startTimer();
+
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 500);
+        }
+
+        // ============ 生成星空 ============
+        function generateStars() {
+            const bg = document.getElementById('starsBg');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                bg.appendChild(star);
+            }
+        }
+
+        // ============ 加载地图 ============
+        async function loadMap() {
+            const response = await fetch('us-map.svg');
+            const svgText = await response.text();
+            document.getElementById('mapContainer').innerHTML = svgText;
+            svgDoc = document.querySelector('#mapContainer svg');
+        }
+
+        // ============ 设置游戏 ============
+        function setupGame() {
+            const puzzleScroll = document.getElementById('puzzleScroll');
+            puzzleScroll.innerHTML = '';
+
+            // 获取所有州元素
+            const stateElements = svgDoc.querySelectorAll('.state');
+
+            stateElements.forEach(el => {
+                const classes = el.getAttribute('class').split(' ');
+                const stateCode = classes.find(c => c !== 'state');
+                if (!stateCode) return;
+
+                const info = USStateInfo[stateCode];
+                if (!info) return;
+
+                // 设置为目标轮廓
+                el.classList.add('target');
+                el.setAttribute('data-state', stateCode);
+
+                // 获取州边界框
+                const bbox = el.getBBox();
+
+                // 保存州信息
+                states[stateCode] = {
+                    targetElement: el,
+                    info: info,
+                    placed: false,
+                    bbox: bbox,
+                    pathData: el.getAttribute('d') || null,
+                    points: el.getAttribute('points') || null,
+                    tagName: el.tagName.toLowerCase()
+                };
+            });
+
+            totalStates = Object.keys(states).length;
+            document.getElementById('progressText').textContent = `0/${totalStates}`;
+
+            // 创建拼图块（随机顺序）
+            const stateKeys = Object.keys(states);
+            shuffleArray(stateKeys);
+
+            stateKeys.forEach(key => {
+                const state = states[key];
+                const piece = createPuzzlePiece(key, state);
+                puzzleScroll.appendChild(piece);
+                states[key].pieceElement = piece;
+            });
+        }
+
+        // ============ 创建拼图块（真实州形状）============
+        function createPuzzlePiece(key, state) {
+            const info = state.info;
+            const bbox = state.bbox;
+
+            // 计算缩放比例
+            const scale = Math.min(PIECE_MAX_SIZE / bbox.width, PIECE_MAX_SIZE / bbox.height);
+            const width = bbox.width * scale;
+            const height = bbox.height * scale;
+
+            // 创建容器
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.setAttribute('data-state', key);
+            piece.style.width = width + 'px';
+            piece.style.height = height + 'px';
+
+            // 创建SVG
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+            svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+
+            // 复制州形状
+            let shape;
+            if (state.tagName === 'path') {
+                shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                shape.setAttribute('d', state.pathData);
+            } else {
+                shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                shape.setAttribute('points', state.points);
+            }
+            shape.classList.add('state-shape');
+            shape.setAttribute('fill', info.color);
+
+            svg.appendChild(shape);
+            piece.appendChild(svg);
+
+            // 添加标签（emoji + 名称）
+            const label = document.createElement('div');
+            label.className = 'piece-label';
+            label.innerHTML = `
+                <span class="piece-emoji">${info.landmark.emoji}</span>
+                <span class="piece-name">${info.nameCn}</span>
+            `;
+            piece.appendChild(label);
+
+            // 存储缩放信息
+            state.scale = scale;
+            state.pieceWidth = width;
+            state.pieceHeight = height;
+
+            return piece;
+        }
+
+        // ============ 打乱数组 ============
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // ============ 绑定事件 ============
+        function bindEvents() {
+            dragGhost = document.getElementById('dragGhost');
+
+            // 鼠标事件
+            document.addEventListener('mousedown', handleDragStart);
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+
+            // 触摸事件
+            document.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+
+            // 控制按钮
+            document.getElementById('hintBtn').onclick = showHint;
+            document.getElementById('resetBtn').onclick = resetGame;
+            document.getElementById('playAgainBtn').onclick = () => {
+                document.getElementById('completionModal').classList.remove('visible');
+                resetGame();
+            };
+
+            // 弹窗关闭
+            document.getElementById('modalClose').onclick = () => {
+                document.getElementById('stateModal').classList.remove('visible');
+            };
+            document.getElementById('stateModal').onclick = (e) => {
+                if (e.target.id === 'stateModal') {
+                    document.getElementById('stateModal').classList.remove('visible');
+                }
+            };
+        }
+
+        // ============ 拖拽处理 ============
+        function handleDragStart(e) {
+            const piece = e.target.closest('.puzzle-piece');
+            if (!piece || piece.classList.contains('placed')) return;
+
+            e.preventDefault();
+            const key = piece.getAttribute('data-state');
+            const state = states[key];
+
+            currentDragging = {
+                key: key,
+                piece: piece,
+                state: state
+            };
+
+            piece.classList.add('dragging');
+
+            // 创建幽灵元素
+            dragGhost.innerHTML = piece.innerHTML;
+            dragGhost.style.width = state.pieceWidth + 'px';
+            dragGhost.style.height = state.pieceHeight + 'px';
+            dragGhost.style.display = 'block';
+
+            updateGhostPosition(e.clientX, e.clientY);
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+
+            // 高亮目标
+            state.targetElement.classList.add('highlight');
+        }
+
+        function handleDragMove(e) {
+            if (!currentDragging) return;
+            e.preventDefault();
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            updateGhostPosition(e.clientX, e.clientY);
+            checkHover(e.clientX, e.clientY);
+        }
+
+        function handleDragEnd(e) {
+            if (!currentDragging) return;
+
+            const key = currentDragging.key;
+            const piece = currentDragging.piece;
+            const state = currentDragging.state;
+
+            const dropX = lastMouseX;
+            const dropY = lastMouseY;
+
+            piece.classList.remove('dragging');
+            dragGhost.style.display = 'none';
+            state.targetElement.classList.remove('highlight');
+            state.targetElement.style.fill = '';
+            state.targetElement.style.stroke = '';
+
+            // 转换为SVG坐标
+            const point = svgDoc.createSVGPoint();
+            point.x = dropX;
+            point.y = dropY;
+            const svgPoint = point.matrixTransform(svgDoc.getScreenCTM().inverse());
+
+            // 检查是否在目标区域内
+            const bbox = state.bbox;
+            const margin = 25;
+            const isInside =
+                svgPoint.x >= bbox.x - margin &&
+                svgPoint.x <= bbox.x + bbox.width + margin &&
+                svgPoint.y >= bbox.y - margin &&
+                svgPoint.y <= bbox.y + bbox.height + margin;
+
+            if (isInside) {
+                placeState(key);
+            }
+
+            currentDragging = null;
+        }
+
+        // ============ 触摸事件 ============
+        function handleTouchStart(e) {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+            const piece = elem ? elem.closest('.puzzle-piece') : null;
+            if (!piece) return;
+
+            handleDragStart({
+                target: piece,
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                preventDefault: () => e.preventDefault()
+            });
+        }
+
+        function handleTouchMove(e) {
+            if (!currentDragging || e.touches.length !== 1) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            lastMouseX = touch.clientX;
+            lastMouseY = touch.clientY;
+            updateGhostPosition(touch.clientX, touch.clientY);
+            checkHover(touch.clientX, touch.clientY);
+        }
+
+        function handleTouchEnd(e) {
+            handleDragEnd(e);
+        }
+
+        // ============ 辅助函数 ============
+        function updateGhostPosition(x, y) {
+            dragGhost.style.left = x + 'px';
+            dragGhost.style.top = y + 'px';
+        }
+
+        function checkHover(x, y) {
+            if (!currentDragging) return;
+
+            const state = currentDragging.state;
+            const point = svgDoc.createSVGPoint();
+            point.x = x;
+            point.y = y;
+            const svgPoint = point.matrixTransform(svgDoc.getScreenCTM().inverse());
+
+            const bbox = state.bbox;
+            const margin = 20;
+            const isNear =
+                svgPoint.x >= bbox.x - margin &&
+                svgPoint.x <= bbox.x + bbox.width + margin &&
+                svgPoint.y >= bbox.y - margin &&
+                svgPoint.y <= bbox.y + bbox.height + margin;
+
+            if (isNear) {
+                state.targetElement.style.fill = 'rgba(38, 222, 129, 0.4)';
+                state.targetElement.style.stroke = '#26de81';
+            } else {
+                state.targetElement.style.fill = '';
+                state.targetElement.style.stroke = '';
+            }
+        }
+
+        function placeState(key) {
+            const state = states[key];
+
+            // 隐藏拼图块
+            state.pieceElement.classList.add('placed');
+
+            // 设置目标样式
+            state.targetElement.classList.remove('target');
+            state.targetElement.classList.remove('highlight');
+            state.targetElement.classList.add('placed');
+            state.targetElement.setAttribute('fill', state.info.color);
+            state.targetElement.style.fill = '';
+            state.targetElement.style.stroke = '';
+
+            // 在地图上添加州标签
+            addStateLabel(key, state);
+
+            // 点击查看详情
+            state.targetElement.onclick = () => showStateInfo(state.info);
+
+            state.placed = true;
+            placedCount++;
+            updateProgress();
+            showToast(`✅ ${state.info.nameCn} placed!`);
+            playSound('success');
+
+            if (placedCount >= totalStates) {
+                setTimeout(showCompletion, 500);
+            }
+        }
+
+        // 在地图上添加州标签
+        function addStateLabel(key, state) {
+            const bbox = state.bbox;
+            const info = state.info;
+
+            const centerX = bbox.x + bbox.width / 2;
+            const centerY = bbox.y + bbox.height / 2;
+
+            const size = Math.min(bbox.width, bbox.height);
+            const fontSize = Math.max(6, Math.min(12, size / 5));
+            const emojiSize = Math.max(10, Math.min(20, size / 3));
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+            fo.setAttribute('x', centerX - 25);
+            fo.setAttribute('y', centerY - 18);
+            fo.setAttribute('width', 50);
+            fo.setAttribute('height', 36);
+            fo.setAttribute('class', 'state-label-fo');
+            fo.setAttribute('data-state', key);
+            fo.style.pointerEvents = 'none';
+
+            const div = document.createElement('div');
+            div.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                pointer-events: none;
+            `;
+            div.innerHTML = `
+                <span style="font-size: ${emojiSize}px; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${info.landmark.emoji}</span>
+                <span style="font-size: ${fontSize}px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9); white-space: nowrap;">${key}</span>
+            `;
+
+            fo.appendChild(div);
+            svgDoc.appendChild(fo);
+
+            state.labelElement = fo;
+        }
+
+        function updateProgress() {
+            document.getElementById('progressText').textContent = `${placedCount}/${totalStates}`;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const seconds = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timerText').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function resetGame() {
+            Object.keys(states).forEach(key => {
+                const state = states[key];
+                state.placed = false;
+                state.pieceElement.classList.remove('placed');
+                state.targetElement.classList.add('target');
+                state.targetElement.classList.remove('placed');
+                state.targetElement.classList.remove('highlight');
+                state.targetElement.removeAttribute('fill');
+                state.targetElement.style.fill = '';
+                state.targetElement.style.stroke = '';
+                state.targetElement.onclick = null;
+
+                if (state.labelElement) {
+                    state.labelElement.remove();
+                    state.labelElement = null;
+                }
+            });
+
+            const puzzleScroll = document.getElementById('puzzleScroll');
+            const pieces = Array.from(puzzleScroll.children);
+            shuffleArray(pieces);
+            pieces.forEach(piece => puzzleScroll.appendChild(piece));
+
+            placedCount = 0;
+            updateProgress();
+            startTime = Date.now();
+        }
+
+        function showHint() {
+            const unplaced = Object.entries(states).filter(([k, s]) => !s.placed);
+            if (unplaced.length === 0) return;
+
+            const [key, state] = unplaced[Math.floor(Math.random() * unplaced.length)];
+            state.targetElement.classList.add('highlight');
+            state.pieceElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            state.pieceElement.style.animation = 'pulse 0.4s ease 3';
+
+            showToast(`💡 Find ${state.info.nameCn} (${state.info.landmark.emoji})`);
+
+            setTimeout(() => {
+                if (!state.placed) {
+                    state.targetElement.classList.remove('highlight');
+                }
+                state.pieceElement.style.animation = '';
+            }, 3000);
+        }
+
+        function showStateInfo(info) {
+            document.getElementById('stateIcon').textContent = info.landmark.emoji;
+            document.getElementById('stateName').textContent = info.name;
+            document.getElementById('stateType').textContent = info.type;
+            document.getElementById('foodEmoji').textContent = info.food.emoji;
+            document.getElementById('foodName').textContent = info.food.name;
+            document.getElementById('landmarkEmoji').textContent = info.landmark.emoji;
+            document.getElementById('landmarkName').textContent = info.landmark.name;
+            document.getElementById('funFactText').textContent = info.funFact;
+            document.getElementById('stateModal').classList.add('visible');
+        }
+
+        function showCompletion() {
+            const seconds = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('completionTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('completionModal').classList.add('visible');
+            playSound('complete');
+        }
+
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                gain.gain.value = 0.1;
+
+                if (type === 'success') {
+                    osc.frequency.value = 800;
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } else if (type === 'complete') {
+                    [523, 659, 784, 1047].forEach((f, i) => {
+                        setTimeout(() => {
+                            const o = ctx.createOscillator();
+                            const g = ctx.createGain();
+                            o.connect(g);
+                            g.connect(ctx.destination);
+                            o.frequency.value = f;
+                            g.gain.value = 0.1;
+                            o.start();
+                            o.stop(ctx.currentTime + 0.2);
+                        }, i * 150);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // 脉冲动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.15); filter: brightness(1.3); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 启动
+        init();
+    </script>
+</body>
+
+</html>
