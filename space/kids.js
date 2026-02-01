@@ -934,90 +934,136 @@ const pictographDrawers = {
         ctx.strokeStyle = '#E67E22'; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(w/2, h/2+5, 15, 0.2, Math.PI-0.2); ctx.stroke();
     },
-    // 火 - 象形火字：两根木柴交叉 + 火焰像"火"字
+    // 火 - 象形火字：严格按照参考图绘制
     drawFire(ctx, w, h) {
-        const cx = w / 2, cy = h / 2 + 10;
+        const cx = w / 2, cy = h / 2 + 15;
 
-        // 两根木柴交叉成"人"字形（对应"火"字下半部分）
+        // ===== 两根粗木柴交叉成"人"字形 =====
+        // 左木柴（从左下到中心）
         ctx.save();
-        ctx.translate(cx, cy + 20);
-        // 左木柴
-        ctx.save();
-        ctx.rotate(-0.45);
-        ctx.fillStyle = '#8B4513';
+        ctx.translate(cx, cy + 8);
+        ctx.rotate(-0.52);
+        // 木柴主体
+        ctx.fillStyle = '#C8A060';
         ctx.beginPath();
-        ctx.roundRect(-30, -5, 12, 45, 4);
+        ctx.ellipse(-28, 18, 10, 32, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = '#D2691E';
+        // 木柴纹理
+        ctx.strokeStyle = '#A0784A';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(-24, 35, 5, 0, Math.PI * 2);
+        ctx.moveTo(-28, -5); ctx.lineTo(-28, 40);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-32, 0); ctx.lineTo(-32, 35);
+        ctx.stroke();
+        // 年轮截面
+        ctx.fillStyle = '#E8D4B0';
+        ctx.beginPath();
+        ctx.ellipse(-28, 45, 9, 7, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = '#5D3A1A';
+        ctx.strokeStyle = '#8B7355';
         ctx.lineWidth = 1.5;
         ctx.stroke();
-        ctx.restore();
-        // 右木柴
-        ctx.save();
-        ctx.rotate(0.45);
-        ctx.fillStyle = '#8B4513';
+        // 年轮圈
+        ctx.strokeStyle = '#A08060';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(18, -5, 12, 45, 4);
-        ctx.fill();
-        ctx.fillStyle = '#D2691E';
+        ctx.ellipse(-28, 45, 5, 4, 0, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.beginPath();
-        ctx.arc(24, 35, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#5D3A1A';
-        ctx.lineWidth = 1.5;
+        ctx.ellipse(-28, 45, 2, 1.5, 0, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
+
+        // 右木柴（从右下到中心）
+        ctx.save();
+        ctx.translate(cx, cy + 8);
+        ctx.rotate(0.52);
+        // 木柴主体
+        ctx.fillStyle = '#C8A060';
+        ctx.beginPath();
+        ctx.ellipse(28, 18, 10, 32, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // 木柴纹理
+        ctx.strokeStyle = '#A0784A';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(28, -5); ctx.lineTo(28, 40);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(32, 0); ctx.lineTo(32, 35);
+        ctx.stroke();
+        // 年轮截面
+        ctx.fillStyle = '#E8D4B0';
+        ctx.beginPath();
+        ctx.ellipse(28, 45, 9, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#8B7355';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // 年轮圈
+        ctx.strokeStyle = '#A08060';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.ellipse(28, 45, 5, 4, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(28, 45, 2, 1.5, 0, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
 
-        // 火焰 - 像"火"字，左右两片大火焰向外展开
-        // 左侧红色火焰（对应"火"字左边的撇）
-        ctx.fillStyle = '#E74C3C';
-        ctx.beginPath();
-        ctx.moveTo(cx - 5, cy + 5);
-        ctx.quadraticCurveTo(cx - 45, cy - 15, cx - 38, cy - 50);
-        ctx.quadraticCurveTo(cx - 30, cy - 35, cx - 22, cy - 25);
-        ctx.quadraticCurveTo(cx - 15, cy - 10, cx - 5, cy + 5);
-        ctx.fill();
+        // ===== 火焰：5片火苗，严格对应"火"字结构 =====
+        // 绘制单片火苗的函数
+        function drawFlame(x, y, scaleX, scaleY, rotation) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+            ctx.scale(scaleX, scaleY);
+            // 红色外层
+            ctx.fillStyle = '#E53935';
+            ctx.beginPath();
+            ctx.moveTo(0, -40);
+            ctx.quadraticCurveTo(12, -25, 10, 0);
+            ctx.quadraticCurveTo(5, 5, 0, 8);
+            ctx.quadraticCurveTo(-5, 5, -10, 0);
+            ctx.quadraticCurveTo(-12, -25, 0, -40);
+            ctx.fill();
+            // 橙色中层
+            ctx.fillStyle = '#FF9800';
+            ctx.beginPath();
+            ctx.moveTo(0, -32);
+            ctx.quadraticCurveTo(7, -18, 6, 0);
+            ctx.quadraticCurveTo(3, 4, 0, 6);
+            ctx.quadraticCurveTo(-3, 4, -6, 0);
+            ctx.quadraticCurveTo(-7, -18, 0, -32);
+            ctx.fill();
+            // 黄色内芯
+            ctx.fillStyle = '#FFEB3B';
+            ctx.beginPath();
+            ctx.moveTo(0, -22);
+            ctx.quadraticCurveTo(4, -12, 3, 0);
+            ctx.quadraticCurveTo(1, 3, 0, 4);
+            ctx.quadraticCurveTo(-1, 3, -3, 0);
+            ctx.quadraticCurveTo(-4, -12, 0, -22);
+            ctx.fill();
+            ctx.restore();
+        }
 
-        // 右侧红色火焰（对应"火"字右边的捺）
-        ctx.fillStyle = '#E74C3C';
-        ctx.beginPath();
-        ctx.moveTo(cx + 5, cy + 5);
-        ctx.quadraticCurveTo(cx + 45, cy - 15, cx + 38, cy - 50);
-        ctx.quadraticCurveTo(cx + 30, cy - 35, cx + 22, cy - 25);
-        ctx.quadraticCurveTo(cx + 15, cy - 10, cx + 5, cy + 5);
-        ctx.fill();
+        // 左外侧小火苗（对应"火"字左点）
+        drawFlame(cx - 38, cy - 25, 0.6, 0.7, -0.5);
 
-        // 中间主火焰（红色外层）
-        ctx.fillStyle = '#E74C3C';
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - 60);
-        ctx.quadraticCurveTo(cx + 22, cy - 35, cx + 18, cy + 10);
-        ctx.lineTo(cx - 18, cy + 10);
-        ctx.quadraticCurveTo(cx - 22, cy - 35, cx, cy - 60);
-        ctx.fill();
+        // 左内侧火苗
+        drawFlame(cx - 20, cy - 15, 0.75, 0.85, -0.25);
 
-        // 中间橙色火焰
-        ctx.fillStyle = '#F39C12';
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - 50);
-        ctx.quadraticCurveTo(cx + 15, cy - 28, cx + 12, cy + 5);
-        ctx.lineTo(cx - 12, cy + 5);
-        ctx.quadraticCurveTo(cx - 15, cy - 28, cx, cy - 50);
-        ctx.fill();
+        // 中间大火苗（对应"火"字中间）
+        drawFlame(cx, cy - 10, 1.1, 1.3, 0);
 
-        // 中间黄色火焰芯
-        ctx.fillStyle = '#F1C40F';
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - 38);
-        ctx.quadraticCurveTo(cx + 8, cy - 20, cx + 6, cy + 2);
-        ctx.lineTo(cx - 6, cy + 2);
-        ctx.quadraticCurveTo(cx - 8, cy - 20, cx, cy - 38);
-        ctx.fill();
+        // 右内侧火苗
+        drawFlame(cx + 20, cy - 15, 0.75, 0.85, 0.25);
+
+        // 右外侧小火苗（对应"火"字右点）
+        drawFlame(cx + 38, cy - 25, 0.6, 0.7, 0.5);
     },
     // 山 - 三座山峰
     drawMountain(ctx, w, h) {
