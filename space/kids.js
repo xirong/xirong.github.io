@@ -837,97 +837,461 @@ function loadProgress() {
     }
 }
 
-// ============ 识字探险：汉字数据 ============
+// ============ 识字探险：象形汉字数据 ============
+// 每个汉字包含：char（字）、pinyin（拼音）、words（组词）、sentence（造句）、pictograph（象形图绘制函数名）
 const planetWords = {
     sun: {
         name: '太阳', icon: '☀️',
         words: [
-            { char: '太', pinyin: 'tài', sentence: '太阳很大很热' },
-            { char: '阳', pinyin: 'yáng', sentence: '阳光照大地' },
-            { char: '日', pinyin: 'rì', sentence: '日出东方红' },
-            { char: '光', pinyin: 'guāng', sentence: '阳光暖暖的' },
-            { char: '热', pinyin: 'rè', sentence: '太阳很热很热' },
-            { char: '大', pinyin: 'dà', sentence: '太阳很大' },
-            { char: '火', pinyin: 'huǒ', sentence: '太阳是个大火球' },
-            { char: '红', pinyin: 'hóng', sentence: '红红的太阳' }
+            { char: '日', pinyin: 'rì', words: '红日 · 明日', sentence: '红日初升，照亮了大地。', pictograph: 'drawSun' },
+            { char: '火', pinyin: 'huǒ', words: '火苗 · 火炬', sentence: '火苗跳跃，温暖了整个房间。', pictograph: 'drawFire' },
+            { char: '大', pinyin: 'dà', words: '大小 · 大人', sentence: '大象很大，小蚂蚁很小。', pictograph: 'drawBig' },
+            { char: '光', pinyin: 'guāng', words: '阳光 · 月光', sentence: '阳光暖暖的照在身上。', pictograph: 'drawLight' },
+            { char: '热', pinyin: 'rè', words: '热水 · 炎热', sentence: '夏天好热，吃冰棍凉快。', pictograph: 'drawHot' }
         ]
     },
     earth: {
         name: '地球', icon: '🌍',
         words: [
-            { char: '地', pinyin: 'dì', sentence: '蓝蓝的地球' },
-            { char: '球', pinyin: 'qiú', sentence: '地球是圆球' },
-            { char: '水', pinyin: 'shuǐ', sentence: '地球有很多水' },
-            { char: '山', pinyin: 'shān', sentence: '高高的山' },
-            { char: '风', pinyin: 'fēng', sentence: '风吹白云飘' },
-            { char: '云', pinyin: 'yún', sentence: '白云在天上' },
-            { char: '蓝', pinyin: 'lán', sentence: '蓝蓝的天空' }
+            { char: '山', pinyin: 'shān', words: '高山 · 山峰', sentence: '高高的山像巨人站着。', pictograph: 'drawMountain' },
+            { char: '水', pinyin: 'shuǐ', words: '河水 · 雨水', sentence: '小河的水哗啦啦地流。', pictograph: 'drawWater' },
+            { char: '木', pinyin: 'mù', words: '树木 · 木头', sentence: '森林里有很多树木。', pictograph: 'drawTree' },
+            { char: '土', pinyin: 'tǔ', words: '泥土 · 土地', sentence: '泥土里长出了小苗。', pictograph: 'drawEarth' },
+            { char: '田', pinyin: 'tián', words: '田地 · 田野', sentence: '田野里麦苗绿油油一片。', pictograph: 'drawField' },
+            { char: '云', pinyin: 'yún', words: '白云 · 云朵', sentence: '白云像棉花糖飘在天上。', pictograph: 'drawCloud' },
+            { char: '雨', pinyin: 'yǔ', words: '下雨 · 雨滴', sentence: '下雨了，滴答滴答响。', pictograph: 'drawRain' }
         ]
     },
     moon: {
         name: '月球', icon: '🌙',
         words: [
-            { char: '月', pinyin: 'yuè', sentence: '月亮弯弯挂天上' },
-            { char: '夜', pinyin: 'yè', sentence: '夜晚月亮亮' },
-            { char: '圆', pinyin: 'yuán', sentence: '月亮圆圆的' },
-            { char: '白', pinyin: 'bái', sentence: '白白的月光' },
-            { char: '小', pinyin: 'xiǎo', sentence: '月亮比地球小' },
-            { char: '冷', pinyin: 'lěng', sentence: '月球上很冷' },
-            { char: '石', pinyin: 'shí', sentence: '月球上有石头' }
+            { char: '月', pinyin: 'yuè', words: '月亮 · 月光', sentence: '月亮悄悄爬上了树梢。', pictograph: 'drawMoon' },
+            { char: '石', pinyin: 'shí', words: '石头 · 岩石', sentence: '河边有很多圆圆的石头。', pictograph: 'drawStone' },
+            { char: '小', pinyin: 'xiǎo', words: '大小 · 小鸟', sentence: '小小的蚂蚁力气大。', pictograph: 'drawSmall' }
         ]
     },
     saturn: {
         name: '土星', icon: '🪐',
         words: [
-            { char: '土', pinyin: 'tǔ', sentence: '土星有美丽的光环' },
-            { char: '环', pinyin: 'huán', sentence: '光环像呼啦圈' },
-            { char: '星', pinyin: 'xīng', sentence: '满天星星亮晶晶' },
-            { char: '美', pinyin: 'měi', sentence: '土星光环好美' },
-            { char: '彩', pinyin: 'cǎi', sentence: '彩色的光环' },
-            { char: '色', pinyin: 'sè', sentence: '五颜六色' }
+            { char: '星', pinyin: 'xīng', words: '星星 · 星空', sentence: '满天星星亮晶晶。', pictograph: 'drawStar' },
+            { char: '目', pinyin: 'mù', words: '眼目 · 目光', sentence: '用眼睛看世界真奇妙。', pictograph: 'drawEye' },
+            { char: '口', pinyin: 'kǒu', words: '口才 · 口算', sentence: '他口才极佳，赢得了众人赞许。', pictograph: 'drawMouth' }
         ]
     },
     mars: {
         name: '火星', icon: '🔴',
         words: [
-            { char: '远', pinyin: 'yuǎn', sentence: '火星离我们很远' },
-            { char: '沙', pinyin: 'shā', sentence: '火星上有很多沙' },
-            { char: '岩', pinyin: 'yán', sentence: '火星有红色岩石' },
-            { char: '近', pinyin: 'jìn', sentence: '火星离地球近' },
-            { char: '飞', pinyin: 'fēi', sentence: '飞船飞向火星' }
+            { char: '人', pinyin: 'rén', words: '大人 · 人们', sentence: '小朋友长大变成大人。', pictograph: 'drawPerson' },
+            { char: '上', pinyin: 'shàng', words: '上面 · 上学', sentence: '小鸟飞到树上去了。', pictograph: 'drawUp' },
+            { char: '下', pinyin: 'xià', words: '下面 · 下雨', sentence: '苹果从树上掉下来了。', pictograph: 'drawDown' }
         ]
     },
     jupiter: {
         name: '木星', icon: '🟤',
         words: [
-            { char: '木', pinyin: 'mù', sentence: '木星最大' },
-            { char: '金', pinyin: 'jīn', sentence: '金星亮晶晶' },
-            { char: '天', pinyin: 'tiān', sentence: '天上有星星' },
-            { char: '王', pinyin: 'wáng', sentence: '天王星很远' },
-            { char: '海', pinyin: 'hǎi', sentence: '海王星是蓝色' },
-            { char: '冥', pinyin: 'míng', sentence: '冥王星很小' }
+            { char: '天', pinyin: 'tiān', words: '天空 · 蓝天', sentence: '蓝色的天空让人心情愉快。', pictograph: 'drawSky' },
+            { char: '手', pinyin: 'shǒu', words: '小手 · 手指', sentence: '我有两只小手会画画。', pictograph: 'drawHand' },
+            { char: '足', pinyin: 'zú', words: '脚足 · 足球', sentence: '小脚丫踩在沙滩上。', pictograph: 'drawFoot' }
         ]
     },
     neptune: {
         name: '海王星', icon: '🔵',
         words: [
-            { char: '春', pinyin: 'chūn', sentence: '春天花开了' },
-            { char: '夏', pinyin: 'xià', sentence: '夏天真热' },
-            { char: '冬', pinyin: 'dōng', sentence: '冬天下雪了' },
-            { char: '空', pinyin: 'kōng', sentence: '太空很大' },
-            { char: '今', pinyin: 'jīn', sentence: '今天去探险' },
-            { char: '早', pinyin: 'zǎo', sentence: '早上好' }
+            { char: '鱼', pinyin: 'yú', words: '小鱼 · 金鱼', sentence: '小鱼在水里游来游去。', pictograph: 'drawFish' },
+            { char: '门', pinyin: 'mén', words: '大门 · 门口', sentence: '打开门，阳光照进来。', pictograph: 'drawDoor' },
+            { char: '井', pinyin: 'jǐng', words: '水井 · 井口', sentence: '村民们在水井旁洗衣服。', pictograph: 'drawWell' }
         ]
     },
     venus: {
         name: '金星', icon: '🟡',
         words: [
-            { char: '好', pinyin: 'hǎo', sentence: '太空探险真好' },
-            { char: '心', pinyin: 'xīn', sentence: '开心学汉字' },
-            { char: '喜', pinyin: 'xǐ', sentence: '喜欢看星星' },
-            { char: '欢', pinyin: 'huān', sentence: '欢欢喜喜' },
-            { char: '学', pinyin: 'xué', sentence: '学习新汉字' }
+            { char: '心', pinyin: 'xīn', words: '开心 · 爱心', sentence: '帮助别人让我很开心。', pictograph: 'drawHeart' },
+            { char: '耳', pinyin: 'ěr', words: '耳朵 · 耳机', sentence: '用耳朵听美妙的音乐。', pictograph: 'drawEar' },
+            { char: '舟', pinyin: 'zhōu', words: '小舟 · 舟船', sentence: '小舟在湖面上轻轻漂。', pictograph: 'drawBoat' }
         ]
+    }
+};
+
+// ============ 象形图绘制函数 ============
+const pictographDrawers = {
+    // 日 - 太阳（圆形+笑脸）
+    drawSun(ctx, w, h) {
+        ctx.fillStyle = '#FFD93D';
+        ctx.beginPath(); ctx.arc(w/2, h/2, 40, 0, Math.PI*2); ctx.fill();
+        // 光芒
+        ctx.strokeStyle = '#FF9F43'; ctx.lineWidth = 3;
+        for (let i = 0; i < 8; i++) {
+            const angle = i * Math.PI / 4;
+            ctx.beginPath();
+            ctx.moveTo(w/2 + Math.cos(angle)*45, h/2 + Math.sin(angle)*45);
+            ctx.lineTo(w/2 + Math.cos(angle)*60, h/2 + Math.sin(angle)*60);
+            ctx.stroke();
+        }
+        // 笑脸
+        ctx.fillStyle = '#E67E22';
+        ctx.beginPath(); ctx.arc(w/2-12, h/2-8, 5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(w/2+12, h/2-8, 5, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#E67E22'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(w/2, h/2+5, 15, 0.2, Math.PI-0.2); ctx.stroke();
+    },
+    // 火 - 火焰
+    drawFire(ctx, w, h) {
+        // 木柴
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(w/2-35, h-30, 25, 8);
+        ctx.fillRect(w/2+10, h-30, 25, 8);
+        // 火焰
+        ctx.fillStyle = '#FF6B6B';
+        ctx.beginPath(); ctx.moveTo(w/2, 15); ctx.quadraticCurveTo(w/2+30, 50, w/2+25, 90);
+        ctx.lineTo(w/2-25, 90); ctx.quadraticCurveTo(w/2-30, 50, w/2, 15); ctx.fill();
+        ctx.fillStyle = '#FFD93D';
+        ctx.beginPath(); ctx.moveTo(w/2, 35); ctx.quadraticCurveTo(w/2+15, 55, w/2+12, 80);
+        ctx.lineTo(w/2-12, 80); ctx.quadraticCurveTo(w/2-15, 55, w/2, 35); ctx.fill();
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.moveTo(w/2, 50); ctx.quadraticCurveTo(w/2+6, 60, w/2+5, 75);
+        ctx.lineTo(w/2-5, 75); ctx.quadraticCurveTo(w/2-6, 60, w/2, 50); ctx.fill();
+    },
+    // 山 - 三座山峰
+    drawMountain(ctx, w, h) {
+        ctx.fillStyle = '#2ECC71';
+        ctx.beginPath(); ctx.moveTo(w/2, 20); ctx.lineTo(w/2+50, h-20); ctx.lineTo(w/2-50, h-20); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#27AE60';
+        ctx.beginPath(); ctx.moveTo(w/2-30, 45); ctx.lineTo(w/2-30+35, h-20); ctx.lineTo(w/2-30-35, h-20); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(w/2+35, 50); ctx.lineTo(w/2+35+30, h-20); ctx.lineTo(w/2+35-30, h-20); ctx.closePath(); ctx.fill();
+        // 雪顶
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.moveTo(w/2, 20); ctx.lineTo(w/2+12, 40); ctx.lineTo(w/2-12, 40); ctx.closePath(); ctx.fill();
+    },
+    // 水 - 波浪
+    drawWater(ctx, w, h) {
+        ctx.strokeStyle = '#3498DB'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+        for (let i = 0; i < 3; i++) {
+            ctx.beginPath();
+            ctx.moveTo(20, 40 + i*30);
+            ctx.quadraticCurveTo(45, 25 + i*30, 70, 40 + i*30);
+            ctx.quadraticCurveTo(95, 55 + i*30, 120, 40 + i*30);
+            ctx.stroke();
+        }
+        // 水滴
+        ctx.fillStyle = '#3498DB';
+        ctx.beginPath(); ctx.moveTo(w/2, 15); ctx.quadraticCurveTo(w/2+10, 30, w/2, 38);
+        ctx.quadraticCurveTo(w/2-10, 30, w/2, 15); ctx.fill();
+    },
+    // 月 - 弯月+笑脸
+    drawMoon(ctx, w, h) {
+        ctx.fillStyle = '#F4D03F';
+        ctx.beginPath(); ctx.arc(w/2, h/2, 45, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fffaf5';
+        ctx.beginPath(); ctx.arc(w/2+25, h/2-15, 35, 0, Math.PI*2); ctx.fill();
+        // 表情
+        ctx.fillStyle = '#E67E22';
+        ctx.beginPath(); ctx.arc(w/2-15, h/2-5, 4, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#E67E22'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(w/2-8, h/2+12, 10, 0.3, Math.PI-0.3); ctx.stroke();
+    },
+    // 木 - 树
+    drawTree(ctx, w, h) {
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(w/2-8, h/2, 16, 50);
+        ctx.fillStyle = '#27AE60';
+        ctx.beginPath(); ctx.arc(w/2, h/2-10, 40, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#2ECC71';
+        ctx.beginPath(); ctx.arc(w/2-20, h/2+5, 25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(w/2+20, h/2+5, 25, 0, Math.PI*2); ctx.fill();
+    },
+    // 土 - 土堆
+    drawEarth(ctx, w, h) {
+        ctx.fillStyle = '#D35400';
+        ctx.beginPath();
+        ctx.moveTo(15, h-25); ctx.lineTo(w-15, h-25);
+        ctx.lineTo(w-35, h-55); ctx.lineTo(35, h-55); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#E67E22';
+        ctx.fillRect(20, h-25, w-40, 15);
+        // 小苗
+        ctx.strokeStyle = '#27AE60'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(w/2, h-55); ctx.lineTo(w/2, h-80); ctx.stroke();
+        ctx.fillStyle = '#2ECC71';
+        ctx.beginPath(); ctx.ellipse(w/2-8, h-80, 10, 6, -0.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(w/2+8, h-80, 10, 6, 0.5, 0, Math.PI*2); ctx.fill();
+    },
+    // 田 - 田字格
+    drawField(ctx, w, h) {
+        ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 4;
+        ctx.strokeRect(30, 30, 80, 80);
+        ctx.beginPath(); ctx.moveTo(70, 30); ctx.lineTo(70, 110); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(30, 70); ctx.lineTo(110, 70); ctx.stroke();
+        ctx.fillStyle = '#27AE60';
+        ctx.fillRect(35, 35, 30, 30); ctx.fillRect(75, 35, 30, 30);
+        ctx.fillRect(35, 75, 30, 30); ctx.fillRect(75, 75, 30, 30);
+    },
+    // 人 - 小人
+    drawPerson(ctx, w, h) {
+        ctx.fillStyle = '#FFD93D';
+        ctx.beginPath(); ctx.arc(w/2, 35, 20, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#3498DB'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(w/2, 55); ctx.lineTo(w/2, 95); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2-25, 70); ctx.lineTo(w/2, 60); ctx.lineTo(w/2+25, 70); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, 95); ctx.lineTo(w/2-20, 125); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, 95); ctx.lineTo(w/2+20, 125); ctx.stroke();
+    },
+    // 口 - 嘴巴
+    drawMouth(ctx, w, h) {
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath();
+        ctx.ellipse(w/2, h/2, 45, 30, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#C0392B';
+        ctx.beginPath();
+        ctx.ellipse(w/2, h/2+10, 35, 18, 0, 0, Math.PI); ctx.fill();
+        // 牙齿
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(w/2-25, h/2-5, 50, 12);
+    },
+    // 目 - 眼睛
+    drawEye(ctx, w, h) {
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.ellipse(w/2, h/2, 50, 30, 0, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.ellipse(w/2, h/2, 50, 30, 0, 0, Math.PI*2); ctx.stroke();
+        ctx.fillStyle = '#3498DB';
+        ctx.beginPath(); ctx.arc(w/2, h/2, 18, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.beginPath(); ctx.arc(w/2, h/2, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.arc(w/2+5, h/2-5, 4, 0, Math.PI*2); ctx.fill();
+    },
+    // 大 - 大人张开手脚
+    drawBig(ctx, w, h) {
+        ctx.fillStyle = '#9B59B6';
+        ctx.beginPath(); ctx.arc(w/2, 25, 15, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#9B59B6'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(w/2, 40); ctx.lineTo(w/2, 85); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(20, 55); ctx.lineTo(w/2, 55); ctx.lineTo(w-20, 55); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, 85); ctx.lineTo(30, 125); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, 85); ctx.lineTo(w-30, 125); ctx.stroke();
+    },
+    // 小 - 小
+    drawSmall(ctx, w, h) {
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath(); ctx.arc(w/2, h/2-10, 8, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#E74C3C'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(w/2, h/2); ctx.lineTo(w/2, h/2+40); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2-30, h/2+15); ctx.lineTo(w/2, h/2+30); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2+30, h/2+15); ctx.lineTo(w/2, h/2+30); ctx.stroke();
+    },
+    // 上 - 箭头向上
+    drawUp(ctx, w, h) {
+        ctx.fillStyle = '#2ECC71';
+        ctx.beginPath();
+        ctx.moveTo(w/2, 20); ctx.lineTo(w/2+30, 60); ctx.lineTo(w/2+12, 60);
+        ctx.lineTo(w/2+12, 110); ctx.lineTo(w/2-12, 110); ctx.lineTo(w/2-12, 60);
+        ctx.lineTo(w/2-30, 60); ctx.closePath(); ctx.fill();
+    },
+    // 下 - 箭头向下
+    drawDown(ctx, w, h) {
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath();
+        ctx.moveTo(w/2, 120); ctx.lineTo(w/2+30, 80); ctx.lineTo(w/2+12, 80);
+        ctx.lineTo(w/2+12, 30); ctx.lineTo(w/2-12, 30); ctx.lineTo(w/2-12, 80);
+        ctx.lineTo(w/2-30, 80); ctx.closePath(); ctx.fill();
+    },
+    // 云 - 云朵
+    drawCloud(ctx, w, h) {
+        ctx.fillStyle = '#ECF0F1';
+        ctx.beginPath(); ctx.arc(45, h/2+10, 25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(70, h/2-5, 30, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(100, h/2+5, 28, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(75, h/2+20, 22, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#BDC3C7'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(45, h/2+10, 25, Math.PI*0.8, Math.PI*1.8); ctx.stroke();
+        ctx.beginPath(); ctx.arc(70, h/2-5, 30, Math.PI*1.2, Math.PI*1.9); ctx.stroke();
+    },
+    // 雨 - 云+雨滴
+    drawRain(ctx, w, h) {
+        ctx.fillStyle = '#95A5A6';
+        ctx.beginPath(); ctx.arc(40, 40, 20, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(70, 35, 25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(100, 40, 20, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#3498DB';
+        for (let i = 0; i < 5; i++) {
+            const x = 30 + i*22, y = 75 + (i%2)*15;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x+6, y+15, x, y+22);
+            ctx.quadraticCurveTo(x-6, y+15, x, y); ctx.fill();
+        }
+    },
+    // 石 - 石头
+    drawStone(ctx, w, h) {
+        ctx.fillStyle = '#7F8C8D';
+        ctx.beginPath();
+        ctx.moveTo(30, h-30); ctx.quadraticCurveTo(20, h/2, 50, 35);
+        ctx.quadraticCurveTo(80, 25, 100, 40);
+        ctx.quadraticCurveTo(120, 60, 110, h-30); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#95A5A6';
+        ctx.beginPath(); ctx.ellipse(65, 55, 20, 12, 0.3, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#BDC3C7';
+        ctx.beginPath(); ctx.ellipse(80, 70, 8, 5, -0.2, 0, Math.PI*2); ctx.fill();
+    },
+    // 天 - 天空+太阳+云
+    drawSky(ctx, w, h) {
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#87CEEB'); grad.addColorStop(1, '#E0F7FA');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#FFD93D';
+        ctx.beginPath(); ctx.arc(100, 35, 20, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.arc(35, 50, 15, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(55, 45, 18, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(50, 60, 12, 0, Math.PI*2); ctx.fill();
+    },
+    // 星 - 五角星
+    drawStar(ctx, w, h) {
+        ctx.fillStyle = '#F4D03F';
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+            const angle = (i * 4 * Math.PI / 5) - Math.PI/2;
+            const x = w/2 + Math.cos(angle) * 45;
+            const y = h/2 + Math.sin(angle) * 45;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.closePath(); ctx.fill();
+        // 闪光
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.arc(w/2+10, h/2-15, 5, 0, Math.PI*2); ctx.fill();
+    },
+    // 心 - 爱心
+    drawHeart(ctx, w, h) {
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath();
+        ctx.moveTo(w/2, h/2+30);
+        ctx.bezierCurveTo(w/2-50, h/2-10, w/2-50, h/2-50, w/2, h/2-20);
+        ctx.bezierCurveTo(w/2+50, h/2-50, w/2+50, h/2-10, w/2, h/2+30);
+        ctx.fill();
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.arc(w/2-15, h/2-25, 8, 0, Math.PI*2); ctx.fill();
+    },
+    // 手 - 手掌
+    drawHand(ctx, w, h) {
+        ctx.fillStyle = '#FDEBD0';
+        ctx.beginPath();
+        ctx.moveTo(40, h-25); ctx.quadraticCurveTo(35, h/2+20, 45, h/2);
+        ctx.lineTo(50, 40); ctx.lineTo(58, 40); ctx.lineTo(55, h/2);
+        ctx.lineTo(60, 30); ctx.lineTo(68, 30); ctx.lineTo(68, h/2);
+        ctx.lineTo(75, 35); ctx.lineTo(83, 35); ctx.lineTo(80, h/2);
+        ctx.lineTo(90, 45); ctx.lineTo(98, 50); ctx.lineTo(90, h/2+5);
+        ctx.quadraticCurveTo(105, h/2+30, 95, h-25);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#E8DAEF'; ctx.lineWidth = 2; ctx.stroke();
+    },
+    // 足 - 脚
+    drawFoot(ctx, w, h) {
+        ctx.fillStyle = '#FDEBD0';
+        ctx.beginPath();
+        ctx.moveTo(35, 40); ctx.quadraticCurveTo(30, h/2, 35, h-40);
+        ctx.quadraticCurveTo(40, h-25, 60, h-30);
+        ctx.lineTo(70, h-35); ctx.lineTo(80, h-32); ctx.lineTo(90, h-35);
+        ctx.lineTo(100, h-38); ctx.lineTo(105, h-45);
+        ctx.quadraticCurveTo(110, h/2, 100, 40);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#E8DAEF'; ctx.lineWidth = 2; ctx.stroke();
+    },
+    // 鱼 - 小鱼
+    drawFish(ctx, w, h) {
+        ctx.fillStyle = '#F39C12';
+        ctx.beginPath();
+        ctx.moveTo(25, h/2); ctx.quadraticCurveTo(60, h/2-35, 95, h/2);
+        ctx.quadraticCurveTo(60, h/2+35, 25, h/2); ctx.fill();
+        // 尾巴
+        ctx.beginPath(); ctx.moveTo(25, h/2); ctx.lineTo(5, h/2-20);
+        ctx.lineTo(5, h/2+20); ctx.closePath(); ctx.fill();
+        // 眼睛
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.arc(75, h/2-5, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.beginPath(); ctx.arc(77, h/2-5, 4, 0, Math.PI*2); ctx.fill();
+        // 鳞片
+        ctx.strokeStyle = '#E67E22'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(50, h/2, 8, 0.5, 2.5); ctx.stroke();
+        ctx.beginPath(); ctx.arc(60, h/2+8, 6, 0.5, 2.5); ctx.stroke();
+    },
+    // 门 - 门
+    drawDoor(ctx, w, h) {
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(30, 20, 80, 100);
+        ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 4;
+        ctx.strokeRect(30, 20, 80, 100);
+        ctx.beginPath(); ctx.moveTo(70, 20); ctx.lineTo(70, 120); ctx.stroke();
+        // 门把手
+        ctx.fillStyle = '#F4D03F';
+        ctx.beginPath(); ctx.arc(58, 75, 5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(82, 75, 5, 0, Math.PI*2); ctx.fill();
+    },
+    // 井 - 水井
+    drawWell(ctx, w, h) {
+        ctx.fillStyle = '#7F8C8D';
+        ctx.fillRect(25, 50, 90, 15);
+        ctx.fillRect(25, 80, 90, 15);
+        ctx.fillRect(35, 50, 15, 45);
+        ctx.fillRect(90, 50, 15, 45);
+        ctx.fillStyle = '#3498DB';
+        ctx.fillRect(52, 67, 36, 11);
+    },
+    // 耳 - 耳朵
+    drawEar(ctx, w, h) {
+        ctx.fillStyle = '#FDEBD0';
+        ctx.beginPath();
+        ctx.moveTo(w/2, 25); ctx.quadraticCurveTo(w/2+45, 35, w/2+40, h/2);
+        ctx.quadraticCurveTo(w/2+45, h-35, w/2+10, h-25);
+        ctx.quadraticCurveTo(w/2-15, h-30, w/2-10, h/2+20);
+        ctx.quadraticCurveTo(w/2-5, h/2-10, w/2, 25);
+        ctx.fill();
+        ctx.strokeStyle = '#E8DAEF'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.strokeStyle = '#D5CABD'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(w/2+5, 45); ctx.quadraticCurveTo(w/2+25, h/2, w/2+10, h-45);
+        ctx.stroke();
+    },
+    // 舟 - 小船
+    drawBoat(ctx, w, h) {
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath();
+        ctx.moveTo(15, h/2+15); ctx.lineTo(35, h-25); ctx.lineTo(105, h-25);
+        ctx.lineTo(125, h/2+15); ctx.quadraticCurveTo(70, h/2+35, 15, h/2+15);
+        ctx.fill();
+        // 帆
+        ctx.fillStyle = '#ECF0F1';
+        ctx.beginPath(); ctx.moveTo(70, h/2+10); ctx.lineTo(70, 20);
+        ctx.lineTo(100, h/2); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#BDC3C7'; ctx.lineWidth = 2; ctx.stroke();
+        // 桅杆
+        ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(70, 20); ctx.lineTo(70, h-25); ctx.stroke();
+    },
+    // 光 - 光芒
+    drawLight(ctx, w, h) {
+        ctx.fillStyle = '#FFD93D';
+        ctx.beginPath(); ctx.arc(w/2, h/2, 25, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#F4D03F'; ctx.lineWidth = 3;
+        for (let i = 0; i < 12; i++) {
+            const angle = i * Math.PI / 6;
+            const inner = 30, outer = 50;
+            ctx.beginPath();
+            ctx.moveTo(w/2 + Math.cos(angle)*inner, h/2 + Math.sin(angle)*inner);
+            ctx.lineTo(w/2 + Math.cos(angle)*outer, h/2 + Math.sin(angle)*outer);
+            ctx.stroke();
+        }
+    },
+    // 热 - 热气腾腾
+    drawHot(ctx, w, h) {
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath(); ctx.arc(w/2, h/2+20, 30, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#C0392B'; ctx.lineWidth = 3;
+        // 热气
+        for (let i = 0; i < 3; i++) {
+            ctx.beginPath();
+            ctx.moveTo(w/2-20+i*20, h/2-15);
+            ctx.quadraticCurveTo(w/2-25+i*20, h/2-35, w/2-20+i*20, h/2-45);
+            ctx.quadraticCurveTo(w/2-15+i*20, h/2-55, w/2-20+i*20, h/2-65);
+            ctx.stroke();
+        }
     }
 };
 
@@ -1013,11 +1377,27 @@ function showWordLearningCard() {
     if (!data) return;
     const word = data.words[currentWordIndex];
 
-    document.getElementById('wlcPlanetIcon').textContent = data.icon;
-    document.getElementById('wlcPlanetName').textContent = data.name;
     document.getElementById('wlcCharacter').textContent = word.char;
     document.getElementById('wlcPinyin').textContent = word.pinyin;
+    document.getElementById('wlcWordGroup').textContent = word.words || '';
     document.getElementById('wlcSentence').textContent = word.sentence;
+
+    // 绘制象形图
+    const canvas = document.getElementById('wlcPictograph');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (word.pictograph && pictographDrawers[word.pictograph]) {
+        pictographDrawers[word.pictograph](ctx, canvas.width, canvas.height);
+    } else {
+        // 没有象形图时显示占位
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ccc';
+        ctx.font = '60px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(word.char, canvas.width/2, canvas.height/2);
+    }
 
     // 相关汉字
     const container = document.getElementById('wlcRelatedWords');

@@ -856,22 +856,23 @@
             color: var(--primary-yellow);
         }
 
-        /* 汉字学习卡片 */
+        /* 汉字学习卡片 - 象形识字版 */
         .word-learning-card {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 400;
-            background: rgba(10, 10, 26, 0.97);
-            border: 3px solid var(--primary-purple);
-            border-radius: 30px;
-            padding: 30px 35px;
-            max-width: 480px;
-            width: 90vw;
+            background: linear-gradient(135deg, #fff8f0 0%, #fff 100%);
+            border: 4px solid #ff9f43;
+            border-radius: 24px;
+            padding: 0;
+            max-width: 520px;
+            width: 92vw;
             display: none;
-            box-shadow: 0 15px 60px rgba(168, 85, 247, 0.4);
+            box-shadow: 0 20px 60px rgba(255, 159, 67, 0.3);
             animation: card-pop-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
         }
 
         .word-learning-card.visible {
@@ -885,163 +886,191 @@
 
         .word-learning-card .close-card {
             position: absolute;
-            top: 12px;
-            right: 16px;
-            background: none;
+            top: 8px;
+            right: 12px;
+            background: rgba(0,0,0,0.1);
             border: none;
-            font-size: 1.8rem;
-            color: var(--text-light);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.2rem;
+            color: #666;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            z-index: 10;
         }
 
         .word-learning-card .close-card:hover {
+            background: rgba(0,0,0,0.2);
             transform: rotate(90deg);
         }
 
-        .word-learning-card .planet-header {
+        /* 卡片主体：左右分栏 */
+        .word-card-body {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            min-height: 280px;
         }
 
-        .word-learning-card .planet-header .planet-icon {
-            font-size: 2.5rem;
-        }
-
-        .word-learning-card .planet-header .planet-name {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--primary-yellow);
-        }
-
-        .word-learning-card .main-word {
+        /* 左侧：汉字区 */
+        .word-card-left {
+            flex: 1;
+            background: linear-gradient(180deg, #ff9f43 0%, #ff6b6b 100%);
+            padding: 25px 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: rgba(168, 85, 247, 0.15);
-            border-radius: 20px;
-        }
-
-        .word-learning-card .main-word .character {
-            font-size: 4.5rem;
-            font-weight: 900;
-            color: var(--primary-yellow);
-            text-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
-        }
-
-        .word-learning-card .main-word .pinyin {
-            font-size: 1.4rem;
-            color: var(--primary-blue);
-            font-weight: 600;
-        }
-
-        .word-learning-card .main-word .speak-btn {
-            background: rgba(78, 205, 196, 0.2);
-            border: 2px solid var(--primary-blue);
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .word-learning-card .main-word .speak-btn:hover {
-            background: rgba(78, 205, 196, 0.4);
-            transform: scale(1.1);
-        }
-
-        .word-learning-card .context-sentence {
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--text-white);
-            margin-bottom: 18px;
-            padding: 10px;
-            background: rgba(255, 217, 61, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-        }
-
-        .word-learning-card .context-sentence:hover {
-            background: rgba(255, 217, 61, 0.2);
-        }
-
-        .word-learning-card .related-words-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: 8px;
-        }
-
-        .word-learning-card .related-words {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        .word-learning-card .related-words .word-chip {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-white);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .word-learning-card .related-words .word-chip:hover,
-        .word-learning-card .related-words .word-chip.active {
-            border-color: var(--primary-yellow);
-            background: rgba(255, 217, 61, 0.2);
-            color: var(--primary-yellow);
-            transform: scale(1.1);
-        }
-
-        .word-learning-card .related-words .word-chip.learned {
-            border-color: var(--primary-blue);
-            background: rgba(78, 205, 196, 0.15);
-        }
-
-        .word-learning-card .card-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .word-learning-card .card-actions button {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 20px;
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .word-learning-card .card-actions button:hover {
-            transform: scale(1.08);
-        }
-
-        .word-learning-card .quiz-btn {
-            background: linear-gradient(135deg, var(--primary-orange), #ff6b6b);
             color: white;
         }
 
-        .word-learning-card .next-btn {
-            background: linear-gradient(135deg, var(--primary-blue), #45b7d1);
+        .word-card-left .pinyin {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .word-card-left .character {
+            font-size: 5.5rem;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+        }
+
+        .word-card-left .word-group {
+            font-size: 1rem;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .word-card-left .speak-btn {
+            margin-top: 12px;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-card-left .speak-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        /* 右侧：象形图区 */
+        .word-card-right {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-card-right .pictograph-canvas {
+            width: 140px;
+            height: 140px;
+            border-radius: 12px;
+            background: #fffaf5;
+            margin-bottom: 12px;
+        }
+
+        .word-card-right .context-sentence {
+            font-size: 0.95rem;
+            color: #555;
+            text-align: center;
+            line-height: 1.5;
+            padding: 8px 10px;
+            background: #fff8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .word-card-right .context-sentence:hover {
+            background: #ffefdf;
+        }
+
+        /* 底部：相关汉字 + 按钮 */
+        .word-card-footer {
+            padding: 15px 20px;
+            background: #fffaf5;
+            border-top: 2px solid #ffe5cc;
+        }
+
+        .word-card-footer .related-words-label {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .word-card-footer .related-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .word-card-footer .related-words .word-chip {
+            padding: 6px 14px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-card-footer .related-words .word-chip:hover,
+        .word-card-footer .related-words .word-chip.active {
+            border-color: #ff9f43;
+            background: #fff8f0;
+            color: #ff6b6b;
+            transform: scale(1.1);
+        }
+
+        .word-card-footer .related-words .word-chip.learned {
+            border-color: #4ecdc4;
+            background: #e8faf9;
+            color: #2a9d8f;
+        }
+
+        .word-card-footer .card-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .word-card-footer .card-actions button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 18px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-card-footer .card-actions button:hover {
+            transform: scale(1.08);
+        }
+
+        .word-card-footer .quiz-btn {
+            background: linear-gradient(135deg, #ff9f43, #ff6b6b);
+            color: white;
+        }
+
+        .word-card-footer .next-btn {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
             color: white;
         }
 
@@ -1345,24 +1374,30 @@
         <span class="progress-stars" id="wordProgressText">0/50</span>
     </div>
 
-    <!-- 识字探险：汉字学习卡片 -->
+    <!-- 识字探险：汉字学习卡片（象形识字版） -->
     <div class="word-learning-card" id="wordLearningCard">
         <button class="close-card" id="closeWordCard">✕</button>
-        <div class="planet-header">
-            <span class="planet-icon" id="wlcPlanetIcon">☀️</span>
-            <span class="planet-name" id="wlcPlanetName">太阳</span>
+        <div class="word-card-body">
+            <!-- 左侧：汉字 -->
+            <div class="word-card-left">
+                <div class="pinyin" id="wlcPinyin">tài</div>
+                <div class="character" id="wlcCharacter">太</div>
+                <div class="word-group" id="wlcWordGroup">太阳 · 太大</div>
+                <button class="speak-btn" id="wlcSpeakBtn">🔊</button>
+            </div>
+            <!-- 右侧：象形图 -->
+            <div class="word-card-right">
+                <canvas class="pictograph-canvas" id="wlcPictograph" width="140" height="140"></canvas>
+                <div class="context-sentence" id="wlcSentence">太阳很大很热</div>
+            </div>
         </div>
-        <div class="main-word">
-            <span class="character" id="wlcCharacter">太</span>
-            <span class="pinyin" id="wlcPinyin">tài</span>
-            <button class="speak-btn" id="wlcSpeakBtn">🔊</button>
-        </div>
-        <div class="context-sentence" id="wlcSentence">太阳很大很热</div>
-        <div class="related-words-label">相关汉字：</div>
-        <div class="related-words" id="wlcRelatedWords"></div>
-        <div class="card-actions">
-            <button class="quiz-btn" id="wlcQuizBtn">🎯 小测验</button>
-            <button class="next-btn" id="wlcNextBtn">下一个 ▶</button>
+        <div class="word-card-footer">
+            <div class="related-words-label">更多汉字：</div>
+            <div class="related-words" id="wlcRelatedWords"></div>
+            <div class="card-actions">
+                <button class="quiz-btn" id="wlcQuizBtn">🎯 小测验</button>
+                <button class="next-btn" id="wlcNextBtn">下一个 ▶</button>
+            </div>
         </div>
     </div>
 
