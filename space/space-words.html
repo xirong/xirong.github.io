@@ -1033,7 +1033,7 @@
             <h1>🌟 太阳系识字乐园</h1>
         </div>
         <div class="progress-badge">
-            <span class="progress-count" id="progressCount">0</span>/50 字
+            <span class="progress-count" id="progressCount">0</span>/154 字
         </div>
     </nav>
 
@@ -1142,6 +1142,7 @@
     <script>
         // ==================== 汉字数据 ====================
         const wordGroups = [
+            // ========== 原有太阳系主题（50字）==========
             {
                 id: 'sun', name: '太阳', emoji: '☀️', color: '#ffd93d',
                 words: [
@@ -1220,6 +1221,176 @@
                     { char: '八', pinyin: 'bā', emoji: '8️⃣', context: '八大行星' },
                     { char: '九', pinyin: 'jiǔ', emoji: '9️⃣', context: '九颗卫星' },
                     { char: '十', pinyin: 'shí', emoji: '🔟', context: '十个手指' }
+                ]
+            },
+            // ========== 幼儿园课本同步（104字）==========
+            {
+                id: 'direction', name: '方位探索', emoji: '🧭', color: '#00bcd4',
+                words: [
+                    { char: '东', pinyin: 'dōng', emoji: '🌅', context: '太阳从东边升起' },
+                    { char: '西', pinyin: 'xī', emoji: '🌇', context: '太阳从西边落下' },
+                    { char: '南', pinyin: 'nán', emoji: '🧭', context: '南方很温暖' },
+                    { char: '北', pinyin: 'běi', emoji: '❄️', context: '北方有雪' },
+                    { char: '中', pinyin: 'zhōng', emoji: '⭕', context: '在中间' },
+                    { char: '前', pinyin: 'qián', emoji: '⏩', context: '向前走' },
+                    { char: '后', pinyin: 'hòu', emoji: '⏪', context: '在后面' },
+                    { char: '边', pinyin: 'biān', emoji: '📍', context: '在旁边' },
+                    { char: '远', pinyin: 'yuǎn', emoji: '🔭', context: '很远很远' },
+                    { char: '近', pinyin: 'jìn', emoji: '👋', context: '离得很近' },
+                    { char: '入', pinyin: 'rù', emoji: '🚪', context: '进入房间' }
+                ]
+            },
+            {
+                id: 'seasons', name: '四季时光', emoji: '🌸', color: '#e91e63',
+                words: [
+                    { char: '春', pinyin: 'chūn', emoji: '🌸', context: '春天来了' },
+                    { char: '夏', pinyin: 'xià', emoji: '☀️', context: '夏天很热' },
+                    { char: '冬', pinyin: 'dōng', emoji: '❄️', context: '冬天下雪' },
+                    { char: '空', pinyin: 'kōng', emoji: '🌌', context: '天空很蓝' },
+                    { char: '今', pinyin: 'jīn', emoji: '📅', context: '今天真好' },
+                    { char: '早', pinyin: 'zǎo', emoji: '🌅', context: '早上好' },
+                    { char: '公', pinyin: 'gōng', emoji: '🏛️', context: '公园里玩' },
+                    { char: '正', pinyin: 'zhèng', emoji: '✓', context: '正在学习' }
+                ]
+            },
+            {
+                id: 'colors', name: '缤纷色彩', emoji: '🎨', color: '#9c27b0',
+                words: [
+                    { char: '青', pinyin: 'qīng', emoji: '💚', context: '青青的草' },
+                    { char: '黄', pinyin: 'huáng', emoji: '💛', context: '黄黄的花' },
+                    { char: '黑', pinyin: 'hēi', emoji: '⚫', context: '黑黑的夜' },
+                    { char: '彩', pinyin: 'cǎi', emoji: '🌈', context: '彩虹真美' },
+                    { char: '色', pinyin: 'sè', emoji: '🎨', context: '五颜六色' },
+                    { char: '美', pinyin: 'měi', emoji: '💖', context: '美丽的花' },
+                    { char: '丽', pinyin: 'lì', emoji: '👸', context: '美丽公主' },
+                    { char: '点', pinyin: 'diǎn', emoji: '✨', context: '小点点' }
+                ]
+            },
+            {
+                id: 'animals', name: '可爱动物', emoji: '🐱', color: '#ff5722',
+                words: [
+                    { char: '鱼', pinyin: 'yú', emoji: '🐟', context: '小鱼游游' },
+                    { char: '猫', pinyin: 'māo', emoji: '🐱', context: '小猫喵喵' },
+                    { char: '狗', pinyin: 'gǒu', emoji: '🐕', context: '小狗汪汪' },
+                    { char: '鹅', pinyin: 'é', emoji: '🦢', context: '大白鹅' },
+                    { char: '尾', pinyin: 'wěi', emoji: '🦊', context: '长尾巴' },
+                    { char: '巴', pinyin: 'ba', emoji: '🐒', context: '尾巴摇摇' },
+                    { char: '它', pinyin: 'tā', emoji: '🐾', context: '它是小猫' },
+                    { char: '群', pinyin: 'qún', emoji: '🐑', context: '一群小羊' }
+                ]
+            },
+            {
+                id: 'nature', name: '自然万物', emoji: '🌲', color: '#4caf50',
+                words: [
+                    { char: '森', pinyin: 'sēn', emoji: '🌲', context: '森林里' },
+                    { char: '林', pinyin: 'lín', emoji: '🌳', context: '树林里' },
+                    { char: '江', pinyin: 'jiāng', emoji: '🌊', context: '大江大河' },
+                    { char: '闪', pinyin: 'shǎn', emoji: '⚡', context: '闪闪发光' },
+                    { char: '苹', pinyin: 'píng', emoji: '🍎', context: '苹果红' },
+                    { char: '果', pinyin: 'guǒ', emoji: '🍇', context: '水果甜' },
+                    { char: '杏', pinyin: 'xìng', emoji: '🍑', context: '杏子黄' },
+                    { char: '梨', pinyin: 'lí', emoji: '🍐', context: '梨子甜' }
+                ]
+            },
+            {
+                id: 'family', name: '家人朋友', emoji: '👨‍👩‍👧', color: '#2196f3',
+                words: [
+                    { char: '朋', pinyin: 'péng', emoji: '👫', context: '好朋友' },
+                    { char: '友', pinyin: 'yǒu', emoji: '🤝', context: '朋友多' },
+                    { char: '弟', pinyin: 'dì', emoji: '👦', context: '小弟弟' },
+                    { char: '姐', pinyin: 'jiě', emoji: '👧', context: '大姐姐' },
+                    { char: '娃', pinyin: 'wá', emoji: '👶', context: '小娃娃' },
+                    { char: '们', pinyin: 'men', emoji: '👨‍👩‍👧', context: '我们一起' },
+                    { char: '谁', pinyin: 'shuí', emoji: '❓', context: '是谁呀' },
+                    { char: '几', pinyin: 'jǐ', emoji: '🔢', context: '有几个' }
+                ]
+            },
+            {
+                id: 'feelings', name: '心情感受', emoji: '❤️', color: '#f44336',
+                words: [
+                    { char: '好', pinyin: 'hǎo', emoji: '👍', context: '真好呀' },
+                    { char: '心', pinyin: 'xīn', emoji: '❤️', context: '开心笑' },
+                    { char: '喜', pinyin: 'xǐ', emoji: '😊', context: '喜欢你' },
+                    { char: '欢', pinyin: 'huān', emoji: '🎉', context: '欢乐多' },
+                    { char: '怕', pinyin: 'pà', emoji: '😨', context: '不要怕' },
+                    { char: '害', pinyin: 'hài', emoji: '😰', context: '害怕了' },
+                    { char: '声', pinyin: 'shēng', emoji: '🔊', context: '大声说' },
+                    { char: '最', pinyin: 'zuì', emoji: '🏆', context: '最棒了' }
+                ]
+            },
+            {
+                id: 'items', name: '生活用品', emoji: '🎒', color: '#795548',
+                words: [
+                    { char: '伞', pinyin: 'sǎn', emoji: '☂️', context: '打伞啦' },
+                    { char: '书', pinyin: 'shū', emoji: '📚', context: '看书本' },
+                    { char: '衣', pinyin: 'yī', emoji: '👕', context: '穿衣服' },
+                    { char: '刀', pinyin: 'dāo', emoji: '🔪', context: '小剪刀' },
+                    { char: '包', pinyin: 'bāo', emoji: '🎒', context: '小书包' },
+                    { char: '贝', pinyin: 'bèi', emoji: '🐚', context: '贝壳美' },
+                    { char: '双', pinyin: 'shuāng', emoji: '👟', context: '一双鞋' },
+                    { char: '串', pinyin: 'chuàn', emoji: '📿', context: '一串珠' },
+                    { char: '条', pinyin: 'tiáo', emoji: '📏', context: '一条线' }
+                ]
+            },
+            {
+                id: 'shapes', name: '形状大小', emoji: '📐', color: '#607d8b',
+                words: [
+                    { char: '长', pinyin: 'cháng', emoji: '📏', context: '长长的' },
+                    { char: '短', pinyin: 'duǎn', emoji: '📐', context: '短短的' },
+                    { char: '弯', pinyin: 'wān', emoji: '🌙', context: '弯弯的' },
+                    { char: '半', pinyin: 'bàn', emoji: '◐', context: '一半' },
+                    { char: '全', pinyin: 'quán', emoji: '⭕', context: '全部' },
+                    { char: '力', pinyin: 'lì', emoji: '💪', context: '有力气' },
+                    { char: '立', pinyin: 'lì', emoji: '🧍', context: '站立好' }
+                ]
+            },
+            {
+                id: 'actions1', name: '日常动作', emoji: '🏃', color: '#009688',
+                words: [
+                    { char: '去', pinyin: 'qù', emoji: '🚶', context: '去玩耍' },
+                    { char: '说', pinyin: 'shuō', emoji: '💬', context: '说话啦' },
+                    { char: '见', pinyin: 'jiàn', emoji: '👀', context: '看见了' },
+                    { char: '开', pinyin: 'kāi', emoji: '🔓', context: '开门啦' },
+                    { char: '关', pinyin: 'guān', emoji: '🔒', context: '关门好' },
+                    { char: '读', pinyin: 'dú', emoji: '📖', context: '读书声' },
+                    { char: '穿', pinyin: 'chuān', emoji: '👔', context: '穿衣服' },
+                    { char: '游', pinyin: 'yóu', emoji: '🏊', context: '游泳去' }
+                ]
+            },
+            {
+                id: 'actions2', name: '更多动作', emoji: '✨', color: '#673ab7',
+                words: [
+                    { char: '变', pinyin: 'biàn', emoji: '🦋', context: '变变变' },
+                    { char: '发', pinyin: 'fā', emoji: '📤', context: '发出去' },
+                    { char: '学', pinyin: 'xué', emoji: '📚', context: '学知识' },
+                    { char: '起', pinyin: 'qǐ', emoji: '🌅', context: '起床啦' },
+                    { char: '要', pinyin: 'yào', emoji: '🙋', context: '我要要' },
+                    { char: '把', pinyin: 'bǎ', emoji: '🤲', context: '把它给我' },
+                    { char: '过', pinyin: 'guò', emoji: '🚶', context: '走过去' },
+                    { char: '到', pinyin: 'dào', emoji: '📍', context: '到达了' }
+                ]
+            },
+            {
+                id: 'connectors', name: '连接小字', emoji: '🔗', color: '#3f51b5',
+                words: [
+                    { char: '在', pinyin: 'zài', emoji: '📍', context: '在这里' },
+                    { char: '可', pinyin: 'kě', emoji: '👌', context: '可以的' },
+                    { char: '有', pinyin: 'yǒu', emoji: '✔️', context: '有东西' },
+                    { char: '以', pinyin: 'yǐ', emoji: '👍', context: '可以玩' },
+                    { char: '从', pinyin: 'cóng', emoji: '🚶', context: '从这走' },
+                    { char: '么', pinyin: 'me', emoji: '❓', context: '什么呀' },
+                    { char: '就', pinyin: 'jiù', emoji: '➡️', context: '就是它' },
+                    { char: '吧', pinyin: 'ba', emoji: '😊', context: '好吧好吧' }
+                ]
+            },
+            {
+                id: 'others', name: '其他常用', emoji: '🎯', color: '#ff9800',
+                words: [
+                    { char: '交', pinyin: 'jiāo', emoji: '🤝', context: '交朋友' },
+                    { char: '欠', pinyin: 'qiàn', emoji: '🥱', context: '打哈欠' },
+                    { char: '办', pinyin: 'bàn', emoji: '📋', context: '办事情' },
+                    { char: '什', pinyin: 'shén', emoji: '❓', context: '什么' },
+                    { char: '呀', pinyin: 'ya', emoji: '😮', context: '是呀' }
                 ]
             }
         ];

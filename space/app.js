@@ -10,6 +10,8 @@ const planetData = {
         nameCN: '太阳',
         type: '恒星',
         diameter: 1392700, // km
+        mass: 1989100, // 10²⁴ kg
+        category: 'star',
         distance: 0,
         orbitPeriod: 0,
         rotationPeriod: 25.4, // 天
@@ -24,6 +26,8 @@ const planetData = {
         nameCN: '水星',
         type: '类地行星',
         diameter: 4879,
+        mass: 0.330, // 10²⁴ kg
+        category: 'terrestrial',
         distance: 57.9, // 百万 km
         orbitPeriod: 88, // 天
         rotationPeriod: 58.6,
@@ -38,6 +42,8 @@ const planetData = {
         nameCN: '金星',
         type: '类地行星',
         diameter: 12104,
+        mass: 4.87, // 10²⁴ kg
+        category: 'terrestrial',
         distance: 108.2,
         orbitPeriod: 225,
         rotationPeriod: 243,
@@ -52,6 +58,8 @@ const planetData = {
         nameCN: '地球',
         type: '类地行星',
         diameter: 12742,
+        mass: 5.97, // 10²⁴ kg
+        category: 'terrestrial',
         distance: 149.6,
         orbitPeriod: 365,
         rotationPeriod: 1,
@@ -68,6 +76,8 @@ const planetData = {
         nameCN: '月球',
         type: '卫星',
         diameter: 3474,
+        mass: 0.0735, // 10²⁴ kg
+        category: 'moon',
         distance: 0.384, // 距地球 384,400 km
         orbitPeriod: 27.3, // 天
         rotationPeriod: 27.3, // 同步自转
@@ -81,6 +91,8 @@ const planetData = {
         nameCN: '火星',
         type: '类地行星',
         diameter: 6779,
+        mass: 0.642, // 10²⁴ kg
+        category: 'terrestrial',
         distance: 227.9,
         orbitPeriod: 687,
         rotationPeriod: 1.03,
@@ -97,6 +109,8 @@ const planetData = {
         nameCN: '木星',
         type: '气态巨行星',
         diameter: 139820,
+        mass: 1898, // 10²⁴ kg
+        category: 'jovian',
         distance: 778.5,
         orbitPeriod: 4333,
         rotationPeriod: 0.41,
@@ -113,6 +127,8 @@ const planetData = {
         nameCN: '土星',
         type: '气态巨行星',
         diameter: 116460,
+        mass: 568, // 10²⁴ kg
+        category: 'jovian',
         distance: 1432,
         orbitPeriod: 10759,
         rotationPeriod: 0.44,
@@ -130,6 +146,8 @@ const planetData = {
         nameCN: '天王星',
         type: '冰巨行星',
         diameter: 50724,
+        mass: 86.8, // 10²⁴ kg
+        category: 'jovian',
         distance: 2867,
         orbitPeriod: 30687,
         rotationPeriod: 0.72,
@@ -146,6 +164,8 @@ const planetData = {
         nameCN: '海王星',
         type: '冰巨行星',
         diameter: 49244,
+        mass: 102, // 10²⁴ kg
+        category: 'jovian',
         distance: 4515,
         orbitPeriod: 60190,
         rotationPeriod: 0.67,
@@ -162,6 +182,8 @@ const planetData = {
         nameCN: '冥王星',
         type: '矮行星',
         diameter: 2377,
+        mass: 0.0130, // 10²⁴ kg
+        category: 'dwarf',
         distance: 5906,
         orbitPeriod: 90560,
         rotationPeriod: 6.4,
@@ -211,6 +233,7 @@ let selectedPlanet = null;
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
+let currentComparisonTab = 'diameter'; // 'diameter' 或 'mass'
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -305,6 +328,7 @@ function init() {
 
     // 生成大小对比
     generateSizeComparison();
+    setupComparisonTabs();
 
     // 隐藏加载画面
     setTimeout(() => {
@@ -2401,55 +2425,139 @@ function updatePlanetScales() {
 }
 
 // ============ 生成大小对比 ============
-function generateSizeComparison() {
+function generateSizeComparison(mode) {
+    if (!mode) mode = currentComparisonTab;
+    currentComparisonTab = mode;
+
     const container = document.getElementById('comparisonRow');
-    const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
+    container.innerHTML = '';
 
-    // 真实直径数据 (km)
-    // 太阳: 1,392,700 | 木星: 139,820 | 土星: 116,460 | 天王星: 50,724 | 海王星: 49,244
-    // 地球: 12,742 | 金星: 12,104 | 火星: 6,779 | 水星: 4,879 | 月球: 3,474 | 冥王星: 2,377
-    
-    // 太阳是木星的 10 倍，我们让太阳 300px，木星就应该是 30px
-    // 但这样地球就太小了，所以我们分两档：
-    // 1. 太阳单独一档
-    // 2. 行星按真实比例，以木星为基准
-    
-    const sunDisplaySize = 300;
-    const jupiterDisplaySize = 140; // 木星显示 140px
-    const jupiterDiameter = 139820;
+    const subtitle = document.getElementById('comparisonSubtitle');
 
-    allPlanets.forEach(name => {
-        const data = planetData[name];
+    // 类型标签映射
+    const categoryLabels = {
+        terrestrial: '🪨 岩石质',
+        jovian: '💨 气态',
+        star: '⭐ 恒星',
+        dwarf: '🧊 矮行星',
+        moon: '🌙 卫星'
+    };
 
-        let displaySize;
-        if (name === 'sun') {
-            displaySize = sunDisplaySize;
-        } else {
-            // 以木星为基准，按真实比例计算
-            const ratio = data.diameter / jupiterDiameter;
-            displaySize = jupiterDisplaySize * ratio;
-            
-            // 最小 5px，确保冥王星能看见
-            displaySize = Math.max(5, displaySize);
-        }
+    if (mode === 'diameter') {
+        // 按直径排序（从大到小）
+        const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
+        subtitle.textContent = '以地球为参考（直径 = 12,742 km）';
 
-        const div = document.createElement('div');
-        div.className = 'comparison-planet';
-        div.innerHTML = `
-            <div class="sphere" style="
-                width: ${displaySize}px;
-                height: ${displaySize}px;
-                background: ${name === 'sun' ?
-                'radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336)' :
-                `#${data.color.toString(16).padStart(6, '0')}`};
-                color: #${data.color.toString(16).padStart(6, '0')};
-                ${name === 'sun' ? 'box-shadow: 0 0 60px rgba(255, 152, 0, 0.8), 0 0 120px rgba(255, 87, 34, 0.5);' : ''}
-            "></div>
-            <div class="name">${data.nameCN}</div>
-            <div class="size">${formatNumber(data.diameter)} km</div>
-        `;
+        const sunDisplaySize = 300;
+        const jupiterDisplaySize = 140;
+        const jupiterDiameter = 139820;
 
-        container.appendChild(div);
+        sortedPlanets.forEach(name => {
+            const data = planetData[name];
+            const categoryClass = data.category || '';
+
+            let displaySize;
+            if (name === 'sun') {
+                displaySize = sunDisplaySize;
+            } else {
+                const ratio = data.diameter / jupiterDiameter;
+                displaySize = jupiterDisplaySize * ratio;
+                displaySize = Math.max(5, displaySize);
+            }
+
+            const div = document.createElement('div');
+            div.className = `comparison-planet ${categoryClass}`;
+            div.innerHTML = `
+                <div class="sphere" style="
+                    width: ${displaySize}px;
+                    height: ${displaySize}px;
+                    background: ${name === 'sun' ?
+                    'radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336)' :
+                    `#${data.color.toString(16).padStart(6, '0')}`};
+                    color: #${data.color.toString(16).padStart(6, '0')};
+                    ${name === 'sun' ? 'box-shadow: 0 0 60px rgba(255, 152, 0, 0.8), 0 0 120px rgba(255, 87, 34, 0.5);' : ''}
+                "></div>
+                <div class="name">${data.nameCN}</div>
+                <div class="size">${formatNumber(data.diameter)} km</div>
+                <span class="type-label ${categoryClass}">${categoryLabels[categoryClass] || data.type}</span>
+            `;
+            container.appendChild(div);
+        });
+    } else {
+        // 按质量排序（从大到小）
+        const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
+        const sortedPlanets = allPlanets.sort((a, b) => planetData[b].mass - planetData[a].mass);
+        subtitle.textContent = '以地球为参考（质量 = 5.97 × 10²⁴ kg）';
+
+        const sunDisplaySize = 300;
+        const jupiterDisplaySize = 140;
+        const jupiterMass = 1898;
+
+        sortedPlanets.forEach(name => {
+            const data = planetData[name];
+            const categoryClass = data.category || '';
+
+            let displaySize;
+            if (name === 'sun') {
+                displaySize = sunDisplaySize;
+            } else {
+                // 按质量比例计算球体大小（用立方根，因为质量与体积的关系）
+                const ratio = data.mass / jupiterMass;
+                displaySize = jupiterDisplaySize * Math.cbrt(ratio);
+                displaySize = Math.max(5, displaySize);
+            }
+
+            // 格式化质量显示
+            let massDisplay;
+            const earthMasses = data.mass / 5.97;
+            if (data.mass >= 100) {
+                massDisplay = `${formatNumber(Math.round(data.mass))} × 10²⁴ kg`;
+            } else if (data.mass >= 1) {
+                massDisplay = `${data.mass} × 10²⁴ kg`;
+            } else {
+                massDisplay = `${data.mass} × 10²⁴ kg`;
+            }
+
+            // 地球质量单位
+            let earthMassLabel;
+            if (name === 'earth') {
+                earthMassLabel = '= 1 地球质量';
+            } else if (earthMasses >= 1) {
+                earthMassLabel = `= ${earthMasses.toFixed(1)} 地球质量`;
+            } else {
+                earthMassLabel = `= ${earthMasses.toFixed(4)} 地球质量`;
+            }
+
+            const div = document.createElement('div');
+            div.className = `comparison-planet ${categoryClass}`;
+            div.innerHTML = `
+                <div class="sphere" style="
+                    width: ${displaySize}px;
+                    height: ${displaySize}px;
+                    background: ${name === 'sun' ?
+                    'radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336)' :
+                    `#${data.color.toString(16).padStart(6, '0')}`};
+                    color: #${data.color.toString(16).padStart(6, '0')};
+                    ${name === 'sun' ? 'box-shadow: 0 0 60px rgba(255, 152, 0, 0.8), 0 0 120px rgba(255, 87, 34, 0.5);' : ''}
+                "></div>
+                <div class="name">${data.nameCN}</div>
+                <div class="size">${massDisplay}</div>
+                <div class="size" style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 2px;">${earthMassLabel}</div>
+                <span class="type-label ${categoryClass}">${categoryLabels[categoryClass] || data.type}</span>
+            `;
+            container.appendChild(div);
+        });
+    }
+}
+
+function setupComparisonTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentComparisonTab = btn.dataset.tab;
+            generateSizeComparison(currentComparisonTab);
+        });
     });
 }
 

@@ -891,6 +891,110 @@
             font-size: 0.75rem;
             color: var(--accent-cyan);
         }
+
+        /* 页签切换 */
+        .comparison-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-cyan), #7c3aed);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* 类型图例 */
+        .planet-types-legend {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        .legend-item {
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 15px;
+        }
+
+        .legend-item.terrestrial {
+            background: rgba(139, 90, 43, 0.3);
+            border: 1px solid #8b5a2b;
+            color: #deb887;
+        }
+
+        .legend-item.jovian {
+            background: rgba(100, 149, 237, 0.3);
+            border: 1px solid #6495ed;
+            color: #87ceeb;
+        }
+
+        /* 对比副标题 */
+        .comparison-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* 行星类型边框 */
+        .comparison-planet.terrestrial .sphere {
+            box-shadow: 0 0 15px currentColor, 0 0 30px rgba(139, 90, 43, 0.5);
+            border: 2px solid rgba(139, 90, 43, 0.6);
+        }
+
+        .comparison-planet.jovian .sphere {
+            box-shadow: 0 0 15px currentColor, 0 0 30px rgba(100, 149, 237, 0.5);
+            border: 2px solid rgba(100, 149, 237, 0.6);
+        }
+
+        /* 类型标签 */
+        .comparison-planet .type-label {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        .type-label.terrestrial {
+            background: rgba(139, 90, 43, 0.4);
+            color: #deb887;
+        }
+
+        .type-label.jovian {
+            background: rgba(100, 149, 237, 0.4);
+            color: #87ceeb;
+        }
+
+        .type-label.star {
+            background: rgba(255, 152, 0, 0.4);
+            color: #ffcc80;
+        }
+
+        .type-label.dwarf {
+            background: rgba(158, 158, 158, 0.4);
+            color: #bdbdbd;
+        }
+
+        .type-label.moon {
+            background: rgba(158, 158, 158, 0.3);
+            color: #aaaaaa;
+        }
     </style>
 </head>
 
@@ -1037,8 +1141,21 @@
     <!-- 大小对比面板 -->
     <div class="size-comparison" id="sizeComparison">
         <button class="size-comparison-close" id="closeSizeComparison">✕</button>
-        <h2>🌍 行星大小真实对比</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 30px;">以地球为参考（直径 = 12,742 km）</p>
+        <h2>🌍 行星对比</h2>
+
+        <!-- 页签切换 -->
+        <div class="comparison-tabs">
+            <button class="tab-btn active" data-tab="diameter">📏 按直径</button>
+            <button class="tab-btn" data-tab="mass">⚖️ 按质量</button>
+        </div>
+
+        <!-- 类型说明 -->
+        <div class="planet-types-legend">
+            <span class="legend-item terrestrial">🪨 类地行星（岩石质）</span>
+            <span class="legend-item jovian">💨 类木行星（气态）</span>
+        </div>
+
+        <p class="comparison-subtitle" id="comparisonSubtitle">以地球为参考（直径 = 12,742 km）</p>
         <div class="planets-row" id="comparisonRow">
             <!-- 动态生成 -->
         </div>

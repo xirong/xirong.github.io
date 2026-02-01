@@ -284,6 +284,96 @@
 
         .impact-flash.active {
             opacity: 1;
+            animation: flash-pulse 2s ease-out forwards;
+        }
+
+        @keyframes flash-pulse {
+            0% { opacity: 1; background: #fff; }
+            10% { opacity: 1; background: #fff; }
+            30% { opacity: 0.9; background: #fffbe0; }
+            60% { opacity: 0.5; background: #ffdd00; }
+            100% { opacity: 0; background: transparent; }
+        }
+
+        /* 灭绝提示覆盖层 */
+        .extinction-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .extinction-overlay.active {
+            opacity: 1;
+        }
+
+        .extinction-text {
+            font-size: 1.8rem;
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8), 0 0 40px rgba(255, 107, 53, 0.4);
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            animation: text-fade-in 1s ease-out;
+        }
+
+        @keyframes text-fade-in {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .extinction-icons {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .extinction-icon {
+            font-size: 4rem;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s ease-out;
+            position: relative;
+        }
+
+        .extinction-icon.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .extinction-icon.fade-out {
+            opacity: 0.3;
+            filter: grayscale(100%);
+            transform: scale(0.8);
+        }
+
+        .extinction-icon.extinct::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -10%;
+            width: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ff4444, #ff0000);
+            transform: rotate(-45deg);
+            animation: strikethrough 0.4s ease-out forwards;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        @keyframes strikethrough {
+            from { width: 0; }
+            to { width: 120%; }
+        }
+
+        .extinction-icon.survive {
+            color: #4CAF50;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
         }
 
         .home-btn {
@@ -326,6 +416,12 @@
     </div>
 
     <div class="impact-flash" id="impactFlash"></div>
+
+    <!-- 灭绝提示覆盖层 -->
+    <div id="extinctionOverlay" class="extinction-overlay">
+        <div class="extinction-text" id="extinctionText"></div>
+        <div class="extinction-icons" id="extinctionIcons"></div>
+    </div>
 
     <div id="canvas-container"></div>
 
@@ -416,6 +512,7 @@
         let debrisParticles = [];
         let shockwave = null;
         let fireParticles = [];
+        let globalDebris = [];  // 全球飞石
 
         let isLaunched = false;
         let hasImpacted = false;
@@ -424,9 +521,33 @@
         let cameraZoomingToCrater = false;
         let impactPointGlobal = null;
 
+        // 灯光引用（便于动态调暗）
+        let sunLight = null;
+        let ambientLight = null;
+
+        // 灭绝时间线控制
+        let extinctionTimeline = {
+            phase: 0,
+            startTime: 0,
+            isActive: false
+        };
+
         const EARTH_RADIUS = 50;
         const ASTEROID_RADIUS = 10;
         const IMPACT_SPEED = 1.2;
+
+        // 灭绝事件时间线（压缩版，约35秒）
+        const EXTINCTION_EVENTS = [
+            { time: 0, text: '撞击！！巨大的能量释放！', icon: null },
+            { time: 4000, text: '尘埃开始弥漫整个大气层...', icon: null },
+            { time: 9000, text: '阳光被尘埃遮挡...', icon: null },
+            { time: 14000, text: '地球进入漫长的黑暗时期', icon: null },
+            { time: 18000, text: '植物无法进行光合作用', icon: '🌿', action: 'fadeOut' },
+            { time: 23000, text: '食草恐龙失去食物来源', icon: '🦕', action: 'extinct' },
+            { time: 28000, text: '食肉恐龙也无法存活', icon: '🦖', action: 'extinct' },
+            { time: 32000, text: '地球上75%的物种消失了...', icon: null },
+            { time: 36000, text: '但生命并未终结...小型哺乳动物存活下来', icon: '🐀', action: 'survive' }
+        ];
 
         // ============ 初始化 ============
         function init() {
@@ -502,7 +623,12 @@
                     time: { value: 0 },
                     impactPoint: { value: new THREE.Vector3(0, 0, 1) },
                     impactStrength: { value: 0.0 },
-                    craterSize: { value: 0.0 }
+                    craterSize: { value: 0.0 },
+                    // 灭绝效果相关
+                    dustCoverage: { value: 0.0 },
+                    dustSpreadCenter: { value: new THREE.Vector3(0, 0, 1) },
+                    dustSpreadRadius: { value: 0.0 },
+                    globalDarkness: { value: 0.0 }
                 },
                 vertexShader: `
                     varying vec3 vNormal;
@@ -523,6 +649,10 @@
                     uniform vec3 impactPoint;
                     uniform float impactStrength;
                     uniform float craterSize;
+                    uniform float dustCoverage;
+                    uniform vec3 dustSpreadCenter;
+                    uniform float dustSpreadRadius;
+                    uniform float globalDarkness;
                     varying vec3 vNormal;
                     varying vec2 vUv;
                     varying vec3 vPosition;
@@ -632,6 +762,28 @@
                             surfaceColor = mix(surfaceColor, craterColor, craterDepth);
                         }
 
+                        // === 尘埃覆盖效果 ===
+                        if (dustCoverage > 0.0) {
+                            // 计算当前点到扩散中心的球面距离
+                            float sphereDist = acos(clamp(dot(normalize(vPosition), dustSpreadCenter), -1.0, 1.0));
+                            float dustEdge = smoothstep(dustSpreadRadius, max(dustSpreadRadius - 0.5, 0.0), sphereDist);
+
+                            // 尘埃密度噪声（模拟不均匀的灰云）
+                            float dustNoise = fbm(vPosition.xy * 3.0 + vPosition.yz * 2.0 + time * 0.01);
+                            float dustDensity = dustCoverage * dustEdge * (0.6 + dustNoise * 0.4);
+
+                            // 尘埃层颜色
+                            vec3 dustColor = vec3(0.45, 0.42, 0.38);
+                            vec3 darkDustColor = vec3(0.28, 0.25, 0.22);
+                            vec3 dustMix = mix(dustColor, darkDustColor, dustNoise * 0.6);
+
+                            // 混合尘埃
+                            surfaceColor = mix(surfaceColor, dustMix, dustDensity * 0.92);
+                        }
+
+                        // === 全球变暗效果 ===
+                        surfaceColor *= (1.0 - globalDarkness * 0.75);
+
                         // 大气散射
                         float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
                         vec3 atmosphereCol = vec3(0.3, 0.6, 1.0);
@@ -653,6 +805,9 @@
             // 大气层
             const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.12, 64, 64);
             const atmosphereMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    turbidity: { value: 0.0 }
+                },
                 vertexShader: `
                     varying vec3 vNormal;
                     void main() {
@@ -661,10 +816,17 @@
                     }
                 `,
                 fragmentShader: `
+                    uniform float turbidity;
                     varying vec3 vNormal;
                     void main() {
                         float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
-                        gl_FragColor = vec4(0.3, 0.6, 1.0, intensity * 0.5);
+                        // 正常大气色（蓝色）
+                        vec3 clearAtmo = vec3(0.3, 0.6, 1.0);
+                        // 浑浊大气色（灰褐色）
+                        vec3 dustyAtmo = vec3(0.55, 0.48, 0.40);
+                        vec3 atmoColor = mix(clearAtmo, dustyAtmo, turbidity);
+                        float opacity = intensity * (0.5 + turbidity * 0.35);
+                        gl_FragColor = vec4(atmoColor, opacity);
                     }
                 `,
                 transparent: true,
@@ -825,10 +987,10 @@
 
         // ============ 灯光 ============
         function createLighting() {
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            ambientLight = new THREE.AmbientLight(0x404040, 0.5);
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
             sunLight.position.set(-100, 50, 100);
             scene.add(sunLight);
         }
@@ -852,10 +1014,10 @@
 
         // ============ 撞击效果 ============
         function createImpactEffect(impactPoint) {
-            // 屏幕闪白
+            // 屏幕闪白（增强版，2秒渐变）
             const flash = document.getElementById('impactFlash');
             flash.classList.add('active');
-            setTimeout(() => flash.classList.remove('active'), 400);
+            setTimeout(() => flash.classList.remove('active'), 2000);
 
             // 隐藏陨石
             asteroid.visible = false;
@@ -866,24 +1028,24 @@
 
             // === 关键：闪白期间将相机瞬间切到撞击面，让爆炸可见 ===
             const impactNormal = impactPoint.clone().normalize();
-            const viewPos = impactNormal.clone().multiplyScalar(EARTH_RADIUS + 120);
-            viewPos.y += 20;
+            const viewPos = impactNormal.clone().multiplyScalar(EARTH_RADIUS + 150);
+            viewPos.y += 30;
             camera.position.copy(viewPos);
             const lookTarget = impactNormal.clone().multiplyScalar(EARTH_RADIUS);
             controls.target.copy(lookTarget);
             camera.lookAt(lookTarget);
 
-            // 相机震动 - 基于新位置
+            // 相机震动 - 更强烈、更持久
             const shakeOrigin = camera.position.clone();
             let shakeTime = 0;
             const shakeInterval = setInterval(() => {
-                shakeTime += 0.03;
-                if (shakeTime > 1.5) {
+                shakeTime += 0.02;
+                if (shakeTime > 3) {
                     camera.position.copy(shakeOrigin);
                     clearInterval(shakeInterval);
                     return;
                 }
-                const intensity = (1 - shakeTime / 1.5) * 8;
+                const intensity = (1 - shakeTime / 3) * 12;
                 camera.position.x = shakeOrigin.x + (Math.random() - 0.5) * intensity;
                 camera.position.y = shakeOrigin.y + (Math.random() - 0.5) * intensity;
                 camera.position.z = shakeOrigin.z + (Math.random() - 0.5) * intensity;
@@ -894,9 +1056,11 @@
             const inverseRotation = new THREE.Quaternion().setFromEuler(earth.rotation).invert();
             impactDir.applyQuaternion(inverseRotation);
             earth.material.uniforms.impactPoint.value.copy(impactDir);
+            earth.material.uniforms.dustSpreadCenter.value.copy(impactDir);
 
-            // === 第1阶段：爆炸 + 碎片飞溅（0-0.5秒）===
-            createExplosionParticles(impactPoint);   // 火焰粒子
+            // === 第1阶段：极强闪光 + 爆炸 + 碎片飞溅（0-2秒）===
+            createIntenseFlash(impactPoint);          // 强闪光
+            createExplosionParticles(impactPoint);    // 火焰粒子
             createRockDebris(impactPoint);            // 岩石碎片
             createShockwave(impactPoint);             // 冲击波
 
@@ -904,17 +1068,15 @@
 
             // === 第2阶段：熊熊烈火（0.5-3秒）===
             setTimeout(() => {
-                createFireball(impactPoint);  // 持续燃烧的火球
-                document.getElementById('impactStatus').textContent = '熊熊大火...';
+                createFireball(impactPoint);
             }, 500);
 
-            // === 第3阶段：火焰消退 + 显示陨石坑（3-5秒）===
+            // === 第3阶段：显示陨石坑（3-5秒）===
             setTimeout(() => {
-                document.getElementById('impactStatus').textContent = '火焰消退...';
                 let craterGrowth = 0;
                 const craterInterval = setInterval(() => {
-                    craterGrowth += 0.015;
-                    if (craterGrowth > 0.35) {
+                    craterGrowth += 0.012;
+                    if (craterGrowth > 0.4) {
                         clearInterval(craterInterval);
                         earth.material.uniforms.impactStrength.value = 0;
                         return;
@@ -924,10 +1086,8 @@
                 }, 30);
             }, 3000);
 
-            // === 第4阶段：相机推近（5秒后）===
-            setTimeout(() => {
-                zoomToCrater(impactPoint);
-            }, 5000);
+            // === 启动灭绝事件时间线 ===
+            startExtinctionEvent(impactPoint);
         }
 
         // ============ 岩石碎片 ============
@@ -1180,8 +1340,323 @@
             scene.add(shockwave);
         }
 
+        // ============ 强闪光效果 ============
+        function createIntenseFlash(impactPoint) {
+            // 核心高亮点光源
+            const coreLight = new THREE.PointLight(0xffffff, 80, 600);
+            coreLight.position.copy(impactPoint);
+            scene.add(coreLight);
+
+            // 外层暖色光晕
+            const haloLight = new THREE.PointLight(0xffaa00, 50, 800);
+            haloLight.position.copy(impactPoint);
+            scene.add(haloLight);
+
+            // 渐变消退
+            let flashIntensity = 1.0;
+            const fadeInterval = setInterval(() => {
+                flashIntensity -= 0.015;
+                coreLight.intensity = 80 * flashIntensity;
+                haloLight.intensity = 50 * flashIntensity;
+
+                if (flashIntensity <= 0) {
+                    scene.remove(coreLight);
+                    scene.remove(haloLight);
+                    clearInterval(fadeInterval);
+                }
+            }, 16);
+        }
+
+        // ============ 全球飞石系统 ============
+        function createGlobalDebris(impactPoint) {
+            const debrisCount = 350;
+            const impactNormal = impactPoint.clone().normalize();
+
+            // 构建正交基
+            let tangent = new THREE.Vector3(1, 0, 0);
+            if (Math.abs(impactNormal.x) > 0.9) tangent.set(0, 1, 0);
+            tangent.crossVectors(tangent, impactNormal).normalize();
+            const bitangent = new THREE.Vector3().crossVectors(impactNormal, tangent);
+
+            for (let i = 0; i < debrisCount; i++) {
+                const size = Math.random() * 2.5 + 0.4;
+                const geometry = new THREE.IcosahedronGeometry(size, Math.random() > 0.7 ? 1 : 0);
+
+                // 变形使其更不规则
+                const positions = geometry.attributes.position;
+                for (let j = 0; j < positions.count; j++) {
+                    const noise = (Math.random() - 0.5) * 0.5;
+                    positions.setX(j, positions.getX(j) * (1 + noise * 0.3));
+                    positions.setY(j, positions.getY(j) * (1 + noise * 0.3));
+                    positions.setZ(j, positions.getZ(j) * (1 + noise * 0.3));
+                }
+                geometry.computeVertexNormals();
+
+                // 带火焰的材质
+                const isOnFire = Math.random() > 0.25;
+                const material = new THREE.MeshBasicMaterial({
+                    color: isOnFire
+                        ? new THREE.Color(1, 0.5 + Math.random() * 0.4, 0.1)
+                        : new THREE.Color(0.4 + Math.random() * 0.2, 0.3, 0.2),
+                    transparent: true,
+                    opacity: 1
+                });
+
+                const debris = new THREE.Mesh(geometry, material);
+                debris.position.copy(impactPoint);
+
+                // 散射方向（覆盖整个球面）
+                const spreadAngle = Math.random() * Math.PI * 0.85;
+                const rotationAngle = Math.random() * Math.PI * 2;
+
+                const vel = impactNormal.clone()
+                    .multiplyScalar(Math.cos(spreadAngle))
+                    .add(tangent.clone().multiplyScalar(Math.sin(spreadAngle) * Math.cos(rotationAngle)))
+                    .add(bitangent.clone().multiplyScalar(Math.sin(spreadAngle) * Math.sin(rotationAngle)));
+
+                // 速度分布
+                const speedFactor = Math.random();
+                const speed = speedFactor < 0.3
+                    ? 2.5 + Math.random() * 2
+                    : speedFactor < 0.7
+                        ? 1.2 + Math.random()
+                        : 0.6 + Math.random() * 0.5;
+
+                vel.normalize().multiplyScalar(speed);
+
+                debris.userData = {
+                    velocity: vel,
+                    rotSpeed: new THREE.Vector3(
+                        Math.random() * 0.25 - 0.125,
+                        Math.random() * 0.25 - 0.125,
+                        Math.random() * 0.25 - 0.125
+                    ),
+                    life: 1.0,
+                    fadeSpeed: 0.006 + Math.random() * 0.006,  // 加快消散
+                    isOnFire: isOnFire
+                };
+
+                scene.add(debris);
+                globalDebris.push(debris);
+            }
+        }
+
+        // ============ 更新全球飞石 ============
+        function updateGlobalDebris() {
+            for (let i = globalDebris.length - 1; i >= 0; i--) {
+                const debris = globalDebris[i];
+
+                debris.userData.life -= debris.userData.fadeSpeed;
+                if (debris.userData.life <= 0) {
+                    scene.remove(debris);
+                    globalDebris.splice(i, 1);
+                    continue;
+                }
+
+                // 移动
+                debris.position.add(debris.userData.velocity);
+
+                // 旋转翻滚
+                debris.rotation.x += debris.userData.rotSpeed.x;
+                debris.rotation.y += debris.userData.rotSpeed.y;
+                debris.rotation.z += debris.userData.rotSpeed.z;
+
+                // 弱重力（允许飞行更远）
+                const gravity = debris.position.clone().normalize().multiplyScalar(-0.002);
+                debris.userData.velocity.add(gravity);
+
+                // 空气阻力
+                debris.userData.velocity.multiplyScalar(0.997);
+
+                // 淡出
+                debris.material.opacity = debris.userData.life;
+
+                // 火焰拖尾
+                if (debris.userData.isOnFire && Math.random() > 0.85) {
+                    createFireTrail(debris.position.clone());
+                }
+            }
+        }
+
+        // ============ 火焰拖尾 ============
+        function createFireTrail(position) {
+            const trailGeo = new THREE.SphereGeometry(0.4, 4, 4);
+            const trailMat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(1, 0.35 + Math.random() * 0.4, 0),
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+            const trail = new THREE.Mesh(trailGeo, trailMat);
+            trail.position.copy(position);
+            trail.userData.life = 0.4;
+            trail.userData.fadeSpeed = 0.015;
+            trail.userData.velocity = new THREE.Vector3(0, 0, 0);
+            trail.userData.rotSpeed = new THREE.Vector3(0, 0, 0);
+            scene.add(trail);
+            debrisParticles.push(trail);
+        }
+
+        // ============ 尘埃扩散 ============
+        function startDustExpansion(impactPoint) {
+            const dustCenter = impactPoint.clone().normalize();
+            earth.material.uniforms.dustSpreadCenter.value.copy(dustCenter);
+
+            const startTime = performance.now();
+            const duration = 10000;  // 10秒扩散到全球
+
+            function animateDust() {
+                if (!extinctionTimeline.isActive) return;
+
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // 缓动：先快后慢
+                const eased = 1 - Math.pow(1 - progress, 2.5);
+
+                // 扩散半径从0到PI（覆盖整个球面）
+                earth.material.uniforms.dustSpreadRadius.value = eased * Math.PI;
+
+                // 尘埃浓度逐渐增加
+                earth.material.uniforms.dustCoverage.value = eased * 0.92;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateDust);
+                }
+            }
+
+            animateDust();
+        }
+
+        // ============ 黑暗时期 ============
+        function startDarkeningPeriod() {
+            const startTime = performance.now();
+            const duration = 10000;  // 10秒变暗
+
+            const initialAmbient = 0.5;
+            const initialSun = 1.2;
+            const targetAmbient = 0.08;
+            const targetSun = 0.1;
+
+            function animateDarkness() {
+                if (!extinctionTimeline.isActive) return;
+
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // 缓动
+                const eased = progress * progress;
+
+                // 调暗光源
+                if (ambientLight) ambientLight.intensity = initialAmbient - (initialAmbient - targetAmbient) * eased;
+                if (sunLight) sunLight.intensity = initialSun - (initialSun - targetSun) * eased;
+
+                // 同步更新 shader uniform
+                earth.material.uniforms.globalDarkness.value = eased;
+
+                // 大气浑浊度
+                if (atmosphere && atmosphere.material.uniforms) {
+                    atmosphere.material.uniforms.turbidity.value = eased * 0.85;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateDarkness);
+                }
+            }
+
+            animateDarkness();
+        }
+
+        // ============ 灭绝时间线 ============
+        function startExtinctionTimeline() {
+            const overlay = document.getElementById('extinctionOverlay');
+            const textEl = document.getElementById('extinctionText');
+            const iconsEl = document.getElementById('extinctionIcons');
+
+            overlay.classList.add('active');
+
+            EXTINCTION_EVENTS.forEach(event => {
+                setTimeout(() => {
+                    if (!extinctionTimeline.isActive) return;
+
+                    // 更新文字
+                    textEl.textContent = event.text;
+                    textEl.style.animation = 'none';
+                    textEl.offsetHeight;
+                    textEl.style.animation = 'text-fade-in 1s ease-out';
+
+                    // 处理图标
+                    if (event.icon) {
+                        const iconEl = document.createElement('div');
+                        iconEl.className = 'extinction-icon';
+                        iconEl.textContent = event.icon;
+                        iconsEl.appendChild(iconEl);
+
+                        setTimeout(() => iconEl.classList.add('visible'), 100);
+
+                        if (event.action === 'fadeOut') {
+                            setTimeout(() => iconEl.classList.add('fade-out'), 2500);
+                        } else if (event.action === 'extinct') {
+                            setTimeout(() => {
+                                iconEl.classList.add('extinct');
+                                iconEl.classList.add('fade-out');
+                            }, 2000);
+                        } else if (event.action === 'survive') {
+                            iconEl.classList.add('survive');
+                        }
+                    }
+                }, event.time);
+            });
+        }
+
+        // ============ 启动灭绝事件 ============
+        function startExtinctionEvent(impactPoint) {
+            extinctionTimeline.isActive = true;
+            extinctionTimeline.startTime = performance.now();
+            extinctionTimeline.phase = 1;
+
+            // 启动文字时间线
+            startExtinctionTimeline();
+
+            // === 阶段2: 火焰飞石（1秒后）===
+            setTimeout(() => {
+                if (!extinctionTimeline.isActive) return;
+                extinctionTimeline.phase = 2;
+                document.getElementById('impactStatus').textContent = '熔岩飞石四散...';
+                createGlobalDebris(impactPoint);
+            }, 1000);
+
+            // === 阶段3: 尘埃覆盖（3秒后）===
+            setTimeout(() => {
+                if (!extinctionTimeline.isActive) return;
+                extinctionTimeline.phase = 3;
+                document.getElementById('impactStatus').textContent = '尘埃弥漫...';
+                startDustExpansion(impactPoint);
+            }, 3000);
+
+            // === 阶段4: 黑暗时期（8秒后）===
+            setTimeout(() => {
+                if (!extinctionTimeline.isActive) return;
+                extinctionTimeline.phase = 4;
+                document.getElementById('impactStatus').textContent = '阳光消失...';
+                startDarkeningPeriod();
+            }, 8000);
+
+            // === 阶段5: 灭绝完成（36秒后）===
+            setTimeout(() => {
+                if (!extinctionTimeline.isActive) return;
+                extinctionTimeline.phase = 5;
+                document.getElementById('impactStatus').textContent = '大灭绝...新生命萌芽';
+                controls.enabled = true;
+            }, 36000);
+        }
+
         // ============ 重置场景 ============
         function resetScene() {
+            // 停止灭绝时间线
+            extinctionTimeline.isActive = false;
+            extinctionTimeline.phase = 0;
+
             // 重置陨石位置（与初始位置一致）
             asteroid.position.set(-220, 120, -280);
             asteroid.visible = true;
@@ -1198,10 +1673,26 @@
             // 重置地球材质
             earth.material.uniforms.impactStrength.value = 0;
             earth.material.uniforms.craterSize.value = 0;
+            earth.material.uniforms.dustCoverage.value = 0;
+            earth.material.uniforms.dustSpreadRadius.value = 0;
+            earth.material.uniforms.globalDarkness.value = 0;
+
+            // 重置大气层
+            if (atmosphere && atmosphere.material.uniforms) {
+                atmosphere.material.uniforms.turbidity.value = 0;
+            }
+
+            // 重置灯光
+            if (ambientLight) ambientLight.intensity = 0.5;
+            if (sunLight) sunLight.intensity = 1.2;
 
             // 清除爆炸粒子
             debrisParticles.forEach(p => scene.remove(p));
             debrisParticles = [];
+
+            // 清除全球飞石
+            globalDebris.forEach(p => scene.remove(p));
+            globalDebris = [];
 
             // 清除冲击波
             if (shockwave) {
@@ -1218,6 +1709,12 @@
             // 重置UI
             document.getElementById('launchBtn').disabled = false;
             document.getElementById('impactStatus').textContent = '准备就绪';
+
+            // 隐藏灭绝提示
+            const overlay = document.getElementById('extinctionOverlay');
+            overlay.classList.remove('active');
+            document.getElementById('extinctionText').textContent = '';
+            document.getElementById('extinctionIcons').innerHTML = '';
         }
 
         // ============ 窗口调整 ============
@@ -1339,6 +1836,11 @@
                     scene.remove(shockwave);
                     shockwave = null;
                 }
+            }
+
+            // 更新全球飞石
+            if (globalDebris.length > 0) {
+                updateGlobalDebris();
             }
 
             controls.update();
