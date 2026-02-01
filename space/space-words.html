@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 太阳系识字乐园 - 跟着星球学汉字</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a1a;
+            --primary-yellow: #ffd93d;
+            --primary-pink: #ff6b9d;
+            --primary-blue: #4ecdc4;
+            --primary-purple: #a855f7;
+            --primary-orange: #ff9f43;
+            --primary-silver: #c0c0c0;
+            --text-white: #ffffff;
+            --text-light: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10, 10, 26, 0.95) 0%, transparent 100%);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: var(--text-white);
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .title-area {
+            text-align: center;
+        }
+
+        .title-area h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--primary-yellow), var(--primary-pink), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: title-glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes title-glow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 217, 61, 0.5)); }
+            100% { filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.8)); }
+        }
+
+        .progress-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid var(--primary-purple);
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .progress-count {
+            color: var(--primary-yellow);
+        }
+
+        /* 视图容器 */
+        .view {
+            display: none;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 100px 20px 40px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        /* 主菜单 */
+        #mainMenu {
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .menu-title {
+            font-size: 2rem;
+            font-weight: 900;
+            text-align: center;
+            color: var(--primary-yellow);
+        }
+
+        .menu-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 700px;
+        }
+
+        .menu-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 30px 40px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 280px;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.08);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-btn[data-mode="flashcard"] {
+            border-color: var(--primary-yellow);
+            box-shadow: 0 8px 30px rgba(255, 217, 61, 0.3);
+        }
+
+        .menu-btn[data-mode="listen"] {
+            border-color: var(--primary-blue);
+            box-shadow: 0 8px 30px rgba(78, 205, 196, 0.3);
+        }
+
+        .menu-btn[data-mode="match"] {
+            border-color: var(--primary-pink);
+            box-shadow: 0 8px 30px rgba(255, 107, 157, 0.3);
+        }
+
+        .menu-btn[data-mode="explore"] {
+            border-color: var(--primary-purple);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.3);
+        }
+
+        .menu-btn .icon {
+            font-size: 3rem;
+        }
+
+        /* 星球组进度 */
+        .group-progress {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .group-progress-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-emoji {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+
+        .progress-ring {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-ring .progress {
+            stroke: var(--primary-yellow);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-ring .count {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* 返回按钮（视图内） */
+        .view-back-btn {
+            position: absolute;
+            top: 100px;
+            left: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: var(--text-white);
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* ==================== 认字卡片模式 ==================== */
+        #flashcardView {
+            padding-top: 120px;
+        }
+
+        .group-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .group-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .group-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .group-btn.active {
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.2);
+        }
+
+        .group-btn .emoji {
+            font-size: 2rem;
+        }
+
+        /* 翻转卡片 */
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 20px 0;
+        }
+
+        .flashcard {
+            width: 350px;
+            height: 450px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 4px solid var(--primary-yellow);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, rgba(255, 217, 61, 0.2) 0%, rgba(255, 159, 67, 0.1) 100%);
+            border: 4px solid var(--primary-orange);
+            transform: rotateY(180deg);
+        }
+
+        .card-char {
+            font-size: 10rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary-yellow), var(--primary-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .card-pinyin {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        .card-emoji {
+            font-size: 4rem;
+            margin-top: 15px;
+        }
+
+        .card-context {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-top: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .card-back .card-char {
+            font-size: 6rem;
+        }
+
+        .card-back .card-pinyin {
+            font-size: 1.8rem;
+        }
+
+        /* 卡片控制 */
+        .card-controls {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+            align-items: center;
+        }
+
+        .nav-arrow {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .speak-btn {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-purple), #9333ea);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
+        }
+
+        .speak-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .speak-btn.speaking {
+            animation: speak-pulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes speak-pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+
+        .card-progress {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-top: 20px;
+        }
+
+        /* ==================== 听音选字模式 ==================== */
+        #listenView {
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .listen-prompt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .big-speak-btn {
+            padding: 25px 50px;
+            background: linear-gradient(135deg, var(--primary-purple), #9333ea);
+            border: none;
+            border-radius: 30px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 40px rgba(168, 85, 247, 0.5);
+        }
+
+        .big-speak-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .big-speak-btn.speaking {
+            animation: speak-pulse 0.5s ease-in-out infinite alternate;
+        }
+
+        .listen-hint {
+            font-size: 1.3rem;
+            color: var(--primary-yellow);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 500px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.2);
+        }
+
+        .option-btn.correct {
+            background: rgba(78, 205, 196, 0.5);
+            border-color: var(--primary-blue);
+            animation: correct-pulse 0.5s ease;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 107, 157, 0.3);
+            border-color: var(--primary-pink);
+            animation: wrong-shake 0.5s ease;
+        }
+
+        @keyframes correct-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes wrong-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
+        }
+
+        .score-bar {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            display: flex;
+            gap: 30px;
+        }
+
+        .score-bar .stars {
+            color: var(--primary-yellow);
+        }
+
+        /* ==================== 配对消除模式 ==================== */
+        #matchView {
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .difficulty-select {
+            display: flex;
+            gap: 20px;
+        }
+
+        .difficulty-select button {
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-select button:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-yellow);
+        }
+
+        .match-grid {
+            display: grid;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .match-card {
+            width: 100px;
+            height: 120px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .match-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease;
+        }
+
+        .match-card.flipped .match-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .match-card.matched {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .match-card-front,
+        .match-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            border: 3px solid;
+        }
+
+        .match-card-front {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1));
+            border-color: var(--primary-purple);
+            font-size: 2.5rem;
+        }
+
+        .match-card-back {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-yellow);
+            transform: rotateY(180deg);
+        }
+
+        .match-card-back .char {
+            font-size: 3rem;
+            font-weight: 900;
+        }
+
+        .match-card-back .emoji {
+            font-size: 2rem;
+        }
+
+        .match-card-back .pinyin {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .match-stats {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            display: flex;
+            gap: 30px;
+        }
+
+        .match-complete {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .match-complete.visible {
+            display: flex;
+        }
+
+        .match-complete .result-emoji {
+            font-size: 5rem;
+        }
+
+        .match-complete .result-text {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+        }
+
+        .match-complete .result-stats {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--primary-blue), #45b7d1);
+            border: none;
+            border-radius: 25px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-again-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ==================== 星球图鉴模式 ==================== */
+        #exploreView {
+            padding-top: 120px;
+        }
+
+        .planet-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .planet-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .planet-tab:hover {
+            transform: scale(1.1);
+        }
+
+        .planet-tab.active {
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.2);
+        }
+
+        .planet-tab .emoji {
+            font-size: 2.5rem;
+        }
+
+        .word-collection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .word-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-card:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-yellow);
+        }
+
+        .word-card.learned {
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.1);
+            box-shadow: 0 0 20px rgba(255, 217, 61, 0.3);
+        }
+
+        .word-card .char {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-yellow), var(--primary-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .word-card .pinyin {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .word-card .emoji {
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+
+        /* ==================== 奖励弹窗 ==================== */
+        .reward-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 500;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reward-overlay.visible {
+            display: flex;
+        }
+
+        .reward-content {
+            text-align: center;
+            animation: reward-pop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes reward-pop {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reward-emoji {
+            font-size: 8rem;
+            margin-bottom: 20px;
+            animation: badge-shine 1s ease-in-out infinite;
+        }
+
+        @keyframes badge-shine {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 217, 61, 0.8)); }
+            50% { filter: drop-shadow(0 0 40px rgba(255, 217, 61, 1)); }
+        }
+
+        .reward-text {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+            margin-bottom: 30px;
+        }
+
+        .reward-btn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, var(--primary-blue), #45b7d1);
+            border: none;
+            border-radius: 30px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .reward-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 星星粒子 */
+        .star-particle {
+            position: fixed;
+            font-size: 1.5rem;
+            pointer-events: none;
+            z-index: 600;
+            animation: star-burst 1s ease-out forwards;
+        }
+
+        @keyframes star-burst {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translate(var(--tx), var(--ty));
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .title-area h1 {
+                font-size: 1.3rem;
+            }
+
+            .back-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .progress-badge {
+                padding: 8px 15px;
+                font-size: 1rem;
+            }
+
+            .menu-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-btn {
+                min-width: auto;
+                padding: 20px 30px;
+                font-size: 1.2rem;
+            }
+
+            .flashcard {
+                width: 300px;
+                height: 400px;
+            }
+
+            .card-char {
+                font-size: 8rem;
+            }
+
+            .card-back .card-char {
+                font-size: 5rem;
+            }
+
+            .group-selector,
+            .planet-tabs {
+                gap: 10px;
+            }
+
+            .group-btn,
+            .planet-tab {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
+            .group-btn .emoji,
+            .planet-tab .emoji {
+                font-size: 1.5rem;
+            }
+
+            .options-grid {
+                gap: 15px;
+            }
+
+            .option-btn {
+                padding: 20px;
+                font-size: 3rem;
+            }
+
+            .word-collection {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 15px;
+            }
+
+            .word-card .char {
+                font-size: 3rem;
+            }
+
+            .match-card {
+                width: 80px;
+                height: 100px;
+            }
+
+            .match-card-back .char {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .flashcard {
+                width: 280px;
+                height: 360px;
+            }
+
+            .card-char {
+                font-size: 6rem;
+            }
+
+            .card-back .card-char {
+                font-size: 4rem;
+            }
+
+            .card-pinyin {
+                font-size: 2rem;
+            }
+
+            .card-context {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <a href="../index.html" class="back-btn">
+            <span>🏠</span>
+            <span>返回首页</span>
+        </a>
+        <div class="title-area">
+            <h1>🌟 太阳系识字乐园</h1>
+        </div>
+        <div class="progress-badge">
+            <span class="progress-count" id="progressCount">0</span>/50 字
+        </div>
+    </nav>
+
+    <!-- 主菜单 -->
+    <div class="view active" id="mainMenu">
+        <div class="menu-title">选择学习方式</div>
+        <div class="menu-buttons">
+            <button class="menu-btn" data-mode="flashcard">
+                <span class="icon">🃏</span>
+                <span>认字卡片</span>
+            </button>
+            <button class="menu-btn" data-mode="listen">
+                <span class="icon">👂</span>
+                <span>听音选字</span>
+            </button>
+            <button class="menu-btn" data-mode="match">
+                <span class="icon">🧩</span>
+                <span>配对消除</span>
+            </button>
+            <button class="menu-btn" data-mode="explore">
+                <span class="icon">🪐</span>
+                <span>星球图鉴</span>
+            </button>
+        </div>
+        <div class="group-progress" id="groupProgress"></div>
+    </div>
+
+    <!-- 认字卡片视图 -->
+    <div class="view" id="flashcardView">
+        <button class="view-back-btn" id="flashcardBack">◀ 返回</button>
+        <div class="group-selector" id="groupSelector"></div>
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="card-front">
+                    <div class="card-char" id="cardChar">太</div>
+                    <div class="card-pinyin" id="cardPinyin">tài</div>
+                    <div class="card-emoji" id="cardEmoji">☀️</div>
+                </div>
+                <div class="card-back">
+                    <div class="card-char" id="cardCharBack">太</div>
+                    <div class="card-pinyin" id="cardPinyinBack">tài</div>
+                    <div class="card-emoji" id="cardEmojiBack">☀️</div>
+                    <div class="card-context" id="cardContext">太阳很大很热</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-controls">
+            <button class="nav-arrow" id="prevCard">◀</button>
+            <button class="speak-btn" id="speakBtn">🔊</button>
+            <button class="nav-arrow" id="nextCard">▶</button>
+        </div>
+        <div class="card-progress" id="cardProgress">第 1 / 8 字</div>
+    </div>
+
+    <!-- 听音选字视图 -->
+    <div class="view" id="listenView">
+        <button class="view-back-btn" id="listenBack">◀ 返回</button>
+        <div class="listen-prompt">
+            <button class="big-speak-btn" id="listenSpeak">🔊 再听一次</button>
+            <div class="listen-hint" id="listenHint">点击上方按钮听发音，选出正确的字</div>
+        </div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <div class="score-bar">
+            <span id="questionNum">第 1 / 10 题</span>
+            <span class="stars">⭐ <span id="listenScore">0</span> 分</span>
+        </div>
+    </div>
+
+    <!-- 配对消除视图 -->
+    <div class="view" id="matchView">
+        <button class="view-back-btn" id="matchBack">◀ 返回</button>
+        <div class="difficulty-select" id="difficultySelect">
+            <button data-pairs="3">⭐ 简单</button>
+            <button data-pairs="6">⭐⭐ 普通</button>
+            <button data-pairs="9">⭐⭐⭐ 困难</button>
+        </div>
+        <div class="match-grid" id="matchGrid"></div>
+        <div class="match-stats" id="matchStats">
+            <span>翻牌: <span id="flipCount">0</span> 次</span>
+            <span>已配对: <span id="matchedCount">0</span>/<span id="totalPairs">0</span></span>
+        </div>
+        <div class="match-complete" id="matchComplete">
+            <div class="result-emoji">🎉</div>
+            <div class="result-text">太棒了！全部配对成功！</div>
+            <div class="result-stats" id="matchResultStats"></div>
+            <button class="play-again-btn" id="playAgainBtn">再玩一次</button>
+        </div>
+    </div>
+
+    <!-- 星球图鉴视图 -->
+    <div class="view" id="exploreView">
+        <button class="view-back-btn" id="exploreBack">◀ 返回</button>
+        <div class="planet-tabs" id="planetTabs"></div>
+        <div class="word-collection" id="wordCollection"></div>
+    </div>
+
+    <!-- 奖励弹窗 -->
+    <div class="reward-overlay" id="rewardOverlay">
+        <div class="reward-content">
+            <div class="reward-emoji" id="rewardEmoji">🎉</div>
+            <div class="reward-text" id="rewardText">太棒了！</div>
+            <button class="reward-btn" id="rewardBtn">继续</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 汉字数据 ====================
+        const wordGroups = [
+            {
+                id: 'sun', name: '太阳', emoji: '☀️', color: '#ffd93d',
+                words: [
+                    { char: '太', pinyin: 'tài', emoji: '☀️', context: '太阳很大很热' },
+                    { char: '阳', pinyin: 'yáng', emoji: '🌅', context: '阳光照大地' },
+                    { char: '日', pinyin: 'rì', emoji: '🌞', context: '日出东方红' },
+                    { char: '光', pinyin: 'guāng', emoji: '✨', context: '阳光暖洋洋' },
+                    { char: '热', pinyin: 'rè', emoji: '🔥', context: '夏天很热' },
+                    { char: '大', pinyin: 'dà', emoji: '🌟', context: '太阳很大' },
+                    { char: '火', pinyin: 'huǒ', emoji: '🔥', context: '火红的太阳' },
+                    { char: '红', pinyin: 'hóng', emoji: '🔴', context: '红红的太阳' }
+                ]
+            },
+            {
+                id: 'earth', name: '地球', emoji: '🌍', color: '#4ecdc4',
+                words: [
+                    { char: '地', pinyin: 'dì', emoji: '🌍', context: '地球是我们的家' },
+                    { char: '球', pinyin: 'qiú', emoji: '⚽', context: '地球是圆的' },
+                    { char: '水', pinyin: 'shuǐ', emoji: '💧', context: '水是生命之源' },
+                    { char: '山', pinyin: 'shān', emoji: '⛰️', context: '高高的大山' },
+                    { char: '风', pinyin: 'fēng', emoji: '💨', context: '风吹白云飘' },
+                    { char: '云', pinyin: 'yún', emoji: '☁️', context: '白云在天上' },
+                    { char: '气', pinyin: 'qì', emoji: '🌬️', context: '空气很清新' },
+                    { char: '蓝', pinyin: 'lán', emoji: '🔵', context: '蓝蓝的天空' }
+                ]
+            },
+            {
+                id: 'moon', name: '月亮', emoji: '🌙', color: '#c0c0c0',
+                words: [
+                    { char: '月', pinyin: 'yuè', emoji: '🌙', context: '月亮弯弯' },
+                    { char: '夜', pinyin: 'yè', emoji: '🌃', context: '夜晚看星星' },
+                    { char: '圆', pinyin: 'yuán', emoji: '🔵', context: '月亮圆圆的' },
+                    { char: '白', pinyin: 'bái', emoji: '⚪', context: '白白的月光' },
+                    { char: '小', pinyin: 'xiǎo', emoji: '🔹', context: '小小的星星' },
+                    { char: '冷', pinyin: 'lěng', emoji: '❄️', context: '月球很冷' },
+                    { char: '石', pinyin: 'shí', emoji: '🪨', context: '月球有石头' },
+                    { char: '冰', pinyin: 'bīng', emoji: '🧊', context: '冰冷的月夜' }
+                ]
+            },
+            {
+                id: 'stars', name: '星星', emoji: '⭐', color: '#a855f7',
+                words: [
+                    { char: '星', pinyin: 'xīng', emoji: '⭐', context: '星星亮晶晶' },
+                    { char: '金', pinyin: 'jīn', emoji: '🌟', context: '金星很亮' },
+                    { char: '木', pinyin: 'mù', emoji: '🪵', context: '木星最大' },
+                    { char: '土', pinyin: 'tǔ', emoji: '🟤', context: '土星有光环' },
+                    { char: '天', pinyin: 'tiān', emoji: '🌌', context: '天上有星星' },
+                    { char: '王', pinyin: 'wáng', emoji: '👑', context: '天王星在远方' },
+                    { char: '海', pinyin: 'hǎi', emoji: '🌊', context: '海王星是蓝色' },
+                    { char: '冥', pinyin: 'míng', emoji: '🔮', context: '冥王星很小' }
+                ]
+            },
+            {
+                id: 'space', name: '太空', emoji: '🚀', color: '#ff9f43',
+                words: [
+                    { char: '飞', pinyin: 'fēi', emoji: '🚀', context: '火箭飞上天' },
+                    { char: '上', pinyin: 'shàng', emoji: '⬆️', context: '飞向上方' },
+                    { char: '下', pinyin: 'xià', emoji: '⬇️', context: '降落到地下' },
+                    { char: '左', pinyin: 'zuǒ', emoji: '⬅️', context: '向左转' },
+                    { char: '右', pinyin: 'yòu', emoji: '➡️', context: '向右转' },
+                    { char: '转', pinyin: 'zhuǎn', emoji: '🔄', context: '地球在转动' },
+                    { char: '看', pinyin: 'kàn', emoji: '👀', context: '看看星星' },
+                    { char: '找', pinyin: 'zhǎo', emoji: '🔍', context: '找找月亮' }
+                ]
+            },
+            {
+                id: 'numbers', name: '数字', emoji: '🔢', color: '#ff6b9d',
+                words: [
+                    { char: '一', pinyin: 'yī', emoji: '1️⃣', context: '一颗星星' },
+                    { char: '二', pinyin: 'èr', emoji: '2️⃣', context: '二个月亮' },
+                    { char: '三', pinyin: 'sān', emoji: '3️⃣', context: '三朵白云' },
+                    { char: '四', pinyin: 'sì', emoji: '4️⃣', context: '四季变化' },
+                    { char: '五', pinyin: 'wǔ', emoji: '5️⃣', context: '五颗行星' },
+                    { char: '六', pinyin: 'liù', emoji: '6️⃣', context: '六种颜色' },
+                    { char: '七', pinyin: 'qī', emoji: '7️⃣', context: '七色彩虹' },
+                    { char: '八', pinyin: 'bā', emoji: '8️⃣', context: '八大行星' },
+                    { char: '九', pinyin: 'jiǔ', emoji: '9️⃣', context: '九颗卫星' },
+                    { char: '十', pinyin: 'shí', emoji: '🔟', context: '十个手指' }
+                ]
+            }
+        ];
+
+        // ==================== 状态管理 ====================
+        let currentView = 'mainMenu';
+        let currentGroupIndex = 0;
+        let currentCardIndex = 0;
+        let learnedWords = [];
+
+        // 听音选字状态
+        let listenQuestions = [];
+        let currentQuestionIndex = 0;
+        let listenScore = 0;
+        let currentAnswer = null;
+
+        // 配对消除状态
+        let matchCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let totalMatchPairs = 0;
+        let flipCount = 0;
+        let isChecking = false;
+
+        // ==================== 进度系统 ====================
+        function getProgress() {
+            try {
+                const saved = localStorage.getItem('spaceWordsProgress');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    learnedWords = data.learned || [];
+                    return data;
+                }
+            } catch (e) {
+                console.error('读取进度失败', e);
+            }
+            return { learned: [], quizScores: {}, lastGroup: 'sun' };
+        }
+
+        function saveProgress() {
+            try {
+                const data = {
+                    learned: learnedWords,
+                    quizScores: {},
+                    lastGroup: wordGroups[currentGroupIndex].id
+                };
+                localStorage.setItem('spaceWordsProgress', JSON.stringify(data));
+            } catch (e) {
+                console.error('保存进度失败', e);
+            }
+        }
+
+        function markLearned(char) {
+            if (!learnedWords.includes(char)) {
+                learnedWords.push(char);
+                saveProgress();
+                updateProgressUI();
+            }
+        }
+
+        function updateProgressUI() {
+            document.getElementById('progressCount').textContent = learnedWords.length;
+            renderGroupProgress();
+        }
+
+        function renderGroupProgress() {
+            const container = document.getElementById('groupProgress');
+            container.innerHTML = '';
+
+            wordGroups.forEach(group => {
+                const learnedInGroup = group.words.filter(w => learnedWords.includes(w.char)).length;
+                const total = group.words.length;
+                const percentage = (learnedInGroup / total) * 100;
+                const circumference = 2 * Math.PI * 18;
+                const offset = circumference - (percentage / 100) * circumference;
+
+                const item = document.createElement('div');
+                item.className = 'group-progress-item';
+                item.innerHTML = `
+                    <div class="group-emoji">${group.emoji}</div>
+                    <div class="progress-ring">
+                        <svg width="50" height="50">
+                            <circle class="bg" cx="25" cy="25" r="18" fill="none" stroke-width="4"/>
+                            <circle class="progress" cx="25" cy="25" r="18" fill="none" stroke-width="4"
+                                stroke="${group.color}"
+                                stroke-dasharray="${circumference}"
+                                stroke-dashoffset="${offset}"/>
+                        </svg>
+                        <span class="count">${learnedInGroup}/${total}</span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // ==================== 视图切换 ====================
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            currentView = viewId;
+        }
+
+        // ==================== 语音系统 ====================
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.1;
+                window.speechSynthesis.speak(utterance);
+                return utterance;
+            }
+            return null;
+        }
+
+        // ==================== 星星粒子效果 ====================
+        function createStarParticles(x, y) {
+            const particles = ['⭐', '✨', '🌟', '💫'];
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'star-particle';
+                particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                const angle = (i / 12) * Math.PI * 2;
+                const distance = 80 + Math.random() * 60;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        // ==================== 奖励弹窗 ====================
+        function showReward(text, emoji = '🎉') {
+            document.getElementById('rewardEmoji').textContent = emoji;
+            document.getElementById('rewardText').textContent = text;
+            document.getElementById('rewardOverlay').classList.add('visible');
+        }
+
+        function hideReward() {
+            document.getElementById('rewardOverlay').classList.remove('visible');
+        }
+
+        // ==================== 认字卡片模式 ====================
+        function initFlashcard() {
+            renderGroupSelector();
+            updateFlashcard();
+        }
+
+        function renderGroupSelector() {
+            const container = document.getElementById('groupSelector');
+            container.innerHTML = '';
+
+            wordGroups.forEach((group, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'group-btn' + (index === currentGroupIndex ? ' active' : '');
+                btn.innerHTML = `
+                    <span class="emoji">${group.emoji}</span>
+                    <span>${group.name}</span>
+                `;
+                btn.onclick = () => {
+                    currentGroupIndex = index;
+                    currentCardIndex = 0;
+                    document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateFlashcard();
+                    // 自动取消翻转
+                    document.getElementById('flashcard').classList.remove('flipped');
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function updateFlashcard() {
+            const group = wordGroups[currentGroupIndex];
+            const word = group.words[currentCardIndex];
+
+            // 更新卡片正面
+            document.getElementById('cardChar').textContent = word.char;
+            document.getElementById('cardPinyin').textContent = word.pinyin;
+            document.getElementById('cardEmoji').textContent = word.emoji;
+
+            // 更新卡片背面
+            document.getElementById('cardCharBack').textContent = word.char;
+            document.getElementById('cardPinyinBack').textContent = word.pinyin;
+            document.getElementById('cardEmojiBack').textContent = word.emoji;
+            document.getElementById('cardContext').textContent = word.context;
+
+            // 更新卡片边框颜色
+            document.querySelector('.card-front').style.borderColor = group.color;
+
+            // 更新进度
+            document.getElementById('cardProgress').textContent =
+                `第 ${currentCardIndex + 1} / ${group.words.length} 字`;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('flashcard');
+            card.classList.toggle('flipped');
+
+            // 翻到背面时标记已学习
+            if (card.classList.contains('flipped')) {
+                const group = wordGroups[currentGroupIndex];
+                const word = group.words[currentCardIndex];
+                markLearned(word.char);
+            }
+        }
+
+        function nextCard() {
+            const group = wordGroups[currentGroupIndex];
+            document.getElementById('flashcard').classList.remove('flipped');
+
+            setTimeout(() => {
+                currentCardIndex = (currentCardIndex + 1) % group.words.length;
+                updateFlashcard();
+            }, 150);
+        }
+
+        function prevCard() {
+            const group = wordGroups[currentGroupIndex];
+            document.getElementById('flashcard').classList.remove('flipped');
+
+            setTimeout(() => {
+                currentCardIndex = (currentCardIndex - 1 + group.words.length) % group.words.length;
+                updateFlashcard();
+            }, 150);
+        }
+
+        // 滑动手势支持
+        let touchStartX = 0;
+        function setupSwipeGesture() {
+            const card = document.getElementById('flashcard');
+
+            card.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            });
+
+            card.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchEndX - touchStartX;
+
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        prevCard();
+                    } else {
+                        nextCard();
+                    }
+                }
+            });
+        }
+
+        // ==================== 听音选字模式 ====================
+        function startListenQuiz() {
+            // 从所有字中随机选10个
+            const allWords = wordGroups.flatMap(g => g.words);
+            listenQuestions = shuffleArray([...allWords]).slice(0, 10);
+            currentQuestionIndex = 0;
+            listenScore = 0;
+
+            updateListenUI();
+            // 延迟自动播放第一题
+            setTimeout(() => speakCurrentQuestion(), 500);
+        }
+
+        function updateListenUI() {
+            document.getElementById('questionNum').textContent =
+                `第 ${currentQuestionIndex + 1} / 10 题`;
+            document.getElementById('listenScore').textContent = listenScore;
+
+            generateOptions();
+        }
+
+        function generateOptions() {
+            const container = document.getElementById('optionsGrid');
+            container.innerHTML = '';
+
+            if (currentQuestionIndex >= listenQuestions.length) {
+                // 测验结束
+                endListenQuiz();
+                return;
+            }
+
+            const correctWord = listenQuestions[currentQuestionIndex];
+            currentAnswer = correctWord.char;
+
+            // 从同组中选择3个干扰项
+            const sameGroup = wordGroups.find(g =>
+                g.words.some(w => w.char === correctWord.char)
+            );
+
+            let distractors = sameGroup.words
+                .filter(w => w.char !== correctWord.char)
+                .slice(0, 3);
+
+            // 如果同组不够，从其他组补充
+            if (distractors.length < 3) {
+                const otherWords = wordGroups
+                    .filter(g => g.id !== sameGroup.id)
+                    .flatMap(g => g.words);
+                distractors = [
+                    ...distractors,
+                    ...shuffleArray(otherWords).slice(0, 3 - distractors.length)
+                ];
+            }
+
+            // 混合正确答案和干扰项
+            const options = shuffleArray([correctWord, ...distractors]);
+
+            options.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = word.char;
+                btn.onclick = (e) => checkListenAnswer(word.char, e);
+                container.appendChild(btn);
+            });
+        }
+
+        function speakCurrentQuestion() {
+            if (currentQuestionIndex < listenQuestions.length) {
+                const word = listenQuestions[currentQuestionIndex];
+                const btn = document.getElementById('listenSpeak');
+                btn.classList.add('speaking');
+
+                const utterance = speak(word.char);
+                if (utterance) {
+                    utterance.onend = () => btn.classList.remove('speaking');
+                } else {
+                    setTimeout(() => btn.classList.remove('speaking'), 500);
+                }
+            }
+        }
+
+        function checkListenAnswer(selected, event) {
+            const buttons = document.querySelectorAll('.option-btn');
+            const isCorrect = selected === currentAnswer;
+
+            buttons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                if (btn.textContent === currentAnswer) {
+                    btn.classList.add('correct');
+                }
+                if (btn.textContent === selected && !isCorrect) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            if (isCorrect) {
+                listenScore += 10;
+                markLearned(selected);
+                createStarParticles(event.clientX, event.clientY);
+            }
+
+            document.getElementById('listenScore').textContent = listenScore;
+
+            // 延迟进入下一题
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < 10) {
+                    updateListenUI();
+                    setTimeout(() => speakCurrentQuestion(), 300);
+                } else {
+                    endListenQuiz();
+                }
+            }, 1200);
+        }
+
+        function endListenQuiz() {
+            let emoji = '🎉';
+            let text = '';
+
+            if (listenScore >= 90) {
+                emoji = '🏆';
+                text = `太厉害了！满分 ${listenScore} 分！`;
+            } else if (listenScore >= 70) {
+                emoji = '⭐';
+                text = `很棒！得了 ${listenScore} 分！`;
+            } else if (listenScore >= 50) {
+                emoji = '👍';
+                text = `不错哦！得了 ${listenScore} 分！`;
+            } else {
+                emoji = '💪';
+                text = `继续加油！得了 ${listenScore} 分`;
+            }
+
+            showReward(text, emoji);
+        }
+
+        // ==================== 配对消除模式 ====================
+        function startMatchGame(pairs) {
+            // 随机选择配对的字
+            const allWords = wordGroups.flatMap(g => g.words);
+            const selectedWords = shuffleArray([...allWords]).slice(0, pairs);
+
+            // 创建配对卡片（汉字卡 + emoji卡）
+            matchCards = [];
+            selectedWords.forEach((word, index) => {
+                matchCards.push({
+                    id: index,
+                    type: 'char',
+                    char: word.char,
+                    pinyin: word.pinyin,
+                    pairId: index
+                });
+                matchCards.push({
+                    id: index + pairs,
+                    type: 'emoji',
+                    emoji: word.emoji,
+                    pinyin: word.pinyin,
+                    pairId: index
+                });
+            });
+
+            matchCards = shuffleArray(matchCards);
+
+            flippedCards = [];
+            matchedPairs = 0;
+            totalMatchPairs = pairs;
+            flipCount = 0;
+            isChecking = false;
+
+            renderMatchGrid(pairs);
+            updateMatchStats();
+
+            document.getElementById('difficultySelect').style.display = 'none';
+            document.getElementById('matchGrid').style.display = 'grid';
+            document.getElementById('matchStats').style.display = 'flex';
+            document.getElementById('matchComplete').classList.remove('visible');
+        }
+
+        function renderMatchGrid(pairs) {
+            const container = document.getElementById('matchGrid');
+            container.innerHTML = '';
+
+            // 根据配对数量设置列数
+            let cols = 3;
+            if (pairs === 3) cols = 3;
+            else if (pairs === 6) cols = 4;
+            else if (pairs === 9) cols = 6;
+
+            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+            matchCards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'match-card';
+                cardEl.dataset.index = index;
+
+                let backContent = '';
+                if (card.type === 'char') {
+                    backContent = `<span class="char">${card.char}</span>`;
+                } else {
+                    backContent = `
+                        <span class="emoji">${card.emoji}</span>
+                        <span class="pinyin">${card.pinyin}</span>
+                    `;
+                }
+
+                cardEl.innerHTML = `
+                    <div class="match-card-inner">
+                        <div class="match-card-front">⭐</div>
+                        <div class="match-card-back">${backContent}</div>
+                    </div>
+                `;
+
+                cardEl.onclick = () => flipMatchCard(index);
+                container.appendChild(cardEl);
+            });
+        }
+
+        function flipMatchCard(index) {
+            if (isChecking) return;
+            if (flippedCards.includes(index)) return;
+            if (flippedCards.length >= 2) return;
+
+            const cardEl = document.querySelectorAll('.match-card')[index];
+            if (cardEl.classList.contains('matched')) return;
+
+            cardEl.classList.add('flipped');
+            flippedCards.push(index);
+            flipCount++;
+            updateMatchStats();
+
+            if (flippedCards.length === 2) {
+                isChecking = true;
+                setTimeout(checkMatch, 800);
+            }
+        }
+
+        function checkMatch() {
+            const [idx1, idx2] = flippedCards;
+            const card1 = matchCards[idx1];
+            const card2 = matchCards[idx2];
+
+            const cardEls = document.querySelectorAll('.match-card');
+
+            if (card1.pairId === card2.pairId && card1.type !== card2.type) {
+                // 配对成功
+                cardEls[idx1].classList.add('matched');
+                cardEls[idx2].classList.add('matched');
+                matchedPairs++;
+
+                // 标记已学习
+                const word = matchCards.find(c => c.type === 'char' && c.pairId === card1.pairId);
+                if (word) markLearned(word.char);
+
+                // 创建粒子效果
+                const rect1 = cardEls[idx1].getBoundingClientRect();
+                createStarParticles(rect1.left + rect1.width/2, rect1.top + rect1.height/2);
+
+                updateMatchStats();
+
+                if (matchedPairs === totalMatchPairs) {
+                    setTimeout(endMatchGame, 500);
+                }
+            } else {
+                // 配对失败，翻回去
+                setTimeout(() => {
+                    cardEls[idx1].classList.remove('flipped');
+                    cardEls[idx2].classList.remove('flipped');
+                }, 300);
+            }
+
+            flippedCards = [];
+            isChecking = false;
+        }
+
+        function updateMatchStats() {
+            document.getElementById('flipCount').textContent = flipCount;
+            document.getElementById('matchedCount').textContent = matchedPairs;
+            document.getElementById('totalPairs').textContent = totalMatchPairs;
+        }
+
+        function endMatchGame() {
+            document.getElementById('matchGrid').style.display = 'none';
+            document.getElementById('matchStats').style.display = 'none';
+
+            const efficiency = Math.round((totalMatchPairs * 2 / flipCount) * 100);
+            document.getElementById('matchResultStats').textContent =
+                `翻牌 ${flipCount} 次完成 ${totalMatchPairs} 对配对，效率 ${efficiency}%`;
+
+            document.getElementById('matchComplete').classList.add('visible');
+        }
+
+        function resetMatchGame() {
+            document.getElementById('matchGrid').style.display = 'none';
+            document.getElementById('matchStats').style.display = 'none';
+            document.getElementById('matchComplete').classList.remove('visible');
+            document.getElementById('difficultySelect').style.display = 'flex';
+        }
+
+        // ==================== 星球图鉴模式 ====================
+        function initExplore() {
+            renderPlanetTabs();
+            showPlanetWords(0);
+        }
+
+        function renderPlanetTabs() {
+            const container = document.getElementById('planetTabs');
+            container.innerHTML = '';
+
+            wordGroups.forEach((group, index) => {
+                const tab = document.createElement('button');
+                tab.className = 'planet-tab' + (index === 0 ? ' active' : '');
+                tab.innerHTML = `
+                    <span class="emoji">${group.emoji}</span>
+                    <span>${group.name}</span>
+                `;
+                tab.onclick = () => {
+                    document.querySelectorAll('.planet-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    showPlanetWords(index);
+                };
+                container.appendChild(tab);
+            });
+        }
+
+        function showPlanetWords(groupIndex) {
+            const container = document.getElementById('wordCollection');
+            container.innerHTML = '';
+
+            const group = wordGroups[groupIndex];
+
+            group.words.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'word-card' + (learnedWords.includes(word.char) ? ' learned' : '');
+                card.innerHTML = `
+                    <span class="char">${word.char}</span>
+                    <span class="pinyin">${word.pinyin}</span>
+                    <span class="emoji">${word.emoji}</span>
+                `;
+                card.onclick = () => {
+                    speak(word.char);
+                    markLearned(word.char);
+                    card.classList.add('learned');
+                };
+                container.appendChild(card);
+            });
+        }
+
+        // ==================== 工具函数 ====================
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ==================== 星空背景 ====================
+        function createStars() {
+            const starsEl = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                const size = Math.random() * 2.5 + 0.5;
+                s.style.cssText = `
+                    width: ${size}px; height: ${size}px;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * 3}s;
+                    animation-duration: ${2 + Math.random() * 3}s;
+                `;
+                starsEl.appendChild(s);
+            }
+        }
+
+        // ==================== 初始化 ====================
+        function init() {
+            createStars();
+            getProgress();
+            updateProgressUI();
+
+            // 主菜单按钮
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const mode = btn.dataset.mode;
+                    if (mode === 'flashcard') {
+                        showView('flashcardView');
+                        initFlashcard();
+                    } else if (mode === 'listen') {
+                        showView('listenView');
+                        startListenQuiz();
+                    } else if (mode === 'match') {
+                        showView('matchView');
+                        resetMatchGame();
+                    } else if (mode === 'explore') {
+                        showView('exploreView');
+                        initExplore();
+                    }
+                };
+            });
+
+            // 认字卡片控制
+            document.getElementById('flashcard').onclick = flipCard;
+            document.getElementById('prevCard').onclick = prevCard;
+            document.getElementById('nextCard').onclick = nextCard;
+            document.getElementById('speakBtn').onclick = () => {
+                const group = wordGroups[currentGroupIndex];
+                const word = group.words[currentCardIndex];
+                const btn = document.getElementById('speakBtn');
+                btn.classList.add('speaking');
+                const utterance = speak(word.char);
+                if (utterance) {
+                    utterance.onend = () => btn.classList.remove('speaking');
+                } else {
+                    setTimeout(() => btn.classList.remove('speaking'), 500);
+                }
+            };
+            setupSwipeGesture();
+
+            // 听音选字控制
+            document.getElementById('listenSpeak').onclick = speakCurrentQuestion;
+
+            // 配对消除控制
+            document.querySelectorAll('#difficultySelect button').forEach(btn => {
+                btn.onclick = () => startMatchGame(parseInt(btn.dataset.pairs));
+            });
+            document.getElementById('playAgainBtn').onclick = resetMatchGame;
+
+            // 返回按钮
+            document.getElementById('flashcardBack').onclick = () => showView('mainMenu');
+            document.getElementById('listenBack').onclick = () => showView('mainMenu');
+            document.getElementById('matchBack').onclick = () => showView('mainMenu');
+            document.getElementById('exploreBack').onclick = () => showView('mainMenu');
+
+            // 奖励弹窗
+            document.getElementById('rewardBtn').onclick = () => {
+                hideReward();
+                showView('mainMenu');
+            };
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
