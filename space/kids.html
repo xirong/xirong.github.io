@@ -802,6 +802,438 @@
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.1);
         }
+
+        /* 识字探险按钮 */
+        .menu-btn.word-adventure {
+            background: linear-gradient(135deg, var(--primary-purple), #c471f5);
+            color: white;
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
+        }
+
+        /* 识字探险进度条 */
+        .word-progress-bar {
+            position: fixed;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            background: rgba(10, 10, 26, 0.9);
+            border: 2px solid var(--primary-purple);
+            border-radius: 30px;
+        }
+
+        .word-progress-bar.visible {
+            display: flex;
+        }
+
+        .word-progress-bar .progress-label {
+            font-size: 0.9rem;
+            color: var(--primary-yellow);
+            font-weight: 600;
+        }
+
+        .word-progress-bar .progress-track {
+            width: 150px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .word-progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-yellow), var(--primary-orange));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .word-progress-bar .progress-stars {
+            font-size: 1rem;
+            color: var(--primary-yellow);
+        }
+
+        /* 汉字学习卡片 */
+        .word-learning-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 400;
+            background: rgba(10, 10, 26, 0.97);
+            border: 3px solid var(--primary-purple);
+            border-radius: 30px;
+            padding: 30px 35px;
+            max-width: 480px;
+            width: 90vw;
+            display: none;
+            box-shadow: 0 15px 60px rgba(168, 85, 247, 0.4);
+            animation: card-pop-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .word-learning-card.visible {
+            display: block;
+        }
+
+        @keyframes card-pop-in {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .word-learning-card .close-card {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .word-learning-card .close-card:hover {
+            transform: rotate(90deg);
+        }
+
+        .word-learning-card .planet-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .word-learning-card .planet-header .planet-icon {
+            font-size: 2.5rem;
+        }
+
+        .word-learning-card .planet-header .planet-name {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+        }
+
+        .word-learning-card .main-word {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(168, 85, 247, 0.15);
+            border-radius: 20px;
+        }
+
+        .word-learning-card .main-word .character {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+            text-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
+        }
+
+        .word-learning-card .main-word .pinyin {
+            font-size: 1.4rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .word-learning-card .main-word .speak-btn {
+            background: rgba(78, 205, 196, 0.2);
+            border: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-learning-card .main-word .speak-btn:hover {
+            background: rgba(78, 205, 196, 0.4);
+            transform: scale(1.1);
+        }
+
+        .word-learning-card .context-sentence {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 18px;
+            padding: 10px;
+            background: rgba(255, 217, 61, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .word-learning-card .context-sentence:hover {
+            background: rgba(255, 217, 61, 0.2);
+        }
+
+        .word-learning-card .related-words-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .word-learning-card .related-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .word-learning-card .related-words .word-chip {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-learning-card .related-words .word-chip:hover,
+        .word-learning-card .related-words .word-chip.active {
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.2);
+            color: var(--primary-yellow);
+            transform: scale(1.1);
+        }
+
+        .word-learning-card .related-words .word-chip.learned {
+            border-color: var(--primary-blue);
+            background: rgba(78, 205, 196, 0.15);
+        }
+
+        .word-learning-card .card-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .word-learning-card .card-actions button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-learning-card .card-actions button:hover {
+            transform: scale(1.08);
+        }
+
+        .word-learning-card .quiz-btn {
+            background: linear-gradient(135deg, var(--primary-orange), #ff6b6b);
+            color: white;
+        }
+
+        .word-learning-card .next-btn {
+            background: linear-gradient(135deg, var(--primary-blue), #45b7d1);
+            color: white;
+        }
+
+        /* 测验弹窗 */
+        .word-quiz-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 500;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-quiz-overlay.visible {
+            display: flex;
+        }
+
+        .word-quiz-overlay .quiz-content {
+            text-align: center;
+            max-width: 550px;
+            width: 90vw;
+            animation: card-pop-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .word-quiz-overlay .quiz-prompt {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary-yellow);
+            margin-bottom: 30px;
+        }
+
+        .word-quiz-overlay .quiz-character {
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--text-white);
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+        }
+
+        .word-quiz-overlay .quiz-hint-text {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .word-quiz-overlay .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .word-quiz-overlay .quiz-option {
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--text-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-quiz-overlay .quiz-option:hover {
+            border-color: var(--primary-yellow);
+            background: rgba(255, 217, 61, 0.15);
+            transform: scale(1.05);
+        }
+
+        .word-quiz-overlay .quiz-option.correct {
+            border-color: var(--primary-blue);
+            background: rgba(78, 205, 196, 0.4);
+            animation: correct-pulse 0.5s ease;
+        }
+
+        .word-quiz-overlay .quiz-option.wrong {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.3);
+            animation: wrong-shake 0.5s ease;
+        }
+
+        .word-quiz-overlay .quiz-result {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-top: 25px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .word-quiz-overlay .quiz-result.visible {
+            opacity: 1;
+        }
+
+        .word-quiz-overlay .quiz-close-btn {
+            margin-top: 20px;
+            padding: 12px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .word-quiz-overlay .quiz-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* 回到菜单按钮（识字探险模式下） */
+        .word-back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 100;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .word-back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* 识字导航箭头 */
+        .word-nav-arrows {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: none;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .word-nav-arrows.visible {
+            display: flex;
+        }
+
+        .word-nav-arrows .nav-arrow {
+            width: 60px;
+            height: 60px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .word-nav-arrows .nav-arrow:hover {
+            background: rgba(168, 85, 247, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* 识字提示（点击星球） */
+        .word-hint-tip {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            padding: 12px 28px;
+            background: rgba(168, 85, 247, 0.9);
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            display: none;
+            animation: hint-pulse 1.5s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -845,6 +1277,10 @@
             <button class="menu-btn free-explore" id="freeExploreBtn">
                 <span class="icon">🔭</span>
                 <span>自由探索</span>
+            </button>
+            <button class="menu-btn word-adventure" id="wordAdventureBtn">
+                <span class="icon">🌟</span>
+                <span>识字探险</span>
             </button>
         </div>
     </div>
@@ -901,6 +1337,58 @@
             <button class="reward-continue-btn" id="rewardContinueBtn">继续探险 →</button>
         </div>
     </div>
+
+    <!-- 识字探险：进度条 -->
+    <div class="word-progress-bar" id="wordProgressBar">
+        <span class="progress-label">🌟 已学汉字</span>
+        <div class="progress-track"><div class="progress-fill" id="wordProgressFill" style="width: 0%"></div></div>
+        <span class="progress-stars" id="wordProgressText">0/50</span>
+    </div>
+
+    <!-- 识字探险：汉字学习卡片 -->
+    <div class="word-learning-card" id="wordLearningCard">
+        <button class="close-card" id="closeWordCard">✕</button>
+        <div class="planet-header">
+            <span class="planet-icon" id="wlcPlanetIcon">☀️</span>
+            <span class="planet-name" id="wlcPlanetName">太阳</span>
+        </div>
+        <div class="main-word">
+            <span class="character" id="wlcCharacter">太</span>
+            <span class="pinyin" id="wlcPinyin">tài</span>
+            <button class="speak-btn" id="wlcSpeakBtn">🔊</button>
+        </div>
+        <div class="context-sentence" id="wlcSentence">太阳很大很热</div>
+        <div class="related-words-label">相关汉字：</div>
+        <div class="related-words" id="wlcRelatedWords"></div>
+        <div class="card-actions">
+            <button class="quiz-btn" id="wlcQuizBtn">🎯 小测验</button>
+            <button class="next-btn" id="wlcNextBtn">下一个 ▶</button>
+        </div>
+    </div>
+
+    <!-- 识字探险：测验弹窗 -->
+    <div class="word-quiz-overlay" id="wordQuizOverlay">
+        <div class="quiz-content">
+            <div class="quiz-prompt" id="quizPrompt">🔊 听一听，选出正确的字</div>
+            <div class="quiz-character" id="quizCharacter"></div>
+            <div class="quiz-hint-text" id="quizHintText"></div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div class="quiz-result" id="quizResult"></div>
+            <button class="quiz-close-btn" id="quizCloseBtn">继续学习 →</button>
+        </div>
+    </div>
+
+    <!-- 识字探险：返回按钮 -->
+    <button class="word-back-btn" id="wordBackBtn">← 回到菜单</button>
+
+    <!-- 识字探险：导航箭头 -->
+    <div class="word-nav-arrows" id="wordNavArrows">
+        <button class="nav-arrow" id="wordPrevPlanet">◀️</button>
+        <button class="nav-arrow" id="wordNextPlanet">▶️</button>
+    </div>
+
+    <!-- 识字探险：提示 -->
+    <div class="word-hint-tip" id="wordHintTip">👆 点击星球开始识字探险！</div>
 
     <!-- 星星特效容器 -->
     <div class="stars-effect" id="starsEffect"></div>

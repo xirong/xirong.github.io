@@ -138,7 +138,9 @@ function init() {
     window.addEventListener('resize', onWindowResize);
     renderer.domElement.addEventListener('click', onCanvasClick);
     setupUIEvents();
+    setupWordAdventureEvents();
     generateLevelCards();
+    loadWordProgress();
 
     setTimeout(() => { document.getElementById('loadingScreen').classList.add('hidden'); }, 1500);
     animate();
@@ -542,6 +544,7 @@ function onCanvasClick(event) {
         const name = hits[0].object.name;
         if (currentMode === 'mission') handleMissionClick(name);
         else if (currentMode === 'freeExplore') { showPlanetInfoCard(name); focusOnPlanet(name); }
+        else if (currentMode === 'wordAdventure') handleWordAdventureClick(name);
     }
 }
 
@@ -589,11 +592,18 @@ function generateLevelCards() {
 // ============ 界面切换 ============
 function showMainMenu() {
     currentMode = 'menu';
+    wordAdventureMode = false;
     document.getElementById('mainMenu').style.display = 'flex';
     document.getElementById('levelSelect').classList.remove('visible');
     document.getElementById('gameUI').classList.remove('visible');
     document.getElementById('navArrows').style.display = 'none';
     document.getElementById('planetInfoCard').classList.remove('visible');
+    document.getElementById('wordProgressBar').classList.remove('visible');
+    document.getElementById('wordBackBtn').style.display = 'none';
+    document.getElementById('wordNavArrows').classList.remove('visible');
+    document.getElementById('wordHintTip').style.display = 'none';
+    document.getElementById('wordLearningCard').classList.remove('visible');
+    document.getElementById('wordQuizOverlay').classList.remove('visible');
     animateCameraTo({ x: 100, y: 80, z: 200 }, { x: 0, y: 0, z: 0 });
 }
 function showLevelSelect() {
@@ -765,16 +775,34 @@ function highlightPlanet(name) {
 }
 
 // ============ 语音 ============
+// Chrome/Safari 存在 bug：speechSynthesis 长时间运行后会自动暂停
+// 需要定时 resume 保持引擎活跃
+let _speechKeepAlive = null;
 function speak(text) {
     if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-CN'; u.rate = 0.85; u.pitch = 1.15;
-    const ind = document.getElementById('audioIndicator');
-    document.getElementById('speechText').textContent = text;
-    ind.classList.add('speaking');
-    u.onend = () => ind.classList.remove('speaking');
-    speechSynthesis.speak(u);
+    // cancel() 后需要短暂延迟，否则引擎会卡死不发声
+    setTimeout(() => {
+        speechSynthesis.resume();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'zh-CN'; u.rate = 0.85; u.pitch = 1.15;
+        const ind = document.getElementById('audioIndicator');
+        document.getElementById('speechText').textContent = text;
+        ind.classList.add('speaking');
+        u.onend = () => ind.classList.remove('speaking');
+        u.onerror = () => ind.classList.remove('speaking');
+        speechSynthesis.speak(u);
+        // Chrome bug: 长utterance播放中引擎会暂停，用定时器持续 resume
+        clearInterval(_speechKeepAlive);
+        _speechKeepAlive = setInterval(() => {
+            if (!speechSynthesis.speaking) {
+                clearInterval(_speechKeepAlive);
+            } else {
+                speechSynthesis.pause();
+                speechSynthesis.resume();
+            }
+        }, 5000);
+    }, 50);
 }
 
 // ============ 特效 ============
@@ -807,6 +835,378 @@ function loadProgress() {
         collectedBadges = p.badges || [];
         document.getElementById('badgeCount').textContent = collectedBadges.length;
     }
+}
+
+// ============ 识字探险：汉字数据 ============
+const planetWords = {
+    sun: {
+        name: '太阳', icon: '☀️',
+        words: [
+            { char: '太', pinyin: 'tài', sentence: '太阳很大很热' },
+            { char: '阳', pinyin: 'yáng', sentence: '阳光照大地' },
+            { char: '日', pinyin: 'rì', sentence: '日出东方红' },
+            { char: '光', pinyin: 'guāng', sentence: '阳光暖暖的' },
+            { char: '热', pinyin: 'rè', sentence: '太阳很热很热' },
+            { char: '大', pinyin: 'dà', sentence: '太阳很大' },
+            { char: '火', pinyin: 'huǒ', sentence: '太阳是个大火球' },
+            { char: '红', pinyin: 'hóng', sentence: '红红的太阳' }
+        ]
+    },
+    earth: {
+        name: '地球', icon: '🌍',
+        words: [
+            { char: '地', pinyin: 'dì', sentence: '蓝蓝的地球' },
+            { char: '球', pinyin: 'qiú', sentence: '地球是圆球' },
+            { char: '水', pinyin: 'shuǐ', sentence: '地球有很多水' },
+            { char: '山', pinyin: 'shān', sentence: '高高的山' },
+            { char: '风', pinyin: 'fēng', sentence: '风吹白云飘' },
+            { char: '云', pinyin: 'yún', sentence: '白云在天上' },
+            { char: '蓝', pinyin: 'lán', sentence: '蓝蓝的天空' }
+        ]
+    },
+    moon: {
+        name: '月球', icon: '🌙',
+        words: [
+            { char: '月', pinyin: 'yuè', sentence: '月亮弯弯挂天上' },
+            { char: '夜', pinyin: 'yè', sentence: '夜晚月亮亮' },
+            { char: '圆', pinyin: 'yuán', sentence: '月亮圆圆的' },
+            { char: '白', pinyin: 'bái', sentence: '白白的月光' },
+            { char: '小', pinyin: 'xiǎo', sentence: '月亮比地球小' },
+            { char: '冷', pinyin: 'lěng', sentence: '月球上很冷' },
+            { char: '石', pinyin: 'shí', sentence: '月球上有石头' }
+        ]
+    },
+    saturn: {
+        name: '土星', icon: '🪐',
+        words: [
+            { char: '土', pinyin: 'tǔ', sentence: '土星有美丽的光环' },
+            { char: '环', pinyin: 'huán', sentence: '光环像呼啦圈' },
+            { char: '星', pinyin: 'xīng', sentence: '满天星星亮晶晶' },
+            { char: '美', pinyin: 'měi', sentence: '土星光环好美' },
+            { char: '彩', pinyin: 'cǎi', sentence: '彩色的光环' },
+            { char: '色', pinyin: 'sè', sentence: '五颜六色' }
+        ]
+    },
+    mars: {
+        name: '火星', icon: '🔴',
+        words: [
+            { char: '远', pinyin: 'yuǎn', sentence: '火星离我们很远' },
+            { char: '沙', pinyin: 'shā', sentence: '火星上有很多沙' },
+            { char: '岩', pinyin: 'yán', sentence: '火星有红色岩石' },
+            { char: '近', pinyin: 'jìn', sentence: '火星离地球近' },
+            { char: '飞', pinyin: 'fēi', sentence: '飞船飞向火星' }
+        ]
+    },
+    jupiter: {
+        name: '木星', icon: '🟤',
+        words: [
+            { char: '木', pinyin: 'mù', sentence: '木星最大' },
+            { char: '金', pinyin: 'jīn', sentence: '金星亮晶晶' },
+            { char: '天', pinyin: 'tiān', sentence: '天上有星星' },
+            { char: '王', pinyin: 'wáng', sentence: '天王星很远' },
+            { char: '海', pinyin: 'hǎi', sentence: '海王星是蓝色' },
+            { char: '冥', pinyin: 'míng', sentence: '冥王星很小' }
+        ]
+    },
+    neptune: {
+        name: '海王星', icon: '🔵',
+        words: [
+            { char: '春', pinyin: 'chūn', sentence: '春天花开了' },
+            { char: '夏', pinyin: 'xià', sentence: '夏天真热' },
+            { char: '冬', pinyin: 'dōng', sentence: '冬天下雪了' },
+            { char: '空', pinyin: 'kōng', sentence: '太空很大' },
+            { char: '今', pinyin: 'jīn', sentence: '今天去探险' },
+            { char: '早', pinyin: 'zǎo', sentence: '早上好' }
+        ]
+    },
+    venus: {
+        name: '金星', icon: '🟡',
+        words: [
+            { char: '好', pinyin: 'hǎo', sentence: '太空探险真好' },
+            { char: '心', pinyin: 'xīn', sentence: '开心学汉字' },
+            { char: '喜', pinyin: 'xǐ', sentence: '喜欢看星星' },
+            { char: '欢', pinyin: 'huān', sentence: '欢欢喜喜' },
+            { char: '学', pinyin: 'xué', sentence: '学习新汉字' }
+        ]
+    }
+};
+
+// 识字探险可点击的星球顺序
+const wordPlanetOrder = ['sun', 'mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+// 映射：没有专属汉字的星球用邻近的汉字数据
+const wordPlanetMapping = {
+    sun: 'sun', mercury: 'sun', venus: 'venus', earth: 'earth',
+    moon: 'moon', mars: 'mars', jupiter: 'jupiter', saturn: 'saturn',
+    uranus: 'neptune', neptune: 'neptune'
+};
+
+// ============ 识字探险：状态 ============
+let wordAdventureMode = false;
+let currentWordPlanet = null;      // 当前学习的星球key
+let currentWordIndex = 0;          // 当前学习的汉字索引
+let learnedWords = new Set();      // 已学过的汉字
+let wordQuizScore = 0;             // 测验得分
+let wordPlanetNavIndex = 0;        // 星球导航索引
+
+// ============ 识字探险：获取所有汉字总数 ============
+function getTotalWordCount() {
+    let count = 0;
+    Object.values(planetWords).forEach(p => count += p.words.length);
+    return count;
+}
+
+// ============ 识字探险：开始 ============
+function startWordAdventure() {
+    wordAdventureMode = true;
+    currentMode = 'wordAdventure';
+    wordPlanetNavIndex = 0;
+
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('wordProgressBar').classList.add('visible');
+    document.getElementById('wordBackBtn').style.display = 'block';
+    document.getElementById('wordNavArrows').classList.add('visible');
+    document.getElementById('wordHintTip').style.display = 'block';
+
+    updateWordProgress();
+    animateCameraTo({ x: 100, y: 80, z: 200 }, { x: 0, y: 0, z: 0 });
+    speak('欢迎来到识字探险！点击任意星球开始学习汉字吧！');
+}
+
+// ============ 识字探险：退出 ============
+function exitWordAdventure() {
+    wordAdventureMode = false;
+    document.getElementById('wordProgressBar').classList.remove('visible');
+    document.getElementById('wordBackBtn').style.display = 'none';
+    document.getElementById('wordNavArrows').classList.remove('visible');
+    document.getElementById('wordHintTip').style.display = 'none';
+    document.getElementById('wordLearningCard').classList.remove('visible');
+    document.getElementById('wordQuizOverlay').classList.remove('visible');
+    showMainMenu();
+}
+
+// ============ 识字探险：更新进度 ============
+function updateWordProgress() {
+    const total = getTotalWordCount();
+    const learned = learnedWords.size;
+    const pct = Math.round((learned / total) * 100);
+    document.getElementById('wordProgressFill').style.width = pct + '%';
+    document.getElementById('wordProgressText').textContent = learned + '/' + total;
+}
+
+// ============ 识字探险：点击星球处理 ============
+function handleWordAdventureClick(planetName) {
+    const mappedKey = wordPlanetMapping[planetName];
+    if (!mappedKey || !planetWords[mappedKey]) {
+        speak('这个星球暂时没有汉字任务，试试别的星球吧！');
+        return;
+    }
+    currentWordPlanet = mappedKey;
+    currentWordIndex = 0;
+    document.getElementById('wordHintTip').style.display = 'none';
+    focusOnPlanet(planetName);
+    setTimeout(() => showWordLearningCard(), 800);
+}
+
+// ============ 识字探险：显示汉字学习卡片 ============
+function showWordLearningCard() {
+    const data = planetWords[currentWordPlanet];
+    if (!data) return;
+    const word = data.words[currentWordIndex];
+
+    document.getElementById('wlcPlanetIcon').textContent = data.icon;
+    document.getElementById('wlcPlanetName').textContent = data.name;
+    document.getElementById('wlcCharacter').textContent = word.char;
+    document.getElementById('wlcPinyin').textContent = word.pinyin;
+    document.getElementById('wlcSentence').textContent = word.sentence;
+
+    // 相关汉字
+    const container = document.getElementById('wlcRelatedWords');
+    container.innerHTML = '';
+    data.words.forEach((w, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'word-chip';
+        if (i === currentWordIndex) chip.classList.add('active');
+        if (learnedWords.has(w.char)) chip.classList.add('learned');
+        chip.textContent = w.char;
+        chip.onclick = () => {
+            currentWordIndex = i;
+            showWordLearningCard();
+            speak(data.words[i].sentence);
+        };
+        container.appendChild(chip);
+    });
+
+    document.getElementById('wordLearningCard').classList.add('visible');
+
+    // 标记为已学过
+    learnedWords.add(word.char);
+    updateWordProgress();
+    saveWordProgress();
+
+    speak(word.char + '，' + word.pinyin + '。' + word.sentence);
+}
+
+// ============ 识字探险：下一个汉字 ============
+function nextWord() {
+    const data = planetWords[currentWordPlanet];
+    if (!data) return;
+    currentWordIndex++;
+    if (currentWordIndex >= data.words.length) {
+        // 这个星球的汉字学完了
+        speak('太棒了！' + data.name + '的汉字都学完了！试试别的星球吧！');
+        document.getElementById('wordLearningCard').classList.remove('visible');
+        playSuccessEffect();
+        return;
+    }
+    showWordLearningCard();
+}
+
+// ============ 识字探险：小测验 ============
+function startWordQuiz() {
+    const data = planetWords[currentWordPlanet];
+    if (!data || data.words.length < 2) return;
+
+    document.getElementById('wordLearningCard').classList.remove('visible');
+    document.getElementById('wordQuizOverlay').classList.add('visible');
+
+    // 随机选择测验类型
+    const quizType = Math.random() > 0.5 ? 'listen' : 'read';
+    const correctWord = data.words[currentWordIndex];
+
+    if (quizType === 'listen') {
+        // 听音选字
+        document.getElementById('quizPrompt').textContent = '🔊 听一听，选出正确的字';
+        document.getElementById('quizCharacter').textContent = '';
+        document.getElementById('quizHintText').textContent = '读音：' + correctWord.pinyin;
+        speak(correctWord.char);
+    } else {
+        // 看字选拼音变为：看情境句选字
+        document.getElementById('quizPrompt').textContent = '👀 这个字读什么？';
+        document.getElementById('quizCharacter').textContent = correctWord.char;
+        document.getElementById('quizHintText').textContent = correctWord.sentence;
+    }
+
+    // 生成4个选项（含正确答案）
+    const options = [correctWord];
+    const allWords = [];
+    Object.values(planetWords).forEach(p => p.words.forEach(w => {
+        if (w.char !== correctWord.char) allWords.push(w);
+    }));
+    // 随机选3个干扰项
+    const shuffled = allWords.sort(() => Math.random() - 0.5);
+    for (let i = 0; i < 3 && i < shuffled.length; i++) {
+        options.push(shuffled[i]);
+    }
+    // 打乱选项
+    options.sort(() => Math.random() - 0.5);
+
+    const optionsContainer = document.getElementById('quizOptions');
+    optionsContainer.innerHTML = '';
+    document.getElementById('quizResult').textContent = '';
+    document.getElementById('quizResult').classList.remove('visible');
+    document.getElementById('quizCloseBtn').style.display = 'none';
+
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        if (quizType === 'listen') {
+            btn.textContent = opt.char;
+        } else {
+            btn.textContent = opt.pinyin;
+        }
+        btn.onclick = () => handleWordQuizAnswer(opt, correctWord, btn, optionsContainer);
+        optionsContainer.appendChild(btn);
+    });
+}
+
+// ============ 识字探险：测验答题处理 ============
+function handleWordQuizAnswer(selected, correct, btn, container) {
+    // 禁用所有按钮
+    container.querySelectorAll('.quiz-option').forEach(b => b.style.pointerEvents = 'none');
+
+    const resultEl = document.getElementById('quizResult');
+
+    if (selected.char === correct.char) {
+        btn.classList.add('correct');
+        resultEl.textContent = '🎉 太棒了！答对啦！';
+        resultEl.style.color = '#4ecdc4';
+        playSuccessEffect();
+        wordQuizScore++;
+        speak('太棒了！答对啦！' + correct.char + '，' + correct.sentence);
+    } else {
+        btn.classList.add('wrong');
+        // 高亮正确答案
+        container.querySelectorAll('.quiz-option').forEach(b => {
+            if (b.textContent === correct.char || b.textContent === correct.pinyin) {
+                b.classList.add('correct');
+            }
+        });
+        resultEl.textContent = '😊 没关系，正确答案是「' + correct.char + '」';
+        resultEl.style.color = '#ff9f43';
+        speak('没关系！正确答案是' + correct.char + '。' + correct.sentence);
+    }
+    resultEl.classList.add('visible');
+    document.getElementById('quizCloseBtn').style.display = 'inline-block';
+}
+
+// ============ 识字探险：关闭测验 ============
+function closeWordQuiz() {
+    document.getElementById('wordQuizOverlay').classList.remove('visible');
+    showWordLearningCard();
+}
+
+// ============ 识字探险：星球导航 ============
+function navigateWordPlanet(dir) {
+    wordPlanetNavIndex = (wordPlanetNavIndex + dir + wordPlanetOrder.length) % wordPlanetOrder.length;
+    const name = wordPlanetOrder[wordPlanetNavIndex];
+    focusOnPlanet(name);
+    // 自动打开该星球的汉字卡片
+    const mappedKey = wordPlanetMapping[name];
+    if (mappedKey && planetWords[mappedKey]) {
+        currentWordPlanet = mappedKey;
+        currentWordIndex = 0;
+        document.getElementById('wordHintTip').style.display = 'none';
+        setTimeout(() => showWordLearningCard(), 800);
+    }
+}
+
+// ============ 识字探险：存档 ============
+function saveWordProgress() {
+    localStorage.setItem('wordAdventureProgress', JSON.stringify({
+        learnedWords: Array.from(learnedWords),
+        quizScore: wordQuizScore
+    }));
+}
+function loadWordProgress() {
+    const s = localStorage.getItem('wordAdventureProgress');
+    if (s) {
+        const p = JSON.parse(s);
+        learnedWords = new Set(p.learnedWords || []);
+        wordQuizScore = p.quizScore || 0;
+    }
+}
+
+// ============ 识字探险：UI 事件绑定 ============
+function setupWordAdventureEvents() {
+    document.getElementById('wordAdventureBtn').onclick = startWordAdventure;
+    document.getElementById('wordBackBtn').onclick = exitWordAdventure;
+    document.getElementById('closeWordCard').onclick = () => document.getElementById('wordLearningCard').classList.remove('visible');
+    document.getElementById('wlcSpeakBtn').onclick = () => {
+        const data = planetWords[currentWordPlanet];
+        if (data) {
+            const w = data.words[currentWordIndex];
+            speak(w.char + '，' + w.pinyin + '。' + w.sentence);
+        }
+    };
+    document.getElementById('wlcSentence').onclick = () => {
+        const data = planetWords[currentWordPlanet];
+        if (data) speak(data.words[currentWordIndex].sentence);
+    };
+    document.getElementById('wlcQuizBtn').onclick = startWordQuiz;
+    document.getElementById('wlcNextBtn').onclick = nextWord;
+    document.getElementById('quizCloseBtn').onclick = closeWordQuiz;
+    document.getElementById('wordPrevPlanet').onclick = () => navigateWordPlanet(-1);
+    document.getElementById('wordNextPlanet').onclick = () => navigateWordPlanet(1);
 }
 
 window.addEventListener('DOMContentLoaded', init);
