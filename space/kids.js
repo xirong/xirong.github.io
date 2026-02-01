@@ -934,22 +934,90 @@ const pictographDrawers = {
         ctx.strokeStyle = '#E67E22'; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(w/2, h/2+5, 15, 0.2, Math.PI-0.2); ctx.stroke();
     },
-    // 火 - 火焰
+    // 火 - 象形火字：两根木柴交叉 + 火焰像"火"字
     drawFire(ctx, w, h) {
-        // 木柴
+        const cx = w / 2, cy = h / 2 + 10;
+
+        // 两根木柴交叉成"人"字形（对应"火"字下半部分）
+        ctx.save();
+        ctx.translate(cx, cy + 20);
+        // 左木柴
+        ctx.save();
+        ctx.rotate(-0.45);
         ctx.fillStyle = '#8B4513';
-        ctx.fillRect(w/2-35, h-30, 25, 8);
-        ctx.fillRect(w/2+10, h-30, 25, 8);
-        // 火焰
-        ctx.fillStyle = '#FF6B6B';
-        ctx.beginPath(); ctx.moveTo(w/2, 15); ctx.quadraticCurveTo(w/2+30, 50, w/2+25, 90);
-        ctx.lineTo(w/2-25, 90); ctx.quadraticCurveTo(w/2-30, 50, w/2, 15); ctx.fill();
-        ctx.fillStyle = '#FFD93D';
-        ctx.beginPath(); ctx.moveTo(w/2, 35); ctx.quadraticCurveTo(w/2+15, 55, w/2+12, 80);
-        ctx.lineTo(w/2-12, 80); ctx.quadraticCurveTo(w/2-15, 55, w/2, 35); ctx.fill();
-        ctx.fillStyle = '#FFF';
-        ctx.beginPath(); ctx.moveTo(w/2, 50); ctx.quadraticCurveTo(w/2+6, 60, w/2+5, 75);
-        ctx.lineTo(w/2-5, 75); ctx.quadraticCurveTo(w/2-6, 60, w/2, 50); ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(-30, -5, 12, 45, 4);
+        ctx.fill();
+        ctx.fillStyle = '#D2691E';
+        ctx.beginPath();
+        ctx.arc(-24, 35, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#5D3A1A';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+        // 右木柴
+        ctx.save();
+        ctx.rotate(0.45);
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath();
+        ctx.roundRect(18, -5, 12, 45, 4);
+        ctx.fill();
+        ctx.fillStyle = '#D2691E';
+        ctx.beginPath();
+        ctx.arc(24, 35, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#5D3A1A';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+        ctx.restore();
+
+        // 火焰 - 像"火"字，左右两片大火焰向外展开
+        // 左侧红色火焰（对应"火"字左边的撇）
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath();
+        ctx.moveTo(cx - 5, cy + 5);
+        ctx.quadraticCurveTo(cx - 45, cy - 15, cx - 38, cy - 50);
+        ctx.quadraticCurveTo(cx - 30, cy - 35, cx - 22, cy - 25);
+        ctx.quadraticCurveTo(cx - 15, cy - 10, cx - 5, cy + 5);
+        ctx.fill();
+
+        // 右侧红色火焰（对应"火"字右边的捺）
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath();
+        ctx.moveTo(cx + 5, cy + 5);
+        ctx.quadraticCurveTo(cx + 45, cy - 15, cx + 38, cy - 50);
+        ctx.quadraticCurveTo(cx + 30, cy - 35, cx + 22, cy - 25);
+        ctx.quadraticCurveTo(cx + 15, cy - 10, cx + 5, cy + 5);
+        ctx.fill();
+
+        // 中间主火焰（红色外层）
+        ctx.fillStyle = '#E74C3C';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 60);
+        ctx.quadraticCurveTo(cx + 22, cy - 35, cx + 18, cy + 10);
+        ctx.lineTo(cx - 18, cy + 10);
+        ctx.quadraticCurveTo(cx - 22, cy - 35, cx, cy - 60);
+        ctx.fill();
+
+        // 中间橙色火焰
+        ctx.fillStyle = '#F39C12';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 50);
+        ctx.quadraticCurveTo(cx + 15, cy - 28, cx + 12, cy + 5);
+        ctx.lineTo(cx - 12, cy + 5);
+        ctx.quadraticCurveTo(cx - 15, cy - 28, cx, cy - 50);
+        ctx.fill();
+
+        // 中间黄色火焰芯
+        ctx.fillStyle = '#F1C40F';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 38);
+        ctx.quadraticCurveTo(cx + 8, cy - 20, cx + 6, cy + 2);
+        ctx.lineTo(cx - 6, cy + 2);
+        ctx.quadraticCurveTo(cx - 8, cy - 20, cx, cy - 38);
+        ctx.fill();
     },
     // 山 - 三座山峰
     drawMountain(ctx, w, h) {
