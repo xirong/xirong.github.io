@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京城市地下排水系统 - 送给智天的礼物</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --beijing-red: #8B0000;
+            --palace-gold: #D4AF37;
+            --sky-blue: #5BA0D0;
+            --earth-brown: #4A3728;
+            --concrete-gray: #6B6B6B;
+            --pipe-metal: #4A5568;
+            --water-blue: #2B6CB0;
+            --water-light: #63B3ED;
+            --grass-green: #2D5016;
+            --stone-gray: #718096;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: #1a1a1a;
+            overflow: hidden;
+        }
+
+        /* 封面 */
+        #cover {
+            position: fixed; inset: 0;
+            background: linear-gradient(180deg,
+                #2C3E50 0%,
+                #34495E 30%,
+                #5D6D7E 60%,
+                #85929E 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: all 1s ease;
+        }
+        #cover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.5;
+        }
+        #cover.hidden { opacity: 0; pointer-events: none; }
+
+        .cover-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        .cover-title {
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 700;
+            color: #ECF0F1;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+        }
+        .cover-subtitle {
+            font-size: clamp(14px, 2.5vw, 20px);
+            color: #BDC3C7;
+            letter-spacing: 4px;
+            margin-bottom: 50px;
+        }
+        .cover-visual {
+            width: 300px;
+            height: 200px;
+            margin: 0 auto 50px;
+            position: relative;
+        }
+        .cover-visual::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 80px;
+            background: linear-gradient(180deg, var(--beijing-red) 0%, #5C1010 100%);
+            border-radius: 5px 5px 0 0;
+        }
+        .cover-visual::after {
+            content: '';
+            position: absolute;
+            bottom: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--palace-gold) 0%, #B8860B 100%);
+            clip-path: polygon(10% 100%, 0% 0%, 100% 0%, 90% 100%);
+        }
+        .start-btn {
+            padding: 18px 50px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            letter-spacing: 3px;
+            color: #ECF0F1;
+            background: linear-gradient(135deg, var(--beijing-red) 0%, #5C1010 100%);
+            border: 2px solid var(--palace-gold);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139,0,0,0.4);
+            background: linear-gradient(135deg, #A00000 0%, var(--beijing-red) 100%);
+        }
+        .dedication {
+            position: absolute;
+            bottom: 30px;
+            font-size: 14px;
+            color: #7F8C8D;
+            letter-spacing: 2px;
+        }
+        .dedication span { color: var(--palace-gold); }
+
+        /* 主场景 */
+        #scene { position: fixed; inset: 0; display: none; }
+        #scene.active { display: block; }
+        #canvas { width: 100%; height: 100%; }
+
+        /* UI面板 */
+        .ui-panel {
+            position: fixed;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #ECF0F1;
+            z-index: 100;
+        }
+
+        /* 顶部信息栏 */
+        .top-bar {
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .location-icon {
+            width: 8px; height: 8px;
+            background: var(--palace-gold);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(212,175,55,0); }
+        }
+        .location-text {
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+        .chapter-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .chapter-dot {
+            width: 10px; height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .chapter-dot.active {
+            background: var(--palace-gold);
+            box-shadow: 0 0 10px var(--palace-gold);
+        }
+        .chapter-dot.done { background: var(--water-blue); }
+
+        /* 控制按钮 */
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        .ctrl-btn {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: #ECF0F1;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .ctrl-btn:hover { background: rgba(255,255,255,0.2); }
+        .ctrl-btn.active {
+            background: var(--water-blue);
+            border-color: var(--water-light);
+        }
+
+        /* 底部故事面板 */
+        .story-panel {
+            bottom: 0; left: 0; right: 0;
+            padding: 25px 40px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .story-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .story-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--palace-gold);
+            letter-spacing: 3px;
+        }
+        .story-chapter {
+            font-size: 12px;
+            color: #7F8C8D;
+            letter-spacing: 1px;
+        }
+        .story-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #BDC3C7;
+            max-width: 900px;
+        }
+        .story-text .hl { color: var(--water-light); }
+        .story-text .em { color: var(--palace-gold); font-weight: 700; }
+
+        /* 导航箭头 */
+        .nav-arrows {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+        .nav-arrows.left { left: 20px; }
+        .nav-arrows.right { right: 20px; }
+        .nav-btn {
+            width: 50px; height: 50px;
+            background: rgba(26,26,26,0.8);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 50%;
+            color: #ECF0F1;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover:not(:disabled) {
+            background: var(--beijing-red);
+            border-color: var(--palace-gold);
+        }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* 跟随按钮 */
+        .follow-btn {
+            position: fixed;
+            bottom: 180px;
+            right: 30px;
+            padding: 12px 24px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #ECF0F1;
+            background: linear-gradient(135deg, var(--water-blue) 0%, #1A4A6E 100%);
+            border: 1px solid var(--water-light);
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        .follow-btn:hover { transform: translateY(-2px); }
+        .follow-btn.active {
+            background: linear-gradient(135deg, #2D5016 0%, #1A3A0A 100%);
+            border-color: #4CAF50;
+        }
+
+        /* 图例 */
+        .legend {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            padding: 15px 20px;
+            font-size: 12px;
+            z-index: 100;
+        }
+        .legend-title {
+            color: var(--palace-gold);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            color: #BDC3C7;
+        }
+        .legend-color {
+            width: 20px; height: 12px;
+            border-radius: 2px;
+        }
+
+        /* 数据面板 */
+        .data-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 20px;
+            font-size: 12px;
+            min-width: 180px;
+            z-index: 100;
+        }
+        .data-title {
+            color: var(--palace-gold);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            color: #BDC3C7;
+        }
+        .data-value { color: var(--water-light); }
+
+        /* 完成页 */
+        #completion {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2C3E50 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s;
+        }
+        #completion.show { opacity: 1; pointer-events: auto; }
+        .completion-badge {
+            width: 150px; height: 150px;
+            background: linear-gradient(135deg, var(--palace-gold) 0%, #B8860B 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 50px rgba(212,175,55,0.3);
+        }
+        .completion-title {
+            font-size: 32px;
+            color: #ECF0F1;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+        .completion-text {
+            font-size: 16px;
+            color: #BDC3C7;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+        .restart-btn {
+            padding: 15px 40px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: #ECF0F1;
+            background: transparent;
+            border: 2px solid var(--palace-gold);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .restart-btn:hover {
+            background: var(--palace-gold);
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <!-- 封面 -->
+    <div id="cover">
+        <div class="cover-content">
+            <h1 class="cover-title">北京城市排水系统</h1>
+            <p class="cover-subtitle">地下管网三维剖面展示</p>
+            <div class="cover-visual"></div>
+            <button class="start-btn" onclick="start()">进 入 探 索</button>
+        </div>
+        <p class="dedication">献给 <span>智天</span></p>
+    </div>
+
+    <!-- 主场景 -->
+    <div id="scene">
+        <canvas id="canvas"></canvas>
+
+        <div class="ui-panel top-bar">
+            <div class="location-info">
+                <div class="location-icon"></div>
+                <span class="location-text" id="locationText">北京市 · 东城区</span>
+            </div>
+            <div class="chapter-nav" id="chapterNav"></div>
+            <div class="controls">
+                <button class="ctrl-btn" id="rainBtn" title="降雨模拟">🌧</button>
+                <button class="ctrl-btn" id="resetBtn" title="重置视角">⌂</button>
+            </div>
+        </div>
+
+        <div class="ui-panel legend">
+            <div class="legend-title">图 例</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(90deg, #4A5568, #2D3748)"></div>
+                <span>排水管道</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(90deg, #2B6CB0, #63B3ED)"></div>
+                <span>水流方向</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(90deg, #2D5016, #4CAF50)"></div>
+                <span>净化处理</span>
+            </div>
+        </div>
+
+        <div class="ui-panel data-panel">
+            <div class="data-title">实时数据</div>
+            <div class="data-row">
+                <span>管道总长</span>
+                <span class="data-value">12.8 km</span>
+            </div>
+            <div class="data-row">
+                <span>日处理量</span>
+                <span class="data-value" id="flowRate">2.4 万吨</span>
+            </div>
+            <div class="data-row">
+                <span>水流速度</span>
+                <span class="data-value" id="flowSpeed">1.2 m/s</span>
+            </div>
+        </div>
+
+        <div class="nav-arrows left">
+            <button class="nav-btn" id="prevBtn" disabled>◂</button>
+        </div>
+        <div class="nav-arrows right">
+            <button class="nav-btn" id="nextBtn">▸</button>
+        </div>
+
+        <button class="follow-btn" id="followBtn">◉ 跟踪水流</button>
+
+        <div class="ui-panel story-panel">
+            <div class="story-header">
+                <h2 class="story-title" id="storyTitle">城市脉络</h2>
+                <span class="story-chapter" id="storyChapter">第 1 章 / 共 6 章</span>
+            </div>
+            <p class="story-text" id="storyText"></p>
+        </div>
+    </div>
+
+    <!-- 完成页 -->
+    <div id="completion">
+        <div class="completion-badge">🏅</div>
+        <h1 class="completion-title">探索完成</h1>
+        <p class="completion-text">
+            智天，你已经了解了北京城市排水系统的完整运作流程。<br><br>
+            从天空降落的雨水，经过地表径流、雨水井收集、地下管网输送、
+            污水处理厂净化，最终回归护城河，形成完整的水循环。
+        </p>
+        <button class="restart-btn" onclick="restart()">重新探索</button>
+    </div>
+
+    <script>
+        // ========== 配置 ==========
+        const CHAPTERS = [
+            {
+                title: "城市脉络",
+                location: "北京市 · 东城区",
+                text: "智天，这是北京城的<span class='hl'>地下剖面图</span>。你看到的褐色部分是土层，灰色的管道就是城市的<span class='em'>排水系统</span>——它们就像城市的血管，每天输送着数万吨的水。",
+                view: { x: 0, y: 0, scale: 0.9 }
+            },
+            {
+                title: "雨水降临",
+                location: "北京市 · 长安街",
+                text: "当雨水降落到城市地面，它们会沿着<span class='hl'>道路坡度</span>流向两侧。北京的道路设计成中间高、两边低的形状，这样雨水就会自然流向路边的<span class='em'>雨水篦子</span>。",
+                view: { x: -50, y: -30, scale: 1.1 },
+                autoRain: true
+            },
+            {
+                title: "雨水井收集",
+                location: "北京市 · 雨水井",
+                text: "看到路面上那些<span class='hl'>铸铁井盖</span>了吗？它们下面连接着垂直的<span class='em'>集水井</span>，深度约2-3米。雨水通过井盖的缝隙流入，汇集后进入水平的排水管道。",
+                view: { x: 50, y: 30, scale: 1.4 }
+            },
+            {
+                title: "地下管网",
+                location: "北京市 · 地下8米",
+                text: "这是城市的<span class='hl'>地下管网系统</span>。主干管直径可达<span class='em'>2-3米</span>，支管直径约0.5-1米。管道采用混凝土或球墨铸铁制成，设计使用寿命50年以上。水流靠重力自然流动，流速约1-2米/秒。",
+                view: { x: 0, y: 150, scale: 1.2 }
+            },
+            {
+                title: "污水处理厂",
+                location: "北京市 · 高碑店处理厂",
+                text: "污水流入<span class='hl'>处理厂</span>后，经过<span class='em'>格栅过滤、沉淀池、生化池、消毒</span>等多道工序。整个过程约需8-12小时，处理后的水质可达到地表水IV类标准，可用于城市绿化和河道补水。",
+                view: { x: 350, y: 120, scale: 1.1 }
+            },
+            {
+                title: "回归自然",
+                location: "北京市 · 护城河",
+                text: "净化后的水最终流入<span class='hl'>护城河</span>。北京的护城河全长约25公里，是城市重要的<span class='em'>生态廊道</span>。河水蒸发后形成云，再次降雨，完成自然界的水循环。这就是水的旅程，生生不息。",
+                view: { x: 600, y: 50, scale: 1.0 }
+            }
+        ];
+
+        // ========== 状态 ==========
+        let canvas, ctx;
+        let chapter = 0;
+        let isRaining = false;
+        let isFollowing = false;
+        let viewX = 0, viewY = 0, viewScale = 0.9;
+        let targetX = 0, targetY = 0, targetScale = 0.9;
+        let isDragging = false, dragStartX, dragStartY, dragViewX, dragViewY;
+        let raindrops = [];
+        let waterParticles = [];
+        let followParticle = null;
+        let time = 0;
+
+        const SCENE_W = 1100, SCENE_H = 500;
+
+        // ========== 水流路径 ==========
+        const waterPaths = [
+            // 井盖1 → 主管道 → 处理厂
+            [
+                {x:120,y:145},{x:120,y:200},{x:120,y:280},
+                {x:180,y:280},{x:300,y:280},{x:420,y:280},
+                {x:500,y:260},{x:540,y:220}
+            ],
+            // 井盖2 → 主管道 → 处理厂
+            [
+                {x:280,y:145},{x:280,y:200},{x:280,y:280},
+                {x:350,y:280},{x:420,y:280},{x:500,y:260},{x:540,y:220}
+            ],
+            // 处理厂 → 护城河
+            [
+                {x:620,y:200},{x:680,y:180},{x:750,y:150},
+                {x:820,y:130},{x:900,y:120},{x:980,y:120}
+            ]
+        ];
+
+        // ========== 初始化 ==========
+        function init() {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            resize();
+            window.addEventListener('resize', resize);
+
+            canvas.addEventListener('mousedown', onDown);
+            canvas.addEventListener('mousemove', onMove);
+            canvas.addEventListener('mouseup', onUp);
+            canvas.addEventListener('mouseleave', onUp);
+            canvas.addEventListener('wheel', onWheel, { passive: false });
+
+            document.getElementById('rainBtn').onclick = toggleRain;
+            document.getElementById('resetBtn').onclick = resetView;
+            document.getElementById('prevBtn').onclick = prev;
+            document.getElementById('nextBtn').onclick = next;
+            document.getElementById('followBtn').onclick = toggleFollow;
+
+            // 章节导航
+            const nav = document.getElementById('chapterNav');
+            CHAPTERS.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'chapter-dot' + (i === 0 ? ' active' : '');
+                dot.onclick = () => goTo(i);
+                nav.appendChild(dot);
+            });
+
+            initWater();
+            updateUI();
+        }
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function initWater() {
+            waterPaths.forEach(path => {
+                for (let i = 0; i < 12; i++) {
+                    waterParticles.push({
+                        path,
+                        progress: i / 12,
+                        speed: 0.03 + Math.random() * 0.02,
+                        size: 3 + Math.random() * 3
+                    });
+                }
+            });
+        }
+
+        // ========== 主循环 ==========
+        function loop() {
+            time += 0.016;
+            update();
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            // 视角平滑
+            viewX += (targetX - viewX) * 0.06;
+            viewY += (targetY - viewY) * 0.06;
+            viewScale += (targetScale - viewScale) * 0.06;
+
+            // 雨滴
+            if (isRaining && Math.random() < 0.4) {
+                raindrops.push({
+                    x: Math.random() * SCENE_W,
+                    y: -10,
+                    speed: 8 + Math.random() * 4,
+                    len: 15 + Math.random() * 10
+                });
+            }
+            raindrops = raindrops.filter(r => {
+                r.y += r.speed;
+                if (r.y > 130) {
+                    if (Math.random() < 0.05) addWaterParticle(r.x);
+                    return false;
+                }
+                return true;
+            });
+
+            // 水粒子
+            waterParticles.forEach(p => {
+                p.progress += p.speed * 0.016 * 60;
+                if (p.progress > 1) p.progress = 0;
+                const pos = getPathPos(p.path, p.progress);
+                p.x = pos.x;
+                p.y = pos.y;
+            });
+
+            // 跟踪模式
+            if (isFollowing && followParticle) {
+                followParticle.progress += 0.008;
+                if (followParticle.progress > 1) {
+                    followParticle.progress = 0;
+                    followParticle.pathIdx = (followParticle.pathIdx + 1) % waterPaths.length;
+                    followParticle.path = waterPaths[followParticle.pathIdx];
+                }
+                const pos = getPathPos(followParticle.path, followParticle.progress);
+                followParticle.x = pos.x;
+                followParticle.y = pos.y;
+                targetX = pos.x - canvas.width / 2 / viewScale;
+                targetY = pos.y - canvas.height / 2 / viewScale;
+            }
+
+            // 更新数据显示
+            if (isRaining) {
+                document.getElementById('flowRate').textContent = (2.4 + Math.random() * 0.3).toFixed(1) + ' 万吨';
+                document.getElementById('flowSpeed').textContent = (1.2 + Math.random() * 0.2).toFixed(1) + ' m/s';
+            }
+        }
+
+        function addWaterParticle(x) {
+            const pathIdx = x < 200 ? 0 : 1;
+            waterParticles.push({
+                path: waterPaths[pathIdx],
+                progress: 0,
+                speed: 0.04 + Math.random() * 0.02,
+                size: 4 + Math.random() * 3
+            });
+        }
+
+        function getPathPos(path, progress) {
+            const seg = path.length - 1;
+            const idx = Math.min(Math.floor(progress * seg), seg - 1);
+            const t = (progress * seg) - idx;
+            return {
+                x: path[idx].x + (path[idx + 1].x - path[idx].x) * t,
+                y: path[idx].y + (path[idx + 1].y - path[idx].y) * t
+            };
+        }
+
+        // ========== 渲染 ==========
+        function render() {
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(viewScale, viewScale);
+            ctx.translate(-canvas.width / 2 - viewX, -canvas.height / 2 - viewY);
+
+            drawSky();
+            drawCityscape();
+            drawGround();
+            drawUnderground();
+            drawPipes();
+            drawTreatmentPlant();
+            drawMoat();
+            drawRoad();
+            drawManholes();
+            drawWater();
+            drawRain();
+            drawFollowParticle();
+
+            ctx.restore();
+        }
+
+        function drawSky() {
+            const grad = ctx.createLinearGradient(0, -50, 0, 130);
+            grad.addColorStop(0, '#2C3E50');
+            grad.addColorStop(0.5, '#5D6D7E');
+            grad.addColorStop(1, '#85929E');
+            ctx.fillStyle = grad;
+            ctx.fillRect(-50, -50, SCENE_W + 100, 180);
+
+            // 远山剪影
+            ctx.fillStyle = '#34495E';
+            ctx.beginPath();
+            ctx.moveTo(-50, 130);
+            for (let x = -50; x <= SCENE_W + 50; x += 50) {
+                ctx.lineTo(x, 100 + Math.sin(x * 0.01) * 20 + Math.random() * 5);
+            }
+            ctx.lineTo(SCENE_W + 50, 130);
+            ctx.fill();
+        }
+
+        function drawCityscape() {
+            // 天安门 (精细版)
+            const tx = 380, ty = 50;
+
+            // 城台
+            ctx.fillStyle = '#8B0000';
+            ctx.fillRect(tx, ty + 40, 140, 50);
+
+            // 城楼
+            ctx.fillStyle = '#6B0000';
+            ctx.fillRect(tx + 10, ty + 15, 120, 30);
+
+            // 屋顶 - 黄色琉璃瓦
+            ctx.fillStyle = '#D4AF37';
+            ctx.beginPath();
+            ctx.moveTo(tx - 5, ty + 15);
+            ctx.lineTo(tx + 70, ty - 15);
+            ctx.lineTo(tx + 145, ty + 15);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(tx + 5, ty + 42);
+            ctx.lineTo(tx + 70, ty + 22);
+            ctx.lineTo(tx + 135, ty + 42);
+            ctx.fill();
+
+            // 城门洞
+            ctx.fillStyle = '#1a1a1a';
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(tx + 25 + i * 25, ty + 90, 8, Math.PI, 0);
+                ctx.rect(tx + 17 + i * 25, ty + 75, 16, 15);
+                ctx.fill();
+            }
+
+            // 现代建筑剪影
+            ctx.fillStyle = '#2C3E50';
+            drawBuildingSilhouette(50, 60, 40, 70);
+            drawBuildingSilhouette(100, 70, 35, 60);
+            drawBuildingSilhouette(150, 55, 45, 75);
+            drawBuildingSilhouette(550, 65, 50, 65);
+            drawBuildingSilhouette(620, 50, 40, 80);
+            drawBuildingSilhouette(680, 70, 35, 60);
+        }
+
+        function drawBuildingSilhouette(x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+            // 窗户
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            for (let row = 0; row < Math.floor(h/12); row++) {
+                for (let col = 0; col < Math.floor(w/10); col++) {
+                    if (Math.random() > 0.3) {
+                        ctx.fillRect(x + 4 + col * 9, y + 8 + row * 11, 5, 6);
+                    }
+                }
+            }
+            ctx.fillStyle = '#2C3E50';
+        }
+
+        function drawGround() {
+            // 地表层
+            ctx.fillStyle = '#3D3D3D';
+            ctx.fillRect(-50, 125, SCENE_W + 100, 20);
+
+            // 草地/绿化带
+            ctx.fillStyle = '#2D5016';
+            ctx.fillRect(-50, 120, 80, 8);
+            ctx.fillRect(320, 120, 60, 8);
+            ctx.fillRect(750, 120, 150, 8);
+        }
+
+        function drawUnderground() {
+            // 土层渐变
+            const grad = ctx.createLinearGradient(0, 145, 0, 450);
+            grad.addColorStop(0, '#4A3728');
+            grad.addColorStop(0.3, '#3D2E22');
+            grad.addColorStop(0.6, '#2E221A');
+            grad.addColorStop(1, '#1F1812');
+            ctx.fillStyle = grad;
+            ctx.fillRect(-50, 145, SCENE_W + 100, 320);
+
+            // 土层纹理
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.lineWidth = 1;
+            for (let y = 160; y < 450; y += 30) {
+                ctx.beginPath();
+                ctx.moveTo(-50, y + Math.random() * 5);
+                for (let x = 0; x < SCENE_W + 50; x += 20) {
+                    ctx.lineTo(x, y + Math.sin(x * 0.05) * 3);
+                }
+                ctx.stroke();
+            }
+
+            // 地层标注
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '10px "Noto Serif SC"';
+            ctx.fillText('表土层 0-2m', 10, 170);
+            ctx.fillText('砂砾层 2-5m', 10, 230);
+            ctx.fillText('黏土层 5-10m', 10, 300);
+        }
+
+        function drawRoad() {
+            // 主路面
+            ctx.fillStyle = '#4A4A4A';
+            ctx.fillRect(30, 128, 350, 18);
+
+            // 路面标线
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([20, 15]);
+            ctx.beginPath();
+            ctx.moveTo(40, 137);
+            ctx.lineTo(370, 137);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 路沿石
+            ctx.fillStyle = '#6B6B6B';
+            ctx.fillRect(30, 125, 350, 4);
+        }
+
+        function drawManholes() {
+            const manholes = [
+                { x: 120, label: '雨水井 RY-001' },
+                { x: 280, label: '雨水井 RY-002' }
+            ];
+
+            manholes.forEach(m => {
+                // 井盖
+                ctx.fillStyle = '#3D3D3D';
+                ctx.beginPath();
+                ctx.ellipse(m.x, 133, 15, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 井盖纹理
+                ctx.strokeStyle = '#2D2D2D';
+                ctx.lineWidth = 1;
+                for (let i = -10; i <= 10; i += 5) {
+                    ctx.beginPath();
+                    ctx.moveTo(m.x + i, 130);
+                    ctx.lineTo(m.x + i, 136);
+                    ctx.stroke();
+                }
+
+                // 集水井（竖井）
+                ctx.fillStyle = '#4A5568';
+                ctx.fillRect(m.x - 10, 138, 20, 65);
+
+                // 井壁纹理
+                ctx.fillStyle = '#3D4852';
+                ctx.fillRect(m.x - 8, 138, 16, 65);
+
+                // 井盖标注
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.font = '8px "Noto Serif SC"';
+                ctx.fillText(m.label, m.x - 25, 125);
+
+                // 下雨时的水流效果
+                if (isRaining) {
+                    ctx.fillStyle = 'rgba(43, 108, 176, 0.6)';
+                    ctx.beginPath();
+                    ctx.moveTo(m.x - 8, 138);
+                    ctx.lineTo(m.x + 8, 138);
+                    ctx.lineTo(m.x + 5, 200);
+                    ctx.lineTo(m.x - 5, 200);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawPipes() {
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // 主管道
+            ctx.strokeStyle = '#4A5568';
+            ctx.lineWidth = 40;
+            ctx.beginPath();
+            ctx.moveTo(80, 280);
+            ctx.lineTo(480, 280);
+            ctx.stroke();
+
+            // 管道内壁
+            ctx.strokeStyle = '#3D4852';
+            ctx.lineWidth = 32;
+            ctx.beginPath();
+            ctx.moveTo(80, 280);
+            ctx.lineTo(480, 280);
+            ctx.stroke();
+
+            // 支管（从井盖下来）
+            ctx.strokeStyle = '#4A5568';
+            ctx.lineWidth = 22;
+            ctx.beginPath();
+            ctx.moveTo(120, 200);
+            ctx.lineTo(120, 280);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(280, 200);
+            ctx.lineTo(280, 280);
+            ctx.stroke();
+
+            // 通向处理厂的管道
+            ctx.lineWidth = 35;
+            ctx.beginPath();
+            ctx.moveTo(480, 280);
+            ctx.quadraticCurveTo(520, 250, 540, 220);
+            ctx.stroke();
+
+            // 管道标注
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = '10px "Noto Serif SC"';
+            ctx.fillText('DN2000 主干管', 220, 310);
+            ctx.fillText('DN800', 90, 240);
+            ctx.fillText('DN800', 250, 240);
+        }
+
+        function drawTreatmentPlant() {
+            const x = 540, y = 150;
+
+            // 厂房主体
+            ctx.fillStyle = '#5D6D7E';
+            ctx.fillRect(x, y, 130, 80);
+
+            // 屋顶
+            ctx.fillStyle = '#4A5568';
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y);
+            ctx.lineTo(x + 65, y - 25);
+            ctx.lineTo(x + 135, y);
+            ctx.fill();
+
+            // 窗户
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(x + 15 + i * 40, y + 20, 25, 35);
+            }
+
+            // 沉淀池
+            ctx.fillStyle = '#4A5568';
+            ctx.fillRect(x - 20, y + 90, 60, 40);
+            ctx.fillStyle = '#5D4037'; // 污水颜色
+            ctx.fillRect(x - 15, y + 95, 50, 30);
+
+            // 生化池
+            ctx.fillStyle = '#4A5568';
+            ctx.fillRect(x + 50, y + 90, 60, 40);
+            ctx.fillStyle = '#2B6CB0'; // 处理中
+            ctx.fillRect(x + 55, y + 95, 50, 30);
+
+            // 出水池
+            ctx.fillStyle = '#4A5568';
+            ctx.fillRect(x + 120, y + 90, 50, 40);
+            ctx.fillStyle = '#63B3ED'; // 净水
+            ctx.fillRect(x + 125, y + 95, 40, 30);
+
+            // 流程箭头
+            ctx.fillStyle = '#4CAF50';
+            ctx.beginPath();
+            ctx.moveTo(x + 45, y + 110);
+            ctx.lineTo(x + 50, y + 105);
+            ctx.lineTo(x + 50, y + 115);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 115, y + 110);
+            ctx.lineTo(x + 120, y + 105);
+            ctx.lineTo(x + 120, y + 115);
+            ctx.fill();
+
+            // 标注
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '11px "Noto Serif SC"';
+            ctx.fillText('污水处理厂', x + 30, y - 30);
+            ctx.font = '8px "Noto Serif SC"';
+            ctx.fillText('沉淀池', x - 10, y + 145);
+            ctx.fillText('生化池', x + 60, y + 145);
+            ctx.fillText('消毒池', x + 125, y + 145);
+
+            // 出水管
+            ctx.strokeStyle = '#4A5568';
+            ctx.lineWidth = 25;
+            ctx.beginPath();
+            ctx.moveTo(x + 170, y + 110);
+            ctx.lineTo(x + 220, y + 80);
+            ctx.quadraticCurveTo(x + 260, y + 50, x + 300, y + 30);
+            ctx.stroke();
+        }
+
+        function drawMoat() {
+            const x = 800, y = 80;
+
+            // 城墙
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(x - 20, y - 10, 220, 35);
+
+            // 城垛
+            ctx.fillStyle = '#4A3728';
+            for (let i = 0; i < 10; i++) {
+                ctx.fillRect(x - 15 + i * 22, y - 22, 15, 15);
+            }
+
+            // 河道
+            ctx.fillStyle = '#3D4852';
+            ctx.beginPath();
+            ctx.moveTo(x, y + 25);
+            ctx.lineTo(x + 200, y + 25);
+            ctx.lineTo(x + 200, y + 65);
+            ctx.lineTo(x, y + 65);
+            ctx.fill();
+
+            // 河水
+            const waterGrad = ctx.createLinearGradient(x, y + 30, x, y + 60);
+            waterGrad.addColorStop(0, '#2B6CB0');
+            waterGrad.addColorStop(1, '#1A4A6E');
+            ctx.fillStyle = waterGrad;
+            ctx.fillRect(x + 5, y + 30, 190, 30);
+
+            // 水面波纹
+            ctx.strokeStyle = 'rgba(99, 179, 237, 0.4)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 4; i++) {
+                const offset = (time * 50 + i * 40) % 180;
+                ctx.beginPath();
+                ctx.moveTo(x + 10 + offset, y + 35 + i * 7);
+                ctx.quadraticCurveTo(x + 30 + offset, y + 32 + i * 7, x + 50 + offset, y + 35 + i * 7);
+                ctx.stroke();
+            }
+
+            // 标注
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '12px "Noto Serif SC"';
+            ctx.fillText('护城河', x + 80, y + 80);
+        }
+
+        function drawWater() {
+            waterParticles.forEach(p => {
+                if (!p.x) return;
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                grad.addColorStop(0, 'rgba(99, 179, 237, 0.9)');
+                grad.addColorStop(1, 'rgba(43, 108, 176, 0.2)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawRain() {
+            if (!isRaining) return;
+            ctx.strokeStyle = 'rgba(99, 179, 237, 0.5)';
+            ctx.lineWidth = 1;
+            raindrops.forEach(r => {
+                ctx.beginPath();
+                ctx.moveTo(r.x, r.y);
+                ctx.lineTo(r.x - 1, r.y + r.len);
+                ctx.stroke();
+            });
+        }
+
+        function drawFollowParticle() {
+            if (!isFollowing || !followParticle) return;
+
+            // 光晕
+            const grad = ctx.createRadialGradient(
+                followParticle.x, followParticle.y, 0,
+                followParticle.x, followParticle.y, 20
+            );
+            grad.addColorStop(0, 'rgba(99, 179, 237, 0.8)');
+            grad.addColorStop(0.5, 'rgba(43, 108, 176, 0.3)');
+            grad.addColorStop(1, 'rgba(43, 108, 176, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(followParticle.x, followParticle.y, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 核心
+            ctx.fillStyle = '#63B3ED';
+            ctx.beginPath();
+            ctx.arc(followParticle.x, followParticle.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 脉冲环
+            const pulse = (Math.sin(time * 4) + 1) * 0.5;
+            ctx.strokeStyle = `rgba(99, 179, 237, ${0.5 - pulse * 0.5})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(followParticle.x, followParticle.y, 12 + pulse * 10, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // ========== 交互 ==========
+        function onDown(e) {
+            if (isFollowing) return;
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            dragViewX = targetX;
+            dragViewY = targetY;
+            canvas.style.cursor = 'grabbing';
+        }
+
+        function onMove(e) {
+            if (!isDragging) return;
+            const dx = (e.clientX - dragStartX) / viewScale;
+            const dy = (e.clientY - dragStartY) / viewScale;
+            targetX = dragViewX - dx;
+            targetY = dragViewY - dy;
+            targetX = Math.max(-100, Math.min(SCENE_W - 300, targetX));
+            targetY = Math.max(-50, Math.min(300, targetY));
+        }
+
+        function onUp() {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+        }
+
+        function onWheel(e) {
+            e.preventDefault();
+            targetScale = Math.max(0.6, Math.min(2, targetScale * (e.deltaY > 0 ? 0.92 : 1.08)));
+        }
+
+        function toggleRain() {
+            isRaining = !isRaining;
+            document.getElementById('rainBtn').classList.toggle('active', isRaining);
+        }
+
+        function resetView() {
+            const v = CHAPTERS[chapter].view;
+            targetX = v.x;
+            targetY = v.y;
+            targetScale = v.scale;
+        }
+
+        function toggleFollow() {
+            isFollowing = !isFollowing;
+            const btn = document.getElementById('followBtn');
+            if (isFollowing) {
+                btn.textContent = '◉ 停止跟踪';
+                btn.classList.add('active');
+                followParticle = { path: waterPaths[0], pathIdx: 0, progress: 0, x: 0, y: 0 };
+                targetScale = 1.3;
+            } else {
+                btn.textContent = '◉ 跟踪水流';
+                btn.classList.remove('active');
+                followParticle = null;
+                resetView();
+            }
+        }
+
+        // ========== 章节 ==========
+        function goTo(idx) {
+            chapter = idx;
+            updateUI();
+            if (!isFollowing) resetView();
+            if (CHAPTERS[idx].autoRain && !isRaining) toggleRain();
+        }
+
+        function prev() { if (chapter > 0) goTo(chapter - 1); }
+        function next() {
+            if (chapter < CHAPTERS.length - 1) goTo(chapter + 1);
+            else document.getElementById('completion').classList.add('show');
+        }
+
+        function updateUI() {
+            const ch = CHAPTERS[chapter];
+            document.getElementById('storyTitle').textContent = ch.title;
+            document.getElementById('storyText').innerHTML = ch.text;
+            document.getElementById('storyChapter').textContent = `第 ${chapter + 1} 章 / 共 ${CHAPTERS.length} 章`;
+            document.getElementById('locationText').textContent = ch.location;
+            document.getElementById('prevBtn').disabled = chapter === 0;
+            document.getElementById('nextBtn').textContent = chapter === CHAPTERS.length - 1 ? '✓' : '▸';
+
+            document.querySelectorAll('.chapter-dot').forEach((d, i) => {
+                d.classList.remove('active');
+                d.classList.toggle('done', i < chapter);
+                if (i === chapter) d.classList.add('active');
+            });
+        }
+
+        // ========== 启动 ==========
+        function start() {
+            document.getElementById('cover').classList.add('hidden');
+            document.getElementById('scene').classList.add('active');
+            canvas.style.cursor = 'grab';
+            loop();
+        }
+
+        function restart() {
+            document.getElementById('completion').classList.remove('show');
+            chapter = 0;
+            isRaining = false;
+            isFollowing = false;
+            document.getElementById('rainBtn').classList.remove('active');
+            document.getElementById('followBtn').textContent = '◉ 跟踪水流';
+            document.getElementById('followBtn').classList.remove('active');
+            followParticle = null;
+            updateUI();
+            resetView();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
