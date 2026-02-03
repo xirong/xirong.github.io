@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E大网格工具 2.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-card: #16161f;
+            --border-color: #2a2a3a;
+            --border-glow: #3b82f6;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+            --text-muted: #5a5a70;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 100%;
+            padding: 0 16px 100px;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 0 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-top: 24px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), var(--shadow-glow);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            opacity: 0.6;
+        }
+
+        .stat-card.gold::before {
+            background: var(--gradient-gold);
+        }
+
+        .stat-card.success::before {
+            background: var(--gradient-success);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-value.highlight {
+            color: var(--accent-cyan);
+        }
+
+        .stat-value.gold {
+            color: var(--accent-yellow);
+        }
+
+        .stat-value.success {
+            color: var(--accent-green);
+        }
+
+        /* Table Section */
+        .table-section {
+            margin-top: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .grid-legend {
+            display: flex;
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.small { background: var(--accent-blue); }
+        .legend-dot.medium { background: var(--accent-yellow); }
+        .legend-dot.large { background: var(--accent-green); }
+
+        /* Grid Table */
+        .grid-table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 50px 1fr 1fr 1fr 1fr;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s ease;
+        }
+
+        .grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .grid-row.header {
+            background: var(--bg-tertiary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .grid-row:not(.header):active {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .grid-cell {
+            padding: 12px 8px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .grid-cell.header {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .grid-cell.type {
+            justify-content: flex-start;
+            padding-left: 12px;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .type-badge.small {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .type-badge.medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-yellow);
+        }
+
+        .type-badge.large {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .price-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .price-value.buy {
+            color: var(--accent-red);
+        }
+
+        .price-value.sell {
+            color: var(--accent-green);
+        }
+
+        .profit-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .profit-value.positive {
+            color: var(--accent-green);
+        }
+
+        /* Expandable Row */
+        .row-details {
+            display: none;
+            grid-column: 1 / -1;
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .row-details.active {
+            display: block;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .detail-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Footer Actions */
+        .footer-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
+            padding: 20px 16px;
+            z-index: 100;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn.primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid-row:not(.header) {
+            animation: fadeIn 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        .grid-row:nth-child(2) { animation-delay: 0.05s; }
+        .grid-row:nth-child(3) { animation-delay: 0.1s; }
+        .grid-row:nth-child(4) { animation-delay: 0.15s; }
+        .grid-row:nth-child(5) { animation-delay: 0.2s; }
+        .grid-row:nth-child(6) { animation-delay: 0.25s; }
+        .grid-row:nth-child(7) { animation-delay: 0.3s; }
+        .grid-row:nth-child(8) { animation-delay: 0.35s; }
+        .grid-row:nth-child(9) { animation-delay: 0.4s; }
+        .grid-row:nth-child(10) { animation-delay: 0.45s; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 380px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-row {
+                grid-template-columns: 45px 1fr 1fr 1fr 1fr;
+            }
+
+            .grid-cell {
+                padding: 10px 6px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Tablet and Desktop */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 0 24px 100px;
+            }
+
+            .header {
+                padding: 40px 0 30px;
+            }
+
+            .logo {
+                font-size: 2.25rem;
+            }
+
+            .input-field {
+                font-size: 1.25rem;
+                padding: 16px 20px;
+            }
+
+            .grid-row {
+                grid-template-columns: 80px 1fr 1fr 1fr 1fr;
+            }
+
+            .grid-cell {
+                padding: 16px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 200;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Loading Shimmer */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .loading {
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">E大网格工具</h1>
+            <p class="subtitle">Grid Trading Calculator 2.0</p>
+        </header>
+
+        <section class="input-section">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label class="input-label">买点价格</label>
+                    <input type="number" class="input-field" id="basePrice" value="1.000" step="0.001" placeholder="1.000">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">每份金额</label>
+                    <input type="number" class="input-field" id="amountPerGrid" value="5000" step="100" placeholder="5000">
+                </div>
+                <div class="input-group full-width">
+                    <label class="input-label">标的名称</label>
+                    <input type="text" class="input-field" id="stockName" value="513050 中概互联" placeholder="输入标的代码或名称">
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">网格数量</div>
+                <div class="stat-value highlight" id="gridCount">21</div>
+            </div>
+            <div class="stat-card gold">
+                <div class="stat-label">极限资金</div>
+                <div class="stat-value gold" id="totalCapital">¥95,070</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">最大利润</div>
+                <div class="stat-value success" id="maxProfit">¥3,750</div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="section-header">
+                <span class="section-title">网格明细</span>
+                <div class="grid-legend">
+                    <span class="legend-item"><span class="legend-dot small"></span>小网5%</span>
+                    <span class="legend-item"><span class="legend-dot medium"></span>中网15%</span>
+                    <span class="legend-item"><span class="legend-dot large"></span>大网30%</span>
+                </div>
+            </div>
+
+            <div class="grid-table-container">
+                <div class="grid-row header">
+                    <div class="grid-cell header type">类型</div>
+                    <div class="grid-cell header">买入价</div>
+                    <div class="grid-cell header">卖出价</div>
+                    <div class="grid-cell header">数量</div>
+                    <div class="grid-cell header">利润率</div>
+                </div>
+                <div id="gridTableBody">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="footer-actions">
+        <button class="action-btn primary" onclick="recalculate()">
+            重新计算
+        </button>
+    </div>
+
+    <div class="toast" id="toast">已更新计算结果</div>
+
+    <script>
+        // 网格配置 - 基于原版 Excel 逻辑
+        // E大网格工具（2.0版本），包括留利润(当期利润)+大中小网(30/15/5)+递增加码(5%)
+
+        // 定义完整的网格结构（基于原 Excel 截图）
+        // 格式: [档位, 类型] - 类型: 'small'=小网5%, 'medium'=中网15%, 'large'=大网30%
+        const GRID_STRUCTURE = [
+            { position: 1.00, type: 'small' },
+            { position: 0.95, type: 'small' },
+            { position: 0.90, type: 'small' },
+            { position: 0.85, type: 'small' },
+            { position: 0.85, type: 'medium' },  // 中网点
+            { position: 0.80, type: 'small' },
+            { position: 0.75, type: 'small' },
+            { position: 0.70, type: 'small' },
+            { position: 0.70, type: 'medium' },  // 中网点
+            { position: 0.70, type: 'large' },   // 大网点
+            { position: 0.65, type: 'small' },
+            { position: 0.60, type: 'small' },
+            { position: 0.55, type: 'small' },
+            { position: 0.55, type: 'medium' },  // 中网点
+            { position: 0.50, type: 'small' },
+            { position: 0.45, type: 'small' },
+            { position: 0.40, type: 'small' },
+            { position: 0.40, type: 'medium' },  // 中网点
+            { position: 0.40, type: 'large' },   // 大网点
+        ];
+
+        // 定义网格档位和类型
+        function getGridLevels(basePrice) {
+            return GRID_STRUCTURE.map(item => ({
+                position: item.position,
+                buyPrice: basePrice * item.position,
+                type: item.type
+            }));
+        }
+
+        // 计算卖出价 - 根据原 Excel 规则
+        function getSellPrice(level, basePrice) {
+            if (level.type === 'large') {
+                // 大网：卖出价 = 基准价格 (涨回100%时卖)
+                return basePrice;
+            } else if (level.type === 'medium') {
+                // 中网：卖出价根据档位确定
+                // 0.85 -> 1.000, 0.70 -> 0.850, 0.55 -> 0.700, 0.40 -> 0.550
+                if (level.position >= 0.85) return basePrice;
+                if (level.position >= 0.70) return basePrice * 0.85;
+                if (level.position >= 0.55) return basePrice * 0.70;
+                return basePrice * 0.55;
+            } else {
+                // 小网：卖出价 = 上一档的买入价 (涨5%时卖)
+                // position 0.95 -> 卖出价 1.000
+                // position 0.90 -> 卖出价 0.950
+                return basePrice * (level.position + 0.05);
+            }
+        }
+
+        // 计算单个网格 - 精确匹配原 Excel 逻辑
+        function calculateGrid(level, index, baseAmount, basePrice) {
+            // 递增加码：每下一档买入数量增加约 5-6%
+            // 根据原表：5000->5300->5600->5900... 每档约增加300股(基于价格1.0)
+            // 这相当于每档金额略增，保持数量递增
+            const baseQty = Math.floor(baseAmount / basePrice / 100) * 100;
+            const incrementPerLevel = Math.floor(baseQty * 0.06 / 100) * 100; // 每档增加约6%
+
+            // 买入数量
+            const buyQty = baseQty + incrementPerLevel * index;
+
+            // 买入金额 = 数量 × 买入价
+            const buyAmount = buyQty * level.buyPrice;
+
+            // 卖出价
+            const sellPrice = getSellPrice(level, basePrice);
+
+            // 留存数量计算（留利润机制）
+            // 根据原表数据分析：
+            // - 小网留存约 200 股（固定或按比例）
+            // - 中网留存约 800 股
+            // - 大网留存约 2100 股
+            let retainQty;
+            if (level.type === 'large') {
+                // 大网留存更多
+                retainQty = Math.floor(buyQty * 0.30 / 100) * 100;
+            } else if (level.type === 'medium') {
+                // 中网留存中等
+                retainQty = Math.floor(buyQty * 0.15 / 100) * 100;
+            } else {
+                // 小网留存少量（约4%或固定200股）
+                retainQty = Math.max(200, Math.floor(buyQty * 0.04 / 100) * 100);
+            }
+
+            // 卖出数量 = 买入数量 - 留存数量
+            const sellQty = buyQty - retainQty;
+
+            // 卖出金额
+            const sellAmount = sellQty * sellPrice;
+
+            // 留存利润 = 留存数量 × 卖出价（视为浮盈）
+            const retainProfit = retainQty * sellPrice;
+
+            // 本期总利润 = 卖出利润 + 留存利润
+            // 卖出利润 = 卖出金额 - 卖出部分的成本
+            const sellCost = sellQty * level.buyPrice;
+            const tradingProfit = sellAmount - sellCost;
+            const totalProfit = tradingProfit + retainProfit;
+
+            // 利润率 = 总利润 / 买入金额
+            const profitRate = (totalProfit / buyAmount) * 100;
+
+            return {
+                type: level.type,
+                position: level.position,
+                buyPrice: level.buyPrice,
+                sellPrice: sellPrice,
+                buyQty: buyQty,
+                buyAmount: buyAmount,
+                sellQty: sellQty,
+                sellAmount: sellAmount,
+                retainQty: retainQty,
+                retainProfit: retainProfit,
+                totalProfit: totalProfit,
+                profitRate: profitRate
+            };
+        }
+
+        // 格式化数字
+        function formatNumber(num, decimals = 0) {
+            return num.toLocaleString('zh-CN', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatPrice(price) {
+            return price.toFixed(3);
+        }
+
+        function formatPercent(rate) {
+            return rate.toFixed(2) + '%';
+        }
+
+        // 获取类型标签
+        function getTypeBadge(type) {
+            const labels = {
+                small: '<span class="type-badge small">小</span>',
+                medium: '<span class="type-badge medium">中</span>',
+                large: '<span class="type-badge large">大</span>'
+            };
+            return labels[type];
+        }
+
+        // 渲染表格
+        function renderTable(grids) {
+            const tbody = document.getElementById('gridTableBody');
+            tbody.innerHTML = '';
+
+            grids.forEach((grid, index) => {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                row.style.animationDelay = `${index * 0.03}s`;
+
+                row.innerHTML = `
+                    <div class="grid-cell type">${getTypeBadge(grid.type)}</div>
+                    <div class="grid-cell"><span class="price-value buy">${formatPrice(grid.buyPrice)}</span></div>
+                    <div class="grid-cell"><span class="price-value sell">${formatPrice(grid.sellPrice)}</span></div>
+                    <div class="grid-cell"><span class="price-value">${formatNumber(grid.buyQty)}</span></div>
+                    <div class="grid-cell"><span class="profit-value positive">${formatPercent(grid.profitRate)}</span></div>
+                `;
+
+                // 点击展开详情
+                row.addEventListener('click', () => {
+                    const existingDetails = row.querySelector('.row-details');
+                    if (existingDetails) {
+                        existingDetails.remove();
+                        return;
+                    }
+
+                    // 移除其他展开的详情
+                    document.querySelectorAll('.row-details').forEach(el => el.remove());
+
+                    const details = document.createElement('div');
+                    details.className = 'row-details active';
+                    details.innerHTML = `
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">买入金额</span>
+                                <span class="detail-value">¥${formatNumber(grid.buyAmount)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">卖出金额</span>
+                                <span class="detail-value">¥${formatNumber(grid.sellAmount)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">卖出数量</span>
+                                <span class="detail-value">${formatNumber(grid.sellQty)}股</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">留存数量</span>
+                                <span class="detail-value">${formatNumber(grid.retainQty)}股</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">留存利润</span>
+                                <span class="detail-value" style="color: var(--accent-cyan)">¥${formatNumber(grid.retainProfit)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">本期总利润</span>
+                                <span class="detail-value" style="color: var(--accent-green)">¥${formatNumber(grid.totalProfit)}</span>
+                            </div>
+                        </div>
+                    `;
+                    row.appendChild(details);
+                });
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新统计
+        function updateStats(grids) {
+            const totalCapital = grids.reduce((sum, g) => sum + g.buyAmount, 0);
+            const maxProfit = grids[grids.length - 1]?.totalProfit || 0;
+
+            document.getElementById('gridCount').textContent = grids.length;
+            document.getElementById('totalCapital').textContent = '¥' + formatNumber(totalCapital);
+            document.getElementById('maxProfit').textContent = '¥' + formatNumber(maxProfit);
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 主计算函数
+        function recalculate() {
+            const basePrice = parseFloat(document.getElementById('basePrice').value) || 1.0;
+            const amountPerGrid = parseFloat(document.getElementById('amountPerGrid').value) || 5000;
+
+            const levels = getGridLevels(basePrice);
+            const grids = levels.map((level, index) =>
+                calculateGrid(level, index, amountPerGrid, basePrice)
+            );
+
+            renderTable(grids);
+            updateStats(grids);
+            showToast('已更新计算结果');
+        }
+
+        // 输入变化时自动计算
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('change', recalculate);
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            recalculate();
+        });
+    </script>
+</body>
+</html>
