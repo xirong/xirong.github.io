@@ -168,6 +168,10 @@
             font-weight: 500;
         }
 
+        .info-content {
+            transition: opacity 0.3s ease;
+        }
+
         .scale-info {
             position: fixed;
             bottom: 30px;
@@ -221,10 +225,29 @@
             color: var(--text-secondary);
         }
 
+        .legend-item.galaxy-type {
+            display: none;
+        }
+
         .legend-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
+        }
+
+        .legend-dot.spiral {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+
+        .legend-dot.elliptical {
+            background: linear-gradient(135deg, #ff9500, #cc7000);
+            box-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
+        }
+
+        .legend-dot.irregular {
+            background: linear-gradient(135deg, #6cb4ff, #4a9eff);
+            box-shadow: 0 0 8px rgba(108, 180, 255, 0.5);
         }
 
         .loading-screen {
@@ -272,6 +295,287 @@
             letter-spacing: 3px;
             color: #8b5cf6;
         }
+
+        /* 星系信息弹窗样式 */
+        .galaxy-popup {
+            position: fixed;
+            z-index: 200;
+            width: 360px;
+            background: rgba(10, 10, 30, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 0;
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+        }
+
+        .galaxy-popup.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .galaxy-popup-header {
+            padding: 20px 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .galaxy-popup-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+            margin-bottom: 5px;
+        }
+
+        .galaxy-popup-name-en {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .galaxy-popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .galaxy-popup-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .galaxy-popup-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .galaxy-popup-stat {
+            text-align: center;
+        }
+
+        .galaxy-popup-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .galaxy-popup-stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+        }
+
+        .galaxy-popup-desc {
+            padding: 15px 20px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .galaxy-popup-funfact {
+            padding: 15px 20px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #a78bfa;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 0 0 20px 20px;
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        /* 回到银河系按钮 */
+        .return-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            z-index: 100;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: white;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .return-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6);
+        }
+
+        .return-btn span {
+            font-size: 1.1rem;
+        }
+
+        /* 恒星系统弹窗样式 */
+        .star-system-popup {
+            position: fixed;
+            z-index: 200;
+            width: 360px;
+            background: rgba(10, 10, 30, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 200, 100, 0.3);
+            border-radius: 20px;
+            padding: 0;
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 200, 100, 0.2);
+        }
+
+        .star-system-popup.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .star-popup-header {
+            padding: 20px 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .star-popup-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: #ffcc00;
+            margin-bottom: 5px;
+        }
+
+        .star-popup-name-en {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .star-popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .star-popup-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .star-popup-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .star-popup-stat {
+            text-align: center;
+        }
+
+        .star-popup-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .star-popup-stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #ffcc00;
+        }
+
+        .star-popup-stat.full-width {
+            grid-column: span 2;
+        }
+
+        .star-popup-desc {
+            padding: 15px 20px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .star-popup-funfact {
+            padding: 15px 20px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #ffd700;
+            background: rgba(255, 200, 100, 0.1);
+            border-radius: 0 0 20px 20px;
+            border-top: 1px solid rgba(255, 200, 100, 0.2);
+        }
+
+        /* 恒星类型图例 */
+        .legend-item.star-type {
+            display: none;
+        }
+
+        .legend-dot.sun-like {
+            background: #ffcc00;
+            box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+        }
+
+        .legend-dot.red-dwarf {
+            background: #ff6633;
+            box-shadow: 0 0 8px rgba(255, 102, 51, 0.6);
+        }
+
+        .legend-dot.blue-white {
+            background: #aaccff;
+            box-shadow: 0 0 8px rgba(170, 204, 255, 0.6);
+        }
+
+        .legend-dot.red-supergiant {
+            background: #ff4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+        }
+
+        .legend-dot.has-planets {
+            background: transparent;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+        }
     </style>
 </head>
 
@@ -301,31 +605,68 @@
     </div>
 
     <!-- 信息面板 -->
-    <div class="info-panel">
-        <h2>🌌 银河系</h2>
-        <p>银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。</p>
-        <p>太阳系位于<span class="highlight">猎户臂</span>上，距离银河系中心约<span class="highlight">26000光年</span>。</p>
-        <p>银河系中心是一个超大质量黑洞——<span class="highlight">人马座A*</span>，质量约为太阳的400万倍。</p>
+    <div class="info-panel" id="infoPanel">
+        <div class="info-content">
+            <h2>🌌 银河系</h2>
+            <p>银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。</p>
+            <p>太阳系位于<span class="highlight">猎户臂</span>上，距离银河系中心约<span class="highlight">26000光年</span>。</p>
+            <p>银河系中心是一个超大质量黑洞——<span class="highlight">人马座A*</span>，质量约为太阳的400万倍。</p>
+        </div>
     </div>
 
     <!-- 图例 -->
     <div class="legend">
         <div class="legend-title">📍 图例</div>
-        <div class="legend-item">
+        <!-- 本地星系图例（近距离显示） -->
+        <div class="legend-item local-type">
             <div class="legend-dot" style="background: #ffcc00; box-shadow: 0 0 10px #ffcc00;"></div>
             <span>太阳系位置</span>
         </div>
-        <div class="legend-item">
+        <div class="legend-item local-type">
             <div class="legend-dot" style="background: #00aaff;"></div>
             <span>日球层边界</span>
         </div>
-        <div class="legend-item">
+        <div class="legend-item local-type">
             <div class="legend-dot" style="background: rgba(150, 180, 255, 0.5);"></div>
             <span>奥尔特云</span>
         </div>
-        <div class="legend-item">
+        <div class="legend-item local-type">
             <div class="legend-dot" style="background: #8b00ff;"></div>
             <span>银河系中心黑洞</span>
+        </div>
+        <!-- 星系类型图例（远距离显示） -->
+        <div class="legend-item galaxy-type">
+            <div class="legend-dot spiral"></div>
+            <span>螺旋星系</span>
+        </div>
+        <div class="legend-item galaxy-type">
+            <div class="legend-dot elliptical"></div>
+            <span>椭圆星系</span>
+        </div>
+        <div class="legend-item galaxy-type">
+            <div class="legend-dot irregular"></div>
+            <span>不规则星系</span>
+        </div>
+        <!-- 恒星类型图例（太阳系邻域显示） -->
+        <div class="legend-item star-type">
+            <div class="legend-dot sun-like"></div>
+            <span>类太阳恒星</span>
+        </div>
+        <div class="legend-item star-type">
+            <div class="legend-dot red-dwarf"></div>
+            <span>红矮星</span>
+        </div>
+        <div class="legend-item star-type">
+            <div class="legend-dot blue-white"></div>
+            <span>蓝白星</span>
+        </div>
+        <div class="legend-item star-type">
+            <div class="legend-dot red-supergiant"></div>
+            <span>红超巨星</span>
+        </div>
+        <div class="legend-item star-type">
+            <div class="legend-dot has-planets"></div>
+            <span>有已确认行星</span>
         </div>
     </div>
 
@@ -335,6 +676,81 @@
         <div class="value" id="scaleValue">银河系全景</div>
     </div>
 
+    <!-- 回到银河系按钮 -->
+    <button class="return-btn" id="returnToMilkyWay">
+        <span>🌀</span>
+        <span>回到银河系</span>
+    </button>
+
+    <!-- 星系信息弹窗 -->
+    <div class="galaxy-popup" id="galaxyPopup">
+        <div class="galaxy-popup-header">
+            <div class="galaxy-popup-name">仙女座星系</div>
+            <div class="galaxy-popup-name-en">Andromeda Galaxy (M31)</div>
+            <button class="galaxy-popup-close">×</button>
+        </div>
+        <div class="galaxy-popup-stats">
+            <div class="galaxy-popup-stat">
+                <div class="galaxy-popup-stat-label">类型</div>
+                <div class="galaxy-popup-stat-value stat-type">棒旋星系</div>
+            </div>
+            <div class="galaxy-popup-stat">
+                <div class="galaxy-popup-stat-label">距离</div>
+                <div class="galaxy-popup-stat-value stat-distance">254万光年</div>
+            </div>
+            <div class="galaxy-popup-stat">
+                <div class="galaxy-popup-stat-label">直径</div>
+                <div class="galaxy-popup-stat-value stat-diameter">22万光年</div>
+            </div>
+            <div class="galaxy-popup-stat">
+                <div class="galaxy-popup-stat-label">恒星数量</div>
+                <div class="galaxy-popup-stat-value stat-stars">约1万亿颗</div>
+            </div>
+        </div>
+        <div class="galaxy-popup-desc">
+            本星系群中最大的星系，肉眼可见的最远天体。
+        </div>
+        <div class="galaxy-popup-funfact">
+            💡 仙女座星系正以每秒300公里的速度向银河系靠近，约45亿年后将与银河系碰撞合并！
+        </div>
+    </div>
+
+    <!-- 恒星系统信息弹窗 -->
+    <div class="star-system-popup" id="starSystemPopup">
+        <div class="star-popup-header">
+            <div class="star-popup-name">半人马座α</div>
+            <div class="star-popup-name-en">Alpha Centauri</div>
+            <button class="star-popup-close">×</button>
+        </div>
+        <div class="star-popup-stats">
+            <div class="star-popup-stat">
+                <div class="star-popup-stat-label">类型</div>
+                <div class="star-popup-stat-value star-stat-type">三合星系统</div>
+            </div>
+            <div class="star-popup-stat">
+                <div class="star-popup-stat-label">光谱型</div>
+                <div class="star-popup-stat-value star-stat-spectral">G2V</div>
+            </div>
+            <div class="star-popup-stat">
+                <div class="star-popup-stat-label">距离</div>
+                <div class="star-popup-stat-value star-stat-distance">4.37光年</div>
+            </div>
+            <div class="star-popup-stat">
+                <div class="star-popup-stat-label">亮度</div>
+                <div class="star-popup-stat-value star-stat-brightness">视星等 -0.27</div>
+            </div>
+            <div class="star-popup-stat full-width">
+                <div class="star-popup-stat-label">已确认行星</div>
+                <div class="star-popup-stat-value star-stat-planets">1颗已确认</div>
+            </div>
+        </div>
+        <div class="star-popup-desc">
+            距离太阳系最近的恒星系统，由三颗恒星组成。
+        </div>
+        <div class="star-popup-funfact">
+            💡 比邻星是距离我们最近的恒星！
+        </div>
+    </div>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
