@@ -1,21 +1,457 @@
 /**
  * 银河系探索 - 柳智天的宇宙课堂
- * 展示银河系结构、太阳系位置、日球层和奥尔特云
+ * 展示银河系结构、太阳系位置、日球层、奥尔特云及宇宙中其他知名星系
  */
 
 // ============ 全局变量 ============
 let scene, camera, renderer, controls;
 let milkyWay; // 银河系
+let milkyWayGlow; // 银河系远距离发光点
 let galacticCenter; // 银河系中心黑洞
 let solarSystem; // 太阳系标记
 let heliopause; // 日球层
 let oortCloud; // 奥尔特云
 let starField; // 背景星空
+let cosmicStarField; // 宇宙深空背景
 let clock;
 let raycaster, mouse;
+let externalGalaxies = []; // 外部星系对象数组
+let galaxyLabels = []; // 星系名称标签
+let currentZoomLevel = 5; // 当前缩放层级
+let starSystems = []; // 恒星系统对象数组（银河系尺度）
+let neighborhoodStarSystems = []; // 太阳系邻域恒星系统（局部尺度）
+let isNeighborhoodView = false; // 当前是否处于邻域视图
+const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
+const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 
 // 太阳系在银河系中的位置（距银心约26000光年，这里用单位表示）
 const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
+
+// ============ 恒星系统数据 ============
+const starSystemData = {
+    alphaCentauri: {
+        name: '半人马座α',
+        nameEn: 'Alpha Centauri',
+        type: '三合星系统',
+        spectralType: 'G2V + K1V + M5.5Ve',
+        distance: '4.37光年',
+        brightness: '视星等 -0.27',
+        planets: 1,
+        description: '距离太阳系最近的恒星系统，由三颗恒星组成：半人马座α A、B和比邻星。',
+        funFact: '比邻星是距离我们最近的恒星，它周围发现了一颗可能宜居的行星——比邻星b！'
+    },
+    barnardStar: {
+        name: '巴纳德星',
+        nameEn: "Barnard's Star",
+        type: '红矮星',
+        spectralType: 'M4Ve',
+        distance: '6光年',
+        brightness: '视星等 9.5',
+        planets: 1,
+        description: '第二近的恒星系统，是一颗古老的红矮星，运动速度极快。',
+        funFact: '巴纳德星是天空中自行运动最快的恒星，每年移动10.3角秒！'
+    },
+    sirius: {
+        name: '天狼星',
+        nameEn: 'Sirius',
+        type: '双星系统',
+        spectralType: 'A1V + DA2',
+        distance: '8.6光年',
+        brightness: '视星等 -1.46',
+        planets: 0,
+        description: '夜空中最亮的恒星，由一颗蓝白色主序星和一颗白矮星组成。',
+        funFact: '天狼星B是人类发现的第一颗白矮星，它的密度是水的100万倍！'
+    },
+    epsilonEridani: {
+        name: '天苑四',
+        nameEn: 'Epsilon Eridani',
+        type: '类太阳恒星',
+        spectralType: 'K2V',
+        distance: '10.5光年',
+        brightness: '视星等 3.73',
+        planets: 2,
+        description: '一颗年轻的类太阳恒星，拥有尘埃盘和至少两颗行星。',
+        funFact: '天苑四是科幻作品中的热门目的地，《星际迷航》中的瓦肯星就设定在这里！'
+    },
+    trappist1: {
+        name: 'TRAPPIST-1',
+        nameEn: 'TRAPPIST-1',
+        type: '红矮星',
+        spectralType: 'M8V',
+        distance: '39光年',
+        brightness: '视星等 18.8',
+        planets: 7,
+        description: '一个拥有7颗类地行星的恒星系统，其中3颗位于宜居带！',
+        funFact: '这7颗行星都比地球到月球的距离还近，站在其中一颗上可以清晰看到其他行星的地貌！'
+    },
+    kepler452: {
+        name: '开普勒-452',
+        nameEn: 'Kepler-452',
+        type: '类太阳恒星',
+        spectralType: 'G2V',
+        distance: '1400光年',
+        brightness: '视星等 13.4',
+        planets: 1,
+        description: '拥有"地球2.0"——开普勒-452b的恒星，与太阳非常相似。',
+        funFact: '开普勒-452b的公转周期是385天，与地球的365天非常接近！'
+    },
+    betelgeuse: {
+        name: '参宿四',
+        nameEn: 'Betelgeuse',
+        type: '红超巨星',
+        spectralType: 'M1-M2 Ia-ab',
+        distance: '700光年',
+        brightness: '视星等 0.5',
+        planets: 0,
+        description: '猎户座的"肩膀"，一颗即将爆发为超新星的红超巨星。',
+        funFact: '参宿四的直径是太阳的1000倍，如果放在太阳位置，它会吞没火星轨道！'
+    },
+    vega: {
+        name: '织女星',
+        nameEn: 'Vega',
+        type: '白色主序星',
+        spectralType: 'A0V',
+        distance: '25光年',
+        brightness: '视星等 0.03',
+        planets: 0,
+        description: '夏季大三角之一，北半球夜空中第二亮的恒星，拥有尘埃盘。',
+        funFact: '织女星曾是北极星，约12000年后它将再次成为北极星！'
+    },
+    ross154: {
+        name: '罗斯154',
+        nameEn: 'Ross 154',
+        type: '红矮星',
+        spectralType: 'M3.5Ve',
+        distance: '9.7光年',
+        brightness: '视星等 10.4',
+        planets: 0,
+        description: '距离太阳系较近的红矮星之一，是一颗耀星，会发生强烈的耀斑。',
+        funFact: '罗斯154的耀斑可以在几分钟内让它的亮度增加数倍！'
+    },
+    lacaille9352: {
+        name: '拉卡伊9352',
+        nameEn: 'Lacaille 9352',
+        type: '红矮星',
+        spectralType: 'M1V',
+        distance: '10.7光年',
+        brightness: '视星等 7.34',
+        planets: 0,
+        description: '最亮的近距离红矮星之一，位于南天的显微镜座。',
+        funFact: '这颗恒星是以法国天文学家拉卡伊命名的，他在1751年编目了这颗星！'
+    },
+    tauCeti: {
+        name: '鲸鱼座τ',
+        nameEn: 'Tau Ceti',
+        type: '类太阳恒星',
+        spectralType: 'G8.5V',
+        distance: '11.9光年',
+        brightness: '视星等 3.49',
+        planets: 5,
+        description: '最接近太阳的类太阳恒星之一，可能拥有5颗行星的系统。',
+        funFact: '鲸鱼座τ是SETI项目最早的搜索目标之一，因为它与太阳如此相似！'
+    },
+    procyon: {
+        name: '南河三',
+        nameEn: 'Procyon',
+        type: '双星系统',
+        spectralType: 'F5IV-V + DQZ',
+        distance: '11.5光年',
+        brightness: '视星等 0.34',
+        planets: 0,
+        description: '冬季大三角的成员之一，由一颗亚巨星和一颗白矮星组成。',
+        funFact: '南河三的名字源自希腊语"狗前面的"，因为它在天狼星（大犬座α）之前升起！'
+    }
+};
+
+// ============ 太阳系邻域视图恒星配置（局部放大尺度）============
+// 在这个视图中：1单位 = 1光年 * NEIGHBORHOOD_SCALE
+// 太阳位于原点(0,0,0)，其他恒星根据真实距离放置
+const neighborhoodStarConfigs = {
+    alphaCentauri: {
+        distanceLY: 4.37, // 光年
+        angle: Math.PI * 0.3, // 方位角
+        elevation: 0.1, // 仰角
+        color: '#ffcc00',
+        starType: 'triple',
+        hasPlanets: true
+    },
+    barnardStar: {
+        distanceLY: 6,
+        angle: Math.PI * 1.2,
+        elevation: 0.2,
+        color: '#ff6633',
+        starType: 'single',
+        hasPlanets: true
+    },
+    sirius: {
+        distanceLY: 8.6,
+        angle: Math.PI * 0.8,
+        elevation: -0.15,
+        color: '#aaccff',
+        starType: 'binary',
+        hasPlanets: false
+    },
+    epsilonEridani: {
+        distanceLY: 10.5,
+        angle: Math.PI * 1.6,
+        elevation: 0.05,
+        color: '#ffcc00',
+        starType: 'single',
+        hasPlanets: true
+    },
+    ross154: {
+        distanceLY: 9.7,
+        angle: Math.PI * 0.5,
+        elevation: -0.3,
+        color: '#ff6633',
+        starType: 'single',
+        hasPlanets: false
+    },
+    lacaille9352: {
+        distanceLY: 10.7,
+        angle: Math.PI * 1.9,
+        elevation: 0.25,
+        color: '#ff8844',
+        starType: 'single',
+        hasPlanets: false
+    },
+    vega: {
+        distanceLY: 25,
+        angle: Math.PI * 0.1,
+        elevation: 0.4,
+        color: '#aaccff',
+        starType: 'single',
+        hasPlanets: false
+    },
+    trappist1: {
+        distanceLY: 39,
+        angle: Math.PI * 1.4,
+        elevation: -0.1,
+        color: '#ff6633',
+        starType: 'single',
+        hasPlanets: true
+    },
+    tauCeti: {
+        distanceLY: 11.9,
+        angle: Math.PI * 0.6,
+        elevation: 0.15,
+        color: '#ffdd66',
+        starType: 'single',
+        hasPlanets: true
+    },
+    procyon: {
+        distanceLY: 11.5,
+        angle: Math.PI * 1.1,
+        elevation: -0.2,
+        color: '#ffffcc',
+        starType: 'binary',
+        hasPlanets: false
+    }
+};
+
+// ============ 星系数据 ============
+const galaxyData = {
+    lmc: {
+        name: '大麦哲伦云',
+        nameEn: 'Large Magellanic Cloud',
+        type: '不规则星系',
+        distance: '16万光年',
+        diameter: '1.4万光年',
+        stars: '约300亿颗',
+        description: '银河系最大的卫星星系，肉眼可见于南半球夜空。',
+        funFact: '大麦哲伦云正在与银河系发生引力相互作用，未来可能被银河系吞噬！'
+    },
+    smc: {
+        name: '小麦哲伦云',
+        nameEn: 'Small Magellanic Cloud',
+        type: '不规则矮星系',
+        distance: '20万光年',
+        diameter: '7000光年',
+        stars: '约30亿颗',
+        description: '银河系的另一个卫星星系，与大麦哲伦云是"姐妹星系"。',
+        funFact: '小麦哲伦云是航海家麦哲伦在环球航行时记录的，因此得名！'
+    },
+    andromeda: {
+        name: '仙女座星系',
+        nameEn: 'Andromeda Galaxy (M31)',
+        type: '棒旋星系',
+        distance: '254万光年',
+        diameter: '22万光年',
+        stars: '约1万亿颗',
+        description: '本星系群中最大的星系，肉眼可见的最远天体。',
+        funFact: '仙女座星系正以每秒300公里的速度向银河系靠近，约45亿年后将与银河系碰撞合并！'
+    },
+    triangulum: {
+        name: '三角座星系',
+        nameEn: 'Triangulum Galaxy (M33)',
+        type: '螺旋星系',
+        distance: '300万光年',
+        diameter: '6万光年',
+        stars: '约400亿颗',
+        description: '本星系群第三大星系，拥有活跃的恒星形成区域。',
+        funFact: '三角座星系可能是仙女座星系的卫星星系，它们之间有氢气桥连接！'
+    },
+    sombrero: {
+        name: '草帽星系',
+        nameEn: 'Sombrero Galaxy (M104)',
+        type: '螺旋星系',
+        distance: '2900万光年',
+        diameter: '5万光年',
+        stars: '约8000亿颗',
+        description: '因其独特的侧面视角和明亮的核心而得名。',
+        funFact: '草帽星系的中心黑洞质量是太阳的10亿倍，是银河系中心黑洞的250倍！'
+    },
+    whirlpool: {
+        name: '漩涡星系',
+        nameEn: 'Whirlpool Galaxy (M51)',
+        type: '螺旋星系',
+        distance: '2300万光年',
+        diameter: '6万光年',
+        stars: '约1000亿颗',
+        description: '经典的正面螺旋星系，旋臂结构清晰可见。',
+        funFact: '漩涡星系正在与旁边的小星系NGC 5195发生引力交互，这使它的旋臂特别明显！'
+    },
+    centaurusA: {
+        name: '半人马座A',
+        nameEn: 'Centaurus A',
+        type: '椭圆星系',
+        distance: '1200万光年',
+        diameter: '6万光年',
+        stars: '约3000亿颗',
+        description: '最近的活跃星系核之一，中心喷射强大的射电喷流。',
+        funFact: '半人马座A的射电喷流延伸超过100万光年，是宇宙中最壮观的景象之一！'
+    },
+    antennae: {
+        name: '触须星系',
+        nameEn: 'Antennae Galaxies',
+        type: '碰撞星系',
+        distance: '4500万光年',
+        diameter: '共约10万光年',
+        stars: '数千亿颗',
+        description: '两个正在碰撞合并的螺旋星系，呈现独特的"触须"形态。',
+        funFact: '触须星系是银河系与仙女座星系未来碰撞的预演，展示了星系合并的壮观过程！'
+    }
+};
+
+// ============ 星系渲染配置 ============
+const galaxyRenderConfigs = {
+    lmc: {
+        position: new THREE.Vector3(25000, 3000, -20000),
+        radius: 3500,
+        particleCount: 2000,
+        type: 'irregular',
+        color: { r: 0.6, g: 0.8, b: 1.0 },
+        zone: 'A'
+    },
+    smc: {
+        position: new THREE.Vector3(30000, -2000, -25000),
+        radius: 2000,
+        particleCount: 1500,
+        type: 'irregular',
+        color: { r: 0.7, g: 0.85, b: 1.0 },
+        zone: 'A'
+    },
+    andromeda: {
+        position: new THREE.Vector3(-120000, 10000, 80000),
+        radius: 22000,
+        particleCount: 8000,
+        type: 'spiral',
+        arms: 2,
+        color: { r: 1.0, g: 0.9, b: 0.7 },
+        tilt: { x: 0.3, z: 0.2 },
+        zone: 'A'
+    },
+    triangulum: {
+        position: new THREE.Vector3(-100000, -5000, 120000),
+        radius: 12000,
+        particleCount: 4000,
+        type: 'spiral',
+        arms: 3,
+        color: { r: 0.8, g: 0.9, b: 1.0 },
+        tilt: { x: -0.2, z: 0.4 },
+        zone: 'A'
+    },
+    sombrero: {
+        position: new THREE.Vector3(200000, 30000, -150000),
+        radius: 10000,
+        particleCount: 3000,
+        type: 'spiral',
+        arms: 2,
+        color: { r: 1.0, g: 0.85, b: 0.6 },
+        tilt: { x: 1.4, z: 0.1 }, // 几乎侧面
+        zone: 'B'
+    },
+    whirlpool: {
+        position: new THREE.Vector3(-180000, -20000, -200000),
+        radius: 12000,
+        particleCount: 5000,
+        type: 'spiral',
+        arms: 2,
+        color: { r: 0.9, g: 0.95, b: 1.0 },
+        tilt: { x: 0.1, z: 0.05 }, // 正面
+        zone: 'B'
+    },
+    centaurusA: {
+        position: new THREE.Vector3(150000, -40000, 100000),
+        radius: 12000,
+        particleCount: 3000,
+        type: 'elliptical',
+        color: { r: 1.0, g: 0.8, b: 0.5 },
+        zone: 'B'
+    },
+    antennae: {
+        position: new THREE.Vector3(-250000, 50000, 180000),
+        radius: 15000,
+        particleCount: 4500,
+        type: 'interacting',
+        color: { r: 0.85, g: 0.9, b: 1.0 },
+        zone: 'B'
+    }
+};
+
+// ============ 信息面板内容 ============
+const infoPanelContent = {
+    solarSystem: {
+        title: '🌌 银河系',
+        paragraphs: [
+            '银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。',
+            '太阳系位于<span class="highlight">猎户臂</span>上，距离银河系中心约<span class="highlight">26000光年</span>。',
+            '银河系中心是一个超大质量黑洞——<span class="highlight">人马座A*</span>，质量约为太阳的400万倍。'
+        ]
+    },
+    localNeighbors: {
+        title: '🌌 银河系近邻',
+        paragraphs: [
+            '银河系并不孤独！在它周围有多个<span class="highlight">卫星星系</span>环绕运行。',
+            '<span class="highlight">大麦哲伦云</span>和<span class="highlight">小麦哲伦云</span>是最著名的两个，在南半球可以用肉眼看到。',
+            '这些矮星系正被银河系的引力牵引，未来可能与银河系合并。'
+        ]
+    },
+    solarNeighborhood: {
+        title: '⭐ 太阳系邻域（放大视图）',
+        paragraphs: [
+            '欢迎进入太阳系邻域的<span class="highlight">放大视图</span>！这里展示了太阳周围<span class="highlight">40光年</span>内的恒星邻居。',
+            '<span class="highlight">半人马座α</span>（4.37光年）是最近的恒星系统；<span class="highlight">天狼星</span>（8.6光年）是夜空最亮的恒星。',
+            '虚线表示到太阳的距离。<span class="highlight">绿色光环</span>标记有已确认行星的恒星。点击恒星了解更多！'
+        ]
+    },
+    localGroup: {
+        title: '🌌 本星系群',
+        paragraphs: [
+            '银河系属于<span class="highlight">本星系群</span>，这是一个包含50多个星系的星系集团。',
+            '<span class="highlight">仙女座星系（M31）</span>是本群最大的星系，比银河系还大，正以每秒300公里的速度向我们靠近！',
+            '约<span class="highlight">45亿年后</span>，银河系和仙女座星系将发生壮观的碰撞和合并。'
+        ]
+    },
+    deepSpace: {
+        title: '🌌 宇宙深处',
+        paragraphs: [
+            '在本星系群之外，宇宙中散布着<span class="highlight">数千亿</span>个星系。',
+            '<span class="highlight">草帽星系</span>、<span class="highlight">漩涡星系</span>等都是天文学家最喜爱观测的目标。',
+            '每个星系都是一个包含数十亿到数万亿恒星的"岛宇宙"，可能存在无数行星和生命！'
+        ]
+    }
+};
 
 // ============ 初始化 ============
 function init() {
@@ -25,12 +461,12 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020208);
 
-    // 创建相机
+    // 创建相机（扩展远裁面）
     camera = new THREE.PerspectiveCamera(
         60,
         window.innerWidth / window.innerHeight,
         1,
-        100000
+        1000000
     );
     camera.position.set(0, 12000, 8000);
 
@@ -43,21 +479,25 @@ function init() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // 创建控制器
+    // 创建控制器（扩展最大距离）
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 100;
-    controls.maxDistance = 30000;
+    controls.maxDistance = 500000;
     controls.target.copy(SOLAR_SYSTEM_POS);
 
     // 创建场景内容
     createDistantStars();
+    createCosmicStarField();
     createMilkyWay();
+    createMilkyWayGlow();
     createGalacticCenter();
     createSolarSystemMarker();
     createHeliopause();
     createOortCloud();
+    createExternalGalaxies();
+    createNeighborhoodStarSystems(); // 创建太阳系邻域视图的恒星
     addLights();
 
     // 射线检测器
@@ -68,7 +508,89 @@ function init() {
     window.addEventListener('resize', onWindowResize);
     controls.addEventListener('change', updateScaleIndicator);
     renderer.domElement.addEventListener('click', onCanvasClick);
+    renderer.domElement.addEventListener('mousemove', onMouseMove);
     renderer.domElement.style.cursor = 'pointer';
+
+    // 弹窗关闭按钮事件
+    const closeBtn = document.querySelector('.galaxy-popup-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hideGalaxyPopup);
+    }
+
+    // 恒星系统弹窗关闭按钮事件
+    const starCloseBtn = document.querySelector('.star-popup-close');
+    if (starCloseBtn) {
+        starCloseBtn.addEventListener('click', hideStarSystemPopup);
+    }
+
+    // 点击空白处关闭弹窗
+    document.addEventListener('click', (e) => {
+        const galaxyPopup = document.getElementById('galaxyPopup');
+        const starPopup = document.getElementById('starSystemPopup');
+
+        // 检查是否点击了弹窗外部
+        const clickedOutsideGalaxyPopup = galaxyPopup && galaxyPopup.classList.contains('visible') &&
+            !galaxyPopup.contains(e.target);
+        const clickedOutsideStarPopup = starPopup && starPopup.classList.contains('visible') &&
+            !starPopup.contains(e.target);
+
+        if ((clickedOutsideGalaxyPopup || clickedOutsideStarPopup) &&
+            e.target.closest('#canvas-container')) {
+            // 延迟检查，避免与点击冲突
+            setTimeout(() => {
+                raycaster.setFromCamera(mouse, camera);
+                let hitObject = false;
+
+                // 检查是否点击了恒星系统（包括邻域恒星）
+                for (const starSystem of starSystems) {
+                    if (starSystem.clickTarget && starSystem.visible) {
+                        const intersects = raycaster.intersectObject(starSystem.clickTarget);
+                        if (intersects.length > 0) {
+                            hitObject = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 检查邻域恒星系统（当处于邻域视图时）
+                if (!hitObject && isNeighborhoodView) {
+                    for (const starSystem of neighborhoodStarSystems) {
+                        if (starSystem.clickTarget && starSystem.visible && starSystem.name !== 'neighborhoodSun') {
+                            const intersects = raycaster.intersectObject(starSystem.clickTarget);
+                            if (intersects.length > 0) {
+                                hitObject = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 检查是否点击了星系
+                if (!hitObject) {
+                    for (const galaxy of externalGalaxies) {
+                        if (galaxy.clickTarget && galaxy.visible) {
+                            const intersects = raycaster.intersectObject(galaxy.clickTarget);
+                            if (intersects.length > 0) {
+                                hitObject = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!hitObject) {
+                    hideGalaxyPopup();
+                    hideStarSystemPopup();
+                }
+            }, 50);
+        }
+    });
+
+    // 回到银河系按钮
+    const returnBtn = document.getElementById('returnToMilkyWay');
+    if (returnBtn) {
+        returnBtn.addEventListener('click', returnToMilkyWay);
+    }
 
     // 隐藏加载画面
     setTimeout(() => {
@@ -106,6 +628,35 @@ function createDistantStars() {
 
     starField = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(starField);
+}
+
+// ============ 创建宇宙深空背景星空 ============
+function createCosmicStarField() {
+    const starsGeometry = new THREE.BufferGeometry();
+    const starCount = 15000;
+    const positions = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i++) {
+        const radius = 200000 + Math.random() * 200000;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = radius * Math.cos(phi);
+    }
+
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 3,
+        transparent: true,
+        opacity: 0.4
+    });
+
+    cosmicStarField = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(cosmicStarField);
 }
 
 // ============ 创建银河系 ============
@@ -180,7 +731,7 @@ function createMilkyWay() {
             attribute float size;
             attribute vec3 color;
             varying vec3 vColor;
-            
+
             void main() {
                 vColor = color;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -190,7 +741,7 @@ function createMilkyWay() {
         `,
         fragmentShader: `
             varying vec3 vColor;
-            
+
             void main() {
                 vec2 center = gl_PointCoord - vec2(0.5);
                 float dist = length(center);
@@ -205,6 +756,45 @@ function createMilkyWay() {
 
     milkyWay = new THREE.Points(geometry, material);
     scene.add(milkyWay);
+}
+
+// ============ 创建银河系远距离发光点 ============
+function createMilkyWayGlow() {
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, { r: 0.9, g: 0.85, b: 0.7 }),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.8
+    });
+
+    milkyWayGlow = new THREE.Sprite(spriteMaterial);
+    milkyWayGlow.scale.set(15000, 15000, 1);
+    milkyWayGlow.position.set(0, 0, 0);
+    milkyWayGlow.visible = false; // 初始不可见
+    scene.add(milkyWayGlow);
+}
+
+// ============ 创建发光纹理 ============
+function createGlowTexture(size, color) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    const gradient = ctx.createRadialGradient(
+        size / 2, size / 2, 0,
+        size / 2, size / 2, size / 2
+    );
+    gradient.addColorStop(0, `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)}, 1)`);
+    gradient.addColorStop(0.3, `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)}, 0.5)`);
+    gradient.addColorStop(0.6, `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)}, 0.2)`);
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
 }
 
 // ============ 创建银河系中心黑洞 ============
@@ -232,19 +822,19 @@ function createGalacticCenter() {
         fragmentShader: `
             uniform float time;
             varying vec2 vUv;
-            
+
             void main() {
                 float angle = atan(vUv.y - 0.5, vUv.x - 0.5);
                 float dist = length(vUv - vec2(0.5));
-                
+
                 // 旋转效果
                 float spiral = sin(angle * 6.0 + dist * 20.0 - time * 2.0) * 0.5 + 0.5;
-                
+
                 // 颜色渐变（内热外冷）
                 vec3 innerColor = vec3(1.0, 0.8, 0.3);
                 vec3 outerColor = vec3(0.8, 0.2, 0.5);
                 vec3 color = mix(innerColor, outerColor, dist * 2.0);
-                
+
                 float alpha = (1.0 - dist * 2.0) * spiral * 0.8;
                 gl_FragColor = vec4(color, alpha);
             }
@@ -383,13 +973,13 @@ function createHeliopause() {
             uniform float time;
             varying vec3 vNormal;
             varying vec3 vPosition;
-            
+
             void main() {
                 float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
-                
+
                 // 波动效果
                 float wave = sin(vPosition.x * 0.1 + time) * sin(vPosition.y * 0.1 + time * 0.7) * 0.2 + 0.8;
-                
+
                 vec3 color = vec3(0.2, 0.6, 1.0) * intensity * wave;
                 gl_FragColor = vec4(color, intensity * 0.4);
             }
@@ -447,6 +1037,794 @@ function createOortCloud() {
     scene.add(oortCloud);
 }
 
+// ============ 创建所有外部星系 ============
+function createExternalGalaxies() {
+    for (const [key, config] of Object.entries(galaxyRenderConfigs)) {
+        let galaxyObj;
+
+        switch (config.type) {
+            case 'spiral':
+                galaxyObj = createSpiralGalaxy(key, config);
+                break;
+            case 'elliptical':
+                galaxyObj = createEllipticalGalaxy(key, config);
+                break;
+            case 'irregular':
+                galaxyObj = createIrregularGalaxy(key, config);
+                break;
+            case 'interacting':
+                galaxyObj = createInteractingGalaxies(key, config);
+                break;
+        }
+
+        if (galaxyObj) {
+            galaxyObj.key = key;
+            galaxyObj.config = config;
+            externalGalaxies.push(galaxyObj);
+        }
+    }
+}
+
+// ============ 创建螺旋星系 ============
+function createSpiralGalaxy(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    // 粒子系统
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(config.particleCount * 3);
+    const colors = new Float32Array(config.particleCount * 3);
+    const sizes = new Float32Array(config.particleCount);
+
+    const arms = config.arms || 2;
+    const radius = config.radius;
+
+    for (let i = 0; i < config.particleCount; i++) {
+        const armIndex = i % arms;
+        const armAngle = (armIndex / arms) * Math.PI * 2;
+
+        const distance = Math.pow(Math.random(), 0.5) * radius;
+        const spiralAngle = distance * 0.0008 + armAngle;
+        const spread = (Math.random() - 0.5) * distance * 0.3;
+
+        const x = Math.cos(spiralAngle) * distance + Math.cos(spiralAngle + Math.PI / 2) * spread;
+        const z = Math.sin(spiralAngle) * distance + Math.sin(spiralAngle + Math.PI / 2) * spread;
+        const diskThickness = radius * 0.02 * (1 - distance / radius * 0.5);
+        const y = (Math.random() - 0.5) * diskThickness;
+
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = z;
+
+        const distRatio = distance / radius;
+        const c = config.color;
+        if (distRatio < 0.2) {
+            colors[i * 3] = c.r;
+            colors[i * 3 + 1] = c.g * 0.9;
+            colors[i * 3 + 2] = c.b * 0.6;
+            sizes[i] = 4 + Math.random() * 3;
+        } else {
+            colors[i * 3] = c.r * 0.8;
+            colors[i * 3 + 1] = c.g * 0.9;
+            colors[i * 3 + 2] = c.b;
+            sizes[i] = 2 + Math.random() * 2;
+        }
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+            attribute float size;
+            attribute vec3 color;
+            varying vec3 vColor;
+
+            void main() {
+                vColor = color;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (5000.0 / -mvPosition.z);
+                gl_PointSize = clamp(gl_PointSize, 1.0, 10.0);
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vColor;
+
+            void main() {
+                vec2 center = gl_PointCoord - vec2(0.5);
+                float dist = length(center);
+                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                gl_FragColor = vec4(vColor, alpha * 0.7);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const particles = new THREE.Points(geometry, material);
+
+    // 应用倾角
+    if (config.tilt) {
+        particles.rotation.x = config.tilt.x || 0;
+        particles.rotation.z = config.tilt.z || 0;
+    }
+
+    group.add(particles);
+    group.particles = particles;
+
+    // 创建发光 Sprite（LOD远距离使用）
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, config.color),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.8
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(config.radius * 1.5, config.radius * 1.5, 1);
+    sprite.visible = false;
+    group.add(sprite);
+    group.sprite = sprite;
+
+    // 创建点击目标
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.radius * 0.8);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 创建标签
+    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.6, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
+// ============ 创建椭圆星系 ============
+function createEllipticalGalaxy(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(config.particleCount * 3);
+    const colors = new Float32Array(config.particleCount * 3);
+    const sizes = new Float32Array(config.particleCount);
+
+    for (let i = 0; i < config.particleCount; i++) {
+        // 高斯分布
+        const r = gaussianRandom() * config.radius * 0.4;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        // 椭球形状（y轴压扁）
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.6;
+        positions[i * 3 + 2] = r * Math.cos(phi);
+
+        const c = config.color;
+        const distRatio = r / (config.radius * 0.4);
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g * (1 - distRatio * 0.2);
+        colors[i * 3 + 2] = c.b * (1 - distRatio * 0.3);
+        sizes[i] = 3 + Math.random() * 2;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+            attribute float size;
+            attribute vec3 color;
+            varying vec3 vColor;
+
+            void main() {
+                vColor = color;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (5000.0 / -mvPosition.z);
+                gl_PointSize = clamp(gl_PointSize, 1.0, 10.0);
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vColor;
+
+            void main() {
+                vec2 center = gl_PointCoord - vec2(0.5);
+                float dist = length(center);
+                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                gl_FragColor = vec4(vColor, alpha * 0.6);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const particles = new THREE.Points(geometry, material);
+    group.add(particles);
+    group.particles = particles;
+
+    // 发光 Sprite
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, config.color),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.8
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(config.radius * 1.2, config.radius * 0.8, 1);
+    sprite.visible = false;
+    group.add(sprite);
+    group.sprite = sprite;
+
+    // 点击目标
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.radius * 0.6);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 标签
+    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.5, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
+// ============ 创建不规则星系 ============
+function createIrregularGalaxy(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(config.particleCount * 3);
+    const colors = new Float32Array(config.particleCount * 3);
+    const sizes = new Float32Array(config.particleCount);
+
+    // 创建多个随机团块
+    const clumps = 5 + Math.floor(Math.random() * 5);
+    const clumpCenters = [];
+    for (let c = 0; c < clumps; c++) {
+        clumpCenters.push({
+            x: (Math.random() - 0.5) * config.radius * 0.8,
+            y: (Math.random() - 0.5) * config.radius * 0.3,
+            z: (Math.random() - 0.5) * config.radius * 0.8,
+            size: 0.2 + Math.random() * 0.3
+        });
+    }
+
+    for (let i = 0; i < config.particleCount; i++) {
+        const clump = clumpCenters[Math.floor(Math.random() * clumps)];
+        const r = gaussianRandom() * config.radius * clump.size;
+
+        positions[i * 3] = clump.x + (Math.random() - 0.5) * r;
+        positions[i * 3 + 1] = clump.y + (Math.random() - 0.5) * r * 0.5;
+        positions[i * 3 + 2] = clump.z + (Math.random() - 0.5) * r;
+
+        const c = config.color;
+        // 蓝白色调（活跃恒星形成）
+        colors[i * 3] = c.r * (0.8 + Math.random() * 0.2);
+        colors[i * 3 + 1] = c.g * (0.9 + Math.random() * 0.1);
+        colors[i * 3 + 2] = c.b;
+        sizes[i] = 2 + Math.random() * 2;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+            attribute float size;
+            attribute vec3 color;
+            varying vec3 vColor;
+
+            void main() {
+                vColor = color;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (5000.0 / -mvPosition.z);
+                gl_PointSize = clamp(gl_PointSize, 1.0, 8.0);
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vColor;
+
+            void main() {
+                vec2 center = gl_PointCoord - vec2(0.5);
+                float dist = length(center);
+                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                gl_FragColor = vec4(vColor, alpha * 0.7);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const particles = new THREE.Points(geometry, material);
+    group.add(particles);
+    group.particles = particles;
+
+    // 发光 Sprite
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, config.color),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.7
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(config.radius * 1.2, config.radius * 0.8, 1);
+    sprite.visible = false;
+    group.add(sprite);
+    group.sprite = sprite;
+
+    // 点击目标
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.radius * 0.6);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 标签
+    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.4, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
+// ============ 创建碰撞星系 ============
+function createInteractingGalaxies(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const geometry = new THREE.BufferGeometry();
+    const particlesPerGalaxy = Math.floor(config.particleCount / 2.5);
+    const bridgeParticles = config.particleCount - particlesPerGalaxy * 2;
+    const totalParticles = config.particleCount;
+
+    const positions = new Float32Array(totalParticles * 3);
+    const colors = new Float32Array(totalParticles * 3);
+    const sizes = new Float32Array(totalParticles);
+
+    const offset1 = new THREE.Vector3(-config.radius * 0.3, 0, -config.radius * 0.2);
+    const offset2 = new THREE.Vector3(config.radius * 0.3, config.radius * 0.1, config.radius * 0.2);
+
+    let idx = 0;
+
+    // 第一个螺旋星系
+    for (let i = 0; i < particlesPerGalaxy; i++) {
+        const armIndex = i % 2;
+        const armAngle = (armIndex / 2) * Math.PI * 2;
+        const distance = Math.pow(Math.random(), 0.5) * config.radius * 0.4;
+        const spiralAngle = distance * 0.001 + armAngle;
+        const spread = (Math.random() - 0.5) * distance * 0.3;
+
+        positions[idx * 3] = offset1.x + Math.cos(spiralAngle) * distance + spread * Math.cos(spiralAngle + Math.PI / 2);
+        positions[idx * 3 + 1] = offset1.y + (Math.random() - 0.5) * config.radius * 0.02;
+        positions[idx * 3 + 2] = offset1.z + Math.sin(spiralAngle) * distance + spread * Math.sin(spiralAngle + Math.PI / 2);
+
+        colors[idx * 3] = config.color.r * 0.9;
+        colors[idx * 3 + 1] = config.color.g * 0.95;
+        colors[idx * 3 + 2] = config.color.b;
+        sizes[idx] = 2 + Math.random() * 2;
+        idx++;
+    }
+
+    // 第二个螺旋星系
+    for (let i = 0; i < particlesPerGalaxy; i++) {
+        const armIndex = i % 2;
+        const armAngle = (armIndex / 2) * Math.PI * 2 + Math.PI / 4;
+        const distance = Math.pow(Math.random(), 0.5) * config.radius * 0.35;
+        const spiralAngle = distance * 0.001 + armAngle;
+        const spread = (Math.random() - 0.5) * distance * 0.3;
+
+        positions[idx * 3] = offset2.x + Math.cos(spiralAngle) * distance + spread * Math.cos(spiralAngle + Math.PI / 2);
+        positions[idx * 3 + 1] = offset2.y + (Math.random() - 0.5) * config.radius * 0.02;
+        positions[idx * 3 + 2] = offset2.z + Math.sin(spiralAngle) * distance + spread * Math.sin(spiralAngle + Math.PI / 2);
+
+        colors[idx * 3] = config.color.r;
+        colors[idx * 3 + 1] = config.color.g * 0.9;
+        colors[idx * 3 + 2] = config.color.b * 0.95;
+        sizes[idx] = 2 + Math.random() * 2;
+        idx++;
+    }
+
+    // 连接"触须"桥梁
+    for (let i = 0; i < bridgeParticles; i++) {
+        const t = Math.random();
+        const curve = Math.sin(t * Math.PI) * config.radius * 0.3;
+
+        positions[idx * 3] = offset1.x + (offset2.x - offset1.x) * t + (Math.random() - 0.5) * curve * 0.5;
+        positions[idx * 3 + 1] = offset1.y + (offset2.y - offset1.y) * t + curve * (Math.random() - 0.3);
+        positions[idx * 3 + 2] = offset1.z + (offset2.z - offset1.z) * t + (Math.random() - 0.5) * curve * 0.5;
+
+        colors[idx * 3] = config.color.r * 0.7;
+        colors[idx * 3 + 1] = config.color.g * 0.8;
+        colors[idx * 3 + 2] = config.color.b * 0.9;
+        sizes[idx] = 1.5 + Math.random() * 1.5;
+        idx++;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+            attribute float size;
+            attribute vec3 color;
+            varying vec3 vColor;
+
+            void main() {
+                vColor = color;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (5000.0 / -mvPosition.z);
+                gl_PointSize = clamp(gl_PointSize, 1.0, 8.0);
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vColor;
+
+            void main() {
+                vec2 center = gl_PointCoord - vec2(0.5);
+                float dist = length(center);
+                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                gl_FragColor = vec4(vColor, alpha * 0.7);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const particles = new THREE.Points(geometry, material);
+    group.add(particles);
+    group.particles = particles;
+
+    // 发光 Sprite
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, config.color),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.7
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(config.radius * 1.5, config.radius, 1);
+    sprite.visible = false;
+    group.add(sprite);
+    group.sprite = sprite;
+
+    // 点击目标
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.radius * 0.5);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 标签
+    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.4, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
+// ============ 创建太阳系邻域恒星系统（局部放大视图）============
+function createNeighborhoodStarSystems() {
+    for (const [key, config] of Object.entries(neighborhoodStarConfigs)) {
+        // 计算恒星在邻域视图中的位置
+        // 使用球坐标：距离*比例尺，方位角，仰角
+        const radius = config.distanceLY * NEIGHBORHOOD_SCALE;
+        const x = radius * Math.cos(config.elevation) * Math.cos(config.angle);
+        const y = radius * Math.sin(config.elevation);
+        const z = radius * Math.cos(config.elevation) * Math.sin(config.angle);
+
+        // 位置相对于太阳系位置
+        const position = SOLAR_SYSTEM_POS.clone().add(new THREE.Vector3(x, y, z));
+
+        // 创建恒星标记
+        const starGroup = createNeighborhoodStar(key, config, position);
+
+        if (starGroup) {
+            starGroup.key = key;
+            starGroup.config = config;
+            starGroup.visible = false; // 初始不可见
+            neighborhoodStarSystems.push(starGroup);
+        }
+    }
+
+    // 创建邻域视图中的太阳标记（中心）
+    createNeighborhoodSun();
+}
+
+// ============ 创建邻域视图中的太阳 ============
+function createNeighborhoodSun() {
+    const sunGroup = new THREE.Group();
+    sunGroup.position.copy(SOLAR_SYSTEM_POS);
+    sunGroup.name = 'neighborhoodSun';
+
+    // 太阳核心（适中大小）
+    const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
+    const sunMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffdd00
+    });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    sunGroup.add(sun);
+
+    // 太阳光晕（较小）
+    const glowGeometry = new THREE.SphereGeometry(10, 32, 32);
+    const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                vec3 color = vec3(1.0, 0.9, 0.4) * intensity * 0.6;
+                gl_FragColor = vec4(color, intensity * 0.6);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide
+    });
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    sunGroup.add(glow);
+
+    // 外层光晕（较小）
+    const outerGlowGeometry = new THREE.SphereGeometry(15, 32, 32);
+    const outerGlowMaterial = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(0.4 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                vec3 color = vec3(1.0, 0.7, 0.2) * intensity * 0.5;
+                gl_FragColor = vec4(color, intensity * 0.2);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide
+    });
+    const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
+    sunGroup.add(outerGlow);
+
+    // "太阳" 标签
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 96;
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = 'bold 24px Noto Sans SC';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = '#ffdd00';
+    context.fillText('☀️ 太阳', canvas.width / 2, 35);
+    context.font = '16px Noto Sans SC';
+    context.fillStyle = '#ffffff';
+    context.fillText('你在这里', canvas.width / 2, 65);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true
+    });
+    const label = new THREE.Sprite(spriteMaterial);
+    label.scale.set(40, 15, 1);
+    label.position.set(0, 35, 0);
+    sunGroup.add(label);
+
+    sunGroup.visible = false;
+    scene.add(sunGroup);
+    neighborhoodStarSystems.push(sunGroup);
+}
+
+// ============ 创建邻域视图中的恒星 ============
+function createNeighborhoodStar(key, config, position) {
+    const group = new THREE.Group();
+    group.position.copy(position);
+
+    // 根据恒星类型确定大小
+    let starSize = 5;
+    if (config.starType === 'triple') starSize = 7;
+    else if (config.starType === 'binary') starSize = 6;
+
+    // 主星
+    const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
+    const starMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(config.color)
+    });
+    const star = new THREE.Mesh(starGeometry, starMaterial);
+    group.add(star);
+
+    // 光晕
+    const glowGeometry = new THREE.SphereGeometry(starSize * 1.8, 32, 32);
+    const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            glowColor: { value: new THREE.Color(config.color) }
+        },
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform vec3 glowColor;
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                gl_FragColor = vec4(glowColor, intensity * 0.8);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide
+    });
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    group.add(glow);
+
+    // 如果有行星，添加绿色脉冲环
+    if (config.hasPlanets) {
+        const planetRingGeometry = new THREE.RingGeometry(starSize * 2, starSize * 2.3, 64);
+        const planetRingMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff88,
+            transparent: true,
+            opacity: 0.6,
+            side: THREE.DoubleSide
+        });
+        const planetRing = new THREE.Mesh(planetRingGeometry, planetRingMaterial);
+        planetRing.rotation.x = Math.PI / 2;
+        planetRing.name = 'planetRing';
+        group.add(planetRing);
+    }
+
+    // 距离指示线（从太阳到这颗恒星）
+    const lineGeometry = new THREE.BufferGeometry();
+    const linePositions = new Float32Array([
+        SOLAR_SYSTEM_POS.x, SOLAR_SYSTEM_POS.y, SOLAR_SYSTEM_POS.z,
+        position.x, position.y, position.z
+    ]);
+    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+        color: new THREE.Color(config.color),
+        transparent: true,
+        opacity: 0.2
+    });
+    const distanceLine = new THREE.Line(lineGeometry, lineMaterial);
+    distanceLine.name = 'distanceLine';
+    // 将线添加到场景而不是恒星组（这样位置计算正确）
+    scene.add(distanceLine);
+    group.distanceLine = distanceLine;
+    distanceLine.visible = false;
+
+    // 点击目标
+    const clickTarget = createStarSystemClickTarget(starSize * 3);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 标签（显示名称和距离）
+    const data = starSystemData[key];
+    if (data) {
+        createNeighborhoodStarLabel(group, `${data.name}\n${config.distanceLY}光年`, 0, starSize * 4, 0, key);
+    }
+
+    scene.add(group);
+    return group;
+}
+
+// ============ 创建邻域恒星标签 ============
+function createNeighborhoodStarLabel(parent, text, x, y, z, key) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 96;
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = 'bold 20px Noto Sans SC';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = '#ffffff';
+
+    const lines = text.split('\n');
+    lines.forEach((line, index) => {
+        context.fillText(line, canvas.width / 2, 30 + index * 28);
+    });
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true
+    });
+
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(35, 14, 1);
+    sprite.position.set(x, y, z);
+    sprite.name = 'neighborhoodStarLabel';
+    sprite.starSystemKey = key;
+
+    parent.add(sprite);
+}
+
+// ============ 创建恒星系统点击目标 ============
+function createStarSystemClickTarget(radius) {
+    const geometry = new THREE.SphereGeometry(radius, 16, 16);
+    const material = new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        depthWrite: false
+    });
+    return new THREE.Mesh(geometry, material);
+}
+
+// ============ 创建星系点击目标 ============
+function createGalaxyClickTarget(pos, radius) {
+    const geometry = new THREE.SphereGeometry(radius, 16, 16);
+    const material = new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        depthWrite: false
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.copy(pos);
+    return mesh;
+}
+
+// ============ 创建星系名称标签 ============
+function createGalaxyLabel(parent, text, x, y, z, key) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 512;
+    canvas.height = 128;
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = 'bold 36px Noto Sans SC';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = '#ffffff';
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true
+    });
+
+    const sprite = new THREE.Sprite(material);
+    const config = galaxyRenderConfigs[key];
+    sprite.scale.set(config.radius * 0.8, config.radius * 0.2, 1);
+    sprite.position.set(x, y, z);
+    sprite.name = 'galaxyLabel';
+    sprite.galaxyKey = key;
+
+    parent.add(sprite);
+    galaxyLabels.push(sprite);
+}
+
 // ============ 创建标签 ============
 function createLabel(parent, text, x, y, z) {
     const canvas = document.createElement('canvas');
@@ -486,17 +1864,62 @@ function addLights() {
     scene.add(ambientLight);
 }
 
+// ============ 高斯随机数 (Box-Muller变换) ============
+function gaussianRandom() {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
 // ============ 动画循环 ============
 function animate() {
     requestAnimationFrame(animate);
 
     const elapsed = clock.getElapsedTime();
+    const distance = camera.position.length();
 
     controls.update();
+
+    // 动态调整近裁面（防止深度精度问题）
+    if (distance > 100000) {
+        camera.near = 100;
+    } else if (distance > 10000) {
+        camera.near = 10;
+    } else {
+        camera.near = 1;
+    }
+    camera.updateProjectionMatrix();
+
+    // 动态调整缩放速度
+    if (distance > 100000) {
+        controls.zoomSpeed = 3.0;
+    } else if (distance > 50000) {
+        controls.zoomSpeed = 2.0;
+    } else if (distance > 10000) {
+        controls.zoomSpeed = 1.5;
+    } else {
+        controls.zoomSpeed = 1.0;
+    }
+
+    // 更新控制目标点（远距离时渐变到原点）
+    updateControlsTarget(distance);
 
     // 银河系缓慢旋转
     if (milkyWay) {
         milkyWay.rotation.y += 0.0001;
+    }
+
+    // 银河系 LOD
+    if (milkyWay && milkyWayGlow) {
+        if (distance > 80000) {
+            milkyWay.visible = false;
+            milkyWayGlow.visible = true;
+            milkyWayGlow.material.opacity = Math.min((distance - 80000) / 50000, 0.8);
+        } else {
+            milkyWay.visible = true;
+            milkyWayGlow.visible = false;
+        }
     }
 
     // 更新黑洞吸积盘
@@ -528,7 +1951,60 @@ function animate() {
         oortCloud.rotation.y += 0.0002;
     }
 
+    // 外部星系更新
+    for (const galaxy of externalGalaxies) {
+        // 缓慢旋转
+        if (galaxy.particles) {
+            galaxy.particles.rotation.y += 0.00005;
+        }
+
+        // LOD 切换
+        const galaxyDist = camera.position.distanceTo(galaxy.position);
+        const lodThreshold = galaxy.config.radius * 5;
+
+        if (galaxy.particles && galaxy.sprite) {
+            if (galaxyDist > lodThreshold) {
+                galaxy.particles.visible = false;
+                galaxy.sprite.visible = true;
+                // 透明度随距离变化
+                galaxy.sprite.material.opacity = Math.min(0.8, 0.3 + (galaxyDist - lodThreshold) / lodThreshold * 0.5);
+            } else {
+                galaxy.particles.visible = true;
+                galaxy.sprite.visible = false;
+            }
+        }
+
+        // 可见性控制
+        const zoneDistance = camera.position.length();
+        if (galaxy.config.zone === 'A') {
+            galaxy.visible = zoneDistance > 20000;
+        } else {
+            galaxy.visible = zoneDistance > 150000;
+        }
+    }
+
+    // 恒星系统更新
+    updateStarSystems(elapsed, distance);
+
+    // 更新太阳系邻域视图（多尺度切换）
+    updateNeighborhoodView(elapsed, distance);
+
+    // 更新悬停效果
+    updateGalaxyHover();
+    updateStarSystemHover();
+
     renderer.render(scene, camera);
+}
+
+// ============ 更新控制目标点 ============
+function updateControlsTarget(distance) {
+    // 远距离时平滑过渡控制中心点
+    if (distance > 50000) {
+        const t = Math.min((distance - 50000) / 100000, 1);
+        controls.target.lerpVectors(SOLAR_SYSTEM_POS, new THREE.Vector3(0, 0, 0), t);
+    } else {
+        controls.target.copy(SOLAR_SYSTEM_POS);
+    }
 }
 
 // ============ 窗口大小调整 ============
@@ -540,19 +2016,377 @@ function onWindowResize() {
 
 // ============ 更新比例指示器 ============
 function updateScaleIndicator() {
-    const distance = camera.position.distanceTo(SOLAR_SYSTEM_POS);
+    const distance = camera.position.length();
+    const distToSolarSystem = camera.position.distanceTo(SOLAR_SYSTEM_POS);
     const scaleValue = document.getElementById('scaleValue');
+    let level;
 
-    if (distance > 10000) {
+    // 优先检查：如果接近太阳系，进入邻域视图模式
+    if (distToSolarSystem < NEIGHBORHOOD_THRESHOLD) {
+        if (distToSolarSystem > 100) {
+            scaleValue.textContent = '⭐ 恒星邻域（放大）';
+            level = 3;
+        } else if (distToSolarSystem > 50) {
+            scaleValue.textContent = '太阳系';
+            level = 2;
+        } else {
+            scaleValue.textContent = '太阳系近处';
+            level = 1;
+        }
+    } else if (distance > 200000) {
+        scaleValue.textContent = '宇宙深处';
+        level = 9;
+    } else if (distance > 80000) {
+        scaleValue.textContent = '本星系群';
+        level = 8;
+    } else if (distance > 25000) {
+        scaleValue.textContent = '银河系近邻';
+        level = 7;
+    } else if (distance > 10000) {
         scaleValue.textContent = '银河系全景';
+        level = 6;
     } else if (distance > 3000) {
         scaleValue.textContent = '猎户臂视角';
-    } else if (distance > 500) {
-        scaleValue.textContent = '太阳系邻域';
-    } else if (distance > 150) {
-        scaleValue.textContent = '奥尔特云';
+        level = 5;
     } else {
-        scaleValue.textContent = '日球层';
+        scaleValue.textContent = '太阳系附近';
+        level = 4;
+    }
+
+    // 更新信息面板
+    if (level !== currentZoomLevel) {
+        currentZoomLevel = level;
+        updateInfoPanel(level);
+        updateLegend(level);
+        updateReturnButton(level);
+    }
+}
+
+// ============ 更新信息面板 ============
+function updateInfoPanel(level) {
+    const infoPanel = document.getElementById('infoPanel');
+    const infoContent = infoPanel.querySelector('.info-content');
+    if (!infoContent) return;
+
+    let content;
+    if (level <= 2) {
+        content = infoPanelContent.solarSystem;
+    } else if (level === 3) {
+        // 恒星邻域放大视图
+        content = infoPanelContent.solarNeighborhood;
+    } else if (level === 4 || level === 5) {
+        content = infoPanelContent.solarSystem;
+    } else if (level === 6) {
+        content = infoPanelContent.solarSystem;
+    } else if (level === 7) {
+        content = infoPanelContent.localNeighbors;
+    } else if (level === 8) {
+        content = infoPanelContent.localGroup;
+    } else {
+        content = infoPanelContent.deepSpace;
+    }
+
+    // 淡出动画
+    infoContent.style.opacity = '0';
+
+    setTimeout(() => {
+        infoContent.innerHTML = `
+            <h2>${content.title}</h2>
+            ${content.paragraphs.map(p => `<p>${p}</p>`).join('')}
+        `;
+        // 淡入动画
+        infoContent.style.opacity = '1';
+    }, 300);
+}
+
+// ============ 更新图例 ============
+function updateLegend(level) {
+    const galaxyLegendItems = document.querySelectorAll('.legend-item.galaxy-type');
+    const localLegendItems = document.querySelectorAll('.legend-item.local-type');
+    const starLegendItems = document.querySelectorAll('.legend-item.star-type');
+
+    // 星系类型图例：远距离（level >= 7）
+    galaxyLegendItems.forEach(item => {
+        item.style.display = level >= 7 ? 'flex' : 'none';
+    });
+
+    // 本地类型图例：银河系全景视图
+    localLegendItems.forEach(item => {
+        item.style.display = (level === 6) ? 'flex' : 'none';
+    });
+
+    // 恒星类型图例：恒星邻域放大视图（level === 3）
+    starLegendItems.forEach(item => {
+        item.style.display = (level === 3) ? 'flex' : 'none';
+    });
+}
+
+// ============ 更新返回按钮 ============
+function updateReturnButton(level) {
+    const returnBtn = document.getElementById('returnToMilkyWay');
+    if (returnBtn) {
+        returnBtn.style.display = level >= 7 ? 'flex' : 'none';
+    }
+}
+
+// ============ 返回银河系 ============
+function returnToMilkyWay() {
+    const targetPosition = new THREE.Vector3(0, 12000, 8000);
+    const startPosition = camera.position.clone();
+    const duration = 2000;
+    const startTime = Date.now();
+
+    function animateReturn() {
+        const elapsed = Date.now() - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        // 缓动函数
+        const easeT = 1 - Math.pow(1 - t, 3);
+
+        camera.position.lerpVectors(startPosition, targetPosition, easeT);
+        controls.target.lerpVectors(controls.target.clone(), SOLAR_SYSTEM_POS, easeT);
+
+        if (t < 1) {
+            requestAnimationFrame(animateReturn);
+        }
+    }
+
+    animateReturn();
+}
+
+// ============ 鼠标移动事件 ============
+function onMouseMove(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
+
+// ============ 更新星系悬停效果 ============
+let hoveredGalaxy = null;
+
+function updateGalaxyHover() {
+    raycaster.setFromCamera(mouse, camera);
+
+    let found = null;
+
+    for (const galaxy of externalGalaxies) {
+        if (!galaxy.visible || !galaxy.clickTarget) continue;
+
+        const intersects = raycaster.intersectObject(galaxy.clickTarget);
+        if (intersects.length > 0) {
+            found = galaxy;
+            break;
+        }
+    }
+
+    if (found !== hoveredGalaxy) {
+        // 恢复之前的星系
+        if (hoveredGalaxy && hoveredGalaxy.sprite) {
+            hoveredGalaxy.sprite.material.opacity = 0.8;
+        }
+
+        hoveredGalaxy = found;
+
+        // 高亮新星系
+        if (hoveredGalaxy) {
+            renderer.domElement.style.cursor = 'pointer';
+            if (hoveredGalaxy.sprite && hoveredGalaxy.sprite.visible) {
+                hoveredGalaxy.sprite.material.opacity = 1.0;
+            }
+        } else if (!hoveredStarSystem) {
+            renderer.domElement.style.cursor = 'default';
+        }
+    }
+}
+
+// ============ 恒星系统更新函数 ============
+function updateStarSystems(elapsed, distance) {
+    for (const starSystem of starSystems) {
+        // 可见性控制
+        const config = starSystem.config;
+        let visible = false;
+        let opacity = 1.0;
+
+        if (config.zone === 'A') {
+            // Zone A: 500-3000 距离可见，10000以上淡出
+            if (distance >= 500 && distance <= 10000) {
+                visible = true;
+                if (distance > 3000) {
+                    opacity = 1.0 - (distance - 3000) / 7000;
+                }
+            }
+        } else {
+            // Zone B: 3000-10000 距离可见，25000以上淡出
+            if (distance >= 3000 && distance <= 25000) {
+                visible = true;
+                if (distance > 10000) {
+                    opacity = 1.0 - (distance - 10000) / 15000;
+                }
+            }
+        }
+
+        // 太近时也淡出（< 500）
+        if (distance < 500 && distance >= 150) {
+            visible = true;
+            opacity = (distance - 150) / 350;
+        } else if (distance < 150) {
+            visible = false;
+        }
+
+        starSystem.visible = visible;
+
+        // 更新透明度
+        if (visible) {
+            starSystem.traverse(child => {
+                if (child.material && child.material.opacity !== undefined) {
+                    if (child.name !== 'planetRing') {
+                        child.material.opacity = Math.max(0, Math.min(1, opacity * (child.material.userData?.baseOpacity || 0.8)));
+                    }
+                }
+            });
+        }
+
+        // 行星脉冲环动画
+        const planetRing = starSystem.getObjectByName('planetRing');
+        if (planetRing && visible) {
+            const scale = 1 + Math.sin(elapsed * 2) * 0.15;
+            planetRing.scale.set(scale, scale, 1);
+            planetRing.material.opacity = (0.4 + Math.sin(elapsed * 2) * 0.2) * opacity;
+        }
+
+        // 红超巨星脉动
+        const supergiantGlow = starSystem.getObjectByName('supergiantGlow');
+        if (supergiantGlow && supergiantGlow.material.uniforms) {
+            supergiantGlow.material.uniforms.time.value = elapsed;
+        }
+    }
+}
+
+// ============ 更新太阳系邻域视图（多尺度切换）============
+function updateNeighborhoodView(elapsed, distance) {
+    // 计算相机到太阳系的距离
+    const distToSolarSystem = camera.position.distanceTo(SOLAR_SYSTEM_POS);
+
+    // 判断是否应该进入邻域视图
+    const shouldBeNeighborhood = distToSolarSystem < NEIGHBORHOOD_THRESHOLD;
+
+    // 视图切换
+    if (shouldBeNeighborhood !== isNeighborhoodView) {
+        isNeighborhoodView = shouldBeNeighborhood;
+
+        // 切换银河系尺度恒星系统的可见性
+        for (const starSystem of starSystems) {
+            if (starSystem.config && starSystem.config.zone === 'A') {
+                // Zone A 的恒星在邻域视图中隐藏
+                // （它们会被邻域恒星替代）
+            }
+        }
+    }
+
+    // 计算平滑过渡因子
+    let transitionFactor = 0;
+    if (distToSolarSystem < NEIGHBORHOOD_THRESHOLD) {
+        // 完全进入邻域视图
+        transitionFactor = 1;
+    } else if (distToSolarSystem < NEIGHBORHOOD_THRESHOLD * 1.5) {
+        // 过渡区域
+        transitionFactor = 1 - (distToSolarSystem - NEIGHBORHOOD_THRESHOLD) / (NEIGHBORHOOD_THRESHOLD * 0.5);
+    }
+
+    // 更新邻域恒星系统
+    for (const starSystem of neighborhoodStarSystems) {
+        // 设置可见性
+        starSystem.visible = transitionFactor > 0.1;
+
+        // 设置透明度（平滑过渡）
+        if (starSystem.visible) {
+            starSystem.traverse(child => {
+                if (child.material && child.material.opacity !== undefined) {
+                    if (child.name !== 'planetRing') {
+                        child.material.opacity = transitionFactor * 0.8;
+                    }
+                }
+            });
+
+            // 更新距离线可见性
+            if (starSystem.distanceLine) {
+                starSystem.distanceLine.visible = transitionFactor > 0.5;
+                starSystem.distanceLine.material.opacity = transitionFactor * 0.25;
+            }
+
+            // 行星脉冲环动画
+            const planetRing = starSystem.getObjectByName('planetRing');
+            if (planetRing) {
+                const scale = 1 + Math.sin(elapsed * 2) * 0.15;
+                planetRing.scale.set(scale, scale, 1);
+                planetRing.material.opacity = (0.4 + Math.sin(elapsed * 2) * 0.2) * transitionFactor;
+            }
+        } else {
+            // 隐藏距离线
+            if (starSystem.distanceLine) {
+                starSystem.distanceLine.visible = false;
+            }
+        }
+    }
+
+    // 隐藏银河系尺度的太阳系标记（当进入邻域视图时）
+    if (solarSystem) {
+        // 在邻域视图中淡出原有太阳系标记
+        const solarSystemOpacity = 1 - transitionFactor;
+        solarSystem.traverse(child => {
+            if (child.material && child.material.opacity !== undefined) {
+                if (child.name !== 'pulseRing') {
+                    child.material.opacity = solarSystemOpacity * 0.8;
+                }
+            }
+        });
+
+        // 完全进入邻域视图时隐藏太阳系标记
+        solarSystem.visible = transitionFactor < 0.9;
+    }
+}
+
+// ============ 恒星系统悬停效果 ============
+let hoveredStarSystem = null;
+
+function updateStarSystemHover() {
+    raycaster.setFromCamera(mouse, camera);
+
+    let found = null;
+
+    // 首先检测邻域恒星系统
+    if (isNeighborhoodView) {
+        for (const starSystem of neighborhoodStarSystems) {
+            if (!starSystem.visible || !starSystem.clickTarget) continue;
+            if (starSystem.name === 'neighborhoodSun') continue;
+
+            const intersects = raycaster.intersectObject(starSystem.clickTarget);
+            if (intersects.length > 0) {
+                found = starSystem;
+                break;
+            }
+        }
+    }
+
+    // 然后检测银河系尺度恒星系统
+    if (!found) {
+        for (const starSystem of starSystems) {
+            if (!starSystem.visible || !starSystem.clickTarget) continue;
+
+            const intersects = raycaster.intersectObject(starSystem.clickTarget);
+            if (intersects.length > 0) {
+                found = starSystem;
+                break;
+            }
+        }
+    }
+
+    if (found !== hoveredStarSystem) {
+        hoveredStarSystem = found;
+
+        if (hoveredStarSystem) {
+            renderer.domElement.style.cursor = 'pointer';
+        } else if (!hoveredGalaxy) {
+            renderer.domElement.style.cursor = 'default';
+        }
     }
 }
 
@@ -563,25 +2397,155 @@ function onCanvasClick(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    // 检测太阳系区域的点击
-    if (solarSystem) {
-        const solarSystemObjects = [];
-        solarSystem.traverse(obj => {
-            if (obj.isMesh) solarSystemObjects.push(obj);
-        });
+    // 首先检测邻域恒星系统点击（当处于邻域视图时）
+    if (isNeighborhoodView) {
+        for (const starSystem of neighborhoodStarSystems) {
+            if (!starSystem.visible || !starSystem.clickTarget) continue;
+            // 跳过太阳（neighborhoodSun）
+            if (starSystem.name === 'neighborhoodSun') continue;
 
-        // 也检测日球层和奥尔特云
-        if (heliopause) solarSystemObjects.push(heliopause);
-
-        const intersects = raycaster.intersectObjects(solarSystemObjects);
-
-        if (intersects.length > 0) {
-            // 点击了太阳系区域，跳转到太阳系页面
-            window.location.href = 'solar-system.html';
+            const intersects = raycaster.intersectObject(starSystem.clickTarget);
+            if (intersects.length > 0) {
+                showStarSystemPopup(starSystem.key, event.clientX, event.clientY);
+                return;
+            }
         }
+    }
+
+    // 检测银河系尺度恒星系统点击
+    for (const starSystem of starSystems) {
+        if (!starSystem.visible || !starSystem.clickTarget) continue;
+
+        const intersects = raycaster.intersectObject(starSystem.clickTarget);
+        if (intersects.length > 0) {
+            showStarSystemPopup(starSystem.key, event.clientX, event.clientY);
+            return;
+        }
+    }
+
+    // 检测外部星系点击
+    for (const galaxy of externalGalaxies) {
+        if (!galaxy.visible || !galaxy.clickTarget) continue;
+
+        const intersects = raycaster.intersectObject(galaxy.clickTarget);
+        if (intersects.length > 0) {
+            showGalaxyPopup(galaxy.key, event.clientX, event.clientY);
+            return;
+        }
+    }
+
+    // 太阳系区域点击已禁用（因为添加了附近恒星系统）
+}
+
+// ============ 显示星系弹窗 ============
+function showGalaxyPopup(key, x, y) {
+    const data = galaxyData[key];
+    if (!data) return;
+
+    const popup = document.getElementById('galaxyPopup');
+    if (!popup) return;
+
+    // 填充数据
+    popup.querySelector('.galaxy-popup-name').textContent = data.name;
+    popup.querySelector('.galaxy-popup-name-en').textContent = data.nameEn;
+    popup.querySelector('.stat-type').textContent = data.type;
+    popup.querySelector('.stat-distance').textContent = data.distance;
+    popup.querySelector('.stat-diameter').textContent = data.diameter;
+    popup.querySelector('.stat-stars').textContent = data.stars;
+    popup.querySelector('.galaxy-popup-desc').textContent = data.description;
+    popup.querySelector('.galaxy-popup-funfact').textContent = '💡 ' + data.funFact;
+
+    // 定位弹窗
+    const popupWidth = 360;
+    const popupHeight = 400;
+    let left = x + 20;
+    let top = y - popupHeight / 2;
+
+    // 边界检测
+    if (left + popupWidth > window.innerWidth - 20) {
+        left = x - popupWidth - 20;
+    }
+    if (top < 20) {
+        top = 20;
+    }
+    if (top + popupHeight > window.innerHeight - 20) {
+        top = window.innerHeight - popupHeight - 20;
+    }
+
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+    popup.classList.add('visible');
+}
+
+// ============ 隐藏星系弹窗 ============
+function hideGalaxyPopup() {
+    const popup = document.getElementById('galaxyPopup');
+    if (popup) {
+        popup.classList.remove('visible');
+    }
+}
+
+// ============ 显示恒星系统弹窗 ============
+function showStarSystemPopup(key, x, y) {
+    const data = starSystemData[key];
+    if (!data) return;
+
+    const popup = document.getElementById('starSystemPopup');
+    if (!popup) return;
+
+    // 隐藏星系弹窗
+    hideGalaxyPopup();
+
+    // 填充数据
+    popup.querySelector('.star-popup-name').textContent = data.name;
+    popup.querySelector('.star-popup-name-en').textContent = data.nameEn;
+    popup.querySelector('.star-stat-type').textContent = data.type;
+    popup.querySelector('.star-stat-spectral').textContent = data.spectralType;
+    popup.querySelector('.star-stat-distance').textContent = data.distance;
+    popup.querySelector('.star-stat-brightness').textContent = data.brightness;
+
+    // 行星数量
+    const planetsEl = popup.querySelector('.star-stat-planets');
+    if (data.planets > 0) {
+        planetsEl.textContent = `${data.planets}颗已确认`;
+        planetsEl.style.color = '#00ff88';
+    } else {
+        planetsEl.textContent = '未发现';
+        planetsEl.style.color = '';
+    }
+
+    popup.querySelector('.star-popup-desc').textContent = data.description;
+    popup.querySelector('.star-popup-funfact').textContent = '💡 ' + data.funFact;
+
+    // 定位弹窗
+    const popupWidth = 360;
+    const popupHeight = 420;
+    let left = x + 20;
+    let top = y - popupHeight / 2;
+
+    // 边界检测
+    if (left + popupWidth > window.innerWidth - 20) {
+        left = x - popupWidth - 20;
+    }
+    if (top < 20) {
+        top = 20;
+    }
+    if (top + popupHeight > window.innerHeight - 20) {
+        top = window.innerHeight - popupHeight - 20;
+    }
+
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+    popup.classList.add('visible');
+}
+
+// ============ 隐藏恒星系统弹窗 ============
+function hideStarSystemPopup() {
+    const popup = document.getElementById('starSystemPopup');
+    if (popup) {
+        popup.classList.remove('visible');
     }
 }
 
 // ============ 启动 ============
 window.addEventListener('DOMContentLoaded', init);
-
