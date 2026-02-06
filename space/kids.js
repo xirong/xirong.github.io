@@ -553,15 +553,16 @@ function handleMissionClick(planetName) {
     const task = levelsData[currentLevelIndex].tasks[currentTaskIndex];
     if (task.type === 'click' && task.target === planetName) {
         playSuccessEffect();
-        speak(task.successMessage);
-        setTimeout(() => {
+        const levelId = levelsData[currentLevelIndex].id;
+        playAudio(audioPaths.taskSuccess(levelId, currentTaskIndex + 1), task.successMessage, () => {
             currentTaskIndex++;
             if (currentTaskIndex < levelsData[currentLevelIndex].tasks.length) showNextTask();
             else completeLevel();
-        }, 2000);
+        });
     } else {
         highlightPlanet(task.target);
-        speak("再找找看哦！" + task.hint);
+        const levelId = levelsData[currentLevelIndex].id;
+        playAudio(audioPaths.taskHint(levelId, currentTaskIndex + 1), "再找找看哦！" + task.hint);
     }
 }
 
@@ -627,11 +628,13 @@ function startLevel(index) {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('gameUI').classList.add('visible');
     document.getElementById('optionsPanel').classList.remove('visible');
-    speak(lv.intro);
     // 根据任务目标定位相机
     const target = lv.targets[0];
     focusOnPlanet(target);
-    setTimeout(showNextTask, 2500);
+    // 播放关卡介绍音频，等播完后再显示任务
+    playAudio(audioPaths.levelIntro(lv.id), lv.intro, () => {
+        showNextTask();
+    });
 }
 
 // ============ 显示下一个任务 ============
@@ -656,7 +659,10 @@ function showNextTask() {
         document.getElementById('optionsPanel').classList.remove('visible');
         if (task.target) { highlightPlanet(task.target); focusOnPlanet(task.target); }
     }
-    speak(task.instruction || task.question);
+    // 任务提示语音：使用对应的 hint 音频
+    const levelId = levelsData[currentLevelIndex].id;
+    const hintText = task.instruction || task.question;
+    playAudio(audioPaths.taskHint(levelId, currentTaskIndex + 1), hintText);
 }
 
 // ============ 问答处理 ============
@@ -664,15 +670,15 @@ function handleQuizAnswer(opt, btn, task) {
     if (opt.correct) {
         btn.classList.add('correct');
         playSuccessEffect();
-        speak("太棒了！答对啦！");
-        setTimeout(() => {
+        playAudio(audioPaths.fixed.quizCorrect, "太棒了！答对啦！", () => {
             currentTaskIndex++;
             if (currentTaskIndex < levelsData[currentLevelIndex].tasks.length) showNextTask();
             else completeLevel();
-        }, 1500);
+        });
     } else {
         btn.classList.add('wrong');
-        speak(task.hint);
+        const levelId = levelsData[currentLevelIndex].id;
+        playAudio(audioPaths.taskHint(levelId, currentTaskIndex + 1), task.hint);
         setTimeout(() => btn.classList.remove('wrong'), 500);
     }
 }
@@ -694,7 +700,7 @@ function showReward(lv) {
     document.getElementById('rewardSubtext').textContent = `你获得了${lv.badgeName}！`;
     document.getElementById('rewardOverlay').classList.add('visible');
     createStarsEffect();
-    speak(`恭喜你！获得了${lv.badgeName}！`);
+    playAudio(audioPaths.levelBadge(lv.id), `恭喜你！获得了${lv.badgeName}！`);
 }
 function hideReward() { document.getElementById('rewardOverlay').classList.remove('visible'); }
 
@@ -720,7 +726,7 @@ function showPlanetInfoCard(name) {
     document.getElementById('cardMustKnow').textContent = d.mustKnow;
     document.getElementById('cardFunFact').textContent = d.funFact;
     document.getElementById('planetInfoCard').classList.add('visible');
-    speak(d.mustKnow + " " + d.funFact);
+    playAudio(audioPaths.planetInfo(name), d.mustKnow + " " + d.funFact);
 }
 
 // ============ 相机控制（完全锁定，程序驱动） ============
@@ -778,8 +784,96 @@ function highlightPlanet(name) {
 // Chrome/Safari 存在 bug：speechSynthesis 长时间运行后会自动暂停
 // 需要定时 resume 保持引擎活跃
 let _speechKeepAlive = null;
-function speak(text) {
-    if (!('speechSynthesis' in window)) return;
+
+// 音频缓存
+const audioCache = {};
+// 当前正在播放的音频（用于互斥，避免多个音频同时播放）
+let _currentAudio = null;
+// 音频播放完毕回调
+let _audioEndCallback = null;
+
+// 音频路径配置
+const audioPaths = {
+    fixed: {
+        quizCorrect: 'audio/fixed/quiz-correct.mp3',
+        wordIntro: 'audio/fixed/word-intro.mp3',
+        wordNoTask: 'audio/fixed/word-no-task.mp3'
+    },
+    // 动态生成路径的辅助函数
+    levelIntro: (levelId) => `audio/levels/level-${levelId}-intro.mp3`,
+    levelBadge: (levelId) => `audio/levels/level-${levelId}-badge.mp3`,
+    taskSuccess: (levelId, taskIdx) => `audio/levels/level-${levelId}-task-${taskIdx}-success.mp3`,
+    taskHint: (levelId, taskIdx) => `audio/levels/level-${levelId}-task-${taskIdx}-hint.mp3`,
+    planetInfo: (planetKey) => `audio/planets/${planetKey}-info.mp3`,
+    wordIntroAudio: (char) => `audio/words/${char}-intro.mp3`,
+    wordChar: (char) => `audio/words/${char}-char.mp3`,
+    wordCorrect: (char) => `audio/words/${char}-correct.mp3`,
+    wordWrong: (char) => `audio/words/${char}-wrong.mp3`,
+    planetComplete: (planetKey) => `audio/words/planet-${planetKey}-complete.mp3`
+};
+
+// 停止当前正在播放的音频
+function stopCurrentAudio() {
+    if (_currentAudio) {
+        _currentAudio.pause();
+        _currentAudio.currentTime = 0;
+        _currentAudio.onended = null;
+        _currentAudio.onerror = null;
+        _currentAudio = null;
+    }
+    _audioEndCallback = null;
+    // 同时取消 TTS
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    document.getElementById('audioIndicator').classList.remove('speaking');
+}
+
+// 播放预生成音频，失败时降级到 Web Speech API
+// onEnd 可选回调：音频播放完毕后执行
+function playAudio(audioPath, fallbackText, onEnd) {
+    // 先停掉之前的音频，避免叠加播放
+    stopCurrentAudio();
+
+    // 显示语音指示器
+    const ind = document.getElementById('audioIndicator');
+    document.getElementById('speechText').textContent = fallbackText;
+    ind.classList.add('speaking');
+
+    // 尝试播放预生成音频
+    let audio = audioCache[audioPath];
+    if (!audio) {
+        audio = new Audio(audioPath);
+        audioCache[audioPath] = audio;
+    }
+
+    _currentAudio = audio;
+    _audioEndCallback = onEnd || null;
+
+    audio.currentTime = 0;
+    audio.onended = () => {
+        ind.classList.remove('speaking');
+        _currentAudio = null;
+        if (_audioEndCallback) { const cb = _audioEndCallback; _audioEndCallback = null; cb(); }
+    };
+    audio.onerror = () => {
+        console.log('音频加载失败，使用 TTS 备选:', audioPath);
+        ind.classList.remove('speaking');
+        _currentAudio = null;
+        _audioEndCallback = null;
+        speak(fallbackText, onEnd);  // 降级到原有 TTS，传递回调
+    };
+
+    audio.play().catch(() => {
+        console.log('音频播放失败，使用 TTS 备选:', audioPath);
+        ind.classList.remove('speaking');
+        _currentAudio = null;
+        _audioEndCallback = null;
+        speak(fallbackText, onEnd);
+    });
+}
+
+// 原始 TTS 函数（作为备选）
+function speak(text, onEnd) {
+    if (!('speechSynthesis' in window)) { if (onEnd) onEnd(); return; }
     speechSynthesis.cancel();
     // cancel() 后需要短暂延迟，否则引擎会卡死不发声
     setTimeout(() => {
@@ -789,8 +883,8 @@ function speak(text) {
         const ind = document.getElementById('audioIndicator');
         document.getElementById('speechText').textContent = text;
         ind.classList.add('speaking');
-        u.onend = () => ind.classList.remove('speaking');
-        u.onerror = () => ind.classList.remove('speaking');
+        u.onend = () => { ind.classList.remove('speaking'); if (onEnd) onEnd(); };
+        u.onerror = () => { ind.classList.remove('speaking'); if (onEnd) onEnd(); };
         speechSynthesis.speak(u);
         // Chrome bug: 长utterance播放中引擎会暂停，用定时器持续 resume
         clearInterval(_speechKeepAlive);
@@ -1446,7 +1540,7 @@ function startWordAdventure() {
 
     updateWordProgress();
     animateCameraTo({ x: 100, y: 80, z: 200 }, { x: 0, y: 0, z: 0 });
-    speak('欢迎来到识字探险！点击任意星球开始学习汉字吧！');
+    playAudio(audioPaths.fixed.wordIntro, '欢迎来到识字探险！点击任意星球开始学习汉字吧！');
 }
 
 // ============ 识字探险：退出 ============
@@ -1474,7 +1568,7 @@ function updateWordProgress() {
 function handleWordAdventureClick(planetName) {
     const mappedKey = wordPlanetMapping[planetName];
     if (!mappedKey || !planetWords[mappedKey]) {
-        speak('这个星球暂时没有汉字任务，试试别的星球吧！');
+        playAudio(audioPaths.fixed.wordNoTask, '这个星球暂时没有汉字任务，试试别的星球吧！');
         return;
     }
     currentWordPlanet = mappedKey;
@@ -1524,7 +1618,8 @@ function showWordLearningCard() {
         chip.onclick = () => {
             currentWordIndex = i;
             showWordLearningCard();
-            speak(data.words[i].sentence);
+            const wordData = data.words[i];
+            playAudio(audioPaths.wordIntroAudio(wordData.char), wordData.char + '，' + wordData.pinyin + '。' + wordData.sentence);
         };
         container.appendChild(chip);
     });
@@ -1536,7 +1631,7 @@ function showWordLearningCard() {
     updateWordProgress();
     saveWordProgress();
 
-    speak(word.char + '，' + word.pinyin + '。' + word.sentence);
+    playAudio(audioPaths.wordIntroAudio(word.char), word.char + '，' + word.pinyin + '。' + word.sentence);
 }
 
 // ============ 识字探险：下一个汉字 ============
@@ -1546,7 +1641,8 @@ function nextWord() {
     currentWordIndex++;
     if (currentWordIndex >= data.words.length) {
         // 这个星球的汉字学完了
-        speak('太棒了！' + data.name + '的汉字都学完了！试试别的星球吧！');
+        const planetName = data.name;
+        playAudio(audioPaths.planetComplete(currentWordPlanet), '太棒了！' + planetName + '的汉字都学完了！试试别的星球吧！');
         document.getElementById('wordLearningCard').classList.remove('visible');
         playSuccessEffect();
         return;
@@ -1571,7 +1667,7 @@ function startWordQuiz() {
         document.getElementById('quizPrompt').textContent = '🔊 听一听，选出正确的字';
         document.getElementById('quizCharacter').textContent = '';
         document.getElementById('quizHintText').textContent = '读音：' + correctWord.pinyin;
-        speak(correctWord.char);
+        playAudio(audioPaths.wordChar(correctWord.char), correctWord.char);
     } else {
         // 看字选拼音变为：看情境句选字
         document.getElementById('quizPrompt').textContent = '👀 这个字读什么？';
@@ -1625,7 +1721,7 @@ function handleWordQuizAnswer(selected, correct, btn, container) {
         resultEl.style.color = '#4ecdc4';
         playSuccessEffect();
         wordQuizScore++;
-        speak('太棒了！答对啦！' + correct.char + '，' + correct.sentence);
+        playAudio(audioPaths.wordCorrect(correct.char), '太棒了！答对啦！' + correct.char + '，' + correct.sentence);
     } else {
         btn.classList.add('wrong');
         // 高亮正确答案
@@ -1636,7 +1732,7 @@ function handleWordQuizAnswer(selected, correct, btn, container) {
         });
         resultEl.textContent = '😊 没关系，正确答案是「' + correct.char + '」';
         resultEl.style.color = '#ff9f43';
-        speak('没关系！正确答案是' + correct.char + '。' + correct.sentence);
+        playAudio(audioPaths.wordWrong(correct.char), '没关系！正确答案是' + correct.char + '。' + correct.sentence);
     }
     resultEl.classList.add('visible');
     document.getElementById('quizCloseBtn').style.display = 'inline-block';
@@ -1688,12 +1784,15 @@ function setupWordAdventureEvents() {
         const data = planetWords[currentWordPlanet];
         if (data) {
             const w = data.words[currentWordIndex];
-            speak(w.char + '，' + w.pinyin + '。' + w.sentence);
+            playAudio(audioPaths.wordIntroAudio(w.char), w.char + '，' + w.pinyin + '。' + w.sentence);
         }
     };
     document.getElementById('wlcSentence').onclick = () => {
         const data = planetWords[currentWordPlanet];
-        if (data) speak(data.words[currentWordIndex].sentence);
+        if (data) {
+            const w = data.words[currentWordIndex];
+            playAudio(audioPaths.wordIntroAudio(w.char), w.sentence);
+        }
     };
     document.getElementById('wlcQuizBtn').onclick = startWordQuiz;
     document.getElementById('wlcNextBtn').onclick = nextWord;
