@@ -943,6 +943,11 @@
             showToast(`✅ ${state.info.nameCn} placed!`);
             playSound('success');
 
+            // 播放州介绍语音
+            const info = state.info;
+            const fallbackText = `${info.nameCn}，美食是${info.food.name}，著名景点有${info.landmark.name}。${info.funFact}`;
+            playStateAudio(key, fallbackText);
+
             if (placedCount >= totalStates) {
                 setTimeout(showCompletion, 500);
             }
@@ -1086,6 +1091,39 @@
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
             }, 2000);
+        }
+
+        // ============ 州语音朗读功能 ============
+        // 音频缓存
+        const audioCache = {};
+
+        // 播放州介绍语音
+        function playStateAudio(stateId, fallbackText) {
+            const audioPath = `audio/states/${stateId}.mp3`;
+            let audio = audioCache[audioPath];
+            if (!audio) {
+                audio = new Audio(audioPath);
+                audioCache[audioPath] = audio;
+            }
+
+            audio.currentTime = 0;
+            audio.onerror = () => {
+                console.log('音频加载失败，使用 TTS 备选:', audioPath);
+                speak(fallbackText);
+            };
+            audio.play().catch(() => speak(fallbackText));
+        }
+
+        // Web Speech API 备选
+        function speak(text) {
+            if (!('speechSynthesis' in window)) return;
+            speechSynthesis.cancel();
+            setTimeout(() => {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = 0.9;
+                speechSynthesis.speak(u);
+            }, 50);
         }
 
         function playSound(type) {
