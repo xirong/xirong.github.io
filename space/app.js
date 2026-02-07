@@ -194,6 +194,21 @@ const planetData = {
         orbitRadius: 340,
         moonCount: 5,
         moonInfo: '🌙 卫星(5颗)：冥卫一（卡戎，大小接近冥王星的一半，两者互相潮汐锁定）、冥卫二、冥卫三、冥卫四、冥卫五'
+    },
+    oortCloud: {
+        name: '奥尔特云',
+        nameCN: '奥尔特云',
+        type: '彗星云团',
+        diameter: 200000, // AU（约 30 万亿公里直径）
+        mass: 5, // 约5倍地球质量（估计值）
+        category: 'region',
+        distance: 50000, // AU（到太阳平均距离）
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xaaddff,
+        emissive: 0x334466,
+        description: '☄️ 奥尔特云是太阳系最遥远的边疆！它是一个巨大的球形云团，包裹着整个太阳系，由数万亿颗冰冻天体组成。这些冰块偶尔会被扰动，飞向太阳变成壮观的长周期彗星。奥尔特云距太阳约2000到100000天文单位（AU），光都要走1年多才能到达边缘！如果把太阳系比作一座城市，行星只占客厅，而奥尔特云就是整座城市的边界。',
+        relativeSize: 0
     }
 };
 
@@ -208,6 +223,9 @@ let moon; // 月球（保留兼容）
 let asteroidBelt; // 小行星带
 let satellites = []; // 人造卫星
 let kuiperBelt; // 柯伊伯带
+let oortCloudInner;  // 内奥尔特云粒子
+let oortCloudOuter;  // 外奥尔特云球壳
+let oortCloudBoundary; // 边界标识
 
 // ============ 人造卫星数据 ============
 const satellitesData = [
@@ -279,7 +297,7 @@ function init() {
         60,
         window.innerWidth / window.innerHeight,
         0.1,
-        10000
+        20000
     );
     camera.position.set(150, 100, 250);
 
@@ -299,7 +317,7 @@ function init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 30;
-    controls.maxDistance = 800;
+    controls.maxDistance = 2500;
     controls.enablePan = true;
 
     // 射线检测器
@@ -315,6 +333,7 @@ function init() {
     createArtificialSatellites(); // 创建地球人造卫星
     createAsteroidBelt();
     createKuiperBelt(); // 柯伊伯带
+    createOortCloud(); // 奥尔特云
     createOrbits();
     addLights();
 
@@ -2004,6 +2023,195 @@ function createKuiperBelt() {
     scene.add(kuiperBelt);
 }
 
+// ============ 创建奥尔特云 ============
+function createOortCloud() {
+    // --- 内奥尔特云：球形分布的冰蓝粒子 ---
+    const innerCount = 1500;
+    const innerMinR = 550;
+    const innerMaxR = 900;
+
+    const innerGeo = new THREE.BufferGeometry();
+    const innerPos = new Float32Array(innerCount * 3);
+    const innerColors = new Float32Array(innerCount * 3);
+
+    for (let i = 0; i < innerCount; i++) {
+        // 球形均匀分布
+        const r = innerMinR + Math.random() * (innerMaxR - innerMinR);
+        const theta = Math.acos(2 * Math.random() - 1); // 极角
+        const phi = Math.random() * Math.PI * 2; // 方位角
+
+        innerPos[i * 3] = r * Math.sin(theta) * Math.cos(phi);
+        innerPos[i * 3 + 1] = r * Math.cos(theta);
+        innerPos[i * 3 + 2] = r * Math.sin(theta) * Math.sin(phi);
+
+        // 冰蓝白色，微弱变化
+        const brightness = 0.6 + Math.random() * 0.4;
+        innerColors[i * 3] = brightness * 0.75;
+        innerColors[i * 3 + 1] = brightness * 0.85;
+        innerColors[i * 3 + 2] = brightness;
+    }
+
+    innerGeo.setAttribute('position', new THREE.BufferAttribute(innerPos, 3));
+    innerGeo.setAttribute('color', new THREE.BufferAttribute(innerColors, 3));
+
+    const innerMat = new THREE.PointsMaterial({
+        size: 1.2,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    oortCloudInner = new THREE.Points(innerGeo, innerMat);
+    oortCloudInner.name = 'oortCloudInner';
+    oortCloudInner.visible = false;
+    scene.add(oortCloudInner);
+
+    // --- 外奥尔特云：半透明球壳 (ShaderMaterial) ---
+    const outerRadius = 1200;
+    const outerGeo = new THREE.SphereGeometry(outerRadius, 64, 64);
+
+    const outerMat = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 },
+            opacity: { value: 0 },
+            color: { value: new THREE.Color(0x88bbff) }
+        },
+        vertexShader: `
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                vPosition = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            uniform float opacity;
+            uniform vec3 color;
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            void main() {
+                // 菲涅尔效果：边缘更亮
+                float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
+                // 添加噪声般的明暗变化
+                float noise = sin(vPosition.x * 0.02 + time * 0.3) *
+                              cos(vPosition.y * 0.02 + time * 0.2) *
+                              sin(vPosition.z * 0.02 + time * 0.25);
+                float alpha = (fresnel * 0.15 + 0.02 + noise * 0.03) * opacity;
+                gl_FragColor = vec4(color, alpha);
+            }
+        `,
+        transparent: true,
+        side: THREE.BackSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+
+    oortCloudOuter = new THREE.Mesh(outerGeo, outerMat);
+    oortCloudOuter.name = 'oortCloudOuter';
+    oortCloudOuter.visible = false;
+    scene.add(oortCloudOuter);
+
+    // --- 边界线框：虚线球体 ---
+    const boundaryRadius = 1800;
+    const boundaryGeo = new THREE.SphereGeometry(boundaryRadius, 32, 24);
+    const edges = new THREE.EdgesGeometry(boundaryGeo);
+
+    const boundaryMat = new THREE.LineDashedMaterial({
+        color: 0x6699cc,
+        dashSize: 30,
+        gapSize: 20,
+        transparent: true,
+        opacity: 0
+    });
+
+    oortCloudBoundary = new THREE.LineSegments(edges, boundaryMat);
+    oortCloudBoundary.computeLineDistances();
+    oortCloudBoundary.name = 'oortCloudBoundary';
+    oortCloudBoundary.visible = false;
+    scene.add(oortCloudBoundary);
+}
+
+// ============ 奥尔特云可见性控制 ============
+function updateOortCloudVisibility() {
+    if (!oortCloudInner || !oortCloudOuter || !oortCloudBoundary) return;
+
+    const dist = camera.position.length(); // 距原点的距离
+
+    // 相机距离 < 500: 全部隐藏
+    if (dist < 500) {
+        oortCloudInner.visible = false;
+        oortCloudOuter.visible = false;
+        oortCloudBoundary.visible = false;
+        return;
+    }
+
+    // 500-800: 内奥尔特云渐入
+    if (dist >= 500) {
+        oortCloudInner.visible = true;
+        const innerAlpha = Math.min((dist - 500) / 300, 1.0); // 500→800 线性渐入
+        oortCloudInner.material.opacity = innerAlpha * 0.5;
+    }
+
+    // 800-1200: 外奥尔特云球壳渐入
+    if (dist >= 800) {
+        oortCloudOuter.visible = true;
+        const outerAlpha = Math.min((dist - 800) / 400, 1.0);
+        oortCloudOuter.material.uniforms.opacity.value = outerAlpha;
+    } else {
+        oortCloudOuter.visible = false;
+    }
+
+    // >1000: 边界线框显示
+    if (dist >= 1000) {
+        oortCloudBoundary.visible = true;
+        const boundaryAlpha = Math.min((dist - 1000) / 300, 1.0);
+        oortCloudBoundary.material.opacity = boundaryAlpha * 0.3;
+    } else {
+        oortCloudBoundary.visible = false;
+    }
+}
+
+// ============ 飞向奥尔特云 ============
+function flyToOortCloud() {
+    const targetPosition = new THREE.Vector3(0, 800, 1500);
+    const lookAt = new THREE.Vector3(0, 0, 0);
+    animateCamera(targetPosition, lookAt);
+
+    // 显示信息面板
+    const data = planetData.oortCloud;
+    document.getElementById('planetName').textContent = data.nameCN;
+    document.getElementById('planetType').textContent = data.type;
+    document.getElementById('planetDiameter').textContent = '~30万亿 km';
+    document.getElementById('planetDistance').textContent = '2,000-100,000 AU';
+    document.getElementById('planetOrbitPeriod').textContent = '-';
+    document.getElementById('planetRelativeSize').textContent = '包裹整个太阳系';
+    document.getElementById('planetDescription').textContent = data.description;
+
+    const moonsDiv = document.getElementById('planetMoons');
+    moonsDiv.textContent = '☄️ 包含数万亿颗冰冻天体，是长周期彗星的来源。著名的彗星如海尔-波普彗星就来自奥尔特云！';
+    moonsDiv.style.display = 'block';
+
+    document.getElementById('exploreBtn').classList.remove('visible');
+
+    const colorDot = document.getElementById('planetColorDot');
+    colorDot.style.background = '#aaddff';
+    colorDot.style.boxShadow = '0 0 20px #aaddff';
+
+    document.getElementById('planetInfo').classList.add('visible');
+
+    // 更新选择器
+    document.querySelectorAll('.planet-dot').forEach(dot => {
+        dot.classList.remove('active');
+        if (dot.dataset.planet === 'oortCloud') {
+            dot.classList.add('active');
+        }
+    });
+}
+
 // ============ 创建轨道 ============
 function createOrbits() {
     const planetNames = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
@@ -2180,6 +2388,15 @@ function animate() {
         kuiperBelt.rotation.y += 0.0001;
     }
 
+    // 更新奥尔特云
+    updateOortCloudVisibility();
+    if (oortCloudInner) {
+        oortCloudInner.rotation.y += 0.00005;
+    }
+    if (oortCloudOuter && oortCloudOuter.material.uniforms) {
+        oortCloudOuter.material.uniforms.time.value = elapsed;
+    }
+
     // 渲染
     renderer.render(scene, camera);
 }
@@ -2227,6 +2444,13 @@ function onMouseMove(event) {
 // ============ 选择行星 ============
 function selectPlanet(name) {
     selectedPlanet = name;
+
+    // 奥尔特云特殊处理
+    if (name === 'oortCloud') {
+        flyToOortCloud();
+        return;
+    }
+
     const data = planetData[name];
 
     // 更新UI
@@ -2358,6 +2582,14 @@ function setupControls() {
             selectPlanet(this.dataset.planet);
         });
     });
+
+    // 奥尔特云按钮
+    const oortBtn = document.getElementById('viewOortCloud');
+    if (oortBtn) {
+        oortBtn.addEventListener('click', function () {
+            flyToOortCloud();
+        });
+    }
 
     // 太阳样式选择器
     const sunStyleOptions = document.querySelectorAll('.sun-style-option');
