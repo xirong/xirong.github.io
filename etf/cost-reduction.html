@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>成本降低测算器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-card: #16161f;
+            --border-color: #2a2a3a;
+            --border-glow: #3b82f6;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+            --text-muted: #5a5a70;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+            --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 16px 40px;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 0 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Section Note */
+        .section-note {
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            text-align: center;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-top: 24px;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-grid.two-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .input-field.user-input {
+            background: rgba(16, 185, 129, 0.06);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .input-field.user-input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+
+        .input-field.computed {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: default;
+        }
+
+        /* Highlight Card */
+        .highlight-card {
+            margin-top: 24px;
+            padding: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .highlight-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .highlight-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .highlight-value.positive {
+            color: var(--accent-green);
+        }
+
+        .highlight-value.negative {
+            color: var(--accent-red);
+        }
+
+        .highlight-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .highlight-sub span {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .compare-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .compare-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .compare-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            opacity: 0.6;
+        }
+
+        .compare-card.before::before {
+            background: var(--gradient-danger);
+        }
+
+        .compare-card.after::before {
+            background: var(--gradient-success);
+        }
+
+        .compare-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-item-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .stat-item-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-item-value.positive { color: var(--accent-green); }
+        .stat-item-value.negative { color: var(--accent-red); }
+        .stat-item-value.highlight { color: var(--accent-cyan); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 0 16px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .input-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .input-grid .input-group:last-child:nth-child(odd) {
+                grid-column: 1 / -1;
+            }
+
+            .comparison-section {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .compare-arrow {
+                transform: rotate(90deg);
+            }
+
+            .highlight-value {
+                font-size: 2rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 0 24px 40px;
+            }
+
+            .header {
+                padding: 40px 0 30px;
+            }
+
+            .logo {
+                font-size: 2.25rem;
+            }
+
+            .input-field {
+                font-size: 1.1rem;
+                padding: 14px 16px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-section, .highlight-card, .comparison-section, .footer {
+            animation: fadeIn 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .input-section:nth-of-type(1) { animation-delay: 0.1s; }
+        .input-section:nth-of-type(2) { animation-delay: 0.15s; }
+        .highlight-card { animation-delay: 0.2s; }
+        .comparison-section { animation-delay: 0.25s; }
+        .footer { animation-delay: 0.3s; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">成本降低测算器</h1>
+            <p class="subtitle">Cost Reduction Calculator</p>
+        </header>
+
+        <div class="section-note">
+            只需填写绿色背景的字段，其余自动计算
+        </div>
+
+        <!-- 当前持仓 -->
+        <section class="input-section">
+            <div class="section-label">当前持仓</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label class="input-label">总投入(¥)</label>
+                    <input type="number" class="input-field user-input" id="totalInvest" value="107982.5" step="0.01" placeholder="107982.5">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">持仓份额</label>
+                    <input type="number" class="input-field user-input" id="shares" value="500" step="1" placeholder="500">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">现价(¥)</label>
+                    <input type="number" class="input-field user-input" id="currentPrice" value="150" step="0.01" placeholder="150">
+                </div>
+            </div>
+        </section>
+
+        <!-- 新增申购 -->
+        <section class="input-section">
+            <div class="section-label">新增申购</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label class="input-label">申购单价(¥)</label>
+                    <input type="text" class="input-field computed" id="buyPrice" readonly value="—">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">申购金额(¥)</label>
+                    <input type="number" class="input-field user-input" id="buyAmount" value="45000" step="0.01" placeholder="45000">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">申购数量</label>
+                    <input type="text" class="input-field computed" id="buyQty" readonly value="—">
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心指标 -->
+        <div class="highlight-card">
+            <div class="highlight-label">成本降低幅度</div>
+            <div class="highlight-value" id="costReduction">—</div>
+            <div class="highlight-sub">
+                成本价 <span id="costBefore">—</span> → <span id="costAfter">—</span>
+            </div>
+        </div>
+
+        <!-- 对比展示 -->
+        <div class="comparison-section">
+            <div class="compare-card before">
+                <div class="compare-title">申购前</div>
+                <div class="stat-item">
+                    <span class="stat-item-label">总投入</span>
+                    <span class="stat-item-value" id="cmpTotalBefore">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">持仓份额</span>
+                    <span class="stat-item-value" id="cmpSharesBefore">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">成本价</span>
+                    <span class="stat-item-value highlight" id="cmpCostBefore">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">盈利金额</span>
+                    <span class="stat-item-value" id="cmpProfitBefore">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">盈亏比率</span>
+                    <span class="stat-item-value" id="cmpRatioBefore">—</span>
+                </div>
+            </div>
+
+            <div class="compare-arrow">→</div>
+
+            <div class="compare-card after">
+                <div class="compare-title">申购后</div>
+                <div class="stat-item">
+                    <span class="stat-item-label">总投入</span>
+                    <span class="stat-item-value" id="cmpTotalAfter">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">持仓份额</span>
+                    <span class="stat-item-value" id="cmpSharesAfter">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">成本价</span>
+                    <span class="stat-item-value highlight" id="cmpCostAfter">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">盈利金额</span>
+                    <span class="stat-item-value" id="cmpProfitAfter">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-item-label">盈亏比率</span>
+                    <span class="stat-item-value" id="cmpRatioAfter">—</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>工具仅供参考，投资需谨慎</p>
+            <p style="margin-top: 8px;">
+                <a href="index.html">← 返回工具集</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // ============ 格式化函数 ============
+        function fmtMoney(n) {
+            return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function fmtNum(n, decimals) {
+            return n.toLocaleString('zh-CN', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        }
+
+        function fmtPercent(n) {
+            return n.toFixed(2) + '%';
+        }
+
+        // ============ 颜色类名 ============
+        function profitClass(value) {
+            if (value > 0) return 'positive';
+            if (value < 0) return 'negative';
+            return '';
+        }
+
+        // ============ 主计算 ============
+        function calculate() {
+            var totalInvest = parseFloat(document.getElementById('totalInvest').value) || 0;
+            var shares = parseFloat(document.getElementById('shares').value) || 0;
+            var currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
+            var buyPrice = currentPrice;
+            document.getElementById('buyPrice').value = buyPrice ? fmtNum(buyPrice, 2) : '—';
+            var buyAmount = parseFloat(document.getElementById('buyAmount').value) || 0;
+
+            if (shares === 0 || buyPrice === 0) {
+                return;
+            }
+
+            // 申购前
+            var costPrice = totalInvest / shares;
+            var profit = (currentPrice - costPrice) * shares;
+            var profitRatio = (totalInvest !== 0) ? (profit / totalInvest * 100) : 0;
+
+            // 申购参数
+            var buyQty = buyAmount / buyPrice;
+
+            // 申购后
+            var newTotal = totalInvest + buyAmount;
+            var newShares = shares + buyQty;
+            var newCost = newTotal / newShares;
+            var newProfit = (currentPrice - newCost) * newShares;
+            var newRatio = (newTotal !== 0) ? (newProfit / newTotal * 100) : 0;
+
+            // 成本降低 = 旧盈亏比率 - 新盈亏比率（亏损场景下数值为负，改善时差值也为负）
+            var costReduction = profitRatio - newRatio;
+
+            // 更新申购数量
+            document.getElementById('buyQty').value = fmtNum(buyQty, 2);
+
+            // 核心指标
+            var el = document.getElementById('costReduction');
+            el.textContent = fmtPercent(costReduction);
+            el.className = 'highlight-value ' + (costReduction < 0 ? 'positive' : 'negative');
+
+            document.getElementById('costBefore').textContent = fmtMoney(costPrice);
+            document.getElementById('costAfter').textContent = fmtMoney(newCost);
+
+            // 对比 - 申购前
+            document.getElementById('cmpTotalBefore').textContent = fmtMoney(totalInvest);
+            document.getElementById('cmpSharesBefore').textContent = fmtNum(shares, 2);
+            var costBeforeEl = document.getElementById('cmpCostBefore');
+            costBeforeEl.textContent = fmtMoney(costPrice);
+
+            var profitBeforeEl = document.getElementById('cmpProfitBefore');
+            profitBeforeEl.textContent = fmtMoney(profit);
+            profitBeforeEl.className = 'stat-item-value ' + profitClass(profit);
+
+            var ratioBeforeEl = document.getElementById('cmpRatioBefore');
+            ratioBeforeEl.textContent = fmtPercent(profitRatio);
+            ratioBeforeEl.className = 'stat-item-value ' + profitClass(profitRatio);
+
+            // 对比 - 申购后
+            document.getElementById('cmpTotalAfter').textContent = fmtMoney(newTotal);
+            document.getElementById('cmpSharesAfter').textContent = fmtNum(newShares, 2);
+            var costAfterEl = document.getElementById('cmpCostAfter');
+            costAfterEl.textContent = fmtMoney(newCost);
+
+            var profitAfterEl = document.getElementById('cmpProfitAfter');
+            profitAfterEl.textContent = fmtMoney(newProfit);
+            profitAfterEl.className = 'stat-item-value ' + profitClass(newProfit);
+
+            var ratioAfterEl = document.getElementById('cmpRatioAfter');
+            ratioAfterEl.textContent = fmtPercent(newRatio);
+            ratioAfterEl.className = 'stat-item-value ' + profitClass(newRatio);
+        }
+
+        // ============ 事件绑定 ============
+        document.querySelectorAll('.input-field.user-input').forEach(function(input) {
+            input.addEventListener('input', calculate);
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', calculate);
+    </script>
+</body>
+</html>
