@@ -214,6 +214,7 @@
             padding: 8px 20px;
             display: flex;
             gap: 24px;
+            flex-wrap: wrap;
             font-size: 13px;
             color: rgba(255,255,255,0.8);
         }
@@ -229,6 +230,58 @@
             min-width: 50px;
         }
         .speed-value { color: #4fc3f7; }
+        .status-value {
+            color: #ffeb3b;
+            min-width: 84px;
+        }
+
+        /* ============ 行驶期右上角小地图 ============ */
+        #miniMap {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 20;
+            width: min(340px, 38vw);
+            background: rgba(8, 22, 40, 0.58);
+            border: 1px solid rgba(255,255,255,0.22);
+            border-radius: 14px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+            display: none;
+        }
+        #miniMap.show { display: block; }
+        .mini-map-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #dbe9ff;
+            font-size: 12px;
+            padding: 8px 10px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+        .mini-map-head .tag {
+            color: #9ad8ff;
+            font-weight: 700;
+        }
+        #miniMapContainer {
+            width: 100%;
+            height: 170px;
+            background: rgba(255,255,255,0.04);
+        }
+        #miniMapContainer svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #miniMapCaption {
+            color: rgba(255,255,255,0.82);
+            font-size: 11px;
+            line-height: 1.4;
+            padding: 6px 10px 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
 
         /* ============ 控制按钮 ============ */
         #controls {
@@ -386,6 +439,7 @@
             <span class="info-tag">406 公里</span>
             <span class="info-tag">最高时速 300km/h</span>
             <span class="info-tag">停靠 德州东</span>
+            <span class="info-tag">按 Space 出发</span>
         </div>
         <button id="departBtn">出发！</button>
     </div>
@@ -426,7 +480,24 @@
                 <span>用时</span>
                 <span class="stat-value" id="timeVal">0:00</span>
             </div>
+            <div class="stat-item">
+                <span>状态</span>
+                <span class="stat-value status-value" id="statusVal">准备中</span>
+            </div>
+            <div class="stat-item">
+                <span>倍率</span>
+                <span class="stat-value" id="factorVal">x1.0</span>
+            </div>
         </div>
+    </div>
+
+    <div id="miniMap">
+        <div class="mini-map-head">
+            <span>路线进度图</span>
+            <span class="tag">G879 · 06车 05D</span>
+        </div>
+        <div id="miniMapContainer"></div>
+        <div id="miniMapCaption">北京南 → 德州东 → 济南东</div>
     </div>
 
     <!-- 控制按钮 -->
