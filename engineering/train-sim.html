@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>复兴号高铁模拟（北京南 → 天津南）</title>
+  <link rel="preconnect" href="https://fonts.loli.net">
+  <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+  <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #0b0f14;
+      font-family: 'Noto Sans SC', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    #app { position: fixed; inset: 0; }
+    canvas { display: block; width: 100%; height: 100%; }
+
+    /* ===================== 中国地图 Overlay ===================== */
+    #mapOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: radial-gradient(1200px 800px at 15% 10%, rgba(90, 200, 255, 0.22) 0%, transparent 60%),
+                  radial-gradient(900px 600px at 80% 15%, rgba(120, 255, 170, 0.16) 0%, transparent 55%),
+                  linear-gradient(180deg, rgba(8, 12, 18, 0.70) 0%, rgba(8, 12, 18, 0.35) 55%, rgba(8, 12, 18, 0.10) 100%);
+      transition: background 600ms ease;
+    }
+
+    #mapCard {
+      width: min(920px, calc(100vw - 32px));
+      height: min(640px, calc(100vh - 32px));
+      border-radius: 18px;
+      background: rgba(12, 18, 28, 0.45);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      transition: all 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    #mapTitle {
+      padding: 14px 16px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    }
+    #mapTitle .main {
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    #mapTitle .sub {
+      font-size: 12px;
+      opacity: 0.82;
+      letter-spacing: 0.6px;
+      text-align: right;
+      line-height: 1.35;
+    }
+
+    #mapStage {
+      position: relative;
+      padding: 10px 16px 14px;
+    }
+    #chinaMap {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    #chinaMap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #chinaMap svg .state {
+      transition: fill 200ms ease, stroke 200ms ease, opacity 200ms ease;
+    }
+
+    #tripBanner {
+      padding: 12px 16px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255,255,255,0.88);
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(12,18,28,0.10) 0%, rgba(12,18,28,0.35) 100%);
+    }
+    #tripBanner strong { font-weight: 800; }
+    #tripBanner .pill {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.14);
+      white-space: nowrap;
+    }
+
+    /* 右上角小地图 */
+    #mapOverlay.mini {
+      inset: auto;
+      top: 14px;
+      right: 14px;
+      width: min(340px, 42vw);
+      height: min(240px, 30vw);
+      padding: 0;
+      background: transparent;
+    }
+    #mapOverlay.mini #mapCard {
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      background: rgba(12, 18, 28, 0.30);
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.28);
+      grid-template-rows: 1fr auto;
+    }
+    #mapOverlay.mini #mapTitle { display: none; }
+    #mapOverlay.mini #mapStage { padding: 10px 10px 8px; }
+    #mapOverlay.mini #chinaMap { border-radius: 12px; }
+    #mapOverlay.mini #tripBanner {
+      padding: 8px 10px 10px;
+      font-size: 11px;
+    }
+
+    /* 轻提示 */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 60;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.92);
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transition: opacity 220ms ease, transform 220ms ease;
+      pointer-events: none;
+      user-select: none;
+      text-shadow: 0 8px 26px rgba(0,0,0,0.35);
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    #hud {
+      position: fixed;
+      left: 14px;
+      top: 14px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 12px;
+      line-height: 1.45;
+      letter-spacing: 0.2px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      user-select: none;
+      pointer-events: none;
+      max-width: min(440px, calc(100vw - 28px));
+    }
+    #hud .title {
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      opacity: 0.9;
+    }
+    #hud .hint { margin-top: 8px; opacity: 0.82; }
+    #hud kbd {
+      font: inherit;
+      padding: 1px 6px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(0, 0, 0, 0.22);
+    }
+    #hud .meter {
+      margin-top: 10px;
+      width: 180px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    #hud .meter > div {
+      height: 100%;
+      width: 0%;
+      background: rgba(70, 170, 255, 0.95);
+      border-radius: 999px;
+    }
+    #hud .small { margin-top: 8px; opacity: 0.75; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="mapOverlay">
+    <div id="mapCard">
+      <div id="mapTitle">
+        <div class="main">北京南 → 天津南</div>
+        <div class="sub" id="mapTitleSub">按 Space 出发</div>
+      </div>
+      <div id="mapStage">
+        <div id="chinaMap" aria-label="中国地图"></div>
+      </div>
+      <div id="tripBanner"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <div id="hud">
+    <div class="title">复兴号高铁模拟（北京南 → 天津南）</div>
+    <div class="hint">
+      <div><kbd>Space</kbd> 开始/暂停</div>
+      <div><kbd>1</kbd> 夏日侧视 <kbd>2</kbd> 夏日俯视</div>
+      <div><kbd>↑</kbd>/<kbd>↓</kbd> 调整速度</div>
+    </div>
+    <div class="meter"><div id="speedBar"></div></div>
+    <div class="small" id="readout"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="./train-sim.js"></script>
+</body>
+</html>

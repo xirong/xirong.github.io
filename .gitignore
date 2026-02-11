@@ -1,3 +1,5 @@
 .playwright-mcp/
+.playwright-cli/
+output/playwright/
 CLAUDE.md
 agents.md
