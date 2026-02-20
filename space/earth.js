@@ -91,9 +91,19 @@ function init() {
     window.addEventListener('resize', onWindowResize);
     setupControls();
 
+    // 纹理加载完成后隐藏 loading（使用 LoadingManager 检测）
+    const checkLoaded = setInterval(() => {
+        if (earth && earth.material && earth.material.uniforms &&
+            earth.material.uniforms.dayTexture.value.image) {
+            clearInterval(checkLoaded);
+            document.getElementById('loadingScreen').classList.add('hidden');
+        }
+    }, 100);
+    // 超时兜底：5 秒后强制隐藏
     setTimeout(() => {
+        clearInterval(checkLoaded);
         document.getElementById('loadingScreen').classList.add('hidden');
-    }, 1500);
+    }, 5000);
 
     animate();
 }
@@ -179,14 +189,28 @@ function createSun() {
     sun.add(glow);
 }
 
-// ============ 创建地球 - 改进版 ============
+// ============ 云层球体引用 ============
+let cloudMesh;
+
+// ============ 创建地球 - 纹理贴图版 ============
 function createEarth() {
     const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 128, 128);
+
+    // 纹理加载
+    const textureLoader = new THREE.TextureLoader();
+    const earthDayMap = textureLoader.load('textures/earth_daymap.jpg');
+    const earthNightMap = textureLoader.load('textures/earth_nightmap.jpg');
+    const earthSpecularMap = textureLoader.load('textures/earth_specular.jpg');
+    const earthNormalMap = textureLoader.load('textures/earth_normal.jpg');
+    const earthCloudsMap = textureLoader.load('textures/earth_clouds.jpg');
 
     const earthMaterial = new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
-            sunDirection: { value: new THREE.Vector3(-1, 0, 0) }
+            sunDirection: { value: new THREE.Vector3(-1, 0, 0) },
+            dayTexture: { value: earthDayMap },
+            nightTexture: { value: earthNightMap },
+            specularTexture: { value: earthSpecularMap }
         },
         vertexShader: `
             varying vec3 vNormal;
@@ -194,7 +218,7 @@ function createEarth() {
             varying vec3 vPosition;
             varying vec3 vWorldPosition;
             varying vec3 vWorldNormal;
-            
+
             void main() {
                 vNormal = normalize(normalMatrix * normal);
                 vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
@@ -207,32 +231,20 @@ function createEarth() {
         fragmentShader: `
             uniform float time;
             uniform vec3 sunDirection;
+            uniform sampler2D dayTexture;
+            uniform sampler2D nightTexture;
+            uniform sampler2D specularTexture;
             varying vec3 vNormal;
             varying vec2 vUv;
             varying vec3 vPosition;
             varying vec3 vWorldPosition;
             varying vec3 vWorldNormal;
-            
-            float hash(vec2 p) {
-                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-            }
-            
-            float noise(vec2 p) {
-                vec2 i = floor(p);
-                vec2 f = fract(p);
-                f = f * f * (3.0 - 2.0 * f);
-                float a = hash(i);
-                float b = hash(i + vec2(1.0, 0.0));
-                float c = hash(i + vec2(0.0, 1.0));
-                float d = hash(i + vec2(1.0, 1.0));
-                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-            }
-            
+
             // 检测中国
             float isInChina(float lon, float lat) {
                 if (lon < 73.0 || lon > 135.0 || lat < 18.0 || lat > 54.0) return 0.0;
                 float china = 0.0;
-                
+
                 // 东北
                 if (lat > 40.0 && lat < 54.0 && lon > 119.0 && lon < 135.0) {
                     if (lat > 43.0 && lon > 121.0 && lon < 135.0) {
@@ -300,12 +312,12 @@ function createEarth() {
                 }
                 return china;
             }
-            
+
             // 检测美国本土
             float isInUSA(float lon, float lat) {
                 if (lon < -130.0 || lon > -65.0 || lat < 24.0 || lat > 50.0) return 0.0;
                 float usa = 0.0;
-                
+
                 // 美国本土主体
                 if (lon > -125.0 && lon < -67.0 && lat > 25.0 && lat < 49.0) {
                     usa = 1.0;
@@ -333,176 +345,21 @@ function createEarth() {
                 }
                 return usa;
             }
-            
-            // 大陆检测
-            float getContinentMask(vec2 uv) {
-                float lon = uv.x * 360.0 - 180.0;
-                float lat = (uv.y - 0.5) * 180.0;
-                float land = 0.0;
-                
-                // 中国
-                land = max(land, isInChina(lon, lat));
-                // 美国
-                land = max(land, isInUSA(lon, lat));
-                
-                // 俄罗斯
-                if (lat > 50.0 && lat < 78.0 && lon > 30.0 && lon < 180.0) {
-                    if (isInChina(lon, lat) < 0.5) land = max(land, 0.8);
-                }
-                if (lat > 55.0 && lon > -180.0 && lon < -168.0) land = max(land, 0.75);
-                
-                // 加拿大
-                if (lon > -141.0 && lon < -52.0 && lat > 49.0 && lat < 83.0) land = max(land, 0.8);
-                
-                // 墨西哥和中美洲
-                if (lon > -118.0 && lon < -86.0 && lat > 14.0 && lat < 33.0) {
-                    if (isInUSA(lon, lat) < 0.5) land = max(land, 0.75);
-                }
-                
-                // 欧洲
-                if (lon > -12.0 && lon < 60.0 && lat > 35.0 && lat < 72.0) {
-                    float europe = smoothstep(-12.0, -5.0, lon) * smoothstep(60.0, 50.0, lon);
-                    europe *= smoothstep(35.0, 38.0, lat) * smoothstep(72.0, 68.0, lat);
-                    land = max(land, europe * 0.85);
-                }
-                
-                // 非洲
-                if (lon > -18.0 && lon < 52.0 && lat > -36.0 && lat < 38.0) {
-                    float africa = smoothstep(-18.0, -10.0, lon) * smoothstep(52.0, 45.0, lon);
-                    africa *= smoothstep(-36.0, -32.0, lat) * smoothstep(38.0, 34.0, lat);
-                    land = max(land, africa * 0.88);
-                }
-                
-                // 南美洲
-                if (lon > -82.0 && lon < -34.0 && lat > -58.0 && lat < 15.0) {
-                    float sa = smoothstep(-82.0, -78.0, lon) * smoothstep(-34.0, -38.0, lon);
-                    sa *= smoothstep(-58.0, -54.0, lat) * smoothstep(15.0, 10.0, lat);
-                    land = max(land, sa * 0.85);
-                }
-                
-                // 澳大利亚
-                if (lon > 112.0 && lon < 155.0 && lat > -45.0 && lat < -10.0) {
-                    float aus = smoothstep(112.0, 116.0, lon) * smoothstep(155.0, 150.0, lon);
-                    aus *= smoothstep(-45.0, -42.0, lat) * smoothstep(-10.0, -14.0, lat);
-                    land = max(land, aus * 0.88);
-                }
-                
-                // 日本
-                if (lon > 129.0 && lon < 146.0 && lat > 30.0 && lat < 46.0) {
-                    if (lon > 138.0 && lon < 142.0 && lat > 34.0 && lat < 42.0) land = max(land, 0.82);
-                    if (lon > 139.0 && lon < 146.0 && lat > 41.0 && lat < 46.0) land = max(land, 0.8);
-                    if (lon > 129.0 && lon < 135.0 && lat > 30.0 && lat < 35.0) land = max(land, 0.78);
-                }
-                
-                // 朝鲜半岛
-                if (lon > 124.0 && lon < 130.0 && lat > 33.0 && lat < 43.0) {
-                    float korea = smoothstep(124.0, 126.0, lon) * smoothstep(130.0, 128.5, lon);
-                    korea *= smoothstep(33.0, 35.0, lat);
-                    land = max(land, korea * 0.88);
-                }
-                
-                // 东南亚
-                if (lon > 92.0 && lon < 120.0 && lat > -10.0 && lat < 22.0) {
-                    if (isInChina(lon, lat) < 0.5) land = max(land, 0.75);
-                }
-                
-                // 印度
-                if (lon > 68.0 && lon < 90.0 && lat > 6.0 && lat < 36.0) {
-                    float india = smoothstep(68.0, 72.0, lon) * smoothstep(90.0, 86.0, lon);
-                    india *= smoothstep(6.0, 10.0, lat);
-                    land = max(land, india * 0.88);
-                }
-                
-                // 中东
-                if (lon > 25.0 && lon < 65.0 && lat > 12.0 && lat < 42.0) land = max(land, 0.7);
-                
-                // 格陵兰
-                if (lon > -75.0 && lon < -10.0 && lat > 58.0 && lat < 84.0) {
-                    float greenland = smoothstep(-75.0, -65.0, lon) * smoothstep(-10.0, -20.0, lon);
-                    greenland *= smoothstep(58.0, 62.0, lat) * smoothstep(84.0, 80.0, lat);
-                    land = max(land, greenland * 0.82);
-                }
-                
-                // 南极洲 - 更明显
-                if (lat < -60.0) {
-                    float antarctic = smoothstep(-60.0, -65.0, lat);
-                    // 添加更多细节
-                    float antNoise = noise(uv * 15.0) * 0.2;
-                    antarctic = clamp(antarctic + antNoise, 0.0, 1.0);
-                    land = max(land, antarctic);
-                }
-                
-                // 添加噪声
-                float edgeNoise = noise(uv * 80.0) * 0.06;
-                land += edgeNoise * land * 0.4;
-                
-                return clamp(land, 0.0, 1.0);
-            }
-            
+
             void main() {
                 vec2 uv = vUv;
-                float landMask = getContinentMask(uv);
-                landMask = smoothstep(0.35, 0.65, landMask);
-                
+
                 float lon = uv.x * 360.0 - 180.0;
                 float lat = (uv.y - 0.5) * 180.0;
-                
-                float inChina = isInChina(lon, lat) * landMask;
-                float inUSA = isInUSA(lon, lat) * landMask;
-                
-                // ===== 海洋 - 更真实的深蓝色 =====
-                vec3 deepOcean = vec3(0.01, 0.05, 0.18);
-                vec3 midOcean = vec3(0.02, 0.12, 0.35);
-                vec3 shallowOcean = vec3(0.05, 0.25, 0.5);
-                
-                float oceanDepth = noise(uv * 8.0) * 0.5 + 0.5;
-                vec3 oceanColor = mix(deepOcean, midOcean, oceanDepth);
-                float coastDist = smoothstep(0.25, 0.5, landMask);
-                oceanColor = mix(oceanColor, shallowOcean, coastDist * 0.4);
-                
-                // ===== 陆地 - 更自然的颜色 =====
-                vec3 forest = vec3(0.08, 0.35, 0.12);
-                vec3 grassland = vec3(0.25, 0.45, 0.15);
-                vec3 desert = vec3(0.78, 0.68, 0.42);
-                vec3 mountains = vec3(0.45, 0.38, 0.3);
-                vec3 tundra = vec3(0.55, 0.52, 0.45);
-                
-                float latNorm = abs(uv.y - 0.5) * 2.0;
-                float terrainNoise = noise(uv * 12.0);
-                
-                vec3 landColor = mix(forest, grassland, terrainNoise);
-                
-                // 沙漠带
-                float desertBand = smoothstep(0.12, 0.28, latNorm) * smoothstep(0.42, 0.28, latNorm);
-                landColor = mix(landColor, desert, desertBand * smoothstep(0.45, 0.7, terrainNoise));
-                
-                // 高纬度苔原
-                float tundraBand = smoothstep(0.55, 0.75, latNorm);
-                landColor = mix(landColor, tundra, tundraBand * 0.6);
-                
-                // 山脉
-                float mountainNoise = noise(uv * 25.0);
-                landColor = mix(landColor, mountains, smoothstep(0.6, 0.8, mountainNoise) * 0.4);
-                
-                // ===== 极地冰盖 - 更真实 =====
-                vec3 ice = vec3(0.92, 0.95, 0.98);
-                vec3 snowpack = vec3(0.85, 0.88, 0.92);
-                float polarNorth = smoothstep(0.12, 0.02, uv.y);
-                float polarSouth = smoothstep(0.88, 0.98, uv.y);
-                float polar = max(polarNorth, polarSouth);
-                
-                // 南极洲明显的白色
-                if (lat < -60.0) {
-                    float antarcticIce = smoothstep(-60.0, -68.0, lat);
-                    polar = max(polar, antarcticIce * 0.95);
-                }
-                
-                vec3 polarColor = mix(snowpack, ice, noise(uv * 20.0));
-                
-                // ===== 混合 =====
-                vec3 surfaceColor = mix(oceanColor, landColor, landMask);
-                surfaceColor = mix(surfaceColor, polarColor, polar);
-                
+
+                // 从纹理采样
+                vec3 dayColor = texture2D(dayTexture, uv).rgb;
+                vec3 nightColor = texture2D(nightTexture, uv).rgb;
+                float specular = texture2D(specularTexture, uv).r;
+
+                float inChina = isInChina(lon, lat);
+                float inUSA = isInUSA(lon, lat);
+
                 // ===== 中国边界 - 金色高亮 =====
                 float chinaBorder = 0.0;
                 if (inChina > 0.3) {
@@ -514,7 +371,7 @@ function createEarth() {
                     float gradient = abs(chinaL - chinaR) + abs(chinaU - chinaD);
                     chinaBorder = smoothstep(0.2, 0.8, gradient);
                 }
-                
+
                 // ===== 美国边界 - 蓝色高亮 =====
                 float usaBorder = 0.0;
                 if (inUSA > 0.3) {
@@ -526,54 +383,57 @@ function createEarth() {
                     float gradient = abs(usaL - usaR) + abs(usaU - usaD);
                     usaBorder = smoothstep(0.2, 0.8, gradient);
                 }
-                
-                // 应用边界颜色
-                vec3 chinaBorderColor = vec3(1.0, 0.85, 0.1);  // 金色
-                vec3 usaBorderColor = vec3(0.2, 0.6, 1.0);    // 蓝色
-                surfaceColor = mix(surfaceColor, chinaBorderColor, chinaBorder * 0.85);
-                surfaceColor = mix(surfaceColor, usaBorderColor, usaBorder * 0.85);
-                
-                // ===== 云层 =====
-                float clouds = noise(uv * 5.0 + time * 0.002);
-                clouds += noise(uv * 10.0 - time * 0.001) * 0.5;
-                clouds = smoothstep(0.55, 0.85, clouds * 0.65);
-                surfaceColor = mix(surfaceColor, vec3(0.95), clouds * 0.25);
-                
+
+                // 叠加边界颜色到白天纹理
+                vec3 chinaBorderColor = vec3(1.0, 0.85, 0.1);
+                vec3 usaBorderColor = vec3(0.2, 0.6, 1.0);
+                dayColor = mix(dayColor, chinaBorderColor, chinaBorder * 0.85);
+                dayColor = mix(dayColor, usaBorderColor, usaBorder * 0.85);
+
                 // ===== 大气边缘 =====
                 float fresnel = pow(1.0 - max(dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0), 3.5);
                 vec3 atmosphere = vec3(0.35, 0.65, 1.0);
-                surfaceColor = mix(surfaceColor, atmosphere, fresnel * 0.35);
-                
+                dayColor = mix(dayColor, atmosphere, fresnel * 0.35);
+
+                // 海洋高光（specular 贴图白色 = 海洋）
+                float sunReflect = max(dot(reflect(-normalize(sunDirection), vWorldNormal), normalize(-vWorldPosition)), 0.0);
+                float specHighlight = pow(sunReflect, 20.0) * specular * 0.5;
+                dayColor += vec3(1.0) * specHighlight;
+
                 // ===== 昼夜光照 =====
                 float daylight = dot(vWorldNormal, normalize(sunDirection));
                 float daySide = smoothstep(-0.12, 0.18, daylight);
-                
-                vec3 dayColor = surfaceColor * 1.15;
-                
-                // 夜晚 - 城市灯光
-                vec3 nightColor = surfaceColor * 0.08;
-                float cityLights = noise(uv * 60.0) * landMask * (1.0 - polar);
-                cityLights = smoothstep(0.55, 0.78, cityLights);
-                
-                // 中国城市灯光 - 更亮
-                float chinaLights = cityLights * (1.0 + inChina * 1.5);
-                // 美国城市灯光 - 更亮
-                float usaLights = cityLights * (1.0 + inUSA * 1.5);
-                float totalLights = max(chinaLights, usaLights);
-                
-                nightColor += vec3(1.0, 0.9, 0.5) * totalLights * 0.6;
-                
+
+                // 增亮白天
+                vec3 litDay = dayColor * 1.15;
+
+                // 夜晚 - 从夜景纹理采样城市灯光
+                vec3 nightBase = dayColor * 0.06;
+
+                // 增强中国和美国区域的城市灯光
+                float chinaBoost = 1.0 + inChina * 1.2;
+                float usaBoost = 1.0 + inUSA * 1.2;
+                float regionBoost = max(chinaBoost, usaBoost);
+                nightColor = nightColor * regionBoost;
+
+                // 将城市灯光叠加到夜晚底色上
+                vec3 nightFinal = nightBase + nightColor * 1.5;
+
                 // 夜间边界发光
-                nightColor += chinaBorderColor * chinaBorder * 0.5;
-                nightColor += usaBorderColor * usaBorder * 0.5;
-                
+                nightFinal += chinaBorderColor * chinaBorder * 0.5;
+                nightFinal += usaBorderColor * usaBorder * 0.5;
+
                 // 晨昏线
                 float twilight = smoothstep(-0.12, 0.0, daylight) * smoothstep(0.12, 0.0, daylight);
-                vec3 twilightColor = mix(nightColor, vec3(1.0, 0.45, 0.15), twilight * 0.35);
-                
-                vec3 finalColor = mix(nightColor, dayColor, daySide);
+                vec3 twilightColor = mix(nightFinal, vec3(1.0, 0.45, 0.15), twilight * 0.35);
+
+                vec3 finalColor = mix(nightFinal, litDay, daySide);
                 finalColor = mix(finalColor, twilightColor, twilight);
-                
+
+                // 夜间大气微光
+                float nightFresnel = fresnel * (1.0 - daySide) * 0.15;
+                finalColor += atmosphere * nightFresnel;
+
                 gl_FragColor = vec4(finalColor, 1.0);
             }
         `
@@ -583,6 +443,18 @@ function createEarth() {
     earth.rotation.z = EARTH_TILT;
     earth.position.set(EARTH_ORBIT_RADIUS, 0, 0);
     scene.add(earth);
+
+    // 云层 - 独立球体，可独立旋转
+    const cloudGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.02, 64, 64);
+    const cloudMaterial = new THREE.MeshPhongMaterial({
+        map: earthCloudsMap,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+        side: THREE.DoubleSide
+    });
+    cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+    earth.add(cloudMesh);
 
     // 大气层
     const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.1, 64, 64);
@@ -825,6 +697,11 @@ function animate() {
         earth.material.uniforms.time.value = time;
         const sunDir = new THREE.Vector3().subVectors(sun.position, earth.position).normalize();
         earth.material.uniforms.sunDirection.value = sunDir;
+    }
+
+    // 云层独立旋转（比地球慢，模拟大气流动）
+    if (cloudMesh) {
+        cloudMesh.rotation.y += delta * 0.02;
     }
 
     const speed = delta * animationSpeed;

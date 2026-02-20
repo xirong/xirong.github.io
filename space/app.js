@@ -1175,123 +1175,59 @@ function createPlanets() {
     });
 }
 
-// ============ 创建真实地球 ============
+// ============ 创建真实地球 - 纹理贴图版 ============
 function createRealisticEarth(size) {
     const geometry = new THREE.SphereGeometry(size, 128, 128);
 
-    // 使用着色器创建真实的地球外观
+    // 纹理加载
+    const textureLoader = new THREE.TextureLoader();
+    const earthDayMap = textureLoader.load('textures/earth_daymap.jpg');
+
     const earthMaterial = new THREE.ShaderMaterial({
         uniforms: {
-            time: { value: 0 }
+            time: { value: 0 },
+            dayTexture: { value: earthDayMap },
+            sunDirection: { value: new THREE.Vector3(1, 0, 0) }
         },
         vertexShader: `
+            uniform vec3 sunDirection;
             varying vec3 vNormal;
             varying vec2 vUv;
-            varying vec3 vPosition;
-            
+            varying vec3 vViewDir;
+            varying vec3 vSunDir;
+
             void main() {
                 vNormal = normalize(normalMatrix * normal);
                 vUv = uv;
-                vPosition = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+                vViewDir = normalize(-mvPos.xyz);
+                // 将世界空间的太阳方向转换到视图空间
+                vSunDir = normalize(mat3(viewMatrix) * sunDirection);
+                gl_Position = projectionMatrix * mvPos;
             }
         `,
         fragmentShader: `
             uniform float time;
+            uniform sampler2D dayTexture;
             varying vec3 vNormal;
             varying vec2 vUv;
-            varying vec3 vPosition;
-            
-            // 噪声函数用于生成大陆
-            float hash(vec2 p) {
-                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-            }
-            
-            float noise(vec2 p) {
-                vec2 i = floor(p);
-                vec2 f = fract(p);
-                f = f * f * (3.0 - 2.0 * f);
-                
-                float a = hash(i);
-                float b = hash(i + vec2(1.0, 0.0));
-                float c = hash(i + vec2(0.0, 1.0));
-                float d = hash(i + vec2(1.0, 1.0));
-                
-                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-            }
-            
-            float fbm(vec2 p) {
-                float value = 0.0;
-                float amplitude = 0.5;
-                for (int i = 0; i < 6; i++) {
-                    value += amplitude * noise(p);
-                    p *= 2.0;
-                    amplitude *= 0.5;
-                }
-                return value;
-            }
-            
+            varying vec3 vViewDir;
+            varying vec3 vSunDir;
+
             void main() {
-                vec2 uv = vUv;
-                
-                // 生成大陆形状
-                float continent = fbm(uv * 8.0 + vec2(1.5, 0.5));
-                continent += fbm(uv * 16.0) * 0.3;
-                
-                // 调整大陆分布
-                float landMask = smoothstep(0.45, 0.55, continent);
-                
-                // 海洋颜色 - 深蓝到浅蓝渐变
-                vec3 deepOcean = vec3(0.02, 0.08, 0.25);
-                vec3 shallowOcean = vec3(0.1, 0.3, 0.55);
-                vec3 oceanColor = mix(deepOcean, shallowOcean, fbm(uv * 20.0) * 0.5 + 0.3);
-                
-                // 大陆颜色
-                vec3 forest = vec3(0.1, 0.35, 0.15);      // 森林绿
-                vec3 plains = vec3(0.25, 0.45, 0.2);      // 草原
-                vec3 desert = vec3(0.65, 0.55, 0.35);     // 沙漠
-                vec3 mountains = vec3(0.4, 0.35, 0.3);    // 山脉
-                
-                // 根据位置混合不同地形
-                float terrainNoise = fbm(uv * 12.0 + 3.0);
-                vec3 landColor = mix(forest, plains, terrainNoise);
-                
-                // 添加沙漠区域（赤道附近）
-                float equator = 1.0 - abs(uv.y - 0.5) * 2.0;
-                float desertMask = smoothstep(0.5, 0.7, terrainNoise) * equator;
-                landColor = mix(landColor, desert, desertMask * 0.7);
-                
-                // 添加山脉
-                float mountainNoise = fbm(uv * 25.0);
-                float mountainMask = smoothstep(0.6, 0.75, mountainNoise);
-                landColor = mix(landColor, mountains, mountainMask * 0.5);
-                
-                // 极地冰盖
-                float polar = smoothstep(0.15, 0.0, uv.y) + smoothstep(0.85, 1.0, uv.y);
-                vec3 ice = vec3(0.9, 0.95, 1.0);
-                
-                // 混合海洋和陆地
-                vec3 surfaceColor = mix(oceanColor, landColor, landMask);
-                
-                // 添加冰盖
-                surfaceColor = mix(surfaceColor, ice, polar * 0.8);
-                
-                // 云层效果
-                float clouds = fbm(uv * 6.0 + time * 0.01);
-                clouds = smoothstep(0.4, 0.7, clouds);
-                vec3 cloudColor = vec3(1.0, 1.0, 1.0);
-                surfaceColor = mix(surfaceColor, cloudColor, clouds * 0.4);
-                
-                // 大气散射效果（边缘发蓝光）
-                float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                // 从纹理采样地表颜色，略微提升饱和度
+                vec3 surfaceColor = texture2D(dayTexture, vUv).rgb;
+                surfaceColor *= 1.15;
+
+                // 光照 — 动态太阳方向，朝阳面亮背阳面暗
+                float diff = max(dot(vNormal, vSunDir), 0.0);
+                surfaceColor *= (diff * 0.55 + 0.45);
+
+                // 大气散射 — 仅边缘薄薄一层蓝光，不遮盖纹理
+                float fresnel = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 4.0);
                 vec3 atmosphere = vec3(0.3, 0.6, 1.0);
-                surfaceColor = mix(surfaceColor, atmosphere, fresnel * 0.4);
-                
-                // 光照
-                vec3 lightDir = normalize(vec3(-1.0, 0.3, 0.5));
-                float diff = max(dot(vNormal, lightDir), 0.0);
-                surfaceColor *= (diff * 0.6 + 0.4);
-                
+                surfaceColor = mix(surfaceColor, atmosphere, fresnel * 0.15);
+
                 gl_FragColor = vec4(surfaceColor, 1.0);
             }
         `
@@ -1299,13 +1235,26 @@ function createRealisticEarth(size) {
 
     const earth = new THREE.Mesh(geometry, earthMaterial);
 
-    // 添加大气层光晕
-    const atmosphereGeometry = new THREE.SphereGeometry(size * 1.15, 64, 64);
+    // 云层独立球体 — 降低不透明度，避免遮盖纹理
+    const cloudGeometry = new THREE.SphereGeometry(size * 1.015, 64, 64);
+    const cloudMaterial = new THREE.MeshPhongMaterial({
+        map: textureLoader.load('textures/earth_clouds.jpg'),
+        transparent: true,
+        opacity: 0.2,
+        depthWrite: false,
+        side: THREE.DoubleSide
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+    earth.add(cloudMesh);
+    earth.userData.cloudMesh = cloudMesh;
+
+    // 添加大气层光晕 — 更薄更紧贴，只做边缘淡蓝勾边
+    const atmosphereGeometry = new THREE.SphereGeometry(size * 1.08, 64, 64);
     const atmosphereMaterial = new THREE.ShaderMaterial({
         uniforms: {},
         vertexShader: `
             varying vec3 vNormal;
-            
+
             void main() {
                 vNormal = normalize(normalMatrix * normal);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -1313,11 +1262,11 @@ function createRealisticEarth(size) {
         `,
         fragmentShader: `
             varying vec3 vNormal;
-            
+
             void main() {
-                float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
+                float intensity = pow(0.55 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
                 vec3 atmosphereColor = vec3(0.3, 0.6, 1.0);
-                gl_FragColor = vec4(atmosphereColor, intensity * 0.6);
+                gl_FragColor = vec4(atmosphereColor, intensity * 0.35);
             }
         `,
         transparent: true,
@@ -2311,9 +2260,16 @@ function animate() {
                 planet.rotation.z = Math.PI / 2;
             }
 
-            // 更新地球shader时间
+            // 更新地球shader时间 + 太阳方向 + 云层旋转
             if (name === 'earth' && planet.material.uniforms) {
                 planet.material.uniforms.time.value = elapsed;
+                // 计算从地球指向太阳（原点）的方向
+                const sunDir = new THREE.Vector3()
+                    .copy(planet.position).negate().normalize();
+                planet.material.uniforms.sunDirection.value.copy(sunDir);
+                if (planet.userData.cloudMesh) {
+                    planet.userData.cloudMesh.rotation.y += 0.0003;
+                }
             }
 
             // 更新木星shader时间（大红斑动画）
