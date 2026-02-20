@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>卡冈图雅 3D - 柳智天的宇宙课堂</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; overflow: hidden; font-family: 'Noto Sans SC', sans-serif; }
+        canvas { display: block; }
+
+        .loading {
+            position: fixed; inset: 0; z-index: 999; background: #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        .loading.done { opacity: 0; pointer-events: none; }
+        .ld-ring {
+            width: 80px; height: 80px; position: relative;
+        }
+        .ld-ring .r {
+            position: absolute; inset: 0; border: 3px solid transparent;
+            border-top-color: #ffcc66; border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        .ld-ring .r:nth-child(2) {
+            inset: 12px; border-top-color: #fff;
+            animation-duration: 1.8s; animation-direction: reverse;
+        }
+        .ld-ring .core {
+            position: absolute; inset: 25px;
+            background: radial-gradient(circle, #000 50%, transparent);
+            border-radius: 50%;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .ld-text { margin-top: 20px; color: rgba(255,255,255,0.4); font-size: 0.85rem; letter-spacing: 2px; }
+
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .header > * { pointer-events: auto; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            width: 42px; height: 42px;
+            background: radial-gradient(circle, #000 30%, #ffaa44 55%, #663300 100%);
+            border-radius: 50%; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(255,170,68,0.5);
+        }
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 1.2rem;
+            background: linear-gradient(90deg, #ffcc66, #fff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: 2px;
+        }
+        .logo p { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+
+        .hint {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            z-index: 100; padding: 8px 18px;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; color: rgba(255,255,255,0.4);
+            font-size: 0.75rem; backdrop-filter: blur(8px);
+            transition: opacity 2s ease; pointer-events: none;
+        }
+        .hint.hide { opacity: 0; }
+
+        .home-link {
+            position: fixed; bottom: 24px; left: 24px; z-index: 100;
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 16px; background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.8rem;
+            backdrop-filter: blur(8px); transition: all 0.3s ease;
+        }
+        .home-link:hover { color: #fff; border-color: #ffcc66; }
+
+        /* 知识标注 */
+        .annotations {
+            position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+            z-index: 100; display: flex; flex-direction: column; gap: 8px;
+        }
+        .ann-btn {
+            padding: 8px 14px; background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,200,100,0.2); border-radius: 12px;
+            color: rgba(255,255,255,0.6); font-size: 0.75rem;
+            cursor: pointer; backdrop-filter: blur(8px);
+            transition: all 0.3s ease; text-align: left;
+        }
+        .ann-btn:hover { border-color: #ffcc66; color: #fff; background: rgba(255,170,68,0.15); }
+        .ann-btn .ann-title { font-weight: 700; margin-bottom: 2px; }
+        .ann-btn .ann-desc { font-size: 0.65rem; color: rgba(255,255,255,0.35); line-height: 1.4; }
+
+        @media (max-width: 600px) {
+            .logo h1 { font-size: 1rem; }
+            .logo p { display: none; }
+            .annotations { right: 10px; }
+            .ann-btn { padding: 6px 10px; font-size: 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="ld-ring"><div class="r"></div><div class="r"></div><div class="core"></div></div>
+        <div class="ld-text">正在构建黑洞...</div>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🕳️</div>
+            <div>
+                <h1>GARGANTUA</h1>
+                <p>3D 交互 · 纯代码生成</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="annotations" id="annotations">
+        <div class="ann-btn" data-target="singularity">
+            <div class="ann-title">⚫ 奇点</div>
+            <div class="ann-desc">所有质量压缩到无限小的一个点</div>
+        </div>
+        <div class="ann-btn" data-target="horizon">
+            <div class="ann-title">🔴 事件视界</div>
+            <div class="ann-desc">越过就回不来了，连光也不行</div>
+        </div>
+        <div class="ann-btn" data-target="photon">
+            <div class="ann-title">💫 光子环</div>
+            <div class="ann-desc">光绕着黑洞转圈形成的光环</div>
+        </div>
+        <div class="ann-btn" data-target="disk">
+            <div class="ann-title">🌀 吸积盘</div>
+            <div class="ann-desc">被吸入的物质旋转形成的超高温盘</div>
+        </div>
+        <div class="ann-btn" data-target="lens">
+            <div class="ann-title">🔮 引力透镜</div>
+            <div class="ann-desc">黑洞弯曲背后的光线形成的弧</div>
+        </div>
+    </div>
+
+    <div class="hint" id="hint">拖拽旋转 / 滚轮缩放 / 双指捏合</div>
+    <a class="home-link" href="blackhole.html">← 返回黑洞探索</a>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script>
+    // ============ 等待 Three.js 加载 ============
+    function waitForThree() {
+        return new Promise(resolve => {
+            if (window.THREE && THREE.EffectComposer) { resolve(); return; }
+            const check = setInterval(() => {
+                if (window.THREE && THREE.EffectComposer) { clearInterval(check); resolve(); }
+            }, 50);
+        });
+    }
+
+    waitForThree().then(init);
+
+    function init() {
+    // ============ 场景 ============
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x010204);
+
+    const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 500);
+    camera.position.set(0, 4, 15);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    document.body.appendChild(renderer.domElement);
+
+    // ============ 后处理（辉光） ============
+    const composer = new THREE.EffectComposer(renderer);
+    composer.addPass(new THREE.RenderPass(scene, camera));
+
+    const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(W, H),
+        1.0,   // 辉光强度
+        0.35,  // 辉光半径
+        0.3    // 辉光阈值（只有真正亮的才发光）
+    );
+    composer.addPass(bloomPass);
+
+    // ============ 控制器 ============
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 5;
+    controls.maxDistance = 40;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.3;
+    controls.target.set(0, 0, 0);
+    controls.addEventListener('start', () => { controls.autoRotate = false; });
+
+    // ============ 常量 ============
+    const SR = 2.0;          // 黑洞球半径（事件视界）
+    const DISK_IN = 3.6;     // 吸积盘内半径（> ISCO，留足黑暗间隙避免 bloom 淹没中心）
+    const DISK_OUT = 12;     // 吸积盘外半径
+
+    // ============ 星际穿越色板 ============
+    // 参考电影中卡冈图雅的温暖金橙色调
+    const COL = {
+        hotWhite:  [1.0,  0.95, 0.85],   // 内侧最热区域
+        warmGold:  [1.0,  0.75, 0.35],   // 金色主调
+        deepOrange:[0.9,  0.45, 0.1],    // 深橙色
+        dimRed:    [0.4,  0.15, 0.05],   // 暗红外缘
+        photon:    [1.0,  0.9,  0.7],    // 光子环
+    };
+
+    // 颜色插值
+    function lerpColor(a, b, t) {
+        return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
+    }
+
+    // ============ 黑洞球体（事件视界） ============
+    const bhGeo = new THREE.SphereGeometry(SR, 64, 64);
+    const bhMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const bhSphere = new THREE.Mesh(bhGeo, bhMat);
+    scene.add(bhSphere);
+
+    // 稍大的遮罩球防止透视穿透
+    const maskGeo = new THREE.SphereGeometry(SR * 1.003, 64, 64);
+    const maskMat = new THREE.MeshBasicMaterial({ color: 0x000000, depthWrite: true });
+    scene.add(new THREE.Mesh(maskGeo, maskMat));
+
+    // ============ 旋转组 ============
+    const diskGroup = new THREE.Group();
+    scene.add(diskGroup);
+
+    // ============ 光子环 ============
+    // Three.js TorusGeometry 默认在 XY 平面，必须旋转到 XZ 平面（与吸积盘同平面）
+    // 外光子环（较粗，金色辉光）
+    const photonRing1 = new THREE.Mesh(
+        new THREE.TorusGeometry(SR * 1.04, 0.04, 16, 256),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.3, 0.9) })
+    );
+    photonRing1.rotation.x = -Math.PI / 2; // 旋转到水平面
+    diskGroup.add(photonRing1);
+
+    // 内光子环（极细，稍亮）
+    const photonRing2 = new THREE.Mesh(
+        new THREE.TorusGeometry(SR * 1.015, 0.015, 12, 256),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(2.0, 1.8, 1.4) })
+    );
+    photonRing2.rotation.x = -Math.PI / 2; // 旋转到水平面
+    diskGroup.add(photonRing2);
+
+    // ============ 吸积盘（带多普勒效应） ============
+    function createDisk() {
+        const segsR = 8;
+        const segsT = 300;
+        const geom = new THREE.RingGeometry(DISK_IN, DISK_OUT, segsT, segsR);
+
+        const pos = geom.attributes.position;
+        const colors = new Float32Array(pos.count * 3);
+
+        for (let i = 0; i < pos.count; i++) {
+            const x = pos.getX(i), y = pos.getY(i);
+            const r = Math.sqrt(x * x + y * y);
+            const t = Math.max(0, Math.min(1, (r - DISK_IN) / (DISK_OUT - DISK_IN)));
+
+            // 亮度衰减（内亮外暗，降低峰值避免 bloom 扩散到黑洞中心）
+            const baseBright = Math.pow(1 - t, 2.0) * 1.8;
+
+            // 多普勒效应：右侧接近观察者（更亮更蓝移），左侧远离（更暗更红移）
+            const angle = Math.atan2(y, x);
+            const doppler = 1.0 + 0.35 * Math.cos(angle); // 右侧增亮35%
+
+            const bright = baseBright * doppler;
+
+            // 色温渐变
+            let col;
+            if (t < 0.15) {
+                col = lerpColor(COL.hotWhite, COL.warmGold, t / 0.15);
+            } else if (t < 0.5) {
+                col = lerpColor(COL.warmGold, COL.deepOrange, (t - 0.15) / 0.35);
+            } else {
+                col = lerpColor(COL.deepOrange, COL.dimRed, (t - 0.5) / 0.5);
+            }
+
+            colors[i * 3]     = bright * col[0];
+            colors[i * 3 + 1] = bright * col[1];
+            colors[i * 3 + 2] = bright * col[2];
+        }
+        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        return geom;
+    }
+
+    const disk = new THREE.Mesh(createDisk(), new THREE.MeshBasicMaterial({
+        vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.95,
+    }));
+    disk.rotation.x = -Math.PI / 2;
+    diskGroup.add(disk);
+
+    // 外围极淡辉光延伸
+    const outerGlowGeom = new THREE.RingGeometry(DISK_OUT * 0.85, DISK_OUT * 1.6, 128, 2);
+    const ogPos = outerGlowGeom.attributes.position;
+    const ogCol = new Float32Array(ogPos.count * 3);
+    for (let i = 0; i < ogPos.count; i++) {
+        const x = ogPos.getX(i), y = ogPos.getY(i);
+        const r = Math.sqrt(x * x + y * y);
+        const t = (r - DISK_OUT * 0.85) / (DISK_OUT * 0.75);
+        const b = Math.max(0, 0.12 * (1 - t));
+        ogCol[i*3] = b * 0.9; ogCol[i*3+1] = b * 0.5; ogCol[i*3+2] = b * 0.15;
+    }
+    outerGlowGeom.setAttribute('color', new THREE.BufferAttribute(ogCol, 3));
+    const outerGlow = new THREE.Mesh(outerGlowGeom, new THREE.MeshBasicMaterial({
+        vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.45,
+    }));
+    outerGlow.rotation.x = -Math.PI / 2;
+    diskGroup.add(outerGlow);
+
+    // ============ 内侧高温发光环 ============
+    const innerGlow = new THREE.Mesh(
+        new THREE.TorusGeometry(DISK_IN * 0.98, 0.06, 16, 200),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(1.4, 1.1, 0.7) })
+    );
+    innerGlow.rotation.x = Math.PI / 2;
+    diskGroup.add(innerGlow);
+
+    // ============ 引力透镜弧 ============
+    // 核心物理：引力透镜弧是"视错觉"——远处盘面的光绕黑洞弯曲后投射到观察者眼中
+    // 只有从接近盘面（侧面）的角度才能看到，从俯视角度不会出现
+    // 因此需要根据相机仰角动态调整弧的不透明度
+    function createLensingArc(yScale, halfWidth, innerR, brightness, colorMix) {
+        const segs = 200;
+        const verts = [];
+        const cols = [];
+        const idxs = [];
+
+        for (let i = 0; i <= segs; i++) {
+            const t = i / segs;         // 0→1 沿弧线
+            const a = t * Math.PI;      // 0→π 半圆
+
+            // 弧线路径：半椭圆，x轴方向跨越盘面
+            const cosA = Math.cos(a);
+            const sinA = Math.sin(a);
+            const x = innerR * cosA;
+            const y = SR * yScale * sinA;
+
+            // 弧线宽度：两端连接盘面处较宽，顶部较窄
+            const hw = halfWidth * (0.5 + 0.5 * Math.pow(sinA, 0.3));
+
+            // 亮度：两端（连接盘面）更亮 + 中间部分也有辉光
+            const edgeBright = Math.pow(Math.abs(cosA), 0.4);
+            const centerBright = Math.pow(sinA, 0.6);
+            const b = brightness * (0.4 * edgeBright + 0.7 * centerBright);
+
+            // 色温：用 colorMix 控制金色 vs 白色的比例
+            const col = lerpColor(COL.warmGold, COL.hotWhite, colorMix * sinA);
+
+            // 上下两个顶点（z方向展开宽度）
+            verts.push(x, y, -hw, x, y, hw);
+            cols.push(
+                b * col[0], b * col[1], b * col[2],
+                b * col[0], b * col[1], b * col[2]
+            );
+
+            if (i < segs) {
+                const base = i * 2;
+                idxs.push(base, base+2, base+1, base+1, base+2, base+3);
+            }
+        }
+
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+        geom.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+        geom.setIndex(idxs);
+        geom.computeVertexNormals();
+        return geom;
+    }
+
+    const arcMat = new THREE.MeshBasicMaterial({
+        vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.85,
+    });
+
+    // 收集所有弧对象，用于根据视角动态控制透明度
+    // 每个弧记录 { mesh, baseOpacity }
+    const allArcs = [];
+
+    // 上弧：主要引力透镜弧（降低亮度，避免 bloom 淹没中心）
+    const topArc = new THREE.Mesh(
+        createLensingArc(1.35, 0.7, 2.6, 1.5, 0.6),
+        arcMat
+    );
+    diskGroup.add(topArc);
+    allArcs.push({ mesh: topArc, baseOpacity: 0.85 });
+
+    // 上弧核心亮线
+    const topArcCore = new THREE.Mesh(
+        createLensingArc(1.32, 0.18, 2.55, 2.5, 0.8),
+        new THREE.MeshBasicMaterial({
+            vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.95,
+        })
+    );
+    diskGroup.add(topArcCore);
+    allArcs.push({ mesh: topArcCore, baseOpacity: 0.95 });
+
+    // 上弧外层辉光
+    const topArcGlow = new THREE.Mesh(
+        createLensingArc(1.4, 1.2, 2.7, 0.4, 0.3),
+        new THREE.MeshBasicMaterial({
+            vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.35,
+        })
+    );
+    diskGroup.add(topArcGlow);
+    allArcs.push({ mesh: topArcGlow, baseOpacity: 0.35 });
+
+    // 下弧：较暗较窄
+    const botArc = new THREE.Mesh(
+        createLensingArc(-1.15, 0.4, 2.5, 1.0, 0.4),
+        new THREE.MeshBasicMaterial({
+            vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.6,
+        })
+    );
+    diskGroup.add(botArc);
+    allArcs.push({ mesh: botArc, baseOpacity: 0.6 });
+
+    // 下弧核心亮线
+    const botArcCore = new THREE.Mesh(
+        createLensingArc(-1.12, 0.1, 2.45, 1.8, 0.5),
+        new THREE.MeshBasicMaterial({
+            vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.7,
+        })
+    );
+    diskGroup.add(botArcCore);
+    allArcs.push({ mesh: botArcCore, baseOpacity: 0.7 });
+
+    // ============ 星空 ============
+    function createStars() {
+        const count = 5000;
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+
+        for (let i = 0; i < count; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const r = 60 + Math.random() * 120;
+            positions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+            positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i*3+2] = r * Math.cos(phi);
+
+            const type = Math.random();
+            if (type < 0.08) {
+                // 蓝白星
+                colors[i*3] = 0.7; colors[i*3+1] = 0.8; colors[i*3+2] = 1;
+            } else if (type < 0.15) {
+                // 金黄星
+                colors[i*3] = 1; colors[i*3+1] = 0.85; colors[i*3+2] = 0.5;
+            } else {
+                const b = 0.6 + Math.random() * 0.4;
+                colors[i*3] = b; colors[i*3+1] = b; colors[i*3+2] = b * 0.95;
+            }
+        }
+
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        return new THREE.Points(geom, new THREE.PointsMaterial({
+            size: 0.35, vertexColors: true, sizeAttenuation: true,
+            transparent: true, opacity: 0.85,
+        }));
+    }
+    scene.add(createStars());
+
+    // ============ 微弱星云 ============
+    const nebula = new THREE.Mesh(
+        new THREE.SphereGeometry(55, 32, 32),
+        new THREE.MeshBasicMaterial({
+            color: 0x0a0805, side: THREE.BackSide, transparent: true, opacity: 0.5,
+        })
+    );
+    scene.add(nebula);
+
+    // ============ 标注交互 ============
+    const annBtns = document.querySelectorAll('.ann-btn');
+    let activeHighlight = null;
+
+    // 高亮对象映射
+    const highlights = {
+        singularity: { obj: bhSphere, color: new THREE.Color(0.2, 0, 0.3) },
+        horizon: { obj: bhSphere },
+        photon: { obj: photonRing1 },
+        disk: { obj: disk },
+        lens: { obj: topArc },
+    };
+
+    annBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+            // 切换高亮状态
+            if (activeHighlight === target) {
+                // 取消高亮
+                annBtns.forEach(b => b.style.borderColor = '');
+                activeHighlight = null;
+                return;
+            }
+            annBtns.forEach(b => b.style.borderColor = '');
+            btn.style.borderColor = '#ffcc66';
+            activeHighlight = target;
+
+            // 缓慢飞向目标
+            if (target === 'singularity' || target === 'horizon') {
+                smoothMoveTo(0, 1, 7);
+            } else if (target === 'photon') {
+                smoothMoveTo(2, 2, 8);
+            } else if (target === 'disk') {
+                smoothMoveTo(0, 8, 12);
+            } else if (target === 'lens') {
+                smoothMoveTo(0, 2, 10);
+            }
+        });
+    });
+
+    function smoothMoveTo(tx, ty, tz) {
+        controls.autoRotate = false;
+        const start = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        const dur = 1200;
+        const t0 = performance.now();
+        function step() {
+            const p = Math.min(1, (performance.now() - t0) / dur);
+            const ease = 1 - Math.pow(1 - p, 3); // easeOutCubic
+            camera.position.set(
+                start.x + (tx - start.x) * ease,
+                start.y + (ty - start.y) * ease,
+                start.z + (tz - start.z) * ease
+            );
+            if (p < 1) requestAnimationFrame(step);
+        }
+        step();
+    }
+
+    // ============ 动画 ============
+    let time = 0;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        time += 0.003;
+
+        // 盘缓慢旋转
+        diskGroup.rotation.y += 0.0006;
+
+        // 光子环脉动（降低后的亮度范围）
+        const pulse = 1 + 0.08 * Math.sin(time * 12);
+        photonRing1.material.color.setRGB(1.6 * pulse, 1.3 * pulse, 0.9 * pulse);
+        photonRing2.material.color.setRGB(2.0 * pulse, 1.8 * pulse, 1.4 * pulse);
+
+        // ====== 视角依赖：引力透镜弧随仰角淡出 ======
+        // elevation = 0 表示从侧面看（盘面方向），= 1 表示从正上/正下方看
+        // 引力透镜是光学现象，只有从侧面才能看到
+        const camPos = camera.position.clone().normalize();
+        const elevation = Math.abs(camPos.y); // 0~1
+        // 仰角 < 20° 时弧完全可见，> 55° 时完全消失
+        const arcFade = Math.max(0, Math.min(1, (0.50 - elevation) / 0.30));
+        for (const arc of allArcs) {
+            arc.mesh.material.opacity = arc.baseOpacity * arcFade;
+            arc.mesh.visible = arcFade > 0.01; // 彻底隐藏，避免残影
+        }
+
+        controls.update();
+        composer.render();
+    }
+
+    // ============ 响应式 ============
+    window.addEventListener('resize', () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        composer.setSize(w, h);
+    });
+
+    // ============ 启动 ============
+    document.getElementById('loading').classList.add('done');
+    animate();
+    setTimeout(() => document.getElementById('hint').classList.add('hide'), 5000);
+
+    } // end init
+    </script>
+</body>
+</html>

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡冈图雅黑洞 - 纯代码渲染</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* 加载动画 */
+        .loading {
+            position: fixed; inset: 0; z-index: 999;
+            background: #000;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        .loading.done { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 80px; height: 80px; position: relative;
+        }
+        .loading-spinner .ring {
+            position: absolute; inset: 0;
+            border: 3px solid transparent;
+            border-top-color: #f4d03f;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        .loading-spinner .ring:nth-child(2) {
+            inset: 12px;
+            border-top-color: #e67e22;
+            animation-duration: 1.8s; animation-direction: reverse;
+        }
+        .loading-spinner .core {
+            position: absolute; inset: 25px;
+            background: radial-gradient(circle, #111 50%, transparent);
+            border-radius: 50%;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            margin-top: 20px; color: rgba(255,255,255,0.5);
+            font-size: 0.85rem; letter-spacing: 2px;
+        }
+        .loading-progress {
+            margin-top: 10px; color: #f4d03f;
+            font-size: 0.75rem; font-family: 'Orbitron', monospace;
+        }
+
+        /* 顶部 */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .header > * { pointer-events: auto; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            width: 44px; height: 44px;
+            background: radial-gradient(circle, #111 30%, #f4d03f 60%, #e67e22 100%);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 25px rgba(244,208,63,0.5);
+        }
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem; font-weight: 700;
+            background: linear-gradient(90deg, #f4d03f, #00d4ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: 2px;
+        }
+        .logo p { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+        /* CSS 动态粒子叠加层 */
+        .fx-overlay {
+            position: fixed; inset: 0; z-index: 2; pointer-events: none;
+        }
+        .orbit-ring {
+            position: absolute; border-radius: 50%;
+            animation: orbit-spin var(--dur) linear infinite;
+            animation-delay: var(--delay, 0s);
+        }
+        @keyframes orbit-spin {
+            from { transform: translate(-50%,-50%) rotate(var(--start-angle, 0deg)); }
+            to { transform: translate(-50%,-50%) rotate(calc(var(--start-angle, 0deg) + 360deg)); }
+        }
+        .orbit-dot {
+            position: absolute; border-radius: 50%;
+            transform: translate(-50%,-50%) scaleY(var(--counter-scale,1));
+        }
+        .glow-dot {
+            position: absolute; border-radius: 50%;
+            animation: glow-pulse var(--dur) ease-in-out infinite alternate;
+            animation-delay: var(--delay, 0s);
+        }
+        @keyframes glow-pulse {
+            0% { opacity: 0.05; transform: translate(-50%,-50%) scale(0.7); }
+            100% { opacity: var(--max-o, 0.4); transform: translate(-50%,-50%) scale(1.3); }
+        }
+
+        .home-link {
+            position: fixed; bottom: 24px; left: 24px; z-index: 100;
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 16px;
+            background: rgba(10,10,20,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none; font-size: 0.8rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        .home-link:hover { color: #fff; border-color: #00d4ff; }
+
+        .render-info {
+            position: fixed; bottom: 24px; right: 24px; z-index: 100;
+            padding: 8px 14px;
+            background: rgba(10,10,20,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.65rem; font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(8px);
+        }
+
+        @media (max-width: 600px) {
+            .logo h1 { font-size: 1rem; }
+            .logo p { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="loading-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="core"></div>
+        </div>
+        <div class="loading-text">正在计算引力透镜...</div>
+        <div class="loading-progress" id="progress">0%</div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <div class="fx-overlay" id="fxOverlay"></div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🕳️</div>
+            <div>
+                <h1>GARGANTUA</h1>
+                <p>纯代码渲染 - 零图片</p>
+            </div>
+        </div>
+    </div>
+
+    <a class="home-link" href="blackhole.html">← 返回黑洞探索</a>
+    <div class="render-info" id="renderInfo"></div>
+
+    <script>
+    // ============ 配置 ============
+    const canvas = document.getElementById('canvas');
+    const c = canvas.getContext('2d');
+
+    // 使用设备像素比保证清晰度，但限制最大分辨率避免性能问题
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = Math.floor(window.innerWidth * dpr);
+    const H = Math.floor(window.innerHeight * dpr);
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+
+    const CX = W / 2;
+    const CY = H / 2;
+    const R = Math.min(W, H) * 0.18; // 黑洞阴影半径
+
+    // ============ 逐像素渲染 ============
+    function renderBlackHole() {
+        const t0 = performance.now();
+        const progressEl = document.getElementById('progress');
+        const imageData = c.createImageData(W, H);
+        const d = imageData.data;
+
+        // 预生成星空（在渲染前画好，disk 会覆盖其上）
+        const starCount = Math.floor(W * H / 2000);
+        const starPixels = new Set();
+        for (let i = 0; i < starCount; i++) {
+            const sx = Math.floor(Math.random() * W);
+            const sy = Math.floor(Math.random() * H);
+            const bright = 80 + Math.floor(Math.random() * 175);
+            const idx = (sy * W + sx) * 4;
+            d[idx] = bright;
+            d[idx + 1] = bright;
+            d[idx + 2] = bright + Math.floor(Math.random() * 30);
+            d[idx + 3] = 255;
+            starPixels.add(sy * W + sx);
+        }
+
+        // 吸积盘参数
+        const topPeak = R * 1.28;   // 上弧最高点（引力透镜弯曲的背面盘光）
+        const botPeak = R * 1.08;   // 下弧最低点
+        const sigmaTop = R * 1.0;   // 上弧高斯宽度
+        const sigmaBot = R * 0.85;
+        const thinW = R * 0.028;    // 远处盘的薄度
+        const thickW = R * 0.10;    // 近处盘的厚度
+        const flatOff = R * 0.025;  // 平坦段偏移
+
+        // 光子环参数
+        const photonR = R * 1.015;
+        const photonW = R * 0.012;
+        const photon2R = R * 1.005;
+        const photon2W = R * 0.006;
+
+        // 逐行渲染（分块以便更新进度）
+        let row = 0;
+
+        function renderChunk() {
+            const chunkEnd = Math.min(row + Math.ceil(H / 20), H);
+
+            for (let py = row; py < chunkEnd; py++) {
+                for (let px = 0; px < W; px++) {
+                    const dx = px - CX;
+                    const dy = py - CY;
+                    const r = Math.sqrt(dx * dx + dy * dy);
+                    const idx = (py * W + px) * 4;
+
+                    // === 黑洞阴影 ===
+                    if (r < R * 0.99) {
+                        d[idx] = 0; d[idx + 1] = 0; d[idx + 2] = 0; d[idx + 3] = 255;
+                        continue;
+                    }
+
+                    // === 吸积盘亮度计算 ===
+                    const dx2 = dx * dx;
+
+                    // 上带：中心线位置
+                    const gTop = Math.exp(-dx2 / (2 * sigmaTop * sigmaTop));
+                    const topY = CY - topPeak * gTop - flatOff;
+                    const topThick = thinW + (thickW - thinW) * gTop;
+                    const topDist = py - topY;
+                    const topB = Math.exp(-(topDist * topDist) / (2 * topThick * topThick));
+
+                    // 上带径向亮度
+                    const topRadial = gTop * 0.8 + (1 - gTop) * Math.exp(-Math.abs(dx) / (R * 2.8)) * 0.6;
+
+                    // 下带
+                    const gBot = Math.exp(-dx2 / (2 * sigmaBot * sigmaBot));
+                    const botY = CY + botPeak * gBot + flatOff;
+                    const botThick = thinW * 0.7 + (thickW * 0.7 - thinW * 0.7) * gBot;
+                    const botDist = py - botY;
+                    const botB = Math.exp(-(botDist * botDist) / (2 * botThick * botThick));
+                    const botRadial = gBot * 0.55 + (1 - gBot) * Math.exp(-Math.abs(dx) / (R * 2.8)) * 0.4;
+
+                    // 盘总亮度
+                    let diskB = topB * topRadial + botB * botRadial;
+
+                    // 多普勒增亮（左侧更亮 = 物质朝我们运动）
+                    const dopplerSign = dx > 0 ? 1 : -1;
+                    const dopplerStr = 1 - Math.min(1, Math.abs(dx) / (R * 4));
+                    const doppler = 1 + 0.30 * dopplerSign * dopplerStr;
+                    diskB *= doppler;
+
+                    // === 光子环（极细极亮的环） ===
+                    const photon1 = 1.4 * Math.exp(-Math.pow((r - photonR) / photonW, 2));
+                    const photon2 = 0.7 * Math.exp(-Math.pow((r - photon2R) / photon2W, 2));
+
+                    // === 外围辉光 ===
+                    const outerGlow = 0.06 * Math.exp(-r / (R * 3.5));
+
+                    // === 阴影边缘平滑 ===
+                    let shadowMask = 1;
+                    if (r < R * 1.02) {
+                        shadowMask = Math.max(0, (r - R * 0.99) / (R * 0.03));
+                    }
+
+                    // === 合成亮度 ===
+                    let brightness = (diskB + photon1 + photon2 + outerGlow) * shadowMask;
+                    brightness = Math.min(brightness, 2.0);
+
+                    if (brightness < 0.005) {
+                        // 保留已有的星星
+                        if (!starPixels.has(py * W + px)) {
+                            // 微弱的背景辉光
+                            const bg = Math.floor(outerGlow * 25);
+                            d[idx] = bg; d[idx + 1] = bg; d[idx + 2] = bg + 1; d[idx + 3] = 255;
+                        }
+                        continue;
+                    }
+
+                    // === 色温映射 ===
+                    // 低亮度：深红/暗橙  中亮度：金橙  高亮度：白热
+                    let rd, gn, bl;
+                    if (brightness > 1.0) {
+                        // 白热区
+                        const t = Math.min(1, brightness - 1.0);
+                        rd = 255;
+                        gn = Math.floor(200 + t * 55);
+                        bl = Math.floor(100 + t * 155);
+                    } else if (brightness > 0.4) {
+                        // 金橙区
+                        const t = (brightness - 0.4) / 0.6;
+                        rd = Math.floor(180 + t * 75);
+                        gn = Math.floor(80 + t * 120);
+                        bl = Math.floor(10 + t * 50);
+                    } else {
+                        // 暗红区
+                        const t = brightness / 0.4;
+                        rd = Math.floor(t * 180);
+                        gn = Math.floor(t * 55);
+                        bl = Math.floor(t * 8);
+                    }
+
+                    // 多普勒色移：接近侧偏蓝白，远离侧偏红
+                    if (dopplerSign > 0 && dopplerStr > 0.2) {
+                        const shift = dopplerStr * 0.15;
+                        gn = Math.min(255, gn + Math.floor(shift * 40));
+                        bl = Math.min(255, bl + Math.floor(shift * 60));
+                    } else if (dopplerSign < 0 && dopplerStr > 0.2) {
+                        const shift = dopplerStr * 0.1;
+                        gn = Math.max(0, gn - Math.floor(shift * 20));
+                        bl = Math.max(0, bl - Math.floor(shift * 15));
+                    }
+
+                    d[idx] = Math.min(255, rd);
+                    d[idx + 1] = Math.min(255, gn);
+                    d[idx + 2] = Math.min(255, bl);
+                    d[idx + 3] = 255;
+                }
+            }
+
+            row = chunkEnd;
+            const pct = Math.floor(row / H * 100);
+            progressEl.textContent = pct + '%';
+
+            if (row < H) {
+                requestAnimationFrame(renderChunk);
+            } else {
+                // 渲染完成
+                c.putImageData(imageData, 0, 0);
+                addBloom();
+                const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+                document.getElementById('renderInfo').textContent =
+                    `${W}×${H} px | ${elapsed}s | 纯代码渲染`;
+                document.getElementById('loading').classList.add('done');
+                createFxParticles();
+            }
+        }
+
+        renderChunk();
+    }
+
+    // ============ 辉光效果（一次性后处理） ============
+    function addBloom() {
+        const temp = document.createElement('canvas');
+        temp.width = W;
+        temp.height = H;
+        const tc = temp.getContext('2d');
+        tc.drawImage(canvas, 0, 0);
+
+        c.save();
+        c.globalCompositeOperation = 'lighter';
+
+        // 大辉光
+        c.filter = 'blur(' + Math.floor(20 * dpr) + 'px)';
+        c.globalAlpha = 0.25;
+        c.drawImage(temp, 0, 0);
+
+        // 超大辉光
+        c.filter = 'blur(' + Math.floor(50 * dpr) + 'px)';
+        c.globalAlpha = 0.12;
+        c.drawImage(temp, 0, 0);
+
+        c.restore();
+        c.filter = 'none';
+        c.globalAlpha = 1;
+        c.globalCompositeOperation = 'source-over';
+
+        // 释放临时 canvas
+        temp.width = 0;
+        temp.height = 0;
+    }
+
+    // ============ CSS 动态粒子（轻量叠加） ============
+    function createFxParticles() {
+        const fx = document.getElementById('fxOverlay');
+        const colors = ['#f4d03f', '#e67e22', '#f39c12', '#ffcc00', '#ffd700'];
+        const bhCx = 50; // %
+        const bhCy = 50;
+
+        // 吸积盘轨道粒子
+        for (let i = 0; i < 20; i++) {
+            const rx = 18 + Math.random() * 6; // vmin units roughly matching R
+            const squash = 0.12 + Math.random() * 0.04; // 扁椭圆
+            const dur = 15 + Math.random() * 20;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const dotSize = 2 + Math.random() * 4;
+            const opacity = 0.15 + Math.random() * 0.35;
+            const startAngle = Math.floor(Math.random() * 360);
+
+            const ring = document.createElement('div');
+            ring.className = 'orbit-ring';
+            ring.style.cssText = `
+                left:${bhCx}%;top:${bhCy}%;
+                width:${rx*2}vmin;height:${rx*2}vmin;
+                --dur:${dur}s;--delay:${-Math.random()*dur}s;
+                --start-angle:${startAngle}deg;
+                transform:translate(-50%,-50%) scaleY(${squash});
+            `;
+
+            const dot = document.createElement('div');
+            dot.className = 'orbit-dot';
+            const angle = Math.random() * 360;
+            const rad = angle * Math.PI / 180;
+            dot.style.cssText = `
+                left:${50 + 50*Math.cos(rad)}%;top:${50 + 50*Math.sin(rad)}%;
+                width:${dotSize}px;height:${dotSize}px;
+                background:radial-gradient(circle,${color},transparent);
+                opacity:${opacity};
+                --counter-scale:${1/squash};
+            `;
+            ring.appendChild(dot);
+            fx.appendChild(ring);
+        }
+
+        // 光弧粒子
+        for (let i = 0; i < 10; i++) {
+            const rx = 16 + Math.random() * 5;
+            const squash = 0.9 + Math.random() * 0.15;
+            const dur = 20 + Math.random() * 25;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const dotSize = 1.5 + Math.random() * 3;
+            const opacity = 0.1 + Math.random() * 0.25;
+
+            const ring = document.createElement('div');
+            ring.className = 'orbit-ring';
+            ring.style.cssText = `
+                left:${bhCx}%;top:${bhCy}%;
+                width:${rx*2}vmin;height:${rx*2}vmin;
+                --dur:${dur}s;--delay:${-Math.random()*dur}s;
+                --start-angle:${Math.floor(Math.random()*360)}deg;
+                transform:translate(-50%,-50%) scaleY(${squash});
+            `;
+
+            const dot = document.createElement('div');
+            dot.className = 'orbit-dot';
+            const angle = Math.random() * 360;
+            const rad = angle * Math.PI / 180;
+            dot.style.cssText = `
+                left:${50 + 50*Math.cos(rad)}%;top:${50 + 50*Math.sin(rad)}%;
+                width:${dotSize}px;height:${dotSize}px;
+                background:radial-gradient(circle,${color},transparent);
+                opacity:${opacity};
+                --counter-scale:${1/squash};
+            `;
+            ring.appendChild(dot);
+            fx.appendChild(ring);
+        }
+
+        // 闪烁粒子
+        for (let i = 0; i < 15; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'glow-dot';
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const size = 2 + Math.random() * 4;
+            dot.style.cssText = `
+                left:${bhCx + (Math.random()-0.5)*35}%;
+                top:${bhCy + (Math.random()-0.5)*10}%;
+                width:${size}px;height:${size}px;
+                background:radial-gradient(circle,${color},transparent);
+                --dur:${2+Math.random()*4}s;
+                --delay:${Math.random()*3}s;
+                --max-o:${0.15+Math.random()*0.35};
+            `;
+            fx.appendChild(dot);
+        }
+    }
+
+    // ============ 启动渲染 ============
+    renderBlackHole();
+    </script>
+</body>
+</html>
