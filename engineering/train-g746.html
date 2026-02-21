@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复兴号 G746 · 德州东→廊坊→北京南</title>
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: #0a1628;
+            font-family: 'Noto Sans SC', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        canvas#three-canvas { display: block; }
+
+        /* ============ 阶段1: 地图界面 ============ */
+        #mapPhase {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d1f3c 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.6s, transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #mapPhase.zooming {
+            opacity: 0;
+            transform: scale(3) translate(-15%, -10%);
+        }
+        #mapPhase.hidden { display: none; }
+
+        .map-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 12px rgba(200,169,81,0.5);
+        }
+        .map-subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 16px;
+        }
+
+        #mapContainer {
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(200,169,81,0.15);
+            max-width: 90vw;
+            max-height: 55vh;
+            width: 600px;
+            position: relative;
+        }
+        #mapContainer svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #mapContainer .state {
+            fill: rgba(255, 255, 255, 0.06);
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 0.3;
+            transition: fill 0.3s;
+        }
+        #mapContainer .state.highlight-city {
+            fill: rgba(79, 195, 247, 0.5);
+            stroke: #4fc3f7;
+            stroke-width: 1.5;
+        }
+        .route-line {
+            stroke: #DAA520;
+            stroke-width: 2.5;
+            stroke-dasharray: 6 4;
+            fill: none;
+            animation: dash-move 1s linear infinite;
+        }
+        .route-glow {
+            stroke: rgba(218, 165, 32, 0.3);
+            stroke-width: 8;
+            fill: none;
+            stroke-dasharray: 6 4;
+            animation: dash-move 1s linear infinite;
+        }
+        @keyframes dash-move {
+            to { stroke-dashoffset: -20; }
+        }
+        .city-dot {
+            fill: #DAA520;
+            stroke: #fff;
+            stroke-width: 1.2;
+        }
+        .city-label {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            fill: #4fc3f7;
+            text-anchor: middle;
+        }
+        .city-label.dest-label {
+            fill: #ff8a65;
+        }
+        .city-label.mid-label {
+            fill: #a5d6a7;
+        }
+
+        #routeInfo {
+            margin-top: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .info-tag {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 6px 16px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        #departBtn {
+            margin-top: 24px;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 64px;
+            font-size: 28px;
+            font-weight: 900;
+            font-family: 'Noto Sans SC', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(218,165,32,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: pulse-btn 2s infinite;
+        }
+        #departBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(218,165,32,0.6);
+        }
+        @keyframes pulse-btn {
+            0%, 100% { box-shadow: 0 4px 20px rgba(218,165,32,0.4); }
+            50% { box-shadow: 0 4px 35px rgba(218,165,32,0.7); }
+        }
+
+        /* ============ 3D场景 HUD ============ */
+        #hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+        }
+
+        .route-bar {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #fff;
+        }
+        .station-name {
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+        .station-name.from { color: #4fc3f7; }
+        .station-name.mid { color: #a5d6a7; }
+        .station-name.to { color: #ff8a65; }
+        .progress-track {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+            position: relative;
+            overflow: visible;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #DAA520, #FFD700);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-train {
+            position: absolute;
+            top: -6px;
+            left: 0%;
+            font-size: 18px;
+            transition: left 0.3s;
+        }
+
+        .stats-bar {
+            background: rgba(0,0,0,0.45);
+            padding: 8px 20px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-value {
+            font-weight: 700;
+            color: #fff;
+            font-size: 18px;
+            min-width: 50px;
+        }
+        .speed-value { color: #DAA520; }
+        .status-value {
+            color: #ffeb3b;
+            min-width: 84px;
+        }
+
+        /* ============ 行驶期右上角小地图 ============ */
+        #miniMap {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 20;
+            width: min(340px, 38vw);
+            background: rgba(8, 22, 40, 0.58);
+            border: 1px solid rgba(255,255,255,0.22);
+            border-radius: 14px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+            display: none;
+        }
+        #miniMap.show { display: block; }
+        .mini-map-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #dbe9ff;
+            font-size: 12px;
+            padding: 8px 10px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+        .mini-map-head .tag {
+            color: #DAA520;
+            font-weight: 700;
+        }
+        #miniMapContainer {
+            width: 100%;
+            height: 170px;
+            background: rgba(255,255,255,0.04);
+        }
+        #miniMapContainer svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #miniMapCaption {
+            color: rgba(255,255,255,0.82);
+            font-size: 11px;
+            line-height: 1.4;
+            padding: 6px 10px 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* ============ 控制按钮 ============ */
+        #controls {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: none;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .ctrl-btn {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-family: 'Noto Sans SC', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            pointer-events: auto;
+        }
+        .ctrl-btn:hover { background: rgba(255,255,255,0.15); }
+        .ctrl-btn:active { transform: scale(0.95); }
+        .ctrl-btn.active {
+            border-color: #DAA520;
+            background: rgba(218,165,32,0.2);
+        }
+
+        /* ============ 站名显示 ============ */
+        #stationLabel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            font-size: 48px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            text-align: center;
+        }
+        #stationLabel.show { opacity: 1; }
+
+        /* ============ 到站庆祝 ============ */
+        #arrivalOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        #arrivalOverlay.show {
+            display: flex;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; } to { opacity: 1; }
+        }
+        .arrival-emoji {
+            font-size: 80px;
+            margin-bottom: 16px;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .arrival-title {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        .arrival-stats {
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 32px;
+        }
+        #replayBtn {
+            background: linear-gradient(135deg, #DAA520, #B8860B);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 48px;
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'Noto Sans SC', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(218,165,32,0.5);
+            transition: transform 0.2s;
+        }
+        #replayBtn:hover { transform: scale(1.05); }
+
+        /* ============ 返回按钮 ============ */
+        #backBtn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 200;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-family: 'Noto Sans SC', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* ============ 提示覆盖层 ============ */
+        #phaseHint {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            text-align: center;
+        }
+        #phaseHint.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <a id="backBtn" href="../index.html">返回首页</a>
+
+    <!-- 阶段1: 地图 -->
+    <div id="mapPhase">
+        <div class="map-title">复兴号高铁体验</div>
+        <div class="map-subtitle">京沪高铁 · 回程 · 德州东站 → 廊坊站 → 北京南站</div>
+        <div id="mapContainer"></div>
+        <div id="routeInfo">
+            <span class="info-tag">复兴号 G746</span>
+            <span class="info-tag">315 公里</span>
+            <span class="info-tag">最高时速 350km/h</span>
+            <span class="info-tag">一等座 · 停靠 廊坊</span>
+            <span class="info-tag">按 Space 出发</span>
+        </div>
+        <button id="departBtn">出发！</button>
+    </div>
+
+    <!-- 站名过渡 -->
+    <div id="stationLabel"></div>
+
+    <!-- 阶段提示 -->
+    <div id="phaseHint"></div>
+
+    <!-- 3D 场景 HUD -->
+    <div id="hud">
+        <div class="route-bar">
+            <span class="station-name from">德州东</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+                <div class="progress-train" id="progressTrain">🚄</div>
+            </div>
+            <span class="station-name mid" style="margin-left:0">廊坊</span>
+            <div class="progress-track" style="flex:0.235">
+                <div class="progress-fill" id="progressFill2"></div>
+            </div>
+            <span class="station-name to">北京南</span>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span>速度</span>
+                <span class="stat-value speed-value" id="speedVal">0</span>
+                <span>km/h</span>
+            </div>
+            <div class="stat-item">
+                <span>已行驶</span>
+                <span class="stat-value" id="distVal">0</span>
+                <span>km</span>
+            </div>
+            <div class="stat-item">
+                <span>用时</span>
+                <span class="stat-value" id="timeVal">0:00</span>
+            </div>
+            <div class="stat-item">
+                <span>状态</span>
+                <span class="stat-value status-value" id="statusVal">准备中</span>
+            </div>
+            <div class="stat-item">
+                <span>倍率</span>
+                <span class="stat-value" id="factorVal">x1.0</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="miniMap">
+        <div class="mini-map-head">
+            <span>路线进度图</span>
+            <span class="tag">G746 · 16车 10F</span>
+        </div>
+        <div id="miniMapContainer"></div>
+        <div id="miniMapCaption">德州东 → 廊坊 → 北京南</div>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div id="controls">
+        <button class="ctrl-btn active" id="btnView1" data-view="1">侧面视角</button>
+        <button class="ctrl-btn" id="btnView2" data-view="2">俯视视角</button>
+        <button class="ctrl-btn" id="btnView3" data-view="3">车内视角</button>
+    </div>
+
+    <!-- 到站庆祝 -->
+    <div id="arrivalOverlay">
+        <div class="arrival-emoji">🎉</div>
+        <div class="arrival-title">到达北京南站！</div>
+        <div class="arrival-stats" id="arrivalStats"></div>
+        <button id="replayBtn">再来一次！</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="train-g746.js"></script>
+</body>
+</html>
