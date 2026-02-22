@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太空赛跑 - 谁能最快到达太阳？</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a2a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star { position: absolute; border-radius: 50%; background: #fff; animation: twinkle 3s infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 820px; margin: 0 auto;
+            padding: 20px 16px 60px;
+        }
+
+        /* ============ Header ============ */
+        .header { text-align: center; margin-bottom: 20px; position: relative; }
+        .back-btn {
+            position: absolute; left: 0; top: 4px;
+            color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: #fff; }
+        .header h1 {
+            font-size: 1.8rem; font-weight: 900;
+            background: linear-gradient(135deg, #ff9800, #ffd54f);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .subtitle { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-top: 4px; }
+
+        /* ============ Distance Scale ============ */
+        .scale {
+            display: flex; align-items: center; justify-content: center;
+            margin: 20px 0; padding: 16px; gap: 8px;
+            background: rgba(255,255,255,0.03); border-radius: 12px;
+        }
+        .scale-icon { font-size: 2rem; line-height: 1; }
+        .scale-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-align: center; }
+        .scale-line {
+            flex: 1; max-width: 320px; text-align: center; position: relative;
+            border-top: 2px dashed rgba(255,255,255,0.2); margin-top: -4px; padding-top: 10px;
+        }
+        .scale-dist { font-size: 0.9rem; color: rgba(255,255,255,0.7); font-weight: 700; }
+
+        /* ============ Intro ============ */
+        .intro {
+            text-align: center; font-size: 0.9rem; color: rgba(255,255,255,0.6);
+            margin-bottom: 20px; line-height: 1.7;
+        }
+
+        /* ============ Tracks ============ */
+        .tracks { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+        .track {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 10px 14px;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .track:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
+        .track.arrived { border-color: #ffd54f; box-shadow: 0 0 12px rgba(255,213,77,0.2); }
+
+        .track-main { display: flex; align-items: center; gap: 10px; }
+        .track-info { display: flex; align-items: center; gap: 8px; min-width: 110px; flex-shrink: 0; }
+        .track-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+        .track-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+        .track-speed { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+
+        .track-bar-wrap {
+            flex: 1; height: 22px; min-width: 80px;
+            background: rgba(255,255,255,0.06); border-radius: 11px;
+            position: relative; overflow: hidden;
+        }
+        .track-bar-fill {
+            height: 100%; width: 0%; border-radius: 11px;
+            position: relative; min-width: 0;
+        }
+        .track-bar-fill.animate { transition: width 0.15s linear; }
+
+        .track-status { min-width: 90px; text-align: right; font-size: 0.82rem; color: rgba(255,255,255,0.6); flex-shrink: 0; }
+        .track-status.done { color: #ffd54f; font-weight: 700; }
+
+        /* ============ Arrival Banner ============ */
+        .arrival-banner {
+            max-height: 0; overflow: hidden; opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.3s ease;
+            font-size: 0.85rem; color: #ffd54f; padding-left: 46px;
+        }
+        .arrival-banner.show { max-height: 40px; opacity: 1; margin-top: 6px; }
+
+        /* ============ Journey Card ============ */
+        .journey-card {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.5s ease, margin 0.3s ease;
+        }
+        .journey-card.expanded { max-height: 500px; margin-top: 10px; }
+
+        .journey-inner {
+            background: rgba(255,255,255,0.05); border-radius: 10px; padding: 14px 16px;
+        }
+        .journey-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
+
+        .milestone {
+            display: flex; gap: 10px; padding: 7px 0 7px 14px;
+            border-left: 2px solid var(--tc); margin-left: 5px; position: relative;
+        }
+        .milestone::before {
+            content: ''; position: absolute; left: -6px; top: 11px;
+            width: 10px; height: 10px; border-radius: 50%; background: var(--tc);
+        }
+        .milestone:last-of-type { border-left-color: transparent; }
+        .milestone-time { font-weight: 700; min-width: 85px; font-size: 0.85rem; flex-shrink: 0; }
+        .milestone-body { flex: 1; }
+        .milestone-label { font-size: 0.85rem; color: rgba(255,255,255,0.8); }
+        .milestone-fun { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        .journey-fact {
+            margin-top: 10px; padding: 8px 12px;
+            background: rgba(255,215,77,0.08); border-radius: 8px;
+            font-size: 0.85rem; color: #ffd54f;
+        }
+
+        /* ============ Controls ============ */
+        .controls {
+            background: rgba(255,255,255,0.04); border-radius: 12px;
+            padding: 14px 16px; margin-bottom: 18px;
+        }
+        .timer-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .timer-label { color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+        .timer-value { font-size: 1.15rem; font-weight: 700; color: #ffd54f; min-width: 100px; }
+
+        .speed-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .speed-label { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+        .speed-btn {
+            padding: 5px 12px; border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.7); font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .speed-btn:hover { background: rgba(255,255,255,0.1); }
+        .speed-btn.active { background: rgba(255,152,0,0.2); border-color: #ff9800; color: #ff9800; }
+        .speed-hint { width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 6px; }
+
+        /* ============ Action Buttons ============ */
+        .action-area { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+        .btn-primary {
+            padding: 12px 36px; font-size: 1.2rem; font-weight: 700;
+            border: none; border-radius: 28px;
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            color: #fff; cursor: pointer; transition: all 0.3s; font-family: inherit;
+        }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255,152,0,0.3); }
+        .btn-secondary {
+            padding: 10px 22px; font-size: 0.95rem; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 22px;
+            background: rgba(255,255,255,0.06); color: #fff;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,152,0,0.4); }
+            70% { box-shadow: 0 0 0 14px rgba(255,152,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,152,0,0); }
+        }
+        .pulse { animation: pulse 2s infinite; }
+
+        /* ============ Finish ============ */
+        .finish { display: none; text-align: center; padding: 20px; background: rgba(255,215,77,0.08); border: 1px solid rgba(255,215,77,0.2); border-radius: 14px; margin-top: 10px; }
+        .finish.show { display: block; }
+        .finish-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 8px; }
+        .finish-ranks { text-align: left; display: inline-block; font-size: 0.9rem; line-height: 1.8; }
+        .finish-footer { margin-top: 12px; font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+
+        /* ============ Responsive ============ */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .track-info { min-width: 90px; }
+            .track-bar-wrap { height: 18px; }
+            .track-status { min-width: 70px; font-size: 0.78rem; }
+            .speed-btn { padding: 4px 10px; font-size: 0.78rem; }
+            .btn-primary { padding: 10px 28px; font-size: 1.1rem; }
+            .milestone-time { min-width: 70px; font-size: 0.8rem; }
+            .arrival-banner { padding-left: 38px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="container">
+        <header class="header">
+            <a href="../index.html" class="back-btn">← 返回乐园</a>
+            <h1>☀️ 太空赛跑</h1>
+            <p class="subtitle">谁能最快到达太阳？</p>
+        </header>
+
+        <div class="scale">
+            <div>
+                <div class="scale-icon">🌍</div>
+                <div class="scale-label">地球</div>
+            </div>
+            <div class="scale-line">
+                <div class="scale-dist">1.5 亿公里</div>
+            </div>
+            <div>
+                <div class="scale-icon">☀️</div>
+                <div class="scale-label">太阳</div>
+            </div>
+        </div>
+
+        <p class="intro">地球到太阳有 1 亿 5 千万公里远！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！</p>
+
+        <div id="tracks" class="tracks"></div>
+
+        <div class="controls" id="controls">
+            <div class="timer-row">
+                <span class="timer-label">⏱️ 已过去</span>
+                <span class="timer-value" id="timer">0 秒</span>
+            </div>
+            <div class="speed-row">
+                <span class="speed-label">倍率</span>
+                <button class="speed-btn" data-speed="10000">1万x</button>
+                <button class="speed-btn" data-speed="1000000">100万x</button>
+                <button class="speed-btn active" data-speed="100000000">1亿x</button>
+                <button class="speed-btn" data-speed="1000000000">10亿x</button>
+                <div class="speed-hint" id="speedHint">1秒 ≈ 3.2年，适合观看飞机、高铁、汽车</div>
+            </div>
+        </div>
+
+        <div class="action-area" id="actionArea">
+            <button class="btn-primary pulse" id="startBtn">🏁 出发！</button>
+        </div>
+
+        <div class="finish" id="finish">
+            <div class="finish-title">🎉 比赛结束！</div>
+            <div class="finish-ranks" id="finishRanks"></div>
+            <div class="finish-footer" id="finishFooter"></div>
+        </div>
+    </div>
+
+<script>
+// ============ 数据 ============
+const SUN_DISTANCE = 150_000_000;
+
+const VEHICLES = [
+    {
+        id: 'walk', icon: '🚶', name: '步行',
+        speedKmH: 5, speedDisplay: '5 km/h', color: '#9e9e9e',
+        arrivalMsg: '3,424年 — 从大禹治水走到今天！',
+        funFact: '人类文明的历史都不够走完这段路！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '10天', fun: '每天走8小时，要走10天' },
+            { label: '绕地球一圈', dist: '4万公里', time: '11个月', fun: '走了将近一整年' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '近9年', fun: '智天从出生走到上小学' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '1,256年', fun: '从唐朝走到现在' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '3,424年', fun: '从大禹治水走到今天' },
+        ]
+    },
+    {
+        id: 'ebike', icon: '🛵', name: '电动车',
+        speedKmH: 25, speedDisplay: '25 km/h', color: '#66bb6a',
+        arrivalMsg: '685年 — 从元朝骑到现在！',
+        funFact: '685年前是元朝，那时候还没有电动车呢！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '2天', fun: '骑两天两夜' },
+            { label: '绕地球一圈', dist: '4万公里', time: '67天', fun: '两个多月' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '1年9个月', fun: '差不多两年' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '251年', fun: '从清朝骑到现在' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '685年', fun: '从元朝骑到现在' },
+        ]
+    },
+    {
+        id: 'car', icon: '🚗', name: '小汽车',
+        speedKmH: 120, speedDisplay: '120 km/h', color: '#42a5f5',
+        arrivalMsg: '143年 — 爷爷开到孙子接着开！',
+        funFact: '一家三代人接力开车都到不了太阳！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '10小时', fun: '早上出发，晚上到' },
+            { label: '绕地球一圈', dist: '4万公里', time: '14天', fun: '两个星期不停车' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '4个半月', fun: '快一个学期了' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '52年', fun: '智天开到变老爷爷' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '143年', fun: '爷爷传爸爸，爸爸传儿子' },
+        ]
+    },
+    {
+        id: 'train', icon: '🚄', name: '高铁',
+        speedKmH: 350, speedDisplay: '350 km/h', color: '#ab47bc',
+        arrivalMsg: '49年 — 智天坐到头发白了！',
+        funFact: '从小宝宝坐到老爷爷！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '3.5小时', fun: '看一部动画片电影' },
+            { label: '绕地球一圈', dist: '4万公里', time: '5天', fun: '不到一个星期' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '46天', fun: '一个半月' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '18年', fun: '智天坐到上大学' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '49年', fun: '智天坐到头发变白' },
+        ]
+    },
+    {
+        id: 'plane', icon: '✈️', name: '飞机',
+        speedKmH: 900, speedDisplay: '900 km/h', color: '#26c6da',
+        arrivalMsg: '19年 — 从小宝宝飞到大学毕业还没到！',
+        funFact: '坐飞机去太阳？从出生到大学毕业都不够！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '1小时20分', fun: '看两集动画片' },
+            { label: '绕地球一圈', dist: '4万公里', time: '44小时', fun: '差不多两天' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '18天', fun: '不到三个星期' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '7年', fun: '智天飞到上小学' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '19年', fun: '智天飞到大学毕业还没到' },
+        ]
+    },
+    {
+        id: 'rocket', icon: '🚀', name: '火箭',
+        speedKmH: 40000, speedDisplay: '4万 km/h', color: '#ff7043',
+        arrivalMsg: '5个月 — 差不多一个学期！',
+        funFact: '火箭已经很快了，但到太阳还要半年！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '不到2分钟', fun: '眨几下眼' },
+            { label: '绕地球一圈', dist: '4万公里', time: '1小时', fun: '一节课的时间' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '不到10小时', fun: '睡一觉就到了' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '57天', fun: '差不多两个月' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '5个月', fun: '差不多一个学期' },
+        ]
+    },
+    {
+        id: 'light', icon: '⚡', name: '光',
+        speedKmH: 1_080_000_000, speedDisplay: '30万 km/s', color: '#ffd54f',
+        arrivalMsg: '8分20秒 — 吃半个苹果的时间！',
+        funFact: '光是宇宙中最快的！但到太阳也要8分多钟呢！',
+        milestones: [
+            { label: '北京→上海', dist: '1,200公里', time: '0.004秒', fun: '比眨眼快一千倍' },
+            { label: '绕地球一圈', dist: '4万公里', time: '0.13秒', fun: '一眨眼就绕了地球' },
+            { label: '到达月球 🌙', dist: '38万公里', time: '1.3秒', fun: '说一个字的时间' },
+            { label: '到达火星 🔴', dist: '5,500万公里', time: '3分钟', fun: '刷一次牙的时间' },
+            { label: '到达太阳 ☀️', dist: '1.5亿公里', time: '8分20秒', fun: '吃半个苹果的时间' },
+        ]
+    },
+];
+
+const SPEED_HINTS = {
+    10000: '1秒 ≈ 2.8小时，适合观看 ⚡光',
+    1000000: '1秒 ≈ 11.6天，适合观看 🚀火箭',
+    100000000: '1秒 ≈ 3.2年，适合观看 ✈️🚄🚗',
+    1000000000: '1秒 ≈ 31.7年，所有交通工具可见',
+};
+
+// ============ 状态 ============
+let raceState = 'idle'; // idle | running | paused | finished
+let simSeconds = 0;
+let speedMul = 100_000_000;
+let lastTs = null;
+let rankCounter = 0;
+let expandedCard = null;
+const vStates = {};
+
+// ============ DOM 引用 ============
+const tracksEl = document.getElementById('tracks');
+const timerEl = document.getElementById('timer');
+const actionArea = document.getElementById('actionArea');
+const finishEl = document.getElementById('finish');
+const speedHintEl = document.getElementById('speedHint');
+
+// ============ 初始化 ============
+function init() {
+    VEHICLES.forEach(v => {
+        vStates[v.id] = { arrived: false, rank: 0 };
+        buildTrack(v);
+    });
+    setupSpeedBtns();
+    document.getElementById('startBtn').addEventListener('click', startRace);
+    createStars();
+}
+
+function buildTrack(v) {
+    const el = document.createElement('div');
+    el.className = 'track';
+    el.dataset.id = v.id;
+    el.style.setProperty('--tc', v.color);
+
+    const totalTime = formatTime(SUN_DISTANCE / v.speedKmH * 3600);
+
+    el.innerHTML = `
+        <div class="track-main">
+            <div class="track-info">
+                <span class="track-icon">${v.icon}</span>
+                <div>
+                    <div class="track-name">${v.name}</div>
+                    <div class="track-speed">${v.speedDisplay}</div>
+                </div>
+            </div>
+            <div class="track-bar-wrap">
+                <div class="track-bar-fill" data-fill style="background:${v.color};width:0%"></div>
+            </div>
+            <div class="track-status" data-status>${totalTime}</div>
+        </div>
+        <div class="arrival-banner" data-banner>${v.arrivalMsg}</div>
+        <div class="journey-card" data-card>
+            <div class="journey-inner">
+                <div class="journey-title">${v.icon} ${v.name}的太阳之旅（${v.speedDisplay}）</div>
+                ${v.milestones.map(m => `
+                    <div class="milestone">
+                        <div class="milestone-time">${m.time}</div>
+                        <div class="milestone-body">
+                            <div class="milestone-label">📍 ${m.label}（${m.dist}）</div>
+                            <div class="milestone-fun">${m.fun}</div>
+                        </div>
+                    </div>
+                `).join('')}
+                <div class="journey-fact">💡 ${v.funFact}</div>
+            </div>
+        </div>
+    `;
+
+    el.addEventListener('click', (e) => {
+        if (e.target.closest('.speed-btn') || e.target.closest('.btn-primary') || e.target.closest('.btn-secondary')) return;
+        toggleCard(v.id, el);
+    });
+
+    tracksEl.appendChild(el);
+    vStates[v.id].el = el;
+}
+
+function toggleCard(id, el) {
+    const card = el.querySelector('[data-card]');
+    if (expandedCard === id) {
+        card.classList.remove('expanded');
+        expandedCard = null;
+    } else {
+        if (expandedCard) {
+            const prev = document.querySelector(`.track[data-id="${expandedCard}"] [data-card]`);
+            if (prev) prev.classList.remove('expanded');
+        }
+        card.classList.add('expanded');
+        expandedCard = id;
+    }
+}
+
+// ============ 速度按钮 ============
+function setupSpeedBtns() {
+    document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            speedMul = parseInt(btn.dataset.speed);
+            speedHintEl.textContent = SPEED_HINTS[speedMul] || '';
+        });
+    });
+}
+
+// ============ 比赛控制 ============
+function startRace() {
+    raceState = 'running';
+    lastTs = null;
+    // 启动时给进度条加过渡
+    document.querySelectorAll('[data-fill]').forEach(f => f.classList.add('animate'));
+    showRunningBtns();
+    requestAnimationFrame(animate);
+}
+
+function pauseRace() {
+    raceState = 'paused';
+    showPausedBtns();
+}
+
+function resumeRace() {
+    raceState = 'running';
+    lastTs = null;
+    showRunningBtns();
+    requestAnimationFrame(animate);
+}
+
+function resetRace() {
+    raceState = 'idle';
+    simSeconds = 0;
+    lastTs = null;
+    rankCounter = 0;
+
+    VEHICLES.forEach(v => {
+        const s = vStates[v.id];
+        s.arrived = false;
+        s.rank = 0;
+        const el = s.el;
+        el.classList.remove('arrived');
+        el.querySelector('[data-fill]').style.width = '0%';
+        el.querySelector('[data-fill]').classList.remove('animate');
+        el.querySelector('[data-status]').textContent = formatTime(SUN_DISTANCE / v.speedKmH * 3600);
+        el.querySelector('[data-status]').classList.remove('done');
+        el.querySelector('[data-banner]').classList.remove('show');
+    });
+
+    timerEl.textContent = '0 秒';
+    finishEl.classList.remove('show');
+    showIdleBtns();
+}
+
+// ============ 按钮切换 ============
+function showIdleBtns() {
+    actionArea.innerHTML = '<button class="btn-primary pulse" onclick="startRace()">🏁 出发！</button>';
+}
+function showRunningBtns() {
+    actionArea.innerHTML = `
+        <button class="btn-secondary" onclick="pauseRace()">⏸️ 暂停</button>
+        <button class="btn-secondary" onclick="resetRace()">🔄 重来</button>
+    `;
+}
+function showPausedBtns() {
+    actionArea.innerHTML = `
+        <button class="btn-secondary" onclick="resumeRace()">▶️ 继续</button>
+        <button class="btn-secondary" onclick="resetRace()">🔄 重来</button>
+    `;
+}
+function showFinishedBtns() {
+    actionArea.innerHTML = '<button class="btn-primary" onclick="resetRace()">🔄 再来一次！</button>';
+}
+
+// ============ 动画引擎 ============
+function animate(ts) {
+    if (raceState !== 'running') return;
+    if (lastTs === null) lastTs = ts;
+
+    const dt = Math.min(ts - lastTs, 100); // cap at 100ms
+    lastTs = ts;
+    simSeconds += (dt / 1000) * speedMul;
+
+    let allDone = true;
+
+    VEHICLES.forEach(v => {
+        const s = vStates[v.id];
+        if (s.arrived) return;
+
+        const dist = v.speedKmH * (simSeconds / 3600);
+        const progress = Math.min(1, dist / SUN_DISTANCE);
+
+        s.el.querySelector('[data-fill]').style.width = (progress * 100) + '%';
+
+        if (progress >= 1) {
+            s.arrived = true;
+            rankCounter++;
+            s.rank = rankCounter;
+            onArrived(v, s);
+        } else {
+            allDone = false;
+        }
+    });
+
+    // 确认是否全部到达
+    if (allDone) {
+        VEHICLES.forEach(v => { if (!vStates[v.id].arrived) allDone = false; });
+    }
+
+    timerEl.textContent = formatTime(simSeconds);
+
+    if (allDone) {
+        raceState = 'finished';
+        onAllDone();
+    } else {
+        requestAnimationFrame(animate);
+    }
+}
+
+function onArrived(v, s) {
+    s.el.classList.add('arrived');
+    const statusEl = s.el.querySelector('[data-status]');
+    const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣'];
+    statusEl.textContent = `${medals[s.rank-1]} 第${s.rank}名`;
+    statusEl.classList.add('done');
+    s.el.querySelector('[data-banner]').classList.add('show');
+}
+
+function onAllDone() {
+    showFinishedBtns();
+    // 构建排名
+    const sorted = VEHICLES.slice().sort((a, b) => vStates[a.id].rank - vStates[b.id].rank);
+    const medals = ['🥇','🥈','🥉'];
+    let html = '';
+    sorted.forEach((v, i) => {
+        const medal = i < 3 ? medals[i] : `${i+1}.`;
+        const totalTime = formatTime(SUN_DISTANCE / v.speedKmH * 3600);
+        html += `<div>${medal} ${v.icon} ${v.name} — ${totalTime}</div>`;
+    });
+    document.getElementById('finishRanks').innerHTML = html;
+    document.getElementById('finishFooter').textContent = '⚡光比🚶步行快 2.16 亿倍！太阳真的好远好远！';
+    finishEl.classList.add('show');
+}
+
+// ============ 时间格式化 ============
+function formatTime(seconds) {
+    if (seconds < 1) return '不到1秒';
+    if (seconds < 60) {
+        return Math.floor(seconds) + '秒';
+    }
+    if (seconds < 3600) {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return s > 0 ? `${m}分${s}秒` : `${m}分钟`;
+    }
+    if (seconds < 86400) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        return m > 0 ? `${h}小时${m}分` : `${h}小时`;
+    }
+    const days = seconds / 86400;
+    if (days < 30) {
+        return Math.floor(days) + '天';
+    }
+    if (days < 365.25) {
+        const months = Math.floor(days / 30.44);
+        return months + '个月';
+    }
+    const years = seconds / (86400 * 365.25);
+    if (years < 10) return years.toFixed(1) + '年';
+    if (years < 1000) return Math.round(years) + '年';
+    return Math.round(years).toLocaleString() + '年';
+}
+
+// ============ 星空背景 ============
+function createStars() {
+    const el = document.getElementById('stars');
+    for (let i = 0; i < 100; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2.5 + 0.5;
+        s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+        el.appendChild(s);
+    }
+}
+
+// ============ 启动 ============
+init();
+</script>
+</body>
+</html>
