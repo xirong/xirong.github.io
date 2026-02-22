@@ -2,4 +2,5 @@
 .playwright-cli/
 output/playwright/
 CLAUDE.md
+.mcp.json
 agents.md
