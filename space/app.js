@@ -104,6 +104,22 @@ const planetData = {
         moonCount: 2,
         moonInfo: '🌙 卫星(2颗)：火卫一（福波斯）- 形状不规则的小卫星；火卫二（德莫斯）- 更小的土豆形卫星'
     },
+    ceres: {
+        name: '谷神星',
+        nameCN: '谷神星',
+        type: '矮行星',
+        diameter: 940, // km
+        mass: 0.000938, // 10²⁴ kg
+        category: 'dwarf',
+        distance: 414, // 百万 km（平均日距）
+        orbitPeriod: 1682, // 天（约 4.6 年）
+        rotationPeriod: 0.378, // 天（约 9 小时）
+        color: 0x9a9a8a,
+        emissive: 0x3a3a30,
+        description: '谷神星是小行星带中最大的天体，也是太阳系中最小的矮行星。它由意大利天文学家皮亚齐在1801年发现。2015年黎明号探测器发现谷神星表面有神秘的亮斑，可能是盐类沉积物。谷神星直径约940公里，含有大量的冰和矿物质，科学家认为它的地壳下可能存在液态水海洋！',
+        relativeSize: 0.074, // 940/12742
+        orbitRadius: 110 // 在小行星带内（innerRadius=100, outerRadius=120）
+    },
     jupiter: {
         name: '木星',
         nameCN: '木星',
@@ -1004,7 +1020,7 @@ function switchSunStyle(style) {
 
 // ============ 创建行星 ============
 function createPlanets() {
-    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
 
     planetNames.forEach(name => {
         const data = planetData[name];
@@ -1015,6 +1031,8 @@ function createPlanets() {
             size = 4 + data.relativeSize * 0.4;
         } else if (name === 'uranus' || name === 'neptune') {
             size = 2.5 + data.relativeSize * 0.3;
+        } else if (name === 'ceres') {
+            size = 0.8; // 矮行星，比水星小
         } else {
             size = 1 + data.relativeSize * 1.5;
         }
@@ -1030,6 +1048,7 @@ function createPlanets() {
             venus: createRealisticVenus,
             earth: createRealisticEarth,
             mars: createRealisticMars,
+            ceres: createRealisticCeres,
             jupiter: createRealisticJupiter,
             saturn: createRealisticSaturn,
             uranus: createRealisticUranus,
@@ -1361,6 +1380,17 @@ function createRealisticPluto(size) {
         fresnelColor: 'vec3(0.7, 0.7, 0.8)',
         fresnelIntensity: 0.05
         // 无大气层
+    });
+}
+
+// ============ 创建谷神星 ============
+function createRealisticCeres(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/ceres.jpg',
+        brightness: 1.1,
+        fresnelColor: 'vec3(0.6, 0.6, 0.6)',
+        fresnelIntensity: 0.05
+        // 无大气层（谷神星几乎没有大气）
     });
 }
 
@@ -2031,7 +2061,7 @@ function flyToOortCloud() {
 
 // ============ 创建轨道 ============
 function createOrbits() {
-    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
 
     planetNames.forEach(name => {
         const data = planetData[name];
