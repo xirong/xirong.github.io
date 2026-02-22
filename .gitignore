@@ -4,3 +4,4 @@ output/playwright/
 CLAUDE.md
 .mcp.json
 agents.md
+.DS_Store
