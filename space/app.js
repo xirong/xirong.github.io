@@ -1133,20 +1133,28 @@ function createPlanets() {
 
         let planet;
 
-        // 为地球创建特殊的真实效果
-        if (name === 'earth') {
-            planet = createRealisticEarth(size);
-        } else if (name === 'jupiter') {
-            planet = createRealisticJupiter(size);
+        // 所有行星使用真实纹理渲染
+        const realisticCreators = {
+            mercury: createRealisticMercury,
+            venus: createRealisticVenus,
+            earth: createRealisticEarth,
+            mars: createRealisticMars,
+            jupiter: createRealisticJupiter,
+            saturn: createRealisticSaturn,
+            uranus: createRealisticUranus,
+            neptune: createRealisticNeptune,
+            pluto: createRealisticPluto
+        };
+
+        if (realisticCreators[name]) {
+            planet = realisticCreators[name](size);
         } else {
-            // 创建材质
             const material = new THREE.MeshPhongMaterial({
                 color: data.color,
                 emissive: data.emissive,
                 emissiveIntensity: 0.1,
                 shininess: 30
             });
-
             planet = new THREE.Mesh(geometry, material);
         }
 
@@ -1281,137 +1289,188 @@ function createRealisticEarth(size) {
     return earth;
 }
 
-// ============ 创建真实木星（带大红斑）============
-function createRealisticJupiter(size) {
+// ============ 通用纹理行星创建辅助函数 ============
+// config: { texturePath, brightness, atmosphereColor, atmosphereIntensity, atmosphereSize, fresnelColor, fresnelIntensity }
+function createTexturedPlanet(size, config) {
     const geometry = new THREE.SphereGeometry(size, 128, 128);
+    const textureLoader = new THREE.TextureLoader();
+    const planetMap = textureLoader.load(config.texturePath);
 
-    const jupiterMaterial = new THREE.ShaderMaterial({
+    const brightness = config.brightness || 1.0;
+    const fresnelColor = config.fresnelColor || 'vec3(0.0)';
+    const fresnelIntensity = config.fresnelIntensity || 0.0;
+
+    const material = new THREE.ShaderMaterial({
         uniforms: {
-            time: { value: 0 }
+            time: { value: 0 },
+            planetTexture: { value: planetMap },
+            sunDirection: { value: new THREE.Vector3(1, 0, 0) }
         },
         vertexShader: `
+            uniform vec3 sunDirection;
             varying vec3 vNormal;
             varying vec2 vUv;
-            varying vec3 vPosition;
-            
+            varying vec3 vViewDir;
+            varying vec3 vSunDir;
             void main() {
                 vNormal = normalize(normalMatrix * normal);
                 vUv = uv;
-                vPosition = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+                vViewDir = normalize(-mvPos.xyz);
+                vSunDir = normalize(mat3(viewMatrix) * sunDirection);
+                gl_Position = projectionMatrix * mvPos;
             }
         `,
         fragmentShader: `
-            uniform float time;
+            uniform sampler2D planetTexture;
             varying vec3 vNormal;
             varying vec2 vUv;
-            varying vec3 vPosition;
-            
-            float hash(vec2 p) {
-                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-            }
-            
-            float noise(vec2 p) {
-                vec2 i = floor(p);
-                vec2 f = fract(p);
-                f = f * f * (3.0 - 2.0 * f);
-                
-                float a = hash(i);
-                float b = hash(i + vec2(1.0, 0.0));
-                float c = hash(i + vec2(0.0, 1.0));
-                float d = hash(i + vec2(1.0, 1.0));
-                
-                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-            }
-            
-            float fbm(vec2 p) {
-                float value = 0.0;
-                float amplitude = 0.5;
-                for (int i = 0; i < 5; i++) {
-                    value += amplitude * noise(p);
-                    p *= 2.0;
-                    amplitude *= 0.5;
-                }
-                return value;
-            }
-            
+            varying vec3 vViewDir;
+            varying vec3 vSunDir;
             void main() {
-                vec2 uv = vUv;
-                
-                // 木星条纹 - 水平带状结构
-                float bands = sin(uv.y * 25.0) * 0.5 + 0.5;
-                float bandNoise = fbm(vec2(uv.x * 8.0 + time * 0.02, uv.y * 30.0));
-                bands = bands * 0.7 + bandNoise * 0.3;
-                
-                // 木星基础颜色
-                vec3 lightBand = vec3(0.95, 0.9, 0.8);   // 浅色带
-                vec3 darkBand = vec3(0.75, 0.6, 0.45);   // 深色带
-                vec3 orangeBand = vec3(0.9, 0.7, 0.5);   // 橙色带
-                
-                // 混合条纹颜色
-                vec3 baseColor = mix(darkBand, lightBand, bands);
-                float orangeZone = sin(uv.y * 12.0 + 1.5) * 0.5 + 0.5;
-                baseColor = mix(baseColor, orangeBand, orangeZone * 0.4);
-                
-                // 添加湍流细节
-                float turbulence = fbm(vec2(uv.x * 20.0 + time * 0.03, uv.y * 40.0));
-                baseColor += vec3(turbulence * 0.1 - 0.05);
-                
-                // ====== 大红斑 ======
-                // 大红斑位置（南半球，约22度）
-                vec2 grsCenter = vec2(0.3, 0.35); // 红斑中心
-                vec2 grsSize = vec2(0.12, 0.06);   // 红斑大小（椭圆形）
-                
-                // 计算到红斑中心的距离（椭圆）
-                vec2 grsOffset = uv - grsCenter;
-                float grsDist = length(grsOffset / grsSize);
-                
-                // 红斑颜色
-                vec3 grsColorOuter = vec3(0.8, 0.4, 0.3);  // 外圈偏红
-                vec3 grsColorInner = vec3(0.95, 0.5, 0.35); // 内圈偏橙
-                vec3 grsColorCore = vec3(0.7, 0.25, 0.2);   // 核心深红
-                
-                // 红斑内部的漩涡
-                float grsAngle = atan(grsOffset.y, grsOffset.x);
-                float grsSpiral = sin(grsAngle * 3.0 + grsDist * 15.0 - time * 0.5) * 0.5 + 0.5;
-                
-                // 混合红斑颜色
-                vec3 grsColor = mix(grsColorCore, grsColorInner, grsDist * 0.8);
-                grsColor = mix(grsColor, grsColorOuter, smoothstep(0.3, 0.9, grsDist));
-                grsColor += vec3(grsSpiral * 0.15); // 添加漩涡纹理
-                
-                // 应用红斑
-                float grsMask = 1.0 - smoothstep(0.8, 1.0, grsDist);
-                baseColor = mix(baseColor, grsColor, grsMask);
-                
-                // 添加红斑边缘的暗环
-                float grsRing = smoothstep(0.85, 0.95, grsDist) * smoothstep(1.1, 0.95, grsDist);
-                baseColor = mix(baseColor, darkBand * 0.8, grsRing * 0.5);
-                
-                // ====== 小红斑（红斑Jr）======
-                vec2 grs2Center = vec2(0.65, 0.42);
-                vec2 grs2Offset = uv - grs2Center;
-                float grs2Dist = length(grs2Offset / vec2(0.04, 0.025));
-                float grs2Mask = 1.0 - smoothstep(0.7, 1.0, grs2Dist);
-                vec3 grs2Color = vec3(0.85, 0.5, 0.4);
-                baseColor = mix(baseColor, grs2Color, grs2Mask * 0.7);
-                
-                // 光照
-                vec3 lightDir = normalize(vec3(-1.0, 0.3, 0.5));
-                float diff = max(dot(vNormal, lightDir), 0.0);
-                baseColor *= (diff * 0.5 + 0.5);
-                
-                // 边缘变暗
-                float fresnel = dot(vNormal, vec3(0.0, 0.0, 1.0));
-                baseColor *= pow(fresnel, 0.3) * 0.3 + 0.7;
-                
-                gl_FragColor = vec4(baseColor, 1.0);
+                vec3 surfaceColor = texture2D(planetTexture, vUv).rgb * ${brightness.toFixed(2)};
+                float diff = max(dot(vNormal, vSunDir), 0.0);
+                surfaceColor *= (diff * 0.6 + 0.4);
+                float fresnel = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 4.0);
+                surfaceColor = mix(surfaceColor, ${fresnelColor}, fresnel * ${fresnelIntensity.toFixed(2)});
+                gl_FragColor = vec4(surfaceColor, 1.0);
             }
         `
     });
 
-    const jupiter = new THREE.Mesh(geometry, jupiterMaterial);
-    return jupiter;
+    const planet = new THREE.Mesh(geometry, material);
+
+    // 可选大气层光晕
+    if (config.atmosphereColor) {
+        const atmoSize = config.atmosphereSize || 1.06;
+        const atmoIntensity = config.atmosphereIntensity || 0.25;
+        const ac = config.atmosphereColor;
+        const atmosphereGeometry = new THREE.SphereGeometry(size * atmoSize, 64, 64);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            uniforms: {},
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.55 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                    gl_FragColor = vec4(vec3(${ac[0].toFixed(2)}, ${ac[1].toFixed(2)}, ${ac[2].toFixed(2)}), intensity * ${atmoIntensity.toFixed(2)});
+                }
+            `,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            depthWrite: false
+        });
+        planet.add(new THREE.Mesh(atmosphereGeometry, atmosphereMaterial));
+    }
+
+    return planet;
+}
+
+// ============ 创建真实水星 - 纹理贴图版 ============
+function createRealisticMercury(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/mercury.jpg',
+        brightness: 1.1,
+        fresnelColor: 'vec3(0.6, 0.6, 0.6)',
+        fresnelIntensity: 0.05
+        // 无大气层
+    });
+}
+
+// ============ 创建真实金星 - 纹理贴图版 ============
+function createRealisticVenus(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/venus_atmosphere.jpg',
+        brightness: 1.15,
+        fresnelColor: 'vec3(1.0, 0.9, 0.6)',
+        fresnelIntensity: 0.2,
+        atmosphereColor: [1.0, 0.85, 0.4],
+        atmosphereSize: 1.08,
+        atmosphereIntensity: 0.3
+    });
+}
+
+// ============ 创建真实火星 - 纹理贴图版 ============
+function createRealisticMars(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/mars.jpg',
+        brightness: 1.1,
+        fresnelColor: 'vec3(0.9, 0.5, 0.3)',
+        fresnelIntensity: 0.12,
+        atmosphereColor: [0.9, 0.5, 0.2],
+        atmosphereSize: 1.05,
+        atmosphereIntensity: 0.2
+    });
+}
+
+// ============ 创建真实木星 - 纹理贴图版 ============
+function createRealisticJupiter(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/jupiter.jpg',
+        brightness: 1.05,
+        fresnelColor: 'vec3(0.8, 0.7, 0.5)',
+        fresnelIntensity: 0.08,
+        atmosphereColor: [0.8, 0.7, 0.5],
+        atmosphereSize: 1.04,
+        atmosphereIntensity: 0.15
+    });
+}
+
+// ============ 创建真实土星 - 纹理贴图版 ============
+function createRealisticSaturn(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/saturn.jpg',
+        brightness: 1.1,
+        fresnelColor: 'vec3(0.9, 0.85, 0.6)',
+        fresnelIntensity: 0.1,
+        atmosphereColor: [0.9, 0.8, 0.5],
+        atmosphereSize: 1.05,
+        atmosphereIntensity: 0.15
+    });
+}
+
+// ============ 创建真实天王星 - 纹理贴图版 ============
+function createRealisticUranus(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/uranus.jpg',
+        brightness: 1.1,
+        fresnelColor: 'vec3(0.5, 0.8, 0.9)',
+        fresnelIntensity: 0.15,
+        atmosphereColor: [0.4, 0.8, 0.9],
+        atmosphereSize: 1.06,
+        atmosphereIntensity: 0.25
+    });
+}
+
+// ============ 创建真实海王星 - 纹理贴图版 ============
+function createRealisticNeptune(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/neptune.jpg',
+        brightness: 1.15,
+        fresnelColor: 'vec3(0.3, 0.5, 1.0)',
+        fresnelIntensity: 0.18,
+        atmosphereColor: [0.3, 0.4, 1.0],
+        atmosphereSize: 1.06,
+        atmosphereIntensity: 0.3
+    });
+}
+
+// ============ 创建真实冥王星 - 纹理贴图版 ============
+function createRealisticPluto(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/pluto.jpg',
+        brightness: 1.1,
+        fresnelColor: 'vec3(0.7, 0.7, 0.8)',
+        fresnelIntensity: 0.05
+        // 无大气层
+    });
 }
 
 // ============ 创建月球 ============
@@ -1426,101 +1485,37 @@ function createMoon() {
 
     const geometry = new THREE.SphereGeometry(moonSize, 64, 64);
 
-    // 月球着色器 - 带陨石坑
+    // 月球纹理贴图 + 光照 shader
+    const textureLoader = new THREE.TextureLoader();
+    const moonMap = textureLoader.load('textures/moon.jpg');
+
     const moonMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
+        uniforms: {
+            planetTexture: { value: moonMap },
+            sunDirection: { value: new THREE.Vector3(1, 0, 0) }
+        },
         vertexShader: `
+            uniform vec3 sunDirection;
             varying vec3 vNormal;
             varying vec2 vUv;
-            varying vec3 vPosition;
-            
+            varying vec3 vSunDir;
             void main() {
                 vNormal = normalize(normalMatrix * normal);
                 vUv = uv;
-                vPosition = position;
+                vSunDir = normalize(mat3(viewMatrix) * sunDirection);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
         fragmentShader: `
+            uniform sampler2D planetTexture;
             varying vec3 vNormal;
             varying vec2 vUv;
-            varying vec3 vPosition;
-            
-            float hash(vec2 p) {
-                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-            }
-            
-            float noise(vec2 p) {
-                vec2 i = floor(p);
-                vec2 f = fract(p);
-                f = f * f * (3.0 - 2.0 * f);
-                
-                float a = hash(i);
-                float b = hash(i + vec2(1.0, 0.0));
-                float c = hash(i + vec2(0.0, 1.0));
-                float d = hash(i + vec2(1.0, 1.0));
-                
-                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-            }
-            
-            float fbm(vec2 p) {
-                float value = 0.0;
-                float amplitude = 0.5;
-                for (int i = 0; i < 5; i++) {
-                    value += amplitude * noise(p);
-                    p *= 2.0;
-                    amplitude *= 0.5;
-                }
-                return value;
-            }
-            
-            // 陨石坑函数
-            float crater(vec2 uv, vec2 center, float radius) {
-                float d = distance(uv, center);
-                float rim = smoothstep(radius, radius * 0.9, d) * smoothstep(radius * 0.7, radius * 0.8, d);
-                float floor = smoothstep(radius * 0.6, radius * 0.3, d);
-                return rim * 0.3 - floor * 0.15;
-            }
-            
+            varying vec3 vSunDir;
             void main() {
-                vec2 uv = vUv;
-                
-                // 基础月球颜色（灰色变化）
-                float baseNoise = fbm(uv * 10.0);
-                vec3 lightGray = vec3(0.75, 0.73, 0.7);
-                vec3 darkGray = vec3(0.4, 0.38, 0.35);
-                vec3 baseColor = mix(lightGray, darkGray, baseNoise);
-                
-                // 月海（较暗区域）
-                float mare = fbm(uv * 4.0 + 0.5);
-                mare = smoothstep(0.45, 0.6, mare);
-                vec3 mareColor = vec3(0.3, 0.28, 0.26);
-                baseColor = mix(baseColor, mareColor, mare * 0.6);
-                
-                // 添加陨石坑
-                float craterEffect = 0.0;
-                
-                // 大陨石坑
-                craterEffect += crater(uv, vec2(0.3, 0.4), 0.08);
-                craterEffect += crater(uv, vec2(0.7, 0.6), 0.1);
-                craterEffect += crater(uv, vec2(0.5, 0.2), 0.06);
-                craterEffect += crater(uv, vec2(0.2, 0.7), 0.07);
-                craterEffect += crater(uv, vec2(0.8, 0.3), 0.05);
-                craterEffect += crater(uv, vec2(0.4, 0.8), 0.09);
-                
-                // 小陨石坑（用噪声模拟）
-                float smallCraters = fbm(uv * 30.0);
-                smallCraters = smoothstep(0.6, 0.7, smallCraters) * 0.1;
-                
-                baseColor += vec3(craterEffect);
-                baseColor -= vec3(smallCraters);
-                
-                // 光照
-                vec3 lightDir = normalize(vec3(-1.0, 0.3, 0.5));
-                float diff = max(dot(vNormal, lightDir), 0.0);
-                baseColor *= (diff * 0.7 + 0.3);
-                
-                gl_FragColor = vec4(baseColor, 1.0);
+                vec3 surfaceColor = texture2D(planetTexture, vUv).rgb * 1.1;
+                float diff = max(dot(vNormal, vSunDir), 0.0);
+                surfaceColor *= (diff * 0.7 + 0.3);
+                gl_FragColor = vec4(surfaceColor, 1.0);
             }
         `
     });
@@ -1847,45 +1842,27 @@ function createAsteroidBelt() {
 function createSaturnRings(saturn, saturnSize) {
     const ringGeometry = new THREE.RingGeometry(saturnSize * 1.4, saturnSize * 2.3, 128);
 
-    // 创建环的材质
-    const ringMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            innerRadius: { value: saturnSize * 1.4 },
-            outerRadius: { value: saturnSize * 2.3 }
-        },
-        vertexShader: `
-            varying vec2 vUv;
-            varying float vDistance;
-            
-            void main() {
-                vUv = uv;
-                vDistance = length(position.xy);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform float innerRadius;
-            uniform float outerRadius;
-            varying vec2 vUv;
-            varying float vDistance;
-            
-            void main() {
-                float t = (vDistance - innerRadius) / (outerRadius - innerRadius);
-                
-                // 创建环带纹理
-                float bands = sin(t * 50.0) * 0.5 + 0.5;
-                float gaps = smoothstep(0.0, 0.02, sin(t * 100.0) * 0.5 + 0.5);
-                
-                vec3 color1 = vec3(0.9, 0.85, 0.7);
-                vec3 color2 = vec3(0.7, 0.6, 0.5);
-                vec3 color = mix(color1, color2, bands);
-                
-                float alpha = gaps * (1.0 - pow(abs(t - 0.5) * 2.0, 2.0)) * 0.8;
-                
-                gl_FragColor = vec4(color, alpha);
-            }
-        `,
+    // 修正 UV 坐标，让纹理沿径向展开
+    const pos = ringGeometry.attributes.position;
+    const uv = ringGeometry.attributes.uv;
+    const innerR = saturnSize * 1.4;
+    const outerR = saturnSize * 2.3;
+    for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const dist = Math.sqrt(x * x + y * y);
+        const t = (dist - innerR) / (outerR - innerR);
+        uv.setXY(i, t, 0.5);
+    }
+
+    // 加载土星环纹理
+    const textureLoader = new THREE.TextureLoader();
+    const ringTexture = textureLoader.load('textures/saturn_ring.png');
+
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        map: ringTexture,
         transparent: true,
+        opacity: 0.85,
         side: THREE.DoubleSide,
         depthWrite: false
     });
@@ -2260,21 +2237,20 @@ function animate() {
                 planet.rotation.z = Math.PI / 2;
             }
 
-            // 更新地球shader时间 + 太阳方向 + 云层旋转
-            if (name === 'earth' && planet.material.uniforms) {
-                planet.material.uniforms.time.value = elapsed;
-                // 计算从地球指向太阳（原点）的方向
-                const sunDir = new THREE.Vector3()
-                    .copy(planet.position).negate().normalize();
-                planet.material.uniforms.sunDirection.value.copy(sunDir);
-                if (planet.userData.cloudMesh) {
+            // 统一更新所有行星的 shader uniforms（时间 + 太阳方向）
+            if (planet.material.uniforms) {
+                if (planet.material.uniforms.time) {
+                    planet.material.uniforms.time.value = elapsed;
+                }
+                if (planet.material.uniforms.sunDirection) {
+                    const sunDir = new THREE.Vector3()
+                        .copy(planet.position).negate().normalize();
+                    planet.material.uniforms.sunDirection.value.copy(sunDir);
+                }
+                // 地球云层旋转
+                if (name === 'earth' && planet.userData.cloudMesh) {
                     planet.userData.cloudMesh.rotation.y += 0.0003;
                 }
-            }
-
-            // 更新木星shader时间（大红斑动画）
-            if (name === 'jupiter' && planet.material.uniforms) {
-                planet.material.uniforms.time.value = elapsed;
             }
         });
 
@@ -2292,6 +2268,13 @@ function animate() {
 
             // 月球自转（同步自转，始终一面朝向地球）
             moon.rotation.y = -moonData.orbitAngle;
+
+            // 更新月球 shader 太阳方向
+            if (moon.material.uniforms && moon.material.uniforms.sunDirection) {
+                const sunDir = new THREE.Vector3()
+                    .copy(moon.position).negate().normalize();
+                moon.material.uniforms.sunDirection.value.copy(sunDir);
+            }
         }
 
         // 更新所有卫星位置
