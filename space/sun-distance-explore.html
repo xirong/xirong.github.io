@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地日距离探索 - 从地球飞向太阳</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw; height: 100vh;
+        }
+
+        /* ============ 3D Canvas ============ */
+        #scene3d { width: 100vw; height: 100vh; display: block; cursor: grab; }
+        #scene3d:active { cursor: grabbing; }
+
+        /* ============ Overlay ============ */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 10;
+        }
+
+        /* 左上角返回按钮 */
+        .back-btn {
+            position: absolute; top: 16px; left: 16px;
+            color: rgba(255,255,255,0.5); text-decoration: none;
+            font-size: 0.9rem; pointer-events: auto;
+            padding: 6px 14px; border-radius: 20px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .back-btn:hover { color: #fff; background: rgba(255,255,255,0.15); }
+
+        /* 顶部距离计数器 */
+        .distance-counter {
+            position: absolute; top: 20px; right: 24px;
+            text-align: right;
+        }
+        .dist-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.8rem; font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(100,180,255,0.5), 0 0 40px rgba(100,180,255,0.3);
+            line-height: 1;
+            letter-spacing: 2px;
+        }
+        .dist-unit {
+            font-size: 1rem; color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+        .dist-label {
+            font-size: 0.8rem; color: rgba(255,255,255,0.3);
+            margin-top: 2px;
+        }
+
+        /* 左侧里程碑面板 */
+        .milestone-panel {
+            position: absolute; left: 16px; top: 50%;
+            transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .milestone-item {
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.5);
+            border-left: 3px solid rgba(255,255,255,0.15);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            opacity: 0.5;
+        }
+        .milestone-item.active {
+            border-left-color: #64b5f6;
+            opacity: 1;
+            background: rgba(100,180,255,0.1);
+        }
+        .milestone-item.passed {
+            border-left-color: #ffd54f;
+            opacity: 0.7;
+        }
+        .milestone-name { font-weight: 700; color: rgba(255,255,255,0.9); }
+        .milestone-dist { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        /* 底部提示 */
+        .bottom-hint {
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem; color: rgba(255,255,255,0.25);
+            text-align: center;
+        }
+
+        /* 底部缩放进度条 */
+        .zoom-bar-wrap {
+            position: absolute; bottom: 50px; left: 50%;
+            transform: translateX(-50%);
+            width: 300px; max-width: 60vw;
+        }
+        .zoom-bar {
+            width: 100%; height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px; position: relative;
+        }
+        .zoom-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #ff7043, #ffd54f, #64b5f6);
+            border-radius: 2px;
+            transition: width 0.1s;
+        }
+        .zoom-bar-labels {
+            display: flex; justify-content: space-between;
+            font-size: 0.65rem; color: rgba(255,255,255,0.25);
+            margin-top: 4px;
+        }
+
+        /* ============ Responsive ============ */
+        @media (max-width: 600px) {
+            .dist-value { font-size: 1.8rem; }
+            .dist-unit { font-size: 0.85rem; }
+            .distance-counter { top: 14px; right: 14px; }
+            .milestone-panel { display: none; }
+            .bottom-hint { font-size: 0.7rem; }
+            .back-btn { font-size: 0.8rem; padding: 5px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="scene3d"></div>
+
+<div class="overlay">
+    <a class="back-btn" href="sun-distance.html">← 返回太空赛跑</a>
+
+    <div class="distance-counter">
+        <div class="dist-value" id="distValue">0</div>
+        <div class="dist-unit" id="distUnit">千米</div>
+        <div class="dist-label">距太阳距离</div>
+    </div>
+
+    <div class="milestone-panel" id="milestonePanel"></div>
+
+    <div class="zoom-bar-wrap">
+        <div class="zoom-bar">
+            <div class="zoom-bar-fill" id="zoomBarFill"></div>
+        </div>
+        <div class="zoom-bar-labels">
+            <span>☀️ 太阳</span>
+            <span>✨ 水星</span>
+            <span>🌍 地球</span>
+        </div>
+    </div>
+
+    <div class="bottom-hint" id="bottomHint">滚轮缩放 · 拖动平移 · 右键旋转 · 自由探索太阳到地球</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// ============ 全屏 3D 地日距离探索 ============
+(function() {
+    const container = document.getElementById('scene3d');
+
+    // ---- 场景常量 ----
+    // 太阳在原点(0,0,0)，地球在负X方向(-300,0,0)
+    const SCENE_LENGTH = 300;
+    const REAL_DISTANCE = 149597870; // 地日距离 km
+    const EARTH_R = 2;
+    const SUN_R = 25;
+
+    // 里程碑数据（距太阳的距离，万km）
+    // 水星距太阳 5790万km = 5790万km, 金星距太阳 10820万km, 地球距太阳 14960万km
+    const MILESTONES = [
+        { name: '✨ 水星轨道', distFromSunWanKm: 5790 },
+        { name: '💫 金星轨道', distFromSunWanKm: 10820 },
+        { name: '🌙 月球轨道', distFromSunWanKm: 14960 - 38.4, hasBody: true, bodyColor: 0xcccccc, bodyR: 0.4 },
+    ];
+
+    // 距太阳万km → X坐标（负方向）
+    function sunDistToX(distFromSunWanKm) {
+        return -(distFromSunWanKm / 14960) * SCENE_LENGTH;
+    }
+
+    // ---- Renderer ----
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000);
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 2000);
+    // 初始相机：看太阳，稍微偏上偏后
+    camera.position.set(0, 20, 80);
+
+    // ---- OrbitControls：左键平移，右键旋转，自由移动 ----
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0, 0);
+    controls.enablePan = true;
+    controls.minDistance = 2;
+    controls.maxDistance = 600;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.rotateSpeed = 0.5;
+    controls.panSpeed = 2.0;
+    // 左键平移，右键旋转（默认是反的，改过来更直观）
+    controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN,
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.ROTATE
+    };
+    // 触摸：单指平移，双指缩放+旋转
+    controls.touches = {
+        ONE: THREE.TOUCH.PAN,
+        TWO: THREE.TOUCH.DOLLY_ROTATE
+    };
+    // 宽松范围，防止飞太远
+    controls.addEventListener('change', () => {
+        controls.target.x = Math.max(-SCENE_LENGTH - 80, Math.min(80, controls.target.x));
+        controls.target.y = Math.max(-100, Math.min(100, controls.target.y));
+        controls.target.z = Math.max(-100, Math.min(100, controls.target.z));
+    });
+
+    // 环境光
+    scene.add(new THREE.AmbientLight(0x334466, 0.3));
+
+    // ============ 太阳（原点） ============
+    const sunGeo = new THREE.SphereGeometry(SUN_R, 64, 64);
+    const sunMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+            varying vec3 vNormal; varying vec2 vUv;
+            void main() {
+                vNormal = normalize(normalMatrix * normal); vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time; varying vec3 vNormal; varying vec2 vUv;
+            float noise(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+            float fbm(vec2 p) {
+                float v = 0.0, a = 0.5;
+                for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+                return v;
+            }
+            void main() {
+                float n = fbm(vUv * 10.0 + time * 0.1);
+                float n2 = fbm(vUv * 20.0 - time * 0.15);
+                vec3 c1 = vec3(1.0, 0.95, 0.5), c2 = vec3(1.0, 0.7, 0.2), c3 = vec3(1.0, 0.5, 0.1);
+                vec3 color = mix(mix(c1, c2, n), c3, n2 * 0.3);
+                color += vec3(1.0, 0.6, 0.2) * pow(1.0 - dot(vNormal, vec3(0,0,1)), 2.0) * 0.5;
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `
+    });
+    const sunMesh = new THREE.Mesh(sunGeo, sunMat);
+    sunMesh.position.set(0, 0, 0);
+    scene.add(sunMesh);
+
+    // 太阳光晕 - 内层
+    const coronaMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+        fragmentShader: `uniform float time; varying vec3 vN; void main(){ float i=pow(0.6-dot(vN,vec3(0,0,1)),2.0); gl_FragColor=vec4(vec3(1,.7,.2)*i*(sin(time*2.)*.1+.9), i*.6); }`,
+        transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide
+    });
+    sunMesh.add(new THREE.Mesh(new THREE.SphereGeometry(SUN_R * 1.25, 32, 32), coronaMat));
+
+    // 太阳光晕 - 外层
+    const outerGlowMat = new THREE.ShaderMaterial({
+        vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+        fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.4-dot(vN,vec3(0,0,1)),3.0); gl_FragColor=vec4(vec3(1,.5,.1)*i, i*.3); }`,
+        transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide
+    });
+    sunMesh.add(new THREE.Mesh(new THREE.SphereGeometry(SUN_R * 1.75, 32, 32), outerGlowMat));
+
+    // 太阳点光源
+    sunMesh.add(new THREE.PointLight(0xffdd88, 2, 800));
+
+    // ============ 地球（在负X方向最远处） ============
+    const EARTH_X = -SCENE_LENGTH; // x = -300
+    const earthGeo = new THREE.SphereGeometry(EARTH_R, 64, 64);
+    const textureLoader = new THREE.TextureLoader();
+    const earthDayMap = textureLoader.load('textures/earth_daymap.jpg');
+    const earthMat = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 },
+            dayTexture: { value: earthDayMap },
+            sunDirection: { value: new THREE.Vector3(1, 0, 0) }
+        },
+        vertexShader: `
+            uniform vec3 sunDirection;
+            varying vec3 vNormal, vViewDir, vSunDir; varying vec2 vUv;
+            void main() {
+                vNormal = normalize(normalMatrix * normal); vUv = uv;
+                vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+                vViewDir = normalize(-mvPos.xyz);
+                vSunDir = normalize(mat3(viewMatrix) * sunDirection);
+                gl_Position = projectionMatrix * mvPos;
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D dayTexture;
+            varying vec3 vNormal, vViewDir, vSunDir; varying vec2 vUv;
+            void main() {
+                vec3 sc = texture2D(dayTexture, vUv).rgb * 1.15;
+                sc *= max(dot(vNormal, vSunDir), 0.0) * 0.55 + 0.45;
+                float f = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 4.0);
+                gl_FragColor = vec4(mix(sc, vec3(0.3, 0.6, 1.0), f * 0.15), 1.0);
+            }
+        `
+    });
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    earthMesh.position.set(EARTH_X, 0, 0);
+    scene.add(earthMesh);
+
+    // 地球云层
+    const cloudMat = new THREE.MeshPhongMaterial({
+        map: textureLoader.load('textures/earth_clouds.jpg'),
+        transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide
+    });
+    const cloudMesh = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R * 1.015, 32, 32), cloudMat);
+    earthMesh.add(cloudMesh);
+
+    // 地球大气层光晕
+    const atmoMat = new THREE.ShaderMaterial({
+        vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+        fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.55-dot(vN,vec3(0,0,1)),3.0); gl_FragColor=vec4(vec3(.3,.6,1.), i*.4); }`,
+        transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false
+    });
+    earthMesh.add(new THREE.Mesh(new THREE.SphereGeometry(EARTH_R * 1.1, 32, 32), atmoMat));
+
+    // ============ 粗连线：太阳 → 水星 → 金星 → 月球 → 地球 ============
+    // 用 CylinderGeometry 做粗管线，沿X轴从太阳到地球
+    const TUBE_RADIUS = 0.5;
+    const tubeLength = SCENE_LENGTH - SUN_R - EARTH_R; // 去掉两端天体半径
+    const tubeGeo = new THREE.CylinderGeometry(TUBE_RADIUS, TUBE_RADIUS, tubeLength, 16, 1, true);
+    const tubeMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            varying vec2 vUv;
+            void main() {
+                // 沿管线方向的渐变：太阳端暖色 → 地球端冷色
+                vec3 sunColor = vec3(1.0, 0.6, 0.15);
+                vec3 earthColor = vec3(0.3, 0.5, 1.0);
+                vec3 color = mix(sunColor, earthColor, vUv.y);
+                // 脉冲流动效果
+                float pulse = sin(vUv.y * 30.0 - time * 2.0) * 0.15 + 0.85;
+                // 边缘发光
+                float edge = 1.0 - abs(vUv.x - 0.5) * 2.0;
+                float glow = pow(edge, 0.5);
+                float alpha = glow * pulse * 0.6;
+                gl_FragColor = vec4(color * (1.0 + pulse * 0.3), alpha);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.DoubleSide
+    });
+    const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+    // CylinderGeometry 默认沿Y轴，旋转到沿X轴（负方向）
+    tubeMesh.rotation.z = Math.PI / 2;
+    // 放置在太阳表面到地球表面之间的中点
+    const tubeCenter = -(SUN_R + tubeLength / 2);
+    tubeMesh.position.set(tubeCenter, 0, 0);
+    scene.add(tubeMesh);
+
+    // 外层光晕管（更粗、更透明，营造发光感）
+    const glowTubeGeo = new THREE.CylinderGeometry(TUBE_RADIUS * 3, TUBE_RADIUS * 3, tubeLength, 16, 1, true);
+    const glowTubeMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            varying vec2 vUv;
+            void main() {
+                vec3 sunColor = vec3(1.0, 0.5, 0.1);
+                vec3 earthColor = vec3(0.2, 0.4, 1.0);
+                vec3 color = mix(sunColor, earthColor, vUv.y);
+                float edge = 1.0 - abs(vUv.x - 0.5) * 2.0;
+                float glow = pow(edge, 3.0);
+                float pulse = sin(vUv.y * 20.0 - time * 1.5) * 0.2 + 0.8;
+                gl_FragColor = vec4(color, glow * 0.15 * pulse);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.DoubleSide
+    });
+    const glowTubeMesh = new THREE.Mesh(glowTubeGeo, glowTubeMat);
+    glowTubeMesh.rotation.z = Math.PI / 2;
+    glowTubeMesh.position.set(tubeCenter, 0, 0);
+    scene.add(glowTubeMesh);
+
+    // 沿管线的流动粒子
+    const beamParticleCount = 800;
+    const beamPositions = new Float32Array(beamParticleCount * 3);
+    const beamSizes = new Float32Array(beamParticleCount);
+    const beamAlphas = new Float32Array(beamParticleCount);
+    for (let i = 0; i < beamParticleCount; i++) {
+        const t = i / beamParticleCount;
+        beamPositions[i * 3] = -SUN_R - t * tubeLength;
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.random() * TUBE_RADIUS * 0.8;
+        beamPositions[i * 3 + 1] = Math.cos(angle) * r;
+        beamPositions[i * 3 + 2] = Math.sin(angle) * r;
+        beamSizes[i] = Math.random() * 2.0 + 0.8;
+        beamAlphas[i] = Math.random() * 0.6 + 0.3;
+    }
+    const beamGeo = new THREE.BufferGeometry();
+    beamGeo.setAttribute('position', new THREE.BufferAttribute(beamPositions, 3));
+    beamGeo.setAttribute('size', new THREE.BufferAttribute(beamSizes, 1));
+    beamGeo.setAttribute('alpha', new THREE.BufferAttribute(beamAlphas, 1));
+    const beamMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+            attribute float size; attribute float alpha;
+            varying float vAlpha; varying float vT; uniform float time;
+            void main() {
+                // 根据X位置计算0-1的插值
+                vT = clamp(-position.x / 300.0, 0.0, 1.0);
+                vAlpha = alpha * (sin(time * 3.0 + position.x * 0.05) * 0.3 + 0.7);
+                vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (200.0 / -mv.z);
+                gl_Position = projectionMatrix * mv;
+            }
+        `,
+        fragmentShader: `
+            varying float vAlpha; varying float vT;
+            void main() {
+                float d = length(gl_PointCoord - 0.5);
+                float a = 1.0 - smoothstep(0.0, 0.5, d);
+                vec3 sunColor = vec3(1.0, 0.6, 0.2);
+                vec3 earthColor = vec3(0.3, 0.5, 1.0);
+                vec3 color = mix(sunColor, earthColor, vT);
+                gl_FragColor = vec4(color, a * vAlpha * 0.4);
+            }
+        `,
+        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    scene.add(new THREE.Points(beamGeo, beamMat));
+
+    // ============ 里程碑标记 ============
+    function makeTextSprite(text, fontSize, color, maxWidth) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = maxWidth || 512;
+        canvas.height = 128;
+        ctx.font = `bold ${fontSize}px "Noto Sans SC", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = color;
+        ctx.fillText(text, canvas.width / 2, 64);
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.minFilter = THREE.LinearFilter;
+        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+        const sprite = new THREE.Sprite(mat);
+        return sprite;
+    }
+
+    // 太阳标签（原点下方）
+    const sunLabel = makeTextSprite('☀️ 太阳', 64, 'rgba(255,210,80,1)');
+    sunLabel.position.set(0, -SUN_R - 6, 0);
+    sunLabel.scale.set(14, 3.5, 1);
+    scene.add(sunLabel);
+
+    // 地球标签
+    const earthLabel = makeTextSprite('🌍 地球', 64, 'rgba(100,180,255,1)');
+    earthLabel.position.set(EARTH_X, -EARTH_R - 3, 0);
+    earthLabel.scale.set(12, 3, 1);
+    scene.add(earthLabel);
+
+    // 地球距离标签
+    const earthDistLabel = makeTextSprite('距太阳 1.496 亿公里', 40, 'rgba(100,180,255,0.6)');
+    earthDistLabel.position.set(EARTH_X, -EARTH_R - 6.5, 0);
+    earthDistLabel.scale.set(16, 4, 1);
+    scene.add(earthDistLabel);
+
+    // 里程碑标记
+    MILESTONES.forEach(m => {
+        const x = sunDistToX(m.distFromSunWanKm);
+
+        // 轨道环
+        const ringGeo = new THREE.RingGeometry(4, 4.3, 64);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: 0x4488ff, transparent: true, opacity: 0.2,
+            side: THREE.DoubleSide, depthWrite: false
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.position.set(x, 0, 0);
+        ring.rotation.y = Math.PI / 2;
+        scene.add(ring);
+
+        // 竖线标记
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(x, -5, 0),
+            new THREE.Vector3(x, 5, 0)
+        ]);
+        const lineMat = new THREE.LineBasicMaterial({
+            color: 0x4488ff, transparent: true, opacity: 0.25
+        });
+        scene.add(new THREE.Line(lineGeo, lineMat));
+
+        // 名称标签
+        const nameSprite = makeTextSprite(m.name, 48, 'rgba(100,180,255,0.9)');
+        nameSprite.position.set(x, 6.5, 0);
+        nameSprite.scale.set(14, 3.5, 1);
+        scene.add(nameSprite);
+
+        // 距离标签（距太阳）
+        const distText = m.distFromSunWanKm < 100
+            ? `距太阳 ${m.distFromSunWanKm}万公里`
+            : `距太阳 ${(m.distFromSunWanKm / 10000).toFixed(2)}亿公里`;
+        const distSprite = makeTextSprite(distText, 32, 'rgba(255,255,255,0.35)');
+        distSprite.position.set(x, -6.5, 0);
+        distSprite.scale.set(14, 3.5, 1);
+        scene.add(distSprite);
+
+        // 天体（月球）
+        if (m.hasBody) {
+            const bodyGeo = new THREE.SphereGeometry(m.bodyR, 32, 32);
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: m.bodyColor, roughness: 0.8, metalness: 0.1
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.set(x, 0, 0);
+            scene.add(body);
+        }
+    });
+
+    // ============ 星空粒子 ============
+    const starCount = 3000;
+    const sPos = new Float32Array(starCount * 3);
+    const sCol = new Float32Array(starCount * 3);
+    const sSiz = new Float32Array(starCount);
+    for (let i = 0; i < starCount; i++) {
+        const i3 = i * 3;
+        const r = 400 + Math.random() * 500;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        // 星空以场景中心（-150附近）为中心分布
+        sPos[i3] = -150 + r * Math.sin(phi) * Math.cos(theta);
+        sPos[i3+1] = r * Math.sin(phi) * Math.sin(theta);
+        sPos[i3+2] = r * Math.cos(phi);
+        const c = Math.random();
+        if (c < 0.6) { sCol[i3]=1; sCol[i3+1]=1; sCol[i3+2]=1; }
+        else if (c < 0.8) { sCol[i3]=0.7; sCol[i3+1]=0.8; sCol[i3+2]=1; }
+        else { sCol[i3]=1; sCol[i3+1]=0.95; sCol[i3+2]=0.8; }
+        sSiz[i] = Math.random() * 2 + 0.5;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(sCol, 3));
+    starGeo.setAttribute('size', new THREE.BufferAttribute(sSiz, 1));
+    const starMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+            attribute float size; attribute vec3 color;
+            varying vec3 vColor; uniform float time;
+            void main() {
+                vColor = color;
+                vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (300.0 / -mv.z) * (sin(time*2.0+position.x*.01)*.3+.7);
+                gl_Position = projectionMatrix * mv;
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vColor;
+            void main() {
+                float d = length(gl_PointCoord - .5);
+                float a = 1.0 - smoothstep(0.0, 0.5, d);
+                gl_FragColor = vec4(vColor, (a + exp(-d*3.)*.5) * .9);
+            }
+        `,
+        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    scene.add(new THREE.Points(starGeo, starMat));
+
+    // ============ HTML 里程碑面板 ============
+    const milestonePanelEl = document.getElementById('milestonePanel');
+    const allMilestones = [
+        { name: '☀️ 太阳', distFromSunWanKm: 0 },
+        ...MILESTONES,
+        { name: '🌍 地球', distFromSunWanKm: 14960 }
+    ];
+    allMilestones.forEach((m, idx) => {
+        const div = document.createElement('div');
+        div.className = 'milestone-item' + (idx === 0 ? ' active' : '');
+        div.dataset.dist = m.distFromSunWanKm;
+        const distText = m.distFromSunWanKm === 0 ? '中心'
+            : m.distFromSunWanKm < 100 ? `距太阳 ${m.distFromSunWanKm}万km`
+            : `距太阳 ${(m.distFromSunWanKm * 10000).toLocaleString('zh-CN')} km`;
+        div.innerHTML = `<div class="milestone-name">${m.name}</div><div class="milestone-dist">${distText}</div>`;
+        div.style.pointerEvents = 'auto';
+        div.style.cursor = 'pointer';
+        div.addEventListener('click', () => {
+            const targetX = sunDistToX(m.distFromSunWanKm);
+            animateCameraTo(targetX);
+        });
+        milestonePanelEl.appendChild(div);
+    });
+
+    // ============ 相机动画（点击里程碑跳转） ============
+    let cameraAnimating = false;
+    let cameraAnimStart = null;
+    let cameraAnimFrom = null;
+    let cameraAnimTo = null;
+    const CAMERA_ANIM_DURATION = 1500;
+
+    function animateCameraTo(targetX) {
+        cameraAnimating = true;
+        cameraAnimStart = performance.now();
+        cameraAnimFrom = { x: controls.target.x, camX: camera.position.x };
+        const offsetX = camera.position.x - controls.target.x;
+        cameraAnimTo = { x: targetX, camX: targetX + offsetX };
+    }
+
+    function updateCameraAnim(now) {
+        if (!cameraAnimating) return;
+        const elapsed = now - cameraAnimStart;
+        let t = Math.min(1, elapsed / CAMERA_ANIM_DURATION);
+        t = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        controls.target.x = cameraAnimFrom.x + (cameraAnimTo.x - cameraAnimFrom.x) * t;
+        camera.position.x = cameraAnimFrom.camX + (cameraAnimTo.camX - cameraAnimFrom.camX) * t;
+        if (elapsed >= CAMERA_ANIM_DURATION) cameraAnimating = false;
+    }
+
+    // ============ 距离计数器更新 ============
+    const distValueEl = document.getElementById('distValue');
+    const distUnitEl = document.getElementById('distUnit');
+    const zoomBarFill = document.getElementById('zoomBarFill');
+
+    function updateDistanceCounter() {
+        // 相机看向的位置（controls.target.x），太阳在0，地球在-300
+        // 距太阳的距离 = |target.x| 映射到真实距离
+        const targetX = Math.abs(Math.min(0, Math.max(-SCENE_LENGTH, controls.target.x)));
+        const realDistKm = (targetX / SCENE_LENGTH) * REAL_DISTANCE;
+
+        // 格式化
+        if (realDistKm < 10000) {
+            distValueEl.textContent = Math.round(realDistKm).toLocaleString('zh-CN');
+            distUnitEl.textContent = '千米';
+        } else if (realDistKm < 1000000) {
+            distValueEl.textContent = (realDistKm / 10000).toFixed(1);
+            distUnitEl.textContent = '万千米';
+        } else if (realDistKm < 100000000) {
+            distValueEl.textContent = Math.round(realDistKm).toLocaleString('zh-CN');
+            distUnitEl.textContent = '千米';
+        } else {
+            distValueEl.textContent = (realDistKm / 100000000).toFixed(4);
+            distUnitEl.textContent = '亿千米';
+        }
+
+        // 更新缩放进度条（从太阳到地球）
+        const progress = (targetX / SCENE_LENGTH) * 100;
+        zoomBarFill.style.width = progress + '%';
+
+        // 更新里程碑面板高亮
+        const currentDistWanKm = (targetX / SCENE_LENGTH) * 14960;
+        const items = milestonePanelEl.querySelectorAll('.milestone-item');
+        items.forEach(item => {
+            const d = parseFloat(item.dataset.dist);
+            item.classList.remove('active', 'passed');
+            if (Math.abs(currentDistWanKm - d) < (d < 100 ? 10 : 600)) {
+                item.classList.add('active');
+            } else if (currentDistWanKm > d) {
+                item.classList.add('passed');
+            }
+        });
+    }
+
+    // ============ 尺寸自适应 ============
+    function resize() {
+        const w = window.innerWidth, h = window.innerHeight;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ============ 触摸设备提示 ============
+    if ('ontouchstart' in window) {
+        document.getElementById('bottomHint').textContent = '单指拖动平移 · 双指缩放旋转 · 自由探索太阳到地球';
+    }
+
+    // ============ 动画循环 ============
+    function animate(ts) {
+        requestAnimationFrame(animate);
+        const t = ts * 0.001;
+
+        sunMat.uniforms.time.value = t;
+        coronaMat.uniforms.time.value = t;
+        starMat.uniforms.time.value = t;
+        beamMat.uniforms.time.value = t;
+        tubeMat.uniforms.time.value = t;
+        glowTubeMat.uniforms.time.value = t;
+
+        earthMesh.rotation.y += 0.002;
+        cloudMesh.rotation.y -= 0.001;
+        sunMesh.rotation.y += 0.0005;
+
+        updateCameraAnim(ts);
+        controls.update();
+        updateDistanceCounter();
+        renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
