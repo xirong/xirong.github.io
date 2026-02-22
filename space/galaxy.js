@@ -160,6 +160,61 @@ const starSystemData = {
         planets: 0,
         description: '冬季大三角的成员之一，由一颗亚巨星和一颗白矮星组成。',
         funFact: '南河三的名字源自希腊语"狗前面的"，因为它在天狼星（大犬座α）之前升起！'
+    },
+    arcturus: {
+        name: '大角星',
+        nameEn: 'Arcturus',
+        type: '红巨星',
+        spectralType: 'K1.5 IIIpe',
+        distance: '36.7光年',
+        brightness: '视星等 -0.05',
+        planets: 0,
+        description: '北天最亮的恒星，牧夫座的主星。它是一颗红巨星，直径约为太阳的25倍。',
+        funFact: '大角星是1933年芝加哥世博会的"明星"——它的光被用来触发开幕式的灯光！这道光走了40年才到达地球。'
+    },
+    antares: {
+        name: '心宿二',
+        nameEn: 'Antares',
+        type: '红超巨星',
+        spectralType: 'M1.5Iab-Ib',
+        distance: '~550光年',
+        brightness: '视星等 1.06',
+        planets: 0,
+        description: '天蝎座的心脏，一颗巨大的红超巨星。名字的意思是"火星的对手"，因为它的红色与火星相似。',
+        funFact: '心宿二的直径是太阳的680倍，如果放在太阳位置，它会吞没火星的轨道！'
+    },
+    vyCanisMajoris: {
+        name: '大犬座VY',
+        nameEn: 'VY Canis Majoris',
+        type: '红特超巨星',
+        spectralType: 'M3-M4.5',
+        distance: '~3,900光年',
+        brightness: '视星等 7.95',
+        planets: 0,
+        description: '曾被认为是已知最大的恒星之一，是一颗极其巨大的红特超巨星，正在快速丧失质量。',
+        funFact: '大犬座VY的直径是太阳的1,400倍！如果它替代太阳，它的表面会延伸到土星轨道附近！'
+    },
+    uyScuti: {
+        name: '盾牌座UY',
+        nameEn: 'UY Scuti',
+        type: '红超巨星',
+        spectralType: 'M4Ia',
+        distance: '~9,500光年',
+        brightness: '视星等 11.2',
+        planets: 0,
+        description: '曾被认为是已知体积最大的恒星，位于银河系中心方向的盾牌座。',
+        funFact: '盾牌座UY的直径是太阳的1,700倍，光绕它一圈需要7个小时，绕太阳只需14.5秒！'
+    },
+    pistolStar: {
+        name: '手枪星',
+        nameEn: 'Pistol Star',
+        type: '蓝特超巨星',
+        spectralType: 'LBV',
+        distance: '~25,000光年',
+        brightness: '绝对星等 -11.8',
+        planets: 0,
+        description: '银河系中最明亮的恒星之一，位于银河系中心附近。它的亮度是太阳的160万倍！',
+        funFact: '手枪星在4~6千年前的一次大爆发中释放了约10个太阳质量的物质，形成了手枪星云！'
     }
 };
 
@@ -246,6 +301,67 @@ const neighborhoodStarConfigs = {
         color: '#ffffcc',
         starType: 'binary',
         hasPlanets: false
+    },
+    arcturus: {
+        distanceLY: 36.7,
+        angle: Math.PI * 1.7,
+        elevation: 0.35,
+        color: '#ff8833',
+        starType: 'single',
+        hasPlanets: false
+    }
+};
+
+// ============ 银河系尺度恒星配置 ============
+// 位置相对于 SOLAR_SYSTEM_POS，offset 为场景单位偏移方向
+const galacticStarConfigs = {
+    betelgeuse: {
+        distanceLY: 700,
+        zone: 'A',
+        color: '#ff4444',
+        size: 'supergiant',
+        hasPlanets: false,
+        offset: { x: 0.6, y: 0.2, z: -0.8 }
+    },
+    antares: {
+        distanceLY: 550,
+        zone: 'A',
+        color: '#ff4444',
+        size: 'supergiant',
+        hasPlanets: false,
+        offset: { x: -0.7, y: -0.1, z: 0.7 }
+    },
+    kepler452: {
+        distanceLY: 1400,
+        zone: 'A',
+        color: '#ffcc00',
+        size: 'normal',
+        hasPlanets: true,
+        offset: { x: 0.3, y: 0.05, z: 0.95 }
+    },
+    vyCanisMajoris: {
+        distanceLY: 3900,
+        zone: 'A',
+        color: '#ff3333',
+        size: 'hypergiant',
+        hasPlanets: false,
+        offset: { x: -0.5, y: 0.1, z: -0.85 }
+    },
+    uyScuti: {
+        distanceLY: 9500,
+        zone: 'B',
+        color: '#ff3333',
+        size: 'hypergiant',
+        hasPlanets: false,
+        offset: { x: 0.8, y: -0.05, z: 0.6 }
+    },
+    pistolStar: {
+        distanceLY: 25000,
+        zone: 'B',
+        color: '#4488ff',
+        size: 'hypergiant',
+        hasPlanets: false,
+        offset: { x: -0.95, y: 0.0, z: -0.3 }
     }
 };
 
@@ -498,6 +614,7 @@ function init() {
     createOortCloud();
     createExternalGalaxies();
     createNeighborhoodStarSystems(); // 创建太阳系邻域视图的恒星
+    createGalacticStarSystems(); // 创建银河系尺度的著名恒星
     addLights();
 
     // 射线检测器
@@ -1510,6 +1627,186 @@ function createInteractingGalaxies(key, config) {
     return group;
 }
 
+// ============ 创建银河系尺度恒星系统 ============
+function createGalacticStarSystems() {
+    for (const [key, config] of Object.entries(galacticStarConfigs)) {
+        // 计算场景位置：太阳系位置 + 方向偏移 * (距离/5)
+        const sceneDistance = config.distanceLY / 5;
+        const offset = config.offset;
+        const position = SOLAR_SYSTEM_POS.clone().add(
+            new THREE.Vector3(
+                offset.x * sceneDistance,
+                offset.y * sceneDistance,
+                offset.z * sceneDistance
+            )
+        );
+
+        const starGroup = createGalacticStar(key, config, position);
+
+        if (starGroup) {
+            starGroup.key = key;
+            starGroup.config = config;
+            starGroup.visible = false; // 由 updateStarSystems 控制可见性
+            starSystems.push(starGroup);
+        }
+    }
+}
+
+// ============ 创建银河尺度恒星 ============
+function createGalacticStar(key, config, position) {
+    const group = new THREE.Group();
+    group.position.copy(position);
+
+    // 根据恒星尺寸确定球体大小
+    let starSize = 15;
+    if (config.size === 'supergiant') starSize = 30;
+    else if (config.size === 'hypergiant') starSize = 45;
+
+    // 手枪星（蓝特超巨星）特殊大小
+    if (key === 'pistolStar') starSize = 35;
+
+    // 主星球体
+    const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
+    const starMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(config.color)
+    });
+    const star = new THREE.Mesh(starGeometry, starMaterial);
+    group.add(star);
+
+    // 内层辉光
+    const glowGeometry = new THREE.SphereGeometry(starSize * 1.8, 32, 32);
+    const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            glowColor: { value: new THREE.Color(config.color) }
+        },
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform vec3 glowColor;
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                gl_FragColor = vec4(glowColor, intensity * 0.8);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide
+    });
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    group.add(glow);
+
+    // 超巨星/特超巨星：添加脉动辉光层
+    if (config.size === 'supergiant' || config.size === 'hypergiant') {
+        const pulseGlowGeometry = new THREE.SphereGeometry(starSize * 3, 32, 32);
+        const pulseGlowMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor: { value: new THREE.Color(config.color) },
+                time: { value: 0 }
+            },
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 glowColor;
+                uniform float time;
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                    float pulse = 0.5 + 0.5 * sin(time * 1.5);
+                    gl_FragColor = vec4(glowColor, intensity * 0.4 * pulse);
+                }
+            `,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            depthWrite: false
+        });
+        const pulseGlow = new THREE.Mesh(pulseGlowGeometry, pulseGlowMaterial);
+        pulseGlow.name = 'supergiantGlow';
+        group.add(pulseGlow);
+    }
+
+    // 如果有行星，添加绿色脉冲环
+    if (config.hasPlanets) {
+        const planetRingGeometry = new THREE.RingGeometry(starSize * 2, starSize * 2.3, 64);
+        const planetRingMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff88,
+            transparent: true,
+            opacity: 0.6,
+            side: THREE.DoubleSide
+        });
+        const planetRing = new THREE.Mesh(planetRingGeometry, planetRingMaterial);
+        planetRing.rotation.x = Math.PI / 2;
+        planetRing.name = 'planetRing';
+        group.add(planetRing);
+    }
+
+    // 点击目标
+    const clickTarget = createStarSystemClickTarget(starSize * 3);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 标签（显示名称和距离）
+    const data = starSystemData[key];
+    if (data) {
+        const labelText = `${data.name}\n${data.distance}`;
+        createGalacticStarLabel(group, labelText, 0, starSize * 4, 0, key, config);
+    }
+
+    scene.add(group);
+    return group;
+}
+
+// ============ 创建银河尺度恒星标签 ============
+function createGalacticStarLabel(parent, text, x, y, z, key, config) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 512;
+    canvas.height = 128;
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = 'bold 28px Noto Sans SC';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = config.color;
+
+    const lines = text.split('\n');
+    context.fillText(lines[0], canvas.width / 2, 40);
+    if (lines[1]) {
+        context.font = '22px Noto Sans SC';
+        context.fillStyle = '#cccccc';
+        context.fillText(lines[1], canvas.width / 2, 85);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true
+    });
+
+    const sprite = new THREE.Sprite(material);
+    // 银河尺度需要更大的标签
+    const labelScale = config.size === 'hypergiant' ? 120 : (config.size === 'supergiant' ? 90 : 70);
+    sprite.scale.set(labelScale, labelScale * 0.25, 1);
+    sprite.position.set(x, y, z);
+    sprite.name = 'galacticStarLabel';
+    sprite.starSystemKey = key;
+
+    parent.add(sprite);
+}
+
 // ============ 创建太阳系邻域恒星系统（局部放大视图）============
 function createNeighborhoodStarSystems() {
     for (const [key, config] of Object.entries(neighborhoodStarConfigs)) {
@@ -2199,18 +2496,31 @@ function updateGalaxyHover() {
 
 // ============ 恒星系统更新函数 ============
 function updateStarSystems(elapsed, distance) {
+    // 计算到太阳系的距离，用于邻域视图判断
+    const distToSolarSystem = camera.position.distanceTo(SOLAR_SYSTEM_POS);
+
     for (const starSystem of starSystems) {
         // 可见性控制
         const config = starSystem.config;
         let visible = false;
         let opacity = 1.0;
 
+        // 邻域视图中隐藏银河尺度恒星（平滑过渡）
+        if (distToSolarSystem < NEIGHBORHOOD_THRESHOLD) {
+            visible = false;
+            starSystem.visible = false;
+            continue;
+        } else if (distToSolarSystem < NEIGHBORHOOD_THRESHOLD * 1.5) {
+            // 过渡区域：逐渐淡出
+            opacity = (distToSolarSystem - NEIGHBORHOOD_THRESHOLD) / (NEIGHBORHOOD_THRESHOLD * 0.5);
+        }
+
         if (config.zone === 'A') {
             // Zone A: 500-3000 距离可见，10000以上淡出
             if (distance >= 500 && distance <= 10000) {
                 visible = true;
                 if (distance > 3000) {
-                    opacity = 1.0 - (distance - 3000) / 7000;
+                    opacity = Math.min(opacity, 1.0 - (distance - 3000) / 7000);
                 }
             }
         } else {
@@ -2218,7 +2528,7 @@ function updateStarSystems(elapsed, distance) {
             if (distance >= 3000 && distance <= 25000) {
                 visible = true;
                 if (distance > 10000) {
-                    opacity = 1.0 - (distance - 10000) / 15000;
+                    opacity = Math.min(opacity, 1.0 - (distance - 10000) / 15000);
                 }
             }
         }
@@ -2226,7 +2536,7 @@ function updateStarSystems(elapsed, distance) {
         // 太近时也淡出（< 500）
         if (distance < 500 && distance >= 150) {
             visible = true;
-            opacity = (distance - 150) / 350;
+            opacity = Math.min(opacity, (distance - 150) / 350);
         } else if (distance < 150) {
             visible = false;
         }
