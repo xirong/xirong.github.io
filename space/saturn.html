@@ -278,6 +278,27 @@
             margin-bottom: 30px;
         }
 
+        .menu-home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 24px;
+            padding: 10px 24px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .menu-home-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
         .chapter-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -873,6 +894,7 @@
         <div class="chapter-grid" id="chapterGrid">
             <!-- JS fills -->
         </div>
+        <a href="../index.html" class="menu-home-link">&larr; 返回学习乐园</a>
     </div>
 
     <!-- Story Panel -->
