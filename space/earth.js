@@ -56,6 +56,20 @@ const seasonInfo = {
                 <p>北半球冬天时，地球反而离太阳<span class="highlight">更近</span>（近日点）！所以季节变化不是因为距离远近，而是因为地轴倾斜导致阳光照射角度不同！</p>
             </div>
         `
+    },
+    structure: {
+        title: '🌋 地球内部结构',
+        content: `
+            <p>地球就像一个<span class="highlight">巨大的鸡蛋</span>！</p>
+            <p><span class="highlight">地壳</span>就像蛋壳，只有薄薄的一层（约35公里）。</p>
+            <p><span class="highlight">地幔</span>就像蛋白，又厚又热，岩石会慢慢流动。</p>
+            <p><span class="highlight">地核</span>就像蛋黄，分为液态的<span class="highlight">外核</span>和固态的<span class="highlight">内核</span>。</p>
+            <p>地核的温度高达<span class="highlight">5000~6000°C</span>，比太阳表面还热！</p>
+            <div class="fun-fact">
+                <div class="fun-fact-title">🤔 智天，你知道吗？</div>
+                <p>火山喷发就是地幔中的<span class="highlight">岩浆</span>从地壳的裂缝中喷出来！地震则是地壳中的岩石板块互相挤压造成的。</p>
+            </div>
+        `
     }
 };
 
@@ -87,8 +101,10 @@ function init() {
     createEarthOrbit();
     createAxisIndicator();
     addLights();
+    createStructureModel();
 
     window.addEventListener('resize', onWindowResize);
+    window.addEventListener('click', onStructureClick);
     setupControls();
 
     // 纹理加载完成后隐藏 loading（使用 LoadingManager 检测）
@@ -595,6 +611,288 @@ function createAxisIndicator() {
     axisLine.add(northMarker);
 }
 
+// ============ 地球内部结构模型 ============
+let structureGroup = null;       // 内部结构模型组
+let structureLabels = [];        // 标签 Sprite 数组
+let structureLayers = [];        // 各层 Mesh，用于点击检测
+let highlightedLayer = null;     // 当前高亮的层
+let structureRaycaster = new THREE.Raycaster();
+let structureMouse = new THREE.Vector2();
+
+// 各层数据定义
+const STRUCTURE_LAYERS = [
+    {
+        name: '内核',
+        nameEn: 'Inner Core',
+        desc: '固态铁镍',
+        depth: '5100~6371km',
+        temp: '约5000~6000°C',
+        radiusRatio: 0.19,   // 内核半径 / 地球半径 ≈ 1221/6371
+        color: 0xffcc00,
+        emissive: 0xaa8800,
+        detail: '内核是地球最中心的部分，虽然温度极高，但因为压力巨大所以是<span class="highlight">固态</span>的！主要由铁和镍组成。'
+    },
+    {
+        name: '外核',
+        nameEn: 'Outer Core',
+        desc: '液态铁（流动）',
+        depth: '2900~5100km',
+        temp: '约4000~5000°C',
+        radiusRatio: 0.545,  // 外核外径 / 地球半径 ≈ 3480/6371
+        color: 0xff8800,
+        emissive: 0x993300,
+        detail: '外核是<span class="highlight">液态</span>的铁和镍，它的流动产生了地球的<span class="highlight">磁场</span>，保护我们免受太阳风侵害！'
+    },
+    {
+        name: '下地幔',
+        nameEn: 'Lower Mantle',
+        desc: '硅酸盐岩石（缓慢流动）',
+        depth: '670~2900km',
+        temp: '约1000~3700°C',
+        radiusRatio: 0.895,  // 下地幔外径 / 地球半径 ≈ 5701/6371
+        color: 0xcc3300,
+        emissive: 0x661100,
+        detail: '下地幔由高温高压的硅酸盐岩石组成，虽然是固态但会像糖浆一样<span class="highlight">缓慢流动</span>（地幔对流）。'
+    },
+    {
+        name: '上地幔',
+        nameEn: 'Upper Mantle',
+        desc: '橄榄岩（部分熔融）',
+        depth: '35~670km',
+        temp: '约500~900°C',
+        radiusRatio: 0.99,   // 上地幔外径 / 地球半径 ≈ 6336/6371
+        color: 0xe65500,
+        emissive: 0x882200,
+        detail: '上地幔上部有一层<span class="highlight">软流层</span>，岩石部分熔融，地壳的板块就"漂浮"在上面移动，导致大陆漂移！'
+    },
+    {
+        name: '地壳',
+        nameEn: 'Crust',
+        desc: '岩石（花岗岩/玄武岩）',
+        depth: '0~35km',
+        temp: '约-20~400°C',
+        radiusRatio: 1.0,
+        color: 0x8B7355,
+        emissive: 0x443322,
+        detail: '地壳是我们生活的地方！大陆地壳较厚（30~70km），海洋地壳较薄（5~10km）。地壳就像蛋壳一样薄！'
+    }
+];
+
+function createStructureModel() {
+    structureGroup = new THREE.Group();
+    structureLabels = [];
+    structureLayers = [];
+
+    const baseRadius = EARTH_RADIUS;
+
+    // 启用渲染器的 clipping 功能
+    renderer.localClippingEnabled = true;
+
+    // 剖面切割平面：沿 X 轴正方向切掉前半部分
+    const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+
+    // 从内到外创建各层
+    for (let i = 0; i < STRUCTURE_LAYERS.length; i++) {
+        const layer = STRUCTURE_LAYERS[i];
+        const outerR = baseRadius * layer.radiusRatio;
+        const innerR = i > 0 ? baseRadius * STRUCTURE_LAYERS[i - 1].radiusRatio : 0;
+
+        // 外表面球体（被裁剪）
+        const outerGeo = new THREE.SphereGeometry(outerR, 64, 64);
+        const outerMat = new THREE.MeshPhongMaterial({
+            color: layer.color,
+            emissive: layer.emissive,
+            emissiveIntensity: 0.3,
+            shininess: 30,
+            transparent: true,
+            opacity: 0.95,
+            clippingPlanes: [clipPlane],
+            clipShadows: true,
+            side: THREE.DoubleSide
+        });
+        const outerMesh = new THREE.Mesh(outerGeo, outerMat);
+        outerMesh.userData = { layerIndex: i, layerName: layer.name };
+        structureGroup.add(outerMesh);
+        structureLayers.push(outerMesh);
+
+        // 剖面圆环（切面上的填充）
+        if (outerR > 0) {
+            const ringGeo = new THREE.RingGeometry(innerR, outerR, 64);
+            const ringMat = new THREE.MeshPhongMaterial({
+                color: layer.color,
+                emissive: layer.emissive,
+                emissiveIntensity: 0.4,
+                shininess: 10,
+                side: THREE.DoubleSide
+            });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            // RingGeometry 默认在 XY 平面，需旋转到 XY 平面朝 Z 正方向
+            // clipPlane 沿 Z 方向，所以剖面在 Z=0 的 XY 平面上
+            ringMesh.userData = { layerIndex: i, layerName: layer.name };
+            structureGroup.add(ringMesh);
+            structureLayers.push(ringMesh);
+        }
+    }
+
+    // 创建标签
+    createStructureLabels(baseRadius);
+
+    // 内部结构模型放在地球位置，初始隐藏
+    structureGroup.visible = false;
+    scene.add(structureGroup);
+}
+
+function createStructureLabels(baseRadius) {
+    // 清除旧标签
+    structureLabels.forEach(s => structureGroup.remove(s));
+    structureLabels = [];
+
+    for (let i = 0; i < STRUCTURE_LAYERS.length; i++) {
+        const layer = STRUCTURE_LAYERS[i];
+        const outerR = baseRadius * layer.radiusRatio;
+        const innerR = i > 0 ? baseRadius * STRUCTURE_LAYERS[i - 1].radiusRatio : 0;
+        const midR = (outerR + innerR) / 2;
+
+        // 标签放在剖面上，沿 X 轴正方向（从中心向右辐射）
+        const labelX = midR;
+        const labelY = 0;
+        const labelZ = 0;
+
+        // Canvas 绘制大字标签
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+
+        // 背景
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.roundRect(10, 10, 492, 180, 15);
+        ctx.fill();
+        ctx.strokeStyle = `#${layer.color.toString(16).padStart(6, '0')}`;
+        ctx.lineWidth = 3;
+        ctx.roundRect(10, 10, 492, 180, 15);
+        ctx.stroke();
+
+        // 大字名称
+        ctx.font = 'bold 64px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(layer.name, 256, 70);
+
+        // 说明文字
+        ctx.font = '28px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillText(layer.desc, 256, 135);
+
+        // 深度文字
+        ctx.font = '22px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = `#${layer.color.toString(16).padStart(6, '0')}`;
+        ctx.fillText(layer.depth, 256, 170);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMat = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: false
+        });
+        const sprite = new THREE.Sprite(spriteMat);
+
+        // 标签位置：沿剖面的右侧放置，连线指向层中心
+        const labelOffset = baseRadius * 1.4 + i * 1.8;
+        sprite.position.set(labelOffset, (i - 2) * 2.2, 0);
+        sprite.scale.set(6, 2.4, 1);
+        structureGroup.add(sprite);
+        structureLabels.push(sprite);
+
+        // 引导线：从层中心指向标签
+        const linePoints = [
+            new THREE.Vector3(labelX, labelY, labelZ),
+            new THREE.Vector3(labelOffset - 2.5, (i - 2) * 2.2, 0)
+        ];
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+        const lineMat = new THREE.LineBasicMaterial({
+            color: layer.color,
+            transparent: true,
+            opacity: 0.7
+        });
+        const line = new THREE.Line(lineGeo, lineMat);
+        structureGroup.add(line);
+        structureLabels.push(line); // 也加入标签数组以便清除
+    }
+}
+
+// 内部结构动画更新
+function updateStructureAnimation(time) {
+    if (!structureGroup || !structureGroup.visible) return;
+
+    // 缓慢旋转，让用户可以观察
+    structureGroup.rotation.y += 0.001;
+
+    // 外核流动效果：微调 emissive 强度
+    structureLayers.forEach(mesh => {
+        if (mesh.userData.layerName === '外核') {
+            const pulse = 0.3 + Math.sin(time * 2) * 0.15;
+            mesh.material.emissiveIntensity = pulse;
+        }
+        if (mesh.userData.layerName === '内核') {
+            const pulse = 0.3 + Math.sin(time * 1.5 + 1) * 0.1;
+            mesh.material.emissiveIntensity = pulse;
+        }
+    });
+}
+
+// 点击检测：高亮选中层并更新信息面板
+function onStructureClick(event) {
+    if (currentMode !== 'structure' || !structureGroup || !structureGroup.visible) return;
+
+    structureMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    structureMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    structureRaycaster.setFromCamera(structureMouse, camera);
+    const intersects = structureRaycaster.intersectObjects(structureLayers);
+
+    if (intersects.length > 0) {
+        const hit = intersects[0].object;
+        const layerIndex = hit.userData.layerIndex;
+        if (layerIndex === undefined) return;
+
+        const layer = STRUCTURE_LAYERS[layerIndex];
+
+        // 恢复所有层的默认状态
+        structureLayers.forEach(mesh => {
+            const idx = mesh.userData.layerIndex;
+            if (idx !== undefined) {
+                mesh.material.emissiveIntensity = 0.3;
+                mesh.material.opacity = 0.95;
+            }
+        });
+
+        // 高亮选中层
+        structureLayers.forEach(mesh => {
+            if (mesh.userData.layerIndex === layerIndex) {
+                mesh.material.emissiveIntensity = 0.8;
+                mesh.material.opacity = 1.0;
+            }
+        });
+        highlightedLayer = layerIndex;
+
+        // 更新信息面板为该层的详细信息
+        document.querySelector('#infoPanel h2').innerHTML = `🌋 ${layer.name}`;
+        document.getElementById('infoContent').innerHTML = `
+            <p style="font-size: 1.2rem; font-weight: bold; color: #${layer.color.toString(16).padStart(6, '0')};">${layer.name}（${layer.nameEn}）</p>
+            <p>深度范围：<span class="highlight">${layer.depth}</span></p>
+            <p>温度：<span class="highlight">${layer.temp}</span></p>
+            <p>组成：<span class="highlight">${layer.desc}</span></p>
+            <p>${layer.detail}</p>
+            <div class="fun-fact">
+                <div class="fun-fact-title">💡 点击其他层查看更多</div>
+                <p>试试点击不同的颜色层，了解地球每一层的秘密！</p>
+            </div>
+        `;
+    }
+}
+
 // ============ 添加光源 ============
 function addLights() {
     const sunLight = new THREE.PointLight(0xffffee, 2, 500);
@@ -653,15 +951,40 @@ function updateUIForMode() {
     earth.position.x = EARTH_ORBIT_RADIUS;
     earth.position.z = 0;
 
-    // 根据模式显示/隐藏四季标记（轨道始终可见）
+    // 根据模式显示/隐藏四季标记
     const showSeasonMarkers = (currentMode === 'revolution');
     seasonMarkers.forEach(marker => {
         marker.visible = showSeasonMarkers;
     });
-    // 轨道始终可见
+
+    // 内部结构模式特殊处理
+    const isStructure = (currentMode === 'structure');
+
+    // 轨道在内部结构模式下隐藏
     if (earthOrbit) {
-        earthOrbit.visible = true;
+        earthOrbit.visible = !isStructure;
     }
+    // 太阳在内部结构模式下隐藏
+    if (sun) {
+        sun.visible = !isStructure;
+    }
+    // 地球在内部结构模式下隐藏（用内部结构模型替代）
+    if (earth) {
+        earth.visible = !isStructure;
+    }
+    // 内部结构模型
+    if (structureGroup) {
+        structureGroup.visible = isStructure;
+        if (isStructure) {
+            structureGroup.position.set(0, 0, 0);
+            structureGroup.rotation.set(0, 0, 0);
+            highlightedLayer = null;
+        }
+    }
+
+    // 隐藏/显示时间和速度控制
+    document.getElementById('timeDisplay').style.display = isStructure ? 'none' : '';
+    document.querySelector('.speed-control').style.display = isStructure ? 'none' : '';
 
     switch (currentMode) {
         case 'rotation':
@@ -674,6 +997,18 @@ function updateUIForMode() {
             controls.target.set(0, 0, 0);
             axisIndicator.classList.add('visible');
             break;
+        case 'structure':
+            camera.position.set(12, 6, 12);
+            controls.target.set(0, 0, 0);
+            controls.minDistance = 8;
+            controls.maxDistance = 40;
+            break;
+    }
+
+    // 非 structure 模式恢复默认距离限制
+    if (currentMode !== 'structure') {
+        controls.minDistance = 15;
+        controls.maxDistance = 200;
     }
 }
 
@@ -691,52 +1026,59 @@ function animate() {
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
 
-    if (sun.material.uniforms) sun.material.uniforms.time.value = time;
+    if (currentMode !== 'structure') {
+        if (sun.material.uniforms) sun.material.uniforms.time.value = time;
 
-    if (earth.material.uniforms) {
-        earth.material.uniforms.time.value = time;
-        const sunDir = new THREE.Vector3().subVectors(sun.position, earth.position).normalize();
-        earth.material.uniforms.sunDirection.value = sunDir;
-    }
+        if (earth.material.uniforms) {
+            earth.material.uniforms.time.value = time;
+            const sunDir = new THREE.Vector3().subVectors(sun.position, earth.position).normalize();
+            earth.material.uniforms.sunDirection.value = sunDir;
+        }
 
-    // 云层独立旋转（比地球慢，模拟大气流动）
-    if (cloudMesh) {
-        cloudMesh.rotation.y += delta * 0.02;
-    }
+        // 云层独立旋转（比地球慢，模拟大气流动）
+        if (cloudMesh) {
+            cloudMesh.rotation.y += delta * 0.02;
+        }
 
-    const speed = delta * animationSpeed;
+        const speed = delta * animationSpeed;
 
-    if (isPlaying) {
-        switch (currentMode) {
-            case 'rotation':
-                earth.rotation.y += speed * 2;
-                dayCount += speed * 0.5;
-                break;
-            case 'revolution':
-                orbitAngle += speed * 0.25;
-                if (orbitAngle >= Math.PI * 2 && !hasCompletedOrbit) {
-                    orbitAngle = Math.PI * 2;
-                    hasCompletedOrbit = true;
-                    isPlaying = false;
-                    updatePlayButton();
-                    showCompletionMessage('🌸☀️🍂❄️ 春夏秋冬，一年四季轮回完成！');
-                }
-                // 椭圆轨道
-                earth.position.x = Math.cos(orbitAngle) * EARTH_ORBIT_RADIUS;
-                earth.position.z = Math.sin(orbitAngle) * EARTH_ORBIT_RADIUS_B;
-                earth.rotation.y += speed * 0.4;
-                yearProgress = Math.min((orbitAngle / (Math.PI * 2)) * 100, 100);
-                dayCount = yearProgress * 3.65;
-                break;
+        if (isPlaying) {
+            switch (currentMode) {
+                case 'rotation':
+                    earth.rotation.y += speed * 2;
+                    dayCount += speed * 0.5;
+                    break;
+                case 'revolution':
+                    orbitAngle += speed * 0.25;
+                    if (orbitAngle >= Math.PI * 2 && !hasCompletedOrbit) {
+                        orbitAngle = Math.PI * 2;
+                        hasCompletedOrbit = true;
+                        isPlaying = false;
+                        updatePlayButton();
+                        showCompletionMessage('🌸☀️🍂❄️ 春夏秋冬，一年四季轮回完成！');
+                    }
+                    // 椭圆轨道
+                    earth.position.x = Math.cos(orbitAngle) * EARTH_ORBIT_RADIUS;
+                    earth.position.z = Math.sin(orbitAngle) * EARTH_ORBIT_RADIUS_B;
+                    earth.rotation.y += speed * 0.4;
+                    yearProgress = Math.min((orbitAngle / (Math.PI * 2)) * 100, 100);
+                    dayCount = yearProgress * 3.65;
+                    break;
+            }
         }
     }
+
+    // 内部结构动画
+    updateStructureAnimation(time);
 
     const moonAngle = time * 0.5;
     moon.position.x = Math.cos(moonAngle) * MOON_ORBIT_RADIUS;
     moon.position.z = Math.sin(moonAngle) * MOON_ORBIT_RADIUS;
 
-    document.getElementById('dayCount').textContent = `第 ${Math.floor(dayCount) + 1} 天`;
-    document.getElementById('yearProgress').textContent = `公转进度: ${yearProgress.toFixed(1)}%`;
+    if (currentMode !== 'structure') {
+        document.getElementById('dayCount').textContent = `第 ${Math.floor(dayCount) + 1} 天`;
+        document.getElementById('yearProgress').textContent = `公转进度: ${yearProgress.toFixed(1)}%`;
+    }
 
     if (currentMode === 'rotation') {
         controls.target.copy(earth.position);
