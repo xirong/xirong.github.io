@@ -724,52 +724,57 @@ function createStructureModel() {
 
     const baseRadius = EARTH_RADIUS;
 
-    // 启用渲染器的 clipping 功能
-    renderer.localClippingEnabled = true;
-
-    // 剖面切割平面：沿 X 轴正方向切掉前半部分
-    const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-
     // 从内到外创建各层
     for (let i = 0; i < STRUCTURE_LAYERS.length; i++) {
         const layer = STRUCTURE_LAYERS[i];
         const outerR = baseRadius * layer.radiusRatio;
         const innerR = i > 0 ? baseRadius * STRUCTURE_LAYERS[i - 1].radiusRatio : 0;
 
-        // 外表面球体（被裁剪）
-        const outerGeo = new THREE.SphereGeometry(outerR, 64, 64);
-        const outerMat = new THREE.MeshPhongMaterial({
+        // ---- 后半球壳（只渲染外表面，不影响剖面视觉） ----
+        // phiStart=PI/2 到 phiLength=PI：只生成 z<0 的后半球
+        const halfGeo = new THREE.SphereGeometry(outerR, 64, 64,
+            Math.PI / 2, Math.PI);
+        const halfMat = new THREE.MeshPhongMaterial({
             color: layer.color,
             emissive: layer.emissive,
-            emissiveIntensity: 0.5,
+            emissiveIntensity: 0.4,
             shininess: 30,
             transparent: true,
-            opacity: 0.95,
-            clippingPlanes: [clipPlane],
-            clipShadows: true,
-            side: THREE.DoubleSide
+            opacity: 0.6,
+            side: THREE.FrontSide
         });
-        const outerMesh = new THREE.Mesh(outerGeo, outerMat);
-        outerMesh.userData = { layerIndex: i, layerName: layer.name };
-        structureGroup.add(outerMesh);
-        structureLayers.push(outerMesh);
+        const halfMesh = new THREE.Mesh(halfGeo, halfMat);
+        halfMesh.userData = { layerIndex: i, layerName: layer.name };
+        halfMesh.renderOrder = 0;
+        structureGroup.add(halfMesh);
+        structureLayers.push(halfMesh);
 
-        // 剖面圆环（切面上的填充）
+        // ---- 剖面圆环（主要可视元素） ----
         if (outerR > 0) {
             const ringGeo = new THREE.RingGeometry(innerR, outerR, 64);
-            const ringMat = new THREE.MeshPhongMaterial({
+            const ringMat = new THREE.MeshBasicMaterial({
                 color: layer.color,
-                emissive: layer.emissive,
-                emissiveIntensity: 0.6,
-                shininess: 10,
                 side: THREE.DoubleSide
             });
             const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-            // RingGeometry 默认在 XY 平面，需旋转到 XY 平面朝 Z 正方向
-            // clipPlane 沿 Z 方向，所以剖面在 Z=0 的 XY 平面上
+            ringMesh.position.z = 0.01;
+            ringMesh.renderOrder = 10 + i;
             ringMesh.userData = { layerIndex: i, layerName: layer.name };
             structureGroup.add(ringMesh);
             structureLayers.push(ringMesh);
+
+            // 层间分界线（深色细环，增强层边界辨识度）
+            if (i > 0) {
+                const borderGeo = new THREE.RingGeometry(innerR - 0.02, innerR + 0.05, 64);
+                const borderMat = new THREE.MeshBasicMaterial({
+                    color: 0x111111,
+                    side: THREE.DoubleSide
+                });
+                const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+                borderMesh.position.z = 0.02;
+                borderMesh.renderOrder = 20 + i;
+                structureGroup.add(borderMesh);
+            }
         }
     }
 
@@ -804,9 +809,9 @@ function createStructureLabels(baseRadius) {
     structureLabels.forEach(s => structureGroup.remove(s));
     structureLabels = [];
 
-    // 标签沿上方扇形分布，从内核（中心）到地壳（外缘），从左上到右上
-    const angleStart = 110 * Math.PI / 180;  // 左上
-    const angleEnd = 20 * Math.PI / 180;     // 右上
+    // 标签沿上方扇形分布，从内核（中心）到地壳（外缘）
+    const angleStart = 120 * Math.PI / 180;  // 左上
+    const angleEnd = 40 * Math.PI / 180;     // 右上
     const totalLayers = STRUCTURE_LAYERS.length;
 
     for (let i = 0; i < totalLayers; i++) {
@@ -861,11 +866,11 @@ function createStructureLabels(baseRadius) {
         const sprite = new THREE.Sprite(spriteMat);
 
         // 标签位置：沿辐射方向延伸到球体外侧上方
-        const labelDist = baseRadius * 1.5 + i * 1.0;
+        const labelDist = baseRadius * 1.3 + i * 0.8;
         const labelX = labelDist * Math.cos(layerAngle);
         const labelY = labelDist * Math.sin(layerAngle);
-        sprite.position.set(labelX, labelY, 0);
-        sprite.scale.set(5, 2, 1);
+        sprite.position.set(labelX, labelY, 0.5);
+        sprite.scale.set(4, 1.6, 1);
         structureGroup.add(sprite);
         structureLabels.push(sprite);
 
@@ -958,11 +963,11 @@ function createBoundaryLabels(baseRadius) {
         });
         const sprite = new THREE.Sprite(spriteMat);
 
-        // 莫霍面标签放在左上，古登堡面标签放在左下（不超出底部）
-        const labelX = -(baseRadius * 1.2 + idx * 2.5);
-        const labelY = (idx === 0) ? baseRadius * 1.0 : -(baseRadius * 0.6);
-        sprite.position.set(labelX, labelY, 0);
-        sprite.scale.set(5, 1.5, 1);
+        // 莫霍面标签放在左上，古登堡面标签放在左下
+        const labelX = -(baseRadius * 1.1 + idx * 2.0);
+        const labelY = (idx === 0) ? baseRadius * 0.8 : -(baseRadius * 0.5);
+        sprite.position.set(labelX, labelY, 0.5);
+        sprite.scale.set(4, 1.2, 1);
         structureGroup.add(sprite);
         structureLabels.push(sprite);
 
@@ -1169,8 +1174,8 @@ function updateUIForMode() {
             axisIndicator.classList.add('visible');
             break;
         case 'structure':
-            // 从右前方俯视，能同时看到切面彩色环和球体外表
-            camera.position.set(16, 8, 8);
+            // 从正前方稍偏右上俯视，主要展示剖面
+            camera.position.set(4, 3, 18);
             controls.target.set(0, 0, 0);
             controls.minDistance = 10;
             controls.maxDistance = 50;

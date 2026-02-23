@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金星探险家 - 柳智天的宇宙课堂</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+    <link
+        href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Orbitron:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cosmic-dark: #0a0a0f;
+            --venus-amber: #D4A017;
+            --venus-gold: #E8B830;
+            --venus-dark: #8B6914;
+            --accent-gold: #f4d03f;
+            --accent-cyan: #00d4ff;
+            --accent-green: #2ecc71;
+            --accent-orange: #e67e22;
+            --accent-red: #e74c3c;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--cosmic-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* ========== Loading Screen ========== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cosmic-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-venus {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 35% 35%, #f0d060, #D4A017, #8B6914);
+            border-radius: 50%;
+            animation: venus-pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(212, 160, 23, 0.4);
+        }
+
+        @keyframes venus-pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(212, 160, 23, 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 60px rgba(212, 160, 23, 0.7); transform: scale(1.05); }
+        }
+
+        .loading-text {
+            margin-top: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            color: var(--venus-amber);
+        }
+
+        /* ========== Header ========== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .header > * {
+            pointer-events: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(circle at 35% 35%, #f0d060, #D4A017);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 25px rgba(212, 160, 23, 0.4);
+        }
+
+        .logo-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--venus-amber), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--venus-amber);
+            transform: translateX(-3px);
+        }
+
+        /* ========== Progress Bar ========== */
+        .progress-bar {
+            position: fixed;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 8px 20px;
+            border-radius: 25px;
+        }
+
+        .progress-stars {
+            display: flex;
+            gap: 6px;
+        }
+
+        .progress-star {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .progress-star.completed {
+            background: rgba(212, 160, 23, 0.25);
+            border-color: var(--venus-amber);
+            box-shadow: 0 0 10px rgba(212, 160, 23, 0.3);
+        }
+
+        .progress-star.current {
+            border-color: var(--accent-cyan);
+            animation: star-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes star-pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 212, 255, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.6); }
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-left: 5px;
+        }
+
+        /* ========== Chapter Menu ========== */
+        .chapter-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .chapter-menu.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .chapter-menu-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--venus-amber), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chapter-menu-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            padding: 0 20px;
+        }
+
+        .chapter-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--venus-amber);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chapter-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chapter-card.locked:hover {
+            transform: none;
+            border-color: var(--glass-border);
+            background: var(--glass-bg);
+        }
+
+        .chapter-card.completed {
+            border-color: var(--venus-amber);
+            background: rgba(212, 160, 23, 0.08);
+        }
+
+        .chapter-card .ch-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .chapter-card .ch-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .chapter-card .ch-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .chapter-card .lock-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1rem;
+        }
+
+        /* ========== Story Panel ========== */
+        .story-panel {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
+            width: min(90vw, 650px);
+            background: rgba(10, 10, 30, 0.92);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            padding: 25px 30px;
+            display: none;
+        }
+
+        .story-panel.visible {
+            display: block;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(30px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .story-chapter-tag {
+            font-size: 0.75rem;
+            color: var(--venus-amber);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .story-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.8;
+            color: #fff;
+            min-height: 60px;
+        }
+
+        .story-text .highlight {
+            color: var(--venus-gold);
+        }
+
+        .story-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 18px;
+        }
+
+        .story-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .story-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .story-dot.active {
+            background: var(--venus-amber);
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        .story-next-btn {
+            padding: 10px 28px;
+            background: linear-gradient(135deg, var(--venus-amber), var(--venus-dark));
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 160, 23, 0.3);
+        }
+
+        .story-next-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(212, 160, 23, 0.5);
+        }
+
+        /* ========== Hanzi Card ========== */
+        .hanzi-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 160;
+            width: min(92vw, 500px);
+            background: rgba(10, 10, 30, 0.95);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+
+        .hanzi-panel.visible {
+            display: block;
+            animation: popIn 0.4s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .hanzi-tag {
+            font-size: 0.75rem;
+            color: var(--accent-orange);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .hanzi-main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .hanzi-char-box {
+            flex-shrink: 0;
+        }
+
+        .hanzi-char {
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--venus-gold);
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(212, 160, 23, 0.3);
+        }
+
+        .hanzi-pinyin {
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            margin-top: 5px;
+        }
+
+        .hanzi-pictograph {
+            width: 120px;
+            height: 120px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+        }
+
+        .hanzi-words {
+            font-size: 1.1rem;
+            color: var(--venus-amber);
+            margin-bottom: 8px;
+        }
+
+        .hanzi-sentence {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .hanzi-nav {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .hanzi-btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hanzi-btn.primary {
+            background: linear-gradient(135deg, var(--venus-gold), var(--accent-orange));
+            color: #1a0a2e;
+            box-shadow: 0 4px 15px rgba(212, 160, 23, 0.3);
+        }
+
+        .hanzi-btn.primary:hover {
+            transform: scale(1.05);
+        }
+
+        /* ========== Quiz Panel ========== */
+        .quiz-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 160;
+            width: min(92vw, 480px);
+            background: rgba(10, 10, 30, 0.95);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+
+        .quiz-panel.visible {
+            display: block;
+            animation: popIn 0.4s ease;
+        }
+
+        .quiz-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .quiz-tag.knowledge { color: var(--accent-green); }
+        .quiz-tag.math { color: var(--accent-cyan); }
+
+        .quiz-question {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            padding: 14px 20px;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 14px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--venus-amber);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--accent-green);
+            background: rgba(46, 204, 113, 0.2);
+            animation: correctPulse 0.5s ease;
+        }
+
+        .quiz-option.wrong {
+            border-color: var(--accent-red);
+            background: rgba(231, 76, 60, 0.2);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .quiz-option .opt-label {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ========== Reward Popup ========== */
+        .reward-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 15, 0.85);
+        }
+
+        .reward-popup.visible {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .reward-content {
+            text-align: center;
+            animation: rewardBounce 0.6s ease;
+        }
+
+        @keyframes rewardBounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reward-icon {
+            font-size: 5rem;
+            margin-bottom: 15px;
+        }
+
+        .reward-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--venus-gold);
+            margin-bottom: 10px;
+        }
+
+        .reward-desc {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        .reward-btn {
+            padding: 12px 35px;
+            background: linear-gradient(135deg, var(--venus-gold), var(--accent-orange));
+            border: none;
+            border-radius: 30px;
+            color: #1a0a2e;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(212, 160, 23, 0.4);
+        }
+
+        .reward-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ========== Final Badge ========== */
+        .final-badge {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 15, 0.92);
+        }
+
+        .final-badge.visible {
+            display: flex;
+        }
+
+        .final-badge-content {
+            text-align: center;
+            animation: rewardBounce 0.8s ease;
+        }
+
+        .final-badge-icon {
+            font-size: 7rem;
+            margin-bottom: 20px;
+            animation: badgeGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes badgeGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(212, 160, 23, 0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(212, 160, 23, 0.9)); }
+        }
+
+        .final-badge-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--venus-gold), #fff, var(--venus-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .final-badge-desc {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* ========== Star Fall Canvas ========== */
+        #starFallCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 250;
+            pointer-events: none;
+        }
+
+        /* ========== Menu Button ========== */
+        .menu-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            color: white;
+            font-size: 1.6rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: scale(1.1);
+        }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 600px) {
+            .chapter-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .story-text {
+                font-size: 1.2rem;
+            }
+
+            .hanzi-char {
+                font-size: 4rem;
+            }
+
+            .quiz-question {
+                font-size: 1.2rem;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .progress-bar {
+                top: 65px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-venus"></div>
+        <div class="loading-text">正在飞向金星...</div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🌕</div>
+            <div class="logo-text">
+                <h1>VENUS</h1>
+                <p>金星探险家 - 柳智天的宇宙课堂</p>
+            </div>
+        </div>
+        <a href="../index.html" class="back-btn">
+            <span>←</span>
+            <span>返回首页</span>
+        </a>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-stars" id="progressStars">
+            <!-- JS fills 6 stars -->
+        </div>
+        <span class="progress-label" id="progressLabel">0/6</span>
+    </div>
+
+    <!-- Chapter Menu -->
+    <div class="chapter-menu visible" id="chapterMenu">
+        <div class="chapter-menu-title">金星探险家</div>
+        <div class="chapter-menu-subtitle">选择章节，开始金星探险之旅！</div>
+        <div class="chapter-grid" id="chapterGrid">
+            <!-- JS fills -->
+        </div>
+    </div>
+
+    <!-- Story Panel -->
+    <div class="story-panel" id="storyPanel">
+        <div class="story-chapter-tag" id="storyTag">第1章 · 地球的姐妹</div>
+        <div class="story-text" id="storyText"></div>
+        <div class="story-nav">
+            <div class="story-dots" id="storyDots"></div>
+            <button class="story-next-btn" id="storyNextBtn" onclick="advanceStory()">继续 →</button>
+        </div>
+    </div>
+
+    <!-- Hanzi Panel -->
+    <div class="hanzi-panel" id="hanziPanel">
+        <div class="hanzi-tag" id="hanziTag">汉字学习 · 第1个</div>
+        <div class="hanzi-main">
+            <div class="hanzi-char-box">
+                <div class="hanzi-char" id="hanziChar">心</div>
+                <div class="hanzi-pinyin" id="hanziPinyin">xīn</div>
+            </div>
+            <canvas class="hanzi-pictograph" id="hanziPictograph" width="140" height="140"></canvas>
+        </div>
+        <div class="hanzi-words" id="hanziWords">心脏 · 开心</div>
+        <div class="hanzi-sentence" id="hanziSentence">今天玩得好开心。</div>
+        <div class="hanzi-nav">
+            <button class="hanzi-btn primary" id="hanziNextBtn" onclick="advanceHanzi()">学会了！</button>
+        </div>
+    </div>
+
+    <!-- Quiz Panel -->
+    <div class="quiz-panel" id="quizPanel">
+        <div class="quiz-tag knowledge" id="quizTag">知识测验</div>
+        <div class="quiz-question" id="quizQuestion">金星被叫做地球的什么？</div>
+        <div class="quiz-options" id="quizOptions">
+            <!-- JS fills -->
+        </div>
+    </div>
+
+    <!-- Reward Popup -->
+    <div class="reward-popup" id="rewardPopup">
+        <div class="reward-content">
+            <div class="reward-icon" id="rewardIcon">⭐</div>
+            <div class="reward-title" id="rewardTitle">太棒了！</div>
+            <div class="reward-desc" id="rewardDesc">你获得了一颗星星！</div>
+            <button class="reward-btn" id="rewardBtn" onclick="closeReward()">继续探险 →</button>
+        </div>
+    </div>
+
+    <!-- Final Badge -->
+    <div class="final-badge" id="finalBadge">
+        <div class="final-badge-content">
+            <div class="final-badge-icon">🏅</div>
+            <div class="final-badge-title">金星探险家</div>
+            <div class="final-badge-desc">恭喜智天！你完成了全部6个章节的金星探险！</div>
+            <button class="reward-btn" onclick="closeFinalBadge()">太开心了！🎉</button>
+        </div>
+    </div>
+
+    <!-- Star Fall Effect -->
+    <canvas id="starFallCanvas"></canvas>
+
+    <!-- Menu Button -->
+    <button class="menu-btn" id="menuBtn" onclick="showChapterMenu()" title="章节菜单">📋</button>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="venus.js"></script>
+</body>
+
+</html>
