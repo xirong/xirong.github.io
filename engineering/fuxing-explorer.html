@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复兴号 CR400AF · 3D 探索</title>
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: #0a1628;
+            font-family: 'Noto Sans SC', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        canvas#three-canvas { display: block; }
+
+        /* ============ 顶部标题栏 ============ */
+        #topBar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        #topBar h1 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(200,169,81,0.4);
+        }
+        #topBar h1 .gold { color: #C8A951; }
+        #topBar .subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin-left: 12px;
+        }
+
+        /* ============ 返回按钮 ============ */
+        #backBtn {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 200;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-family: 'Noto Sans SC', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        #backBtn:hover { background: rgba(255,255,255,0.15); }
+
+        /* ============ 信息面板 ============ */
+        #infoPanel {
+            position: fixed;
+            top: 60px;
+            right: 16px;
+            width: 320px;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+            background: rgba(8,18,36,0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200,169,81,0.3);
+            border-radius: 14px;
+            padding: 20px;
+            z-index: 10;
+            color: #fff;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        #infoPanel.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+        #infoPanel h2 {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            color: #C8A951;
+        }
+        #infoPanel .info-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.85);
+        }
+        #infoPanel .info-content .highlight {
+            color: #C8A951;
+            font-weight: 700;
+        }
+        #infoPanel .info-content .fun-fact {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(200,169,81,0.1);
+            border-left: 3px solid #C8A951;
+            border-radius: 0 8px 8px 0;
+        }
+        #infoPanel .info-content .fun-fact-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .info-tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .info-tag {
+            background: rgba(200,169,81,0.15);
+            border: 1px solid rgba(200,169,81,0.3);
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 12px;
+            color: #C8A951;
+        }
+
+        /* ============ 底部控制栏 ============ */
+        #controls {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .ctrl-btn {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-family: 'Noto Sans SC', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
+        }
+        .ctrl-btn:hover { background: rgba(255,255,255,0.15); }
+        .ctrl-btn:active { transform: scale(0.95); }
+        .ctrl-btn.active {
+            border-color: #C8A951;
+            background: rgba(200,169,81,0.2);
+            color: #C8A951;
+        }
+        .ctrl-btn.enter-cab {
+            background: rgba(200,169,81,0.2);
+            border-color: #C8A951;
+            color: #C8A951;
+            font-weight: 700;
+        }
+        .ctrl-btn.enter-cab:hover {
+            background: rgba(200,169,81,0.35);
+        }
+
+        /* ============ 操作提示 ============ */
+        #hint {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* ============ Loading ============ */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: #0a1628;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s;
+        }
+        #loading.fade-out { opacity: 0; pointer-events: none; }
+        #loading .emoji { font-size: 60px; margin-bottom: 16px; }
+        #loading .text { color: #fff; font-size: 18px; font-weight: 700; }
+        #loading .subtext { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 8px; }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 768px) {
+            #infoPanel {
+                top: auto;
+                bottom: 80px;
+                right: 8px;
+                left: 8px;
+                width: auto;
+                max-height: 40vh;
+            }
+            #topBar h1 { font-size: 16px; }
+            .ctrl-btn { padding: 8px 12px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <a id="backBtn" href="../index.html">← 返回首页</a>
+
+    <!-- Loading -->
+    <div id="loading">
+        <div class="emoji">🚄</div>
+        <div class="text">复兴号 CR400AF 加载中...</div>
+        <div class="subtext">中国标准动车组 · 飞龙造型</div>
+    </div>
+
+    <!-- 顶部标题 -->
+    <div id="topBar">
+        <h1>🚄 <span class="gold">复兴号</span> CR400AF · 3D 探索</h1>
+        <span class="subtitle">中国标准动车组</span>
+    </div>
+
+    <!-- 信息面板 -->
+    <div id="infoPanel">
+        <h2>复兴号 CR400AF</h2>
+        <div class="info-tag-row">
+            <span class="info-tag">8辆编组</span>
+            <span class="info-tag">350km/h</span>
+            <span class="info-tag">飞龙造型</span>
+        </div>
+        <div class="info-content" id="infoContent">
+            <p><span class="highlight">复兴号</span>是中国自主研发的高速动车组，代表着世界最先进的高铁技术！</p>
+            <p>CR400AF 的「飞龙」造型车头长达 <span class="highlight">12米</span>，像一条银色的巨龙在大地上飞驰。</p>
+            <p>最高运营速度 <span class="highlight">350公里/小时</span>，是世界上商业运营速度最快的高铁之一！</p>
+            <div class="fun-fact">
+                <div class="fun-fact-title">🤔 智天，你知道吗？</div>
+                <p>复兴号每秒能跑 <span class="highlight">97米</span>，比猎豹还快3倍！试试点击车厢或驾驶室探索更多秘密吧！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部控制按钮 -->
+    <div id="controls">
+        <button class="ctrl-btn active" data-view="side">🚄 侧面</button>
+        <button class="ctrl-btn" data-view="top">🔽 俯视</button>
+        <button class="ctrl-btn" data-view="head">🔍 车头特写</button>
+        <button class="ctrl-btn" data-view="front">🎯 正面</button>
+        <button class="ctrl-btn enter-cab" id="cabBtn">🎮 进入驾驶室</button>
+    </div>
+
+    <!-- 操作提示 -->
+    <div id="hint">🖱️ 拖拽旋转 · 滚轮缩放 · 右键平移 · 点击车厢查看信息</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="fuxing-explorer.js"></script>
+</body>
+</html>
