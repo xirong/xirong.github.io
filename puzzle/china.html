@@ -937,8 +937,12 @@
             // 在地图上添加省份标签（emoji + 名称）
             addProvinceLabel(key, province);
 
-            // 点击查看详情
-            province.targetElement.onclick = () => showProvinceInfo(province.info);
+            // 点击查看详情 + 播放语音
+            province.targetElement.onclick = () => {
+                showProvinceInfo(province.info);
+                const text = `${province.info.name}，美食是${province.info.food.name}，著名景点有${province.info.landmark.name}。${province.info.funFact}`;
+                playProvinceAudio(key, text);
+            };
 
             province.placed = true;
             placedCount++;
