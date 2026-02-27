@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '它能装下1300多个地球哦！'
         },
-        math: {
-            question: '木星有4颗大卫星和3颗小卫星在身边，一共几颗？',
-            options: [
-                { text: '6颗', correct: false },
-                { text: '7颗', correct: true },
-                { text: '8颗', correct: false }
-            ],
-            hint: '4 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '木星有4颗大卫星和3颗小卫星在身边，一共几颗？',
+                options: [
+                    { text: '6颗', correct: false },
+                    { text: '7颗', correct: true },
+                    { text: '8颗', correct: false }
+                ],
+                hint: '4 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '木星能装下10个小星球，已经装了4个，还能装几个？',
+                answer: 6,
+                hint: '10 - 4 = 6'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 8,
+                right: 5,
+                answer: '>',
+                hint: '8比5大！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '木星是气态巨行星哦！'
         },
-        math: {
-            question: '木星大气有5层，我们看到了3层，还有几层没看到？',
-            options: [
-                { text: '2层', correct: true },
-                { text: '3层', correct: false },
-                { text: '1层', correct: false }
-            ],
-            hint: '5 - 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '木星大气有5层，我们看到了3层，还有几层没看到？',
+                options: [
+                    { text: '2层', correct: true },
+                    { text: '3层', correct: false },
+                    { text: '1层', correct: false }
+                ],
+                hint: '5 - 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '木星的气体云有3团白色的和4团橙色的，一共有几团？',
+                answer: 7,
+                hint: '3 + 4 = 7'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 6,
+                answer: '<',
+                hint: '3比6小！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '它已经刮了400年了！'
         },
-        math: {
-            question: '大风暴里有4股大风和3股小风，一共几股风？',
-            options: [
-                { text: '6股', correct: false },
-                { text: '8股', correct: false },
-                { text: '7股', correct: true }
-            ],
-            hint: '4 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '大风暴里有4股大风和3股小风，一共几股风？',
+                options: [
+                    { text: '6股', correct: false },
+                    { text: '8股', correct: false },
+                    { text: '7股', correct: true }
+                ],
+                hint: '4 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '大红斑的风速特别快，如果风吹走了9片云，又飘来了1片，还剩几片被吹走的？',
+                answer: 8,
+                hint: '9 - 1 = 8'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 7,
+                right: 7,
+                answer: '=',
+                hint: '7和7一样大！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '是一位著名天文学家发现的！'
         },
-        math: {
-            question: '伽利略发现了4颗卫星，后来又发现了3颗，一共几颗？',
-            options: [
-                { text: '6颗', correct: false },
-                { text: '7颗', correct: true },
-                { text: '8颗', correct: false }
-            ],
-            hint: '4 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '伽利略发现了4颗卫星，后来又发现了3颗，一共几颗？',
+                options: [
+                    { text: '6颗', correct: false },
+                    { text: '7颗', correct: true },
+                    { text: '8颗', correct: false }
+                ],
+                hint: '4 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '木卫二的冰面上有5条裂缝，又发现了3条，一共几条？',
+                answer: 8,
+                hint: '5 + 3 = 8'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 4,
+                right: 9,
+                answer: '<',
+                hint: '4比9小！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '木星环非常暗淡...'
         },
-        math: {
-            question: '木星环有3层，土星环有7层，木星比土星少几层？',
-            options: [
-                { text: '4层', correct: true },
-                { text: '3层', correct: false },
-                { text: '5层', correct: false }
-            ],
-            hint: '7 - 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '木星环有3层，土星环有7层，木星比土星少几层？',
+                options: [
+                    { text: '4层', correct: true },
+                    { text: '3层', correct: false },
+                    { text: '5层', correct: false }
+                ],
+                hint: '7 - 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '木星环上飘着6粒尘埃，飞走了2粒，还剩几粒？',
+                answer: 4,
+                hint: '6 - 2 = 4'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 7,
+                answer: '<',
+                hint: '3比7小！木星环比土星环少。'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '它帮地球吸走了很多危险的东西...'
         },
-        math: {
-            question: '木星帮地球挡住了5块大石头和3块小石头，一共几块？',
-            options: [
-                { text: '7块', correct: false },
-                { text: '9块', correct: false },
-                { text: '8块', correct: true }
-            ],
-            hint: '5 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '木星帮地球挡住了5块大石头和3块小石头，一共几块？',
+                options: [
+                    { text: '7块', correct: false },
+                    { text: '9块', correct: false },
+                    { text: '8块', correct: true }
+                ],
+                hint: '5 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '木星吸走了10颗小行星，地球自己挡住了1颗，木星比地球多挡了几颗？',
+                answer: 9,
+                hint: '10 - 1 = 9'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 5,
+                right: 3,
+                answer: '>',
+                hint: '5比3大！大石头比小石头多。'
+            }
+        ]
     }
 ];
 
@@ -470,7 +572,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],
     currentChapter: null,
-    phase: 'menu'
+    phase: 'menu',
+    mathQuestionIndex: 0
 };
 
 let storyIndex = 0;
@@ -515,8 +618,8 @@ const jupiterAudio = {
     hanzi: (chId, idx) => `audio/jupiter/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/jupiter/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/jupiter/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/jupiter/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/jupiter/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/jupiter/ch${chId}-math-${qIdx + 1}.mp3` : `audio/jupiter/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/jupiter/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/jupiter/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/jupiter/ch${chId}-complete.mp3`
 };
 
@@ -995,23 +1098,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '数学挑战';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(jupiterAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = jupiterAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">&#9675;</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -1031,15 +1168,24 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
 
             if (gameState.phase === 'quiz') {
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                completeChapter();
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? jupiterAudio.mathHint(chId) : jupiterAudio.quizHint(chId);
+        const hintAudioPath = type === 'math'
+            ? jupiterAudio.mathHint(chId, gameState.mathQuestionIndex)
+            : jupiterAudio.quizHint(chId);
         playAudio(hintAudioPath, hint || '再想一想！');
 
         setTimeout(() => {

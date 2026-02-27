@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '想想铁生锈后是什么颜色？'
         },
-        math: {
-            question: '火星上有3座大火山和4座小火山，一共几座？',
-            options: [
-                { text: '6 座', correct: false },
-                { text: '7 座', correct: true },
-                { text: '8 座', correct: false }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '火星上有3座大火山和4座小火山，一共几座？',
+                options: [
+                    { text: '6 座', correct: false },
+                    { text: '7 座', correct: true },
+                    { text: '8 座', correct: false }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '火星表面有6块红色石头，风吹走了2块，还剩几块？',
+                answer: 4,
+                hint: '6 - 2 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 4,
+                right: 3,
+                answer: '>',
+                hint: '4比3大！火星排在第4颗，地球排第3颗！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '想想奥林帕斯山在哪颗星球上...'
         },
-        math: {
-            question: '峡谷里有6块大石头，滚走了2块，还剩几块？',
-            options: [
-                { text: '4 块', correct: true },
-                { text: '3 块', correct: false },
-                { text: '5 块', correct: false }
-            ],
-            hint: '6 - 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '峡谷里有6块大石头，滚走了2块，还剩几块？',
+                options: [
+                    { text: '4 块', correct: true },
+                    { text: '3 块', correct: false },
+                    { text: '5 块', correct: false }
+                ],
+                hint: '6 - 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '奥林帕斯山上有5个观测站，又新建了3个，一共有几个？',
+                answer: 8,
+                hint: '5 + 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 9,
+                answer: '<',
+                hint: '3比9小！奥林帕斯山比珠峰高3倍呢！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '火星上很干燥，风会卷起沙尘...'
         },
-        math: {
-            question: '火星上刮了3天沙尘暴，又刮了5天，一共刮了几天？',
-            options: [
-                { text: '7 天', correct: false },
-                { text: '9 天', correct: false },
-                { text: '8 天', correct: true }
-            ],
-            hint: '3 + 5 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '火星上刮了3天沙尘暴，又刮了5天，一共刮了几天？',
+                options: [
+                    { text: '7 天', correct: false },
+                    { text: '9 天', correct: false },
+                    { text: '8 天', correct: true }
+                ],
+                hint: '3 + 5 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '沙尘暴卷起了9粒沙子，落下了4粒，空中还有几粒？',
+                answer: 5,
+                hint: '9 - 4 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 1,
+                right: 8,
+                answer: '<',
+                hint: '1比8小！火星大气只有地球的1%！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '科学家在火星南北极发现了什么？'
         },
-        math: {
-            question: '探测器找到了3块冰和2块岩石，一共找到几块？',
-            options: [
-                { text: '4 块', correct: false },
-                { text: '5 块', correct: true },
-                { text: '6 块', correct: false }
-            ],
-            hint: '3 + 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '探测器找到了3块冰和2块岩石，一共找到几块？',
+                options: [
+                    { text: '4 块', correct: false },
+                    { text: '5 块', correct: true },
+                    { text: '6 块', correct: false }
+                ],
+                hint: '3 + 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '火星北极有7块大冰，融化了1块，还有几块？',
+                answer: 6,
+                hint: '7 - 1 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 2,
+                answer: '>',
+                hint: '3比2大！找到的冰比岩石多！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '祝融是中国神话中的火神...'
         },
-        math: {
-            question: '好奇号有6个轮子，坏了1个，还有几个好的？',
-            options: [
-                { text: '5 个', correct: true },
-                { text: '4 个', correct: false },
-                { text: '3 个', correct: false }
-            ],
-            hint: '6 - 1 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '好奇号有6个轮子，坏了1个，还有几个好的？',
+                options: [
+                    { text: '5 个', correct: true },
+                    { text: '4 个', correct: false },
+                    { text: '3 个', correct: false }
+                ],
+                hint: '6 - 1 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '祝融号拍了4张照片，好奇号拍了6张，一共拍了几张？',
+                answer: 10,
+                hint: '4 + 6 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 6,
+                right: 6,
+                answer: '=',
+                hint: '6等于6！两边一样多！'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '火卫一和火卫二...'
         },
-        math: {
-            question: '地球有1个月亮，火星有2个小卫星，一共几个？',
-            options: [
-                { text: '2 个', correct: false },
-                { text: '4 个', correct: false },
-                { text: '3 个', correct: true }
-            ],
-            hint: '1 + 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '地球有1个月亮，火星有2个小卫星，一共几个？',
+                options: [
+                    { text: '2 个', correct: false },
+                    { text: '4 个', correct: false },
+                    { text: '3 个', correct: true }
+                ],
+                hint: '1 + 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '火卫一绕火星转了5圈，火卫二转了3圈，一共转了几圈？',
+                answer: 8,
+                hint: '5 + 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 2,
+                right: 1,
+                answer: '>',
+                hint: '2比1大！火星的卫星比地球多！'
+            }
+        ]
     }
 ];
 
@@ -573,7 +675,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],
     currentChapter: null,
-    phase: 'menu'
+    phase: 'menu',
+    mathQuestionIndex: 0
 };
 
 let storyIndex = 0;
@@ -618,8 +721,8 @@ const marsAudio = {
     hanzi: (chId, idx) => `audio/mars/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/mars/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/mars/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/mars/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/mars/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/mars/ch${chId}-math-${qIdx + 1}.mp3` : `audio/mars/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/mars/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/mars/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/mars/ch${chId}-complete.mp3`
 };
 
@@ -1104,23 +1207,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '数学挑战';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(marsAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = marsAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">○</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -1140,15 +1277,22 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
 
             if (gameState.phase === 'quiz') {
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                completeChapter();
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? marsAudio.mathHint(chId) : marsAudio.quizHint(chId);
+        const hintAudioPath = type === 'math' ? marsAudio.mathHint(chId, gameState.mathQuestionIndex) : marsAudio.quizHint(chId);
         playAudio(hintAudioPath, hint || '再想一想！');
 
         setTimeout(() => {

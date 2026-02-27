@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '月球引力是地球的六分之一哦！'
         },
-        math: {
-            question: '宇航员在地球跳1米高，在月球跳了6米，高了几米？',
-            options: [
-                { text: '3 米', correct: false },
-                { text: '5 米', correct: true },
-                { text: '7 米', correct: false }
-            ],
-            hint: '6 - 1 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '宇航员在地球跳1米高，在月球跳了6米，高了几米？',
+                options: [
+                    { text: '3 米', correct: false },
+                    { text: '5 米', correct: true },
+                    { text: '7 米', correct: false }
+                ],
+                hint: '6 - 1 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '月球上有4个宇航员，又来了3个，现在一共有几个？',
+                answer: 7,
+                hint: '4 + 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 6,
+                right: 1,
+                answer: '>',
+                hint: '6比1大哦！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '想一想，一个大星球撞了地球后...'
         },
-        math: {
-            question: '碰撞后飞出了5块大碎片和3块小碎片，一共几块？',
-            options: [
-                { text: '8 块', correct: true },
-                { text: '7 块', correct: false },
-                { text: '9 块', correct: false }
-            ],
-            hint: '5 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '碰撞后飞出了5块大碎片和3块小碎片，一共几块？',
+                options: [
+                    { text: '8 块', correct: true },
+                    { text: '7 块', correct: false },
+                    { text: '9 块', correct: false }
+                ],
+                hint: '5 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '碰撞后有9块碎片，飞走了4块，还剩几块？',
+                answer: 5,
+                hint: '9 - 4 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 5,
+                right: 3,
+                answer: '>',
+                hint: '5比3大！大碎片比小碎片多！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '月球被地球"锁住"了...'
         },
-        math: {
-            question: '智天连续看了3个晚上的月亮，又看了4个晚上，一共看了几个晚上？',
-            options: [
-                { text: '6 个晚上', correct: false },
-                { text: '8 个晚上', correct: false },
-                { text: '7 个晚上', correct: true }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '智天连续看了3个晚上的月亮，又看了4个晚上，一共看了几个晚上？',
+                options: [
+                    { text: '6 个晚上', correct: false },
+                    { text: '8 个晚上', correct: false },
+                    { text: '7 个晚上', correct: true }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '月球绕地球转了2圈，又转了6圈，一共转了几圈？',
+                answer: 8,
+                hint: '2 + 6 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 4,
+                answer: '<',
+                hint: '3比4小哦！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '他说了一句很有名的话...'
         },
-        math: {
-            question: '阿波罗11号有3名宇航员，加上阿波罗12号的3名，一共几名？',
-            options: [
-                { text: '5 名', correct: false },
-                { text: '6 名', correct: true },
-                { text: '7 名', correct: false }
-            ],
-            hint: '3 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '阿波罗11号有3名宇航员，加上阿波罗12号的3名，一共几名？',
+                options: [
+                    { text: '5 名', correct: false },
+                    { text: '6 名', correct: true },
+                    { text: '7 名', correct: false }
+                ],
+                hint: '3 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '宇航员带了8面旗帜，插了5面，还剩几面？',
+                answer: 3,
+                hint: '8 - 5 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 3,
+                answer: '=',
+                hint: '两个都是3，一样多！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '月球上没有空气也没有风哦...'
         },
-        math: {
-            question: '月球上有2个大陨石坑和5个小陨石坑，一共几个？',
-            options: [
-                { text: '7 个', correct: true },
-                { text: '6 个', correct: false },
-                { text: '8 个', correct: false }
-            ],
-            hint: '2 + 5 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '月球上有2个大陨石坑和5个小陨石坑，一共几个？',
+                options: [
+                    { text: '7 个', correct: true },
+                    { text: '6 个', correct: false },
+                    { text: '8 个', correct: false }
+                ],
+                hint: '2 + 5 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '探测器发现了10个陨石坑，有3个被探测过，还有几个没探测？',
+                answer: 7,
+                hint: '10 - 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 2,
+                right: 5,
+                answer: '<',
+                hint: '2比5小！小陨石坑比大陨石坑多！'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '声音需要空气来传播...'
         },
-        math: {
-            question: '太空服有头盔、手套、靴子、背包和连体衣，一共几个部件？',
-            options: [
-                { text: '4 个', correct: false },
-                { text: '6 个', correct: false },
-                { text: '5 个', correct: true }
-            ],
-            hint: '数一数：头盔1 + 手套1 + 靴子1 + 背包1 + 连体衣1'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '太空服有头盔、手套、靴子、背包和连体衣，一共几个部件？',
+                options: [
+                    { text: '4 个', correct: false },
+                    { text: '6 个', correct: false },
+                    { text: '5 个', correct: true }
+                ],
+                hint: '数一数：头盔1 + 手套1 + 靴子1 + 背包1 + 连体衣1'
+            },
+            {
+                type: 'fillin',
+                question: '宇航员带了7瓶氧气，用了4瓶，还剩几瓶？',
+                answer: 3,
+                hint: '7 - 4 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 5,
+                right: 6,
+                answer: '<',
+                hint: '5比6小！'
+            }
+        ]
     }
 ];
 
@@ -373,7 +475,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],  // 已完成的章节ID数组
     currentChapter: null,   // 当前正在进行的章节
-    phase: 'menu'           // menu, story, hanzi, quiz, math
+    phase: 'menu',          // menu, story, hanzi, quiz, math
+    mathQuestionIndex: 0    // 当前数学题索引（0-2）
 };
 
 let storyIndex = 0;
@@ -418,8 +521,8 @@ const moonAudio = {
     hanzi: (chId, idx) => `audio/moon/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/moon/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/moon/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/moon/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/moon/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/moon/ch${chId}-math-${qIdx + 1}.mp3` : `audio/moon/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/moon/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/moon/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/moon/ch${chId}-complete.mp3`
 };
 
@@ -910,23 +1013,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '数学挑战';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(moonAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = moonAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">○</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -947,16 +1084,25 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
             if (gameState.phase === 'quiz') {
                 // 知识测验答对 → 进入数学挑战
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                // 数学挑战答对 → 章节完成
-                completeChapter();
+                // 数学挑战答对 → 下一题或章节完成
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? moonAudio.mathHint(chId) : moonAudio.quizHint(chId);
+        const hintAudioPath = type === 'math'
+            ? moonAudio.mathHint(chId, gameState.mathQuestionIndex)
+            : moonAudio.quizHint(chId);
         playAudio(hintAudioPath, hint || '再想一想！');
 
         // 1秒后重置

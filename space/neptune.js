@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '它是太阳系的第8颗行星哦！'
         },
-        math: {
-            question: '太阳系有8颗行星，海王星排第8，前面有几颗？',
-            options: [
-                { text: '6颗', correct: false },
-                { text: '7颗', correct: true },
-                { text: '8颗', correct: false }
-            ],
-            hint: '8 - 1 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '太阳系有8颗行星，海王星排第8，前面有几颗？',
+                options: [
+                    { text: '6颗', correct: false },
+                    { text: '7颗', correct: true },
+                    { text: '8颗', correct: false }
+                ],
+                hint: '8 - 1 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '阳光到海王星要4个多小时，到地球要8分钟。4 + 3 = ？',
+                answer: 7,
+                hint: '4加3等于7哦！'
+            },
+            {
+                type: 'compare',
+                question: '比一比，海王星离太阳的距离和地球比',
+                left: 8,
+                right: 3,
+                answer: '>',
+                hint: '8比3大！海王星离太阳远得多！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '跟大气中一种特殊的气体有关...'
         },
-        math: {
-            question: '海王星能装下地球，智天数了4个又数了3个，一共数了几个？',
-            options: [
-                { text: '7个', correct: true },
-                { text: '6个', correct: false },
-                { text: '8个', correct: false }
-            ],
-            hint: '4 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '海王星能装下地球，智天数了4个又数了3个，一共数了几个？',
+                options: [
+                    { text: '7个', correct: true },
+                    { text: '6个', correct: false },
+                    { text: '8个', correct: false }
+                ],
+                hint: '4 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '海王星的大小是地球的4倍，比地球多几倍？4 - 1 = ？',
+                answer: 3,
+                hint: '4减1等于3哦！'
+            },
+            {
+                type: 'compare',
+                question: '比一比，海王星装得下的地球数量',
+                left: 9,
+                right: 9,
+                answer: '=',
+                hint: '9和9一样大，它们相等！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '它的颜色是黑色的哦...'
         },
-        math: {
-            question: '风暴刮了3天停了，又刮了5天，一共刮了几天？',
-            options: [
-                { text: '7天', correct: false },
-                { text: '9天', correct: false },
-                { text: '8天', correct: true }
-            ],
-            hint: '3 + 5 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '风暴刮了3天停了，又刮了5天，一共刮了几天？',
+                options: [
+                    { text: '7天', correct: false },
+                    { text: '9天', correct: false },
+                    { text: '8天', correct: true }
+                ],
+                hint: '3 + 5 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '大黑斑风暴有10级风力，小风暴有4级，大的比小的多几级？10 - 4 = ？',
+                answer: 6,
+                hint: '10减4等于6哦！'
+            },
+            {
+                type: 'compare',
+                question: '比一比，海王星和地球的风速',
+                left: 10,
+                right: 3,
+                answer: '>',
+                hint: '10比3大！海王星的风快多了！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '它转的方向跟其他卫星不一样...'
         },
-        math: {
-            question: '海卫一喷了2次冰泉，又喷了4次，一共喷了几次？',
-            options: [
-                { text: '5次', correct: false },
-                { text: '6次', correct: true },
-                { text: '7次', correct: false }
-            ],
-            hint: '2 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '海卫一喷了2次冰泉，又喷了4次，一共喷了几次？',
+                options: [
+                    { text: '5次', correct: false },
+                    { text: '6次', correct: true },
+                    { text: '7次', correct: false }
+                ],
+                hint: '2 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '海卫一喷了6次冰泉，停了2次，还在喷的有几次？',
+                answer: 4,
+                hint: '6 - 2 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，海卫一喷冰泉的次数',
+                left: 2,
+                right: 4,
+                answer: '<',
+                hint: '2比4小！第一次喷得少！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '碳在巨大压力下会变成一种很珍贵的东西...'
         },
-        math: {
-            question: '天上下了4颗钻石和2颗冰块，一共下了几颗？',
-            options: [
-                { text: '6颗', correct: true },
-                { text: '5颗', correct: false },
-                { text: '7颗', correct: false }
-            ],
-            hint: '4 + 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '天上下了4颗钻石和2颗冰块，一共下了几颗？',
+                options: [
+                    { text: '6颗', correct: true },
+                    { text: '5颗', correct: false },
+                    { text: '7颗', correct: false }
+                ],
+                hint: '4 + 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '钻石雨下了8颗钻石，智天捡了5颗，还剩几颗？8 - 5 = ？',
+                answer: 3,
+                hint: '8减5等于3哦！'
+            },
+            {
+                type: 'compare',
+                question: '比一比，钻石和冰块的数量',
+                left: 4,
+                right: 2,
+                answer: '>',
+                hint: '4比2大！钻石比冰块多！'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '科学家先算出了它应该在哪里...'
         },
-        math: {
-            question: '科学家算了3天又算了4天，终于找到了海王星，一共算了几天？',
-            options: [
-                { text: '6天', correct: false },
-                { text: '8天', correct: false },
-                { text: '7天', correct: true }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '科学家算了3天又算了4天，终于找到了海王星，一共算了几天？',
+                options: [
+                    { text: '6天', correct: false },
+                    { text: '8天', correct: false },
+                    { text: '7天', correct: true }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '望远镜看了10颗星星，其中有1颗是海王星，其他的有几颗？10 - 1 = ？',
+                answer: 9,
+                hint: '10减1等于9哦！'
+            },
+            {
+                type: 'compare',
+                question: '比一比，科学家计算的天数',
+                left: 3,
+                right: 4,
+                answer: '<',
+                hint: '3比4小！第二次算得更久！'
+            }
+        ]
     }
 ];
 
@@ -612,7 +714,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],
     currentChapter: null,
-    phase: 'menu'
+    phase: 'menu',
+    mathQuestionIndex: 0
 };
 
 let storyIndex = 0;
@@ -657,8 +760,8 @@ const neptuneAudio = {
     hanzi: (chId, idx) => `audio/neptune/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/neptune/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/neptune/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/neptune/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/neptune/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/neptune/ch${chId}-math-${qIdx + 1}.mp3` : `audio/neptune/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/neptune/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/neptune/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/neptune/ch${chId}-complete.mp3`
 };
 
@@ -1137,23 +1240,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '数学挑战';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(neptuneAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = neptuneAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">○</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -1173,15 +1310,22 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
 
             if (gameState.phase === 'quiz') {
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                completeChapter();
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? neptuneAudio.mathHint(chId) : neptuneAudio.quizHint(chId);
+        const hintAudioPath = type === 'math' ? neptuneAudio.mathHint(chId, gameState.mathQuestionIndex) : neptuneAudio.quizHint(chId);
         playAudio(hintAudioPath, hint || '再想一想！');
 
         setTimeout(() => {

@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '它是太阳系中跑得最快的行星哦！'
         },
-        math: {
-            question: '水星跑了3圈，又跑了4圈，一共跑了几圈？',
-            options: [
-                { text: '6 圈', correct: false },
-                { text: '7 圈', correct: true },
-                { text: '8 圈', correct: false }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '水星跑了3圈，又跑了4圈，一共跑了几圈？',
+                options: [
+                    { text: '6 圈', correct: false },
+                    { text: '7 圈', correct: true },
+                    { text: '8 圈', correct: false }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '水星绕太阳跑了9圈，地球才跑了1圈，水星多跑了几圈？',
+                answer: 8,
+                hint: '9 - 1 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，水星绕太阳的速度和地球的速度：',
+                left: 9,
+                right: 3,
+                answer: '>',
+                hint: '9比3大！水星跑得比地球快多了！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '没有大气层保护，热量就留不住...'
         },
-        math: {
-            question: '白天热了5度，晚上又冷了3度，温度变化了几度？',
-            options: [
-                { text: '8 度', correct: true },
-                { text: '7 度', correct: false },
-                { text: '2 度', correct: false }
-            ],
-            hint: '5 + 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '白天热了5度，晚上又冷了3度，温度变化了几度？',
+                options: [
+                    { text: '8 度', correct: true },
+                    { text: '7 度', correct: false },
+                    { text: '2 度', correct: false }
+                ],
+                hint: '5 + 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '水星白天很热晚上很冷！温度计白天升了6格，晚上降了4格，还剩几格？',
+                answer: 2,
+                hint: '6 - 4 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，水星白天温度和晚上温度（用数字代替）：',
+                left: 10,
+                right: 0,
+                answer: '>',
+                hint: '10比0大！水星白天比晚上热得多！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '想一想哪个天体也有很多陨石坑...'
         },
-        math: {
-            question: '水星上有4个大陨石坑和5个小坑，一共几个？',
-            options: [
-                { text: '8 个', correct: false },
-                { text: '10 个', correct: false },
-                { text: '9 个', correct: true }
-            ],
-            hint: '4 + 5 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '水星上有4个大陨石坑和5个小坑，一共几个？',
+                options: [
+                    { text: '8 个', correct: false },
+                    { text: '10 个', correct: false },
+                    { text: '9 个', correct: true }
+                ],
+                hint: '4 + 5 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '水星表面有10个陨石坑，探测器拍了7个，还有几个没拍到？',
+                answer: 3,
+                hint: '10 - 7 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，大陨石坑的数量和小陨石坑的数量：',
+                left: 4,
+                right: 5,
+                answer: '<',
+                hint: '4比5小！小陨石坑比大陨石坑多！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '水星的太阳日有176天，而一年只有88天...'
         },
-        math: {
-            question: '水星转了2圈太阳，地球转了6圈，地球多转了几圈？',
-            options: [
-                { text: '3 圈', correct: false },
-                { text: '4 圈', correct: true },
-                { text: '5 圈', correct: false }
-            ],
-            hint: '6 - 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '水星转了2圈太阳，地球转了6圈，地球多转了几圈？',
+                options: [
+                    { text: '3 圈', correct: false },
+                    { text: '4 圈', correct: true },
+                    { text: '5 圈', correct: false }
+                ],
+                hint: '6 - 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '水星的一天有176个地球日，一年有88天。176比88多多少？先算：9-1=?',
+                answer: 8,
+                hint: '9 - 1 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，水星的一天和一年谁更长？（用数字代替）',
+                left: 7,
+                right: 4,
+                answer: '>',
+                hint: '7比4大！水星的一天比一年还长！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '水星是一颗"孤独"的行星哦...'
         },
-        math: {
-            question: '地球有1颗月亮，火星有2颗，水星有0颗，一共几颗？',
-            options: [
-                { text: '3 颗', correct: true },
-                { text: '2 颗', correct: false },
-                { text: '4 颗', correct: false }
-            ],
-            hint: '1 + 2 + 0 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '地球有1颗月亮，火星有2颗，水星有0颗，一共几颗？',
+                options: [
+                    { text: '3 颗', correct: true },
+                    { text: '2 颗', correct: false },
+                    { text: '4 颗', correct: false }
+                ],
+                hint: '1 + 2 + 0 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '水星没有卫星好孤独！木星有5颗大卫星，比水星多几颗？',
+                answer: 5,
+                hint: '5 - 0 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，地球的卫星数量和水星的卫星数量：',
+                left: 1,
+                right: 0,
+                answer: '>',
+                hint: '1比0大！地球有月亮，水星没有！'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '它的名字和水星的英文名Mercury有关...'
         },
-        math: {
-            question: '信使号拍了6张照片，传回了4张，还没传回几张？',
-            options: [
-                { text: '1 张', correct: false },
-                { text: '3 张', correct: false },
-                { text: '2 张', correct: true }
-            ],
-            hint: '6 - 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '信使号拍了6张照片，传回了4张，还没传回几张？',
+                options: [
+                    { text: '1 张', correct: false },
+                    { text: '3 张', correct: false },
+                    { text: '2 张', correct: true }
+                ],
+                hint: '6 - 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '探测器飞向水星要经过3个行星轨道，再经过2个小行星带，一共经过几个？',
+                answer: 5,
+                hint: '3 + 2 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，信使号拍的照片和传回的照片数量：',
+                left: 6,
+                right: 4,
+                answer: '>',
+                hint: '6比4大！拍的比传回来的多！'
+            }
+        ]
     }
 ];
 
@@ -483,7 +585,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],
     currentChapter: null,
-    phase: 'menu'
+    phase: 'menu',
+    mathQuestionIndex: 0
 };
 
 let storyIndex = 0;
@@ -528,8 +631,8 @@ const mercuryAudio = {
     hanzi: (chId, idx) => `audio/mercury/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/mercury/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/mercury/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/mercury/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/mercury/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/mercury/ch${chId}-math-${qIdx + 1}.mp3` : `audio/mercury/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/mercury/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/mercury/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/mercury/ch${chId}-complete.mp3`
 };
 
@@ -1008,23 +1111,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '数学挑战';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(mercuryAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = mercuryAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">○</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -1044,15 +1181,24 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
 
             if (gameState.phase === 'quiz') {
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                completeChapter();
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? mercuryAudio.mathHint(chId) : mercuryAudio.quizHint(chId);
+        const hintAudioPath = type === 'math'
+            ? mercuryAudio.mathHint(chId, gameState.mathQuestionIndex)
+            : mercuryAudio.quizHint(chId);
         playAudio(hintAudioPath, hint || '再想一想！');
 
         setTimeout(() => {

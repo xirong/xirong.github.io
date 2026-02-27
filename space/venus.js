@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '金星和地球大小差不多哦！'
         },
-        math: {
-            question: '金星和地球是姐妹，再加上火星3个好朋友，一共几个？',
-            options: [
-                { text: '2个', correct: false },
-                { text: '3个', correct: true },
-                { text: '4个', correct: false }
-            ],
-            hint: '金星、地球、火星，数一数！'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '金星和地球是姐妹，再加上火星3个好朋友，一共几个？',
+                options: [
+                    { text: '2个', correct: false },
+                    { text: '3个', correct: true },
+                    { text: '4个', correct: false }
+                ],
+                hint: '金星、地球、火星，数一数！'
+            },
+            {
+                type: 'fillin',
+                question: '金星有2个好朋友来做客，又来了3个，现在一共有几个好朋友？',
+                answer: 5,
+                hint: '2 + 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 3,
+                right: 2,
+                answer: '>',
+                hint: '3比2大！金星比水星大哦！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '金星被什么东西包住了呢？'
         },
-        math: {
-            question: '金星有5层厚厚的云，地球有3层，金星多几层？',
-            options: [
-                { text: '2层', correct: true },
-                { text: '3层', correct: false },
-                { text: '1层', correct: false }
-            ],
-            hint: '5 - 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '金星有5层厚厚的云，地球有3层，金星多几层？',
+                options: [
+                    { text: '2层', correct: true },
+                    { text: '3层', correct: false },
+                    { text: '1层', correct: false }
+                ],
+                hint: '5 - 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '金星的云层里有4朵黄云和3朵白云，一共有几朵云？',
+                answer: 7,
+                hint: '4 + 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 5,
+                right: 3,
+                answer: '>',
+                hint: '5比3大！金星的云层比地球厚！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '温室效应最强的那颗！'
         },
-        math: {
-            question: '今天温度升高了3度，明天又升高了4度，一共升了几度？',
-            options: [
-                { text: '6度', correct: false },
-                { text: '8度', correct: false },
-                { text: '7度', correct: true }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '今天温度升高了3度，明天又升高了4度，一共升了几度？',
+                options: [
+                    { text: '6度', correct: false },
+                    { text: '8度', correct: false },
+                    { text: '7度', correct: true }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '金星表面有9块熔岩石，被高温融化了3块，还剩几块？',
+                answer: 6,
+                hint: '9 - 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 4,
+                right: 7,
+                answer: '<',
+                hint: '4比7小！金星温度比地球高很多倍！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '金星是"倒着转"的哦！'
         },
-        math: {
-            question: '金星转了2圈，地球转了8圈，地球多转了几圈？',
-            options: [
-                { text: '5圈', correct: false },
-                { text: '6圈', correct: true },
-                { text: '7圈', correct: false }
-            ],
-            hint: '8 - 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '金星转了2圈，地球转了8圈，地球多转了几圈？',
+                options: [
+                    { text: '5圈', correct: false },
+                    { text: '6圈', correct: true },
+                    { text: '7圈', correct: false }
+                ],
+                hint: '8 - 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '金星上太阳从西边升起，小宇航员看了4次日出又看了2次日落，一共看了几次？',
+                answer: 6,
+                hint: '4 + 2 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 2,
+                right: 8,
+                answer: '<',
+                hint: '2比8小！金星转得比地球慢很多！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '需要穿过厚厚的云层...'
         },
-        math: {
-            question: '金星上有3座大火山和4座小火山，一共几座？',
-            options: [
-                { text: '7座', correct: true },
-                { text: '6座', correct: false },
-                { text: '8座', correct: false }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '金星上有3座大火山和4座小火山，一共几座？',
+                options: [
+                    { text: '7座', correct: true },
+                    { text: '6座', correct: false },
+                    { text: '8座', correct: false }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '雷达拍了10张金星表面照片，有2张模糊了，清晰的有几张？',
+                answer: 8,
+                hint: '10 - 2 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 7,
+                right: 7,
+                answer: '=',
+                hint: '7等于7！两边一样多！'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '金星表面有多少度来着？'
         },
-        math: {
-            question: '探测器拍了5张照片，发回了3张，还剩几张没发？',
-            options: [
-                { text: '1张', correct: false },
-                { text: '3张', correct: false },
-                { text: '2张', correct: true }
-            ],
-            hint: '5 - 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '探测器拍了5张照片，发回了3张，还剩几张没发？',
+                options: [
+                    { text: '1张', correct: false },
+                    { text: '3张', correct: false },
+                    { text: '2张', correct: true }
+                ],
+                hint: '5 - 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '金星号探测器坚持了2个小时就坏了，如果新探测器能多坚持4个小时，一共能坚持几个小时？',
+                answer: 6,
+                hint: '2 + 4 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比大小',
+                left: 5,
+                right: 3,
+                answer: '>',
+                hint: '5比3大！拍的照片比发回的多！'
+            }
+        ]
     }
 ];
 
@@ -587,7 +689,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],
     currentChapter: null,
-    phase: 'menu'
+    phase: 'menu',
+    mathQuestionIndex: 0
 };
 
 let storyIndex = 0;
@@ -632,8 +735,8 @@ const venusAudio = {
     hanzi: (chId, idx) => `audio/venus/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/venus/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/venus/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/venus/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/venus/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/venus/ch${chId}-math-${qIdx + 1}.mp3` : `audio/venus/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/venus/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/venus/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/venus/ch${chId}-complete.mp3`
 };
 
@@ -1147,23 +1250,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '数学挑战';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(venusAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = venusAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">○</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -1183,15 +1320,22 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
 
             if (gameState.phase === 'quiz') {
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                completeChapter();
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? venusAudio.mathHint(chId) : venusAudio.quizHint(chId);
+        const hintAudioPath = type === 'math' ? venusAudio.mathHint(chId, gameState.mathQuestionIndex) : venusAudio.quizHint(chId);
         playAudio(hintAudioPath, hint || '再想一想！');
 
         setTimeout(() => {

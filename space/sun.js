@@ -33,15 +33,32 @@ const chaptersData = [
             ],
             hint: '太阳非常非常大哦！'
         },
-        math: {
-            question: '太阳系有4个岩石行星和4个气态行星，一共几个？',
-            options: [
-                { text: '7 个', correct: false },
-                { text: '8 个', correct: true },
-                { text: '9 个', correct: false }
-            ],
-            hint: '4 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '太阳系有4个岩石行星和4个气态行星，一共几个？',
+                options: [
+                    { text: '7 个', correct: false },
+                    { text: '8 个', correct: true },
+                    { text: '9 个', correct: false }
+                ],
+                hint: '4 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '太阳能装下130万个地球！如果搬走了3个地球模型，桌上还剩几个？（原来有9个）',
+                answer: 6,
+                hint: '9 - 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，太阳和地球谁大？用数字表示：',
+                left: 9,
+                right: 1,
+                answer: '>',
+                hint: '9比1大！太阳比地球大得多！'
+            }
+        ]
     },
     {
         id: 2,
@@ -66,15 +83,32 @@ const chaptersData = [
             ],
             hint: '太阳里面氢变成氦...'
         },
-        math: {
-            question: '太阳的光到地球要8分钟，小明等了2分钟，还要等几分钟？',
-            options: [
-                { text: '6 分钟', correct: true },
-                { text: '7 分钟', correct: false },
-                { text: '5 分钟', correct: false }
-            ],
-            hint: '8 - 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '太阳的光到地球要8分钟，小明等了2分钟，还要等几分钟？',
+                options: [
+                    { text: '6 分钟', correct: true },
+                    { text: '7 分钟', correct: false },
+                    { text: '5 分钟', correct: false }
+                ],
+                hint: '8 - 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '核聚变把4个氢原子变成1个氦原子，用掉了几个氢？',
+                answer: 4,
+                hint: '数一数，一共用了几个？'
+            },
+            {
+                type: 'compare',
+                question: '比一比，太阳光到地球的时间和到月球的时间：',
+                left: 8,
+                right: 1,
+                answer: '>',
+                hint: '8比1大！光到地球要8分钟，到月球只要1秒多！'
+            }
+        ]
     },
     {
         id: 3,
@@ -99,15 +133,32 @@ const chaptersData = [
             ],
             hint: '比开水热多了，比1万度低一些...'
         },
-        math: {
-            question: '小明看了3次太阳黑子，小红看了4次，一共看了几次？',
-            options: [
-                { text: '6 次', correct: false },
-                { text: '8 次', correct: false },
-                { text: '7 次', correct: true }
-            ],
-            hint: '3 + 4 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '小明看了3次太阳黑子，小红看了4次，一共看了几次？',
+                options: [
+                    { text: '6 次', correct: false },
+                    { text: '8 次', correct: false },
+                    { text: '7 次', correct: true }
+                ],
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '太阳表面温度5500度！如果温度计最高10度，需要几个温度计叠起来才到10度？（2+8=?）',
+                answer: 10,
+                hint: '2 + 8 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，太阳表面温度和地球温度谁高？用数字代替：',
+                left: 10,
+                right: 3,
+                answer: '>',
+                hint: '10比3大！太阳表面比地球热得多！'
+            }
+        ]
     },
     {
         id: 4,
@@ -132,15 +183,32 @@ const chaptersData = [
             ],
             hint: '黑子温度比旁边低...'
         },
-        math: {
-            question: '望远镜看到5个大黑子和2个小黑子，一共几个？',
-            options: [
-                { text: '6 个', correct: false },
-                { text: '7 个', correct: true },
-                { text: '8 个', correct: false }
-            ],
-            hint: '5 + 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '望远镜看到5个大黑子和2个小黑子，一共几个？',
+                options: [
+                    { text: '6 个', correct: false },
+                    { text: '7 个', correct: true },
+                    { text: '8 个', correct: false }
+                ],
+                hint: '5 + 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '太阳上有9个黑子，消失了3个，还剩几个？',
+                answer: 6,
+                hint: '9 - 3 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，大黑子的数量和小黑子的数量：',
+                left: 5,
+                right: 2,
+                answer: '>',
+                hint: '5比2大！大黑子比小黑子多！'
+            }
+        ]
     },
     {
         id: 5,
@@ -165,15 +233,32 @@ const chaptersData = [
             ],
             hint: '太阳给地球带来温暖...'
         },
-        math: {
-            question: '春夏秋冬4个季节，智天最喜欢2个，不喜欢几个？',
-            options: [
-                { text: '2 个', correct: true },
-                { text: '3 个', correct: false },
-                { text: '1 个', correct: false }
-            ],
-            hint: '4 - 2 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '春夏秋冬4个季节，智天最喜欢2个，不喜欢几个？',
+                options: [
+                    { text: '2 个', correct: true },
+                    { text: '3 个', correct: false },
+                    { text: '1 个', correct: false }
+                ],
+                hint: '4 - 2 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '植物需要阳光才能长大！花园里有3朵红花和4朵黄花，一共几朵？',
+                answer: 7,
+                hint: '3 + 4 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，白天的时间和黑夜的时间（夏天）：',
+                left: 8,
+                right: 5,
+                answer: '>',
+                hint: '8比5大！夏天白天比黑夜长！'
+            }
+        ]
     },
     {
         id: 6,
@@ -198,15 +283,32 @@ const chaptersData = [
             ],
             hint: '太阳会变成一颗安静的小星星...'
         },
-        math: {
-            question: '太阳家族有8颗行星，走了3颗去旅行，还剩几颗？',
-            options: [
-                { text: '4 颗', correct: false },
-                { text: '6 颗', correct: false },
-                { text: '5 颗', correct: true }
-            ],
-            hint: '8 - 3 = ?'
-        }
+        math: [
+            {
+                type: 'choice',
+                question: '太阳家族有8颗行星，走了3颗去旅行，还剩几颗？',
+                options: [
+                    { text: '4 颗', correct: false },
+                    { text: '6 颗', correct: false },
+                    { text: '5 颗', correct: true }
+                ],
+                hint: '8 - 3 = ?'
+            },
+            {
+                type: 'fillin',
+                question: '太阳已经燃烧了46亿年！如果用小火柴来数，6根加上2根是几根？',
+                answer: 8,
+                hint: '6 + 2 = ?'
+            },
+            {
+                type: 'compare',
+                question: '比一比，红巨星和白矮星谁更大？用数字代替：',
+                left: 10,
+                right: 1,
+                answer: '>',
+                hint: '10比1大！红巨星比白矮星大得多！'
+            }
+        ]
     }
 ];
 
@@ -491,7 +593,8 @@ const pictographDrawers = {
 let gameState = {
     completedChapters: [],
     currentChapter: null,
-    phase: 'menu'
+    phase: 'menu',
+    mathQuestionIndex: 0
 };
 
 let storyIndex = 0;
@@ -536,8 +639,8 @@ const sunAudio = {
     hanzi: (chId, idx) => `audio/sun/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/sun/ch${chId}-quiz.mp3`,
     quizHint: (chId) => `audio/sun/ch${chId}-quiz-hint.mp3`,
-    math: (chId) => `audio/sun/ch${chId}-math.mp3`,
-    mathHint: (chId) => `audio/sun/ch${chId}-math-hint.mp3`,
+    math: (chId, qIdx) => qIdx > 0 ? `audio/sun/ch${chId}-math-${qIdx + 1}.mp3` : `audio/sun/ch${chId}-math.mp3`,
+    mathHint: (chId, qIdx) => qIdx > 0 ? `audio/sun/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/sun/ch${chId}-math-hint.mp3`,
     complete: (chId) => `audio/sun/ch${chId}-complete.mp3`
 };
 
@@ -1065,23 +1168,57 @@ function showQuiz(ch) {
 function showMath(ch) {
     quizAnswered = false;
     const panel = document.getElementById('quizPanel');
-    document.getElementById('quizTag').textContent = '\u6570\u5B66\u6311\u6218';
-    document.getElementById('quizTag').className = 'quiz-tag math';
-    document.getElementById('quizQuestion').textContent = ch.math.question;
+    const qIdx = gameState.mathQuestionIndex;
+    const mathQ = ch.math[qIdx];
+    const total = ch.math.length;
 
-    playAudio(sunAudio.math(ch.id), ch.math.question);
+    document.getElementById('quizTag').textContent = `数学挑战 (${qIdx + 1}/${total})`;
+    document.getElementById('quizTag').className = 'quiz-tag math';
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
-    ch.math.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
-        btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.math.hint, 'math');
-        optionsDiv.appendChild(btn);
-    });
+    const audioPath = sunAudio.math(ch.id, qIdx);
+
+    if (mathQ.type === 'choice') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const labels = ['A', 'B', 'C'];
+        mathQ.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, opt.correct, mathQ.hint, 'math');
+            optionsDiv.appendChild(btn);
+        });
+    } else if (mathQ.type === 'fillin') {
+        document.getElementById('quizQuestion').textContent = mathQ.question;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
+    } else if (mathQ.type === 'compare') {
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="compare-expr"><span class="compare-num">${mathQ.left}</span> <span class="compare-circle">○</span> <span class="compare-num">${mathQ.right}</span></div>`;
+        playAudio(audioPath, `比一比，${mathQ.left}和${mathQ.right}，哪个大？`);
+        const compareDiv = document.createElement('div');
+        compareDiv.className = 'compare-buttons';
+        [['>', '大于'], ['=', '等于'], ['<', '小于']].forEach(([symbol, text]) => {
+            const btn = document.createElement('button');
+            btn.className = 'compare-btn';
+            btn.innerHTML = `<span class="compare-symbol">${symbol}</span><span class="compare-text">${text}</span>`;
+            btn.onclick = () => handleQuizAnswer(btn, symbol === mathQ.answer, mathQ.hint, 'math');
+            compareDiv.appendChild(btn);
+        });
+        optionsDiv.appendChild(compareDiv);
+    }
 
     panel.classList.add('visible');
 }
@@ -1094,23 +1231,32 @@ function handleQuizAnswer(btnEl, isCorrect, hint, type) {
     if (isCorrect) {
         quizAnswered = true;
         btnEl.classList.add('correct');
-        playAudio(sunAudio.correct, '\u592A\u68D2\u4E86\uFF01\u56DE\u7B54\u6B63\u786E\uFF01');
+        playAudio(sunAudio.correct, '太棒了！回答正确！');
 
         setTimeout(() => {
             document.getElementById('quizPanel').classList.remove('visible');
 
             if (gameState.phase === 'quiz') {
                 gameState.phase = 'math';
+                gameState.mathQuestionIndex = 0;
                 const ch = chaptersData.find(c => c.id === chId);
                 setTimeout(() => showMath(ch), 500);
             } else if (gameState.phase === 'math') {
-                completeChapter();
+                gameState.mathQuestionIndex++;
+                const ch = chaptersData.find(c => c.id === chId);
+                if (gameState.mathQuestionIndex < ch.math.length) {
+                    setTimeout(() => showMath(ch), 500);
+                } else {
+                    completeChapter();
+                }
             }
         }, 1200);
     } else {
         btnEl.classList.add('wrong');
-        const hintAudioPath = type === 'math' ? sunAudio.mathHint(chId) : sunAudio.quizHint(chId);
-        playAudio(hintAudioPath, hint || '\u518D\u60F3\u4E00\u60F3\uFF01');
+        const hintAudioPath = type === 'math'
+            ? sunAudio.mathHint(chId, gameState.mathQuestionIndex)
+            : sunAudio.quizHint(chId);
+        playAudio(hintAudioPath, hint || '再想一想！');
 
         setTimeout(() => {
             btnEl.classList.remove('wrong');

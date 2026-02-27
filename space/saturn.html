@@ -665,6 +665,115 @@
             flex-shrink: 0;
         }
 
+        /* ========== 数学填空 - 数字键盘 ========== */
+        .math-numpad {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        .numpad-btn {
+            width: 60px;
+            height: 60px;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 14px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .numpad-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .numpad-btn.correct {
+            border-color: var(--accent-green);
+            background: rgba(46, 204, 113, 0.2);
+            animation: correctPulse 0.5s ease;
+        }
+
+        .numpad-btn.wrong {
+            border-color: var(--accent-red);
+            background: rgba(231, 76, 60, 0.2);
+            animation: shake 0.4s ease;
+        }
+
+        /* ========== 数学比大小 ========== */
+        .compare-expr {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .compare-num {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-cyan);
+        }
+
+        .compare-circle {
+            font-size: 2rem;
+            color: var(--accent-gold);
+        }
+
+        .compare-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .compare-btn {
+            padding: 14px 28px;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 14px;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .compare-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .compare-btn.correct {
+            border-color: var(--accent-green);
+            background: rgba(46, 204, 113, 0.2);
+            animation: correctPulse 0.5s ease;
+        }
+
+        .compare-btn.wrong {
+            border-color: var(--accent-red);
+            background: rgba(231, 76, 60, 0.2);
+            animation: shake 0.4s ease;
+        }
+
+        .compare-symbol {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .compare-text {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
         /* ========== Reward Popup ========== */
         .reward-popup {
             position: fixed;
