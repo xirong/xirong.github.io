@@ -778,77 +778,250 @@ function createCosmicStarField() {
 
 // ============ 创建银河系 ============
 function createMilkyWay() {
-    const galaxyParticles = 100000;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(galaxyParticles * 3);
-    const colors = new Float32Array(galaxyParticles * 3);
-    const sizes = new Float32Array(galaxyParticles);
-
-    const arms = 4; // 旋臂数量
     const galaxyRadius = 10000;
 
-    for (let i = 0; i < galaxyParticles; i++) {
-        // 旋臂结构
-        const armIndex = i % arms;
-        const armAngle = (armIndex / arms) * Math.PI * 2;
+    milkyWay = new THREE.Group();
 
-        // 使用对数螺旋
-        const distance = Math.pow(Math.random(), 0.5) * galaxyRadius;
-        const spiralAngle = distance * 0.0015 + armAngle;
-        const spread = (Math.random() - 0.5) * distance * 0.25;
+    // === 1. Canvas 生成银河系纹理 ===
+    const texSize = 2048;
+    const canvas = document.createElement('canvas');
+    canvas.width = texSize;
+    canvas.height = texSize;
+    const ctx = canvas.getContext('2d');
 
-        const x = Math.cos(spiralAngle) * distance + Math.cos(spiralAngle + Math.PI / 2) * spread;
-        const z = Math.sin(spiralAngle) * distance + Math.sin(spiralAngle + Math.PI / 2) * spread;
-        // 盘面厚度（中心厚，边缘薄）
-        const diskThickness = 150 * (1 - distance / galaxyRadius * 0.7);
-        const y = (Math.random() - 0.5) * diskThickness;
-
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = z;
-
-        // 银河系颜色
-        const distRatio = distance / galaxyRadius;
-        if (distRatio < 0.15) {
-            // 核心区域 - 金黄色（老年恒星）
-            colors[i * 3] = 1.0;
-            colors[i * 3 + 1] = 0.85;
-            colors[i * 3 + 2] = 0.5;
-            sizes[i] = 4 + Math.random() * 3;
-        } else if (distRatio < 0.4) {
-            // 内盘 - 橙白色
-            colors[i * 3] = 1.0;
-            colors[i * 3 + 1] = 0.95;
-            colors[i * 3 + 2] = 0.8;
-            sizes[i] = 2 + Math.random() * 2;
-        } else if (distRatio < 0.7) {
-            // 中盘 - 白色带蓝
-            colors[i * 3] = 0.9;
-            colors[i * 3 + 1] = 0.95;
-            colors[i * 3 + 2] = 1.0;
-            sizes[i] = 1.5 + Math.random() * 1.5;
-        } else {
-            // 外盘 - 淡蓝色（年轻恒星）
-            colors[i * 3] = 0.7;
-            colors[i * 3 + 1] = 0.85;
-            colors[i * 3 + 2] = 1.0;
-            sizes[i] = 1 + Math.random();
+    // 简易噪声函数
+    function hash(x, y) {
+        const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+        return n - Math.floor(n);
+    }
+    // 平滑噪声（双线性插值）
+    function smoothNoise(x, y) {
+        const ix = Math.floor(x), iy = Math.floor(y);
+        const fx = x - ix, fy = y - iy;
+        const a = hash(ix, iy), b = hash(ix + 1, iy);
+        const c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1);
+        const ux = fx * fx * (3 - 2 * fx);
+        const uy = fy * fy * (3 - 2 * fy);
+        return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
+    }
+    function fbm(x, y, oct) {
+        let v = 0, amp = 0.5, freq = 1;
+        for (let i = 0; i < oct; i++) {
+            v += amp * smoothNoise(x * freq, y * freq);
+            amp *= 0.5; freq *= 2.0;
         }
+        return v;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    // 填充黑色背景
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, texSize, texSize);
+    const imgData = ctx.getImageData(0, 0, texSize, texSize);
+    const px = imgData.data;
+    const cx = texSize / 2, cy = texSize / 2;
 
-    const material = new THREE.ShaderMaterial({
-        uniforms: {
-            time: { value: 0 }
-        },
+    for (let py = 0; py < texSize; py++) {
+        for (let pxx = 0; pxx < texSize; pxx++) {
+            const dx = (pxx - cx) / cx; // -1..1
+            const dy = (py - cy) / cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 1.05) continue;
+
+            const angle = Math.atan2(dy, dx);
+            const idx = (py * texSize + pxx) * 4;
+
+            // --- 中央核球（紧凑椭球，暖黄/橙色） ---
+            const bulgeA = 0.14, bulgeB = 0.10;
+            const bulgeAngle = 0.45;
+            const cosBa = Math.cos(bulgeAngle), sinBa = Math.sin(bulgeAngle);
+            const rotDx = dx * cosBa + dy * sinBa;
+            const rotDy = -dx * sinBa + dy * cosBa;
+            const bulgeDist = Math.sqrt((rotDx / bulgeA) ** 2 + (rotDy / bulgeB) ** 2);
+            const bulge = Math.exp(-bulgeDist * bulgeDist * 2.0);
+
+            // --- 中央棒状结构（连接核球和旋臂起点） ---
+            const barLen = 0.20, barW = 0.045;
+            const barAngle = 0.45;
+            const cosBar = Math.cos(barAngle), sinBar = Math.sin(barAngle);
+            const barX = dx * cosBar + dy * sinBar;
+            const barY = -dx * sinBar + dy * cosBar;
+            const barProfile = Math.exp(-((barX / barLen) ** 2 + (barY / barW) ** 2) * 2.5);
+            const bar = barProfile * 0.45 * Math.max(0, 1 - dist / 0.28);
+
+            // --- 旋臂（2主臂 + 2副臂，对数螺旋，宽厚弥散） ---
+            const spiralTightness = 0.38;
+            const logDist = Math.log(Math.max(dist, 0.01));
+            let armBrightness = 0;
+
+            // 主臂（2条，宽厚的旋臂）
+            for (let a = 0; a < 2; a++) {
+                const armOffset = a * Math.PI;
+                const spiralAngle = logDist / spiralTightness + armOffset;
+                let diff = angle - spiralAngle;
+                diff = ((diff % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+
+                // 旋臂核心（很宽的高斯分布）
+                const sigma2 = 0.12 + dist * 0.14;
+                const armCore = Math.exp(-(diff * diff) / (2 * sigma2));
+                // 更宽的弥散晕（让旋臂有柔和边缘）
+                const armHalo = Math.exp(-(diff * diff) / (2 * sigma2 * 5)) * 0.4;
+                // fbm 噪声细节
+                const n1 = fbm(pxx * 0.004 + a * 23.1, py * 0.004 + a * 11.3, 5);
+                const n2 = fbm(pxx * 0.008 + a * 7.7, py * 0.008 + a * 5.1, 4);
+                armBrightness += armCore * (0.45 + n1 * 0.55) + armHalo * (0.25 + n2 * 0.3);
+            }
+
+            // 副臂（2条，也相当宽，偏移90°）
+            for (let a = 0; a < 2; a++) {
+                const armOffset = a * Math.PI + Math.PI * 0.5;
+                const spiralAngle = logDist / (spiralTightness * 0.92) + armOffset;
+                let diff = angle - spiralAngle;
+                diff = ((diff % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+                const sigma2 = 0.08 + dist * 0.10;
+                const armCore = Math.exp(-(diff * diff) / (2 * sigma2));
+                const armHalo = Math.exp(-(diff * diff) / (2 * sigma2 * 4)) * 0.3;
+                const n1 = fbm(pxx * 0.005 + a * 31.3, py * 0.005 + a * 17.7, 4);
+                armBrightness += (armCore * (0.3 + n1 * 0.35) + armHalo * 0.2) * 0.55;
+            }
+
+            armBrightness = Math.min(armBrightness, 1.3);
+
+            // 旋臂只在一定半径外才显著（核球区域被核球覆盖）
+            const armStartFade = Math.min(1, Math.max(0, (dist - 0.05) / 0.1));
+            // 外部渐隐
+            const fadeout = Math.max(0, 1.0 - Math.pow(dist, 2.0));
+
+            // --- 尘埃暗带（旋臂内侧暗区） ---
+            const dustN = fbm(pxx * 0.003 + 50, py * 0.003 + 50, 5);
+            const dustLane = 1.0 - (armBrightness > 0.15 && armBrightness < 0.5 ? dustN * 0.3 : 0);
+
+            // --- HII 区星云亮斑（旋臂内明亮团块） ---
+            const clumpN = fbm(pxx * 0.015, py * 0.015, 3);
+            const clumps = (armBrightness > 0.3 && clumpN > 0.5) ?
+                (clumpN - 0.5) * 2.0 * armBrightness : 0;
+
+            // --- 盘面底光（臂间弥漫星光，整个盘面有微弱光） ---
+            const diskBase = Math.max(0, 1.0 - dist * 1.0) ** 1.5 * 0.12;
+
+            // --- 合成 ---
+            const armContrib = armBrightness * armStartFade * fadeout * dustLane;
+            let totalBright = Math.min(1.0,
+                bulge * 0.9 +
+                bar * 0.5 +
+                armContrib * 0.65 +
+                clumps * 0.12 +
+                diskBase
+            );
+            // gamma 校正：提升暗区可见度（模拟真实照片的动态范围）
+            totalBright = Math.pow(totalBright, 0.82);
+
+            // --- 颜色（核球暖橙 → 旋臂蓝白，中心更暖更饱和） ---
+            const bulgeInfluence = Math.max(0, bulge * 0.95);
+            const t = Math.min(1, dist / 0.5);
+            // 核球色：深暖橙 (255, 185, 80) - 非常饱和的暖色
+            // 旋臂色：从暖白过渡到蓝白
+            const rr = bulgeInfluence * 255 + (1 - bulgeInfluence) * (225 - t * 50);
+            const gg = bulgeInfluence * 185 + (1 - bulgeInfluence) * (220 - t * 30);
+            const bb = bulgeInfluence * 80  + (1 - bulgeInfluence) * (215 + t * 40);
+
+            // 微量亮星点
+            const starRand = hash(pxx * 0.7, py * 0.7);
+            const star = starRand > 0.97 ? (0.2 + starRand * 0.15) * fadeout : 0;
+
+            // 旋臂中偶尔有蓝白色亮星（HII区）
+            const hiiStar = (armBrightness > 0.3 && starRand > 0.93) ? 0.15 : 0;
+
+            const bright = Math.min(1.0, totalBright + star + hiiStar);
+            px[idx]     = Math.min(255, rr * bright);
+            px[idx + 1] = Math.min(255, gg * bright);
+            px[idx + 2] = Math.min(255, bb * bright);
+            px[idx + 3] = Math.min(255, bright * 280); // 略高alpha增加可见度
+        }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // 核球暖色辉光 + 整盘微弱暖光
+    ctx.globalCompositeOperation = 'screen';
+    // 核球辉光（暖橙色）
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, texSize * 0.16);
+    glow.addColorStop(0, 'rgba(255, 195, 80, 0.55)');
+    glow.addColorStop(0.3, 'rgba(255, 180, 70, 0.3)');
+    glow.addColorStop(0.7, 'rgba(230, 190, 130, 0.08)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, texSize, texSize);
+    // 整盘微弱暖色弥漫光（让臂间不那么黑，但保持对比）
+    const diskGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, texSize * 0.42);
+    diskGlow.addColorStop(0, 'rgba(240, 210, 160, 0.08)');
+    diskGlow.addColorStop(0.5, 'rgba(210, 200, 190, 0.03)');
+    diskGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = diskGlow;
+    ctx.fillRect(0, 0, texSize, texSize);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // === 2. 纹理圆盘 ===
+    const diskTexture = new THREE.CanvasTexture(canvas);
+    diskTexture.needsUpdate = true;
+
+    const diskGeo = new THREE.CircleGeometry(galaxyRadius, 128);
+    const diskMat = new THREE.MeshBasicMaterial({
+        map: diskTexture,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        opacity: 0.95
+    });
+    const diskMesh = new THREE.Mesh(diskGeo, diskMat);
+    diskMesh.rotation.x = -Math.PI / 2; // 水平放置
+    milkyWay.add(diskMesh);
+
+    // === 3. 稀疏粒子覆盖层（跟随旋臂的星点） ===
+    const starCount = 40000;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
+    const starSizes = new Float32Array(starCount);
+
+    for (let i = 0; i < starCount; i++) {
+        // 对数螺旋分布，匹配纹理的旋臂结构
+        const isMainArm = i < starCount * 0.6;
+        const armIndex = isMainArm ? (i % 2) : (i % 2);
+        const armOffset = isMainArm ? (armIndex * Math.PI) : (armIndex * Math.PI + Math.PI * 0.5);
+
+        const d = Math.pow(Math.random(), 0.6) * galaxyRadius;
+        const logD = Math.log(Math.max(d / galaxyRadius, 0.01));
+        const spiralAngle = logD / 0.35 + armOffset;
+        // 展幅随距离增大
+        const spreadAmount = (0.15 + d / galaxyRadius * 0.3) * d;
+        const spread = (Math.random() - 0.5) * spreadAmount;
+        starPos[i * 3]     = Math.cos(spiralAngle) * d + Math.cos(spiralAngle + Math.PI / 2) * spread;
+        starPos[i * 3 + 1] = (Math.random() - 0.5) * 80 * (1 - d / galaxyRadius * 0.8);
+        starPos[i * 3 + 2] = Math.sin(spiralAngle) * d + Math.sin(spiralAngle + Math.PI / 2) * spread;
+
+        const dr = d / galaxyRadius;
+        if (dr < 0.1) {
+            // 核球：暖黄
+            starColors[i*3] = 1; starColors[i*3+1] = 0.85; starColors[i*3+2] = 0.5;
+        } else if (dr < 0.4) {
+            // 内臂：白色偏暖
+            starColors[i*3] = 1; starColors[i*3+1] = 0.95; starColors[i*3+2] = 0.85;
+        } else {
+            // 外臂：蓝白色
+            starColors[i*3] = 0.75; starColors[i*3+1] = 0.85; starColors[i*3+2] = 1;
+        }
+        starSizes[i] = 0.8 + Math.random() * 2.5;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+    starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+
+    const starMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
         vertexShader: `
             attribute float size;
             attribute vec3 color;
             varying vec3 vColor;
-
             void main() {
                 vColor = color;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -858,20 +1031,19 @@ function createMilkyWay() {
         `,
         fragmentShader: `
             varying vec3 vColor;
-
             void main() {
-                vec2 center = gl_PointCoord - vec2(0.5);
-                float dist = length(center);
-                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-                gl_FragColor = vec4(vColor, alpha * 0.8);
+                vec2 c = gl_PointCoord - vec2(0.5);
+                float d = length(c);
+                float alpha = 1.0 - smoothstep(0.0, 0.5, d);
+                gl_FragColor = vec4(vColor, alpha * 0.6);
             }
         `,
         transparent: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
+    milkyWay.add(new THREE.Points(starGeo, starMat));
 
-    milkyWay = new THREE.Points(geometry, material);
     scene.add(milkyWay);
 }
 
@@ -2204,7 +2376,7 @@ function animate() {
 
     // 银河系缓慢旋转
     if (milkyWay) {
-        milkyWay.rotation.y += 0.0001;
+        milkyWay.rotation.y += 0.0008;
     }
 
     // 银河系 LOD
@@ -2741,6 +2913,25 @@ function onCanvasClick(event) {
         if (intersects.length > 0) {
             showGalaxyPopup(galaxy.key, event.clientX, event.clientY);
             return;
+        }
+    }
+
+    // 检测银河系中心黑洞点击（投影距离检测，跳转到黑洞页面）
+    if (galacticCenter) {
+        const bhWorld = new THREE.Vector3(0, 0, 0);
+        bhWorld.project(camera);
+        // 黑洞在相机前方（z < 1）且在屏幕范围内
+        if (bhWorld.z < 1 && Math.abs(bhWorld.x) < 2 && Math.abs(bhWorld.y) < 2) {
+            const bhScreenX = (bhWorld.x + 1) / 2 * window.innerWidth;
+            const bhScreenY = (-bhWorld.y + 1) / 2 * window.innerHeight;
+            const dx = event.clientX - bhScreenX;
+            const dy = event.clientY - bhScreenY;
+            const screenDist = Math.sqrt(dx * dx + dy * dy);
+            // 点击距离黑洞屏幕投影 80 像素以内视为命中
+            if (screenDist < 80) {
+                window.location.href = 'blackhole-3d.html';
+                return;
+            }
         }
     }
 
