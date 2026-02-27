@@ -630,6 +630,7 @@ const mercuryAudio = {
     story: (chId, idx) => `audio/mercury/ch${chId}-story-${idx}.mp3`,
     hanzi: (chId, idx) => `audio/mercury/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/mercury/ch${chId}-quiz.mp3`,
+    quizOption: (chId, optIdx) => `audio/mercury/ch${chId}-quiz-${['a','b','c'][optIdx]}.mp3`,
     quizHint: (chId) => `audio/mercury/ch${chId}-quiz-hint.mp3`,
     math: (chId, qIdx) => qIdx > 0 ? `audio/mercury/ch${chId}-math-${qIdx + 1}.mp3` : `audio/mercury/ch${chId}-math.mp3`,
     mathHint: (chId, qIdx) => qIdx > 0 ? `audio/mercury/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/mercury/ch${chId}-math-hint.mp3`,
@@ -1090,16 +1091,18 @@ function showQuiz(ch) {
     document.getElementById('quizTag').className = 'quiz-tag knowledge';
     document.getElementById('quizQuestion').textContent = ch.quiz.question;
 
-    playAudio(mercuryAudio.quiz(ch.id), ch.quiz.question);
+    const labels = ['A', 'B', 'C'];
+    const fullText = ch.quiz.question + '。' + ch.quiz.options.map((opt, i) => labels[i] + '，' + opt.text).join('。') + '。选一选吧！';
+    playAudio(mercuryAudio.quiz(ch.id), fullText);
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
     ch.quiz.options.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+        const safeText = opt.text.replace(/'/g, "\\'");
+        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span class="opt-text">${opt.text}</span><span class="opt-sound" onclick="event.stopPropagation(); playAudio(mercuryAudio.quizOption(${ch.id}, ${i}), '${labels[i]}，${safeText}')">&#128264;</span>`;
         btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.quiz.hint, 'quiz');
         optionsDiv.appendChild(btn);
     });

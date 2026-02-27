@@ -826,6 +826,7 @@ const earthAudio = {
     story: (chId, idx) => `audio/earth-explorer/ch${chId}-story-${idx}.mp3`,
     hanzi: (chId, idx) => `audio/earth-explorer/ch${chId}-hanzi-${idx}.mp3`,
     quiz: (chId) => `audio/earth-explorer/ch${chId}-quiz.mp3`,
+    quizOption: (chId, optIdx) => `audio/earth-explorer/ch${chId}-quiz-${['a','b','c'][optIdx]}.mp3`,
     quizHint: (chId) => `audio/earth-explorer/ch${chId}-quiz-hint.mp3`,
     math: (chId, qIdx) => qIdx > 0 ? `audio/earth-explorer/ch${chId}-math-${qIdx + 1}.mp3` : `audio/earth-explorer/ch${chId}-math.mp3`,
     mathHint: (chId, qIdx) => qIdx > 0 ? `audio/earth-explorer/ch${chId}-math-${qIdx + 1}-hint.mp3` : `audio/earth-explorer/ch${chId}-math-hint.mp3`,
@@ -1322,16 +1323,25 @@ function showQuiz(ch) {
     document.getElementById('quizTag').className = 'quiz-tag knowledge';
     document.getElementById('quizQuestion').textContent = ch.quiz.question;
 
-    playAudio(earthAudio.quiz(ch.id), ch.quiz.question);
+    const labels = ['A', 'B', 'C'];
+    const fullText = ch.quiz.question + '。' + ch.quiz.options.map((opt, i) => labels[i] + '，' + opt.text).join('。') + '。选一选吧！';
+    playAudio(earthAudio.quiz(ch.id), fullText);
 
     const optionsDiv = document.getElementById('quizOptions');
     optionsDiv.innerHTML = '';
 
-    const labels = ['A', 'B', 'C'];
     ch.quiz.options.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'quiz-option';
-        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${opt.text}</span>`;
+        btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span class="opt-text">${opt.text}</span>`;
+        const soundBtn = document.createElement('span');
+        soundBtn.className = 'opt-sound';
+        soundBtn.textContent = '\u{1F50A}';
+        soundBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playAudio(earthAudio.quizOption(ch.id, i), labels[i] + '，' + opt.text);
+        });
+        btn.appendChild(soundBtn);
         btn.onclick = () => handleQuizAnswer(btn, opt.correct, ch.quiz.hint, 'quiz');
         optionsDiv.appendChild(btn);
     });
