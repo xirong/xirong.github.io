@@ -20,6 +20,8 @@
     let selectedCar = null;
     let animationId = null;
     let clock = new THREE.Clock();
+    let envMap = null;          // 环境反射贴图
+    let mats = null;            // PBR 材质集合
 
     // ============ 列车尺寸常量 ============
     const CAR_WIDTH = 3.36;
@@ -31,11 +33,12 @@
 
     // ============ 颜色常量 ============
     const COLOR = {
-        body: 0xf0f0f0,
+        body: 0xe8e8e8,         // 银白车身（略带灰调更真实）
+        red: 0xBB2020,          // 深红色腰带
         gold: 0xC8A951,
         goldDark: 0x9a7d3a,
-        window: 0x2a4a6e,
-        windowFrame: 0x888888,
+        window: 0x0a1520,       // 深色车窗（更真实）
+        windowFrame: 0x666666,
         dark: 0x2a2a2a,
         floor: 0x555555,
         rail: 0x777777,
@@ -87,8 +90,14 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+        renderer.outputEncoding = THREE.sRGBEncoding;
         document.body.insertBefore(renderer.domElement, document.body.firstChild);
         renderer.domElement.id = 'three-canvas';
+
+        createEnvironmentMap();
+        mats = createMaterials();
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -120,12 +129,85 @@
         animate();
     }
 
+    // ============ 环境反射贴图 ============
+    function createEnvironmentMap() {
+        const size = 256;
+        const faces = [];
+        for (let i = 0; i < 6; i++) {
+            const c = document.createElement('canvas');
+            c.width = size; c.height = size;
+            const cx = c.getContext('2d');
+            if (i === 2) {
+                // 顶面：天空蓝
+                cx.fillStyle = '#87CEEB';
+                cx.fillRect(0, 0, size, size);
+            } else if (i === 3) {
+                // 底面：地面绿
+                cx.fillStyle = '#4a6a4a';
+                cx.fillRect(0, 0, size, size);
+            } else {
+                // 四周：上蓝下绿渐变
+                const grad = cx.createLinearGradient(0, 0, 0, size);
+                grad.addColorStop(0, '#87CEEB');
+                grad.addColorStop(0.5, '#b0d4e8');
+                grad.addColorStop(0.7, '#8aaa8a');
+                grad.addColorStop(1, '#4a6a4a');
+                cx.fillStyle = grad;
+                cx.fillRect(0, 0, size, size);
+            }
+            faces.push(c);
+        }
+        envMap = new THREE.CubeTexture(faces);
+        envMap.needsUpdate = true;
+    }
+
+    // ============ PBR 材质集合 ============
+    function createMaterials() {
+        return {
+            body: new THREE.MeshStandardMaterial({
+                color: COLOR.body, metalness: 0.85, roughness: 0.15,
+                envMap: envMap, envMapIntensity: 1.0
+            }),
+            red: new THREE.MeshStandardMaterial({
+                color: 0xAA1818, metalness: 0.25, roughness: 0.35,
+                emissive: 0x440808, envMap: envMap, envMapIntensity: 0.3
+            }),
+            gold: new THREE.MeshStandardMaterial({
+                color: COLOR.gold, metalness: 0.9, roughness: 0.2,
+                envMap: envMap, envMapIntensity: 1.2,
+                polygonOffset: true,
+                polygonOffsetFactor: -2,
+                polygonOffsetUnits: -2,
+            }),
+            window: new THREE.MeshStandardMaterial({
+                color: COLOR.window, metalness: 0.1, roughness: 0.05,
+                envMap: envMap, envMapIntensity: 1.5,
+                transparent: true, opacity: 0.92
+            }),
+            windshield: new THREE.MeshStandardMaterial({
+                color: 0x080e18, metalness: 0.05, roughness: 0.02,
+                envMap: envMap, envMapIntensity: 2.0,
+                transparent: true, opacity: 0.95
+            }),
+            windowFrame: new THREE.MeshStandardMaterial({
+                color: COLOR.windowFrame, metalness: 0.5, roughness: 0.3,
+                envMap: envMap, envMapIntensity: 0.6
+            }),
+            dark: new THREE.MeshStandardMaterial({
+                color: COLOR.dark, metalness: 0.3, roughness: 0.5,
+                envMap: envMap, envMapIntensity: 0.3
+            }),
+        };
+    }
+
     // ============ 灯光 ============
     function addLights() {
-        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+        // 环境光（稍低，让方向光更突出金属质感）
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambient);
 
-        const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+        // 主光源（模拟太阳，制造高光反射）
+        const sun = new THREE.DirectionalLight(0xffffff, 1.0);
         sun.position.set(50, 80, 30);
         sun.castShadow = true;
         sun.shadow.mapSize.width = 2048;
@@ -136,9 +218,20 @@
         sun.shadow.camera.bottom = -50;
         scene.add(sun);
 
-        const fill = new THREE.DirectionalLight(0xaaccff, 0.3);
+        // 补光（冷色调，增加金属层次感）
+        const fill = new THREE.DirectionalLight(0xaaccff, 0.4);
         fill.position.set(-30, 20, -20);
         scene.add(fill);
+
+        // 底部反射光（模拟地面反光到车底）
+        const groundBounce = new THREE.DirectionalLight(0x8aaa8a, 0.15);
+        groundBounce.position.set(0, -10, 0);
+        scene.add(groundBounce);
+
+        // 侧面高光（让侧面金属更有光泽）
+        const sideLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        sideLight.position.set(0, 15, 60);
+        scene.add(sideLight);
     }
 
     // ============ 地面和铁轨 ============
@@ -236,40 +329,62 @@
         const isHead = cfg.type === 'head';
         const isTail = cfg.type === 'tail';
 
-        const bodyMat = new THREE.MeshPhongMaterial({ color: COLOR.body, specular: 0x222222, shininess: 40 });
-        const goldMat = new THREE.MeshPhongMaterial({ color: COLOR.gold, specular: 0x444444, shininess: 60 });
-        const windowMat = new THREE.MeshPhongMaterial({ color: COLOR.window, specular: 0x666666, shininess: 80, transparent: true, opacity: 0.85 });
-        const darkMat = new THREE.MeshLambertMaterial({ color: COLOR.dark });
+        // 分体式车身参数：上部银色75%，下部红色25%
+        const RED_RATIO = 0.25;
+        const silverH = CAR_HEIGHT * (1 - RED_RATIO);
+        const redH = CAR_HEIGHT * RED_RATIO;
+        // 银色上部中心Y = 红色高度/2 + 银色高度/2 - CAR_HEIGHT/2 = (redH + silverH)/2 - CAR_HEIGHT/2
+        // 简化：silverCenterY = CAR_HEIGHT/2 - silverH/2 = redH/2
+        const silverCenterY = redH / 2;
+        // 红色下部中心Y = -CAR_HEIGHT/2 + redH/2
+        const redCenterY = -CAR_HEIGHT / 2 + redH / 2;
 
         if (isHead || isTail) {
             // 头/尾车
             const noseDir = isHead ? 1 : -1;
             const bodyLen = length - NOSE_LENGTH;
+            const bodyOffsetX = -noseDir * NOSE_LENGTH / 2;
 
-            // 车身主体
-            const body = new THREE.Mesh(new THREE.BoxGeometry(bodyLen, CAR_HEIGHT, CAR_WIDTH), bodyMat);
-            body.position.x = -noseDir * NOSE_LENGTH / 2;
-            body.castShadow = true;
-            body.userData.isCarBody = true;
-            body.userData.parentCar = group;
-            group.add(body);
+            // 银色上部车身
+            const silverBody = new THREE.Mesh(
+                new THREE.BoxGeometry(bodyLen, silverH, CAR_WIDTH), mats.body
+            );
+            silverBody.position.set(bodyOffsetX, silverCenterY, 0);
+            silverBody.castShadow = true;
+            silverBody.userData.isCarBody = true;
+            silverBody.userData.parentCar = group;
+            group.add(silverBody);
 
-            // 车顶（平滑弧面）
-            const roofGeo = new THREE.BoxGeometry(bodyLen, 0.15, CAR_WIDTH + 0.04);
-            const roof = new THREE.Mesh(roofGeo, bodyMat);
-            roof.position.set(-noseDir * NOSE_LENGTH / 2, CAR_HEIGHT / 2 + 0.05, 0);
+            // 红色下部车身
+            const redBody = new THREE.Mesh(
+                new THREE.BoxGeometry(bodyLen, redH, CAR_WIDTH), mats.red
+            );
+            redBody.position.set(bodyOffsetX, redCenterY, 0);
+            redBody.castShadow = true;
+            group.add(redBody);
+
+            // 车顶
+            const roof = new THREE.Mesh(
+                new THREE.BoxGeometry(bodyLen, 0.15, CAR_WIDTH + 0.04), mats.body
+            );
+            roof.position.set(bodyOffsetX, CAR_HEIGHT / 2 + 0.05, 0);
             group.add(roof);
 
-            // 流线型车鼻 - 使用多段几何体营造弧线
-            createNose(group, noseDir, bodyMat, goldMat);
+            // 金色装饰线（红银交界处 + 装饰）
+            addGoldLines(group, bodyLen, bodyOffsetX, silverCenterY - silverH / 2);
 
-            // 挡风玻璃（贴合在车鼻上方，后仰倾斜）
-            const windshieldMat = new THREE.MeshPhongMaterial({ color: 0x1a2a3a, specular: 0x888888, shininess: 100, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
-            const windshield = new THREE.Mesh(new THREE.PlaneGeometry(CAR_WIDTH * 0.55, CAR_HEIGHT * 0.32), windshieldMat);
-            // 先设旋转再设位置：面朝前方且后仰
+            // 流线型车鼻（带顶点着色）
+            createNose(group, noseDir, mats);
+
+            // 挡风玻璃（深色反光）
+            const windshield = new THREE.Mesh(
+                new THREE.PlaneGeometry(CAR_WIDTH * 0.55, CAR_HEIGHT * 0.32),
+                mats.windshield
+            );
+            windshield.material.side = THREE.DoubleSide;
             windshield.rotation.order = 'YXZ';
             windshield.rotation.y = noseDir > 0 ? Math.PI / 2 : -Math.PI / 2;
-            windshield.rotation.x = -0.35; // 后仰倾斜
+            windshield.rotation.x = -0.35;
             windshield.position.set(noseDir * (NOSE_LENGTH * 0.45), CAR_HEIGHT * 0.3, 0);
             group.add(windshield);
 
@@ -292,65 +407,64 @@
                 group.add(headlight);
             }
 
-            // 金色腰线
-            const waist = new THREE.Mesh(
-                new THREE.BoxGeometry(bodyLen + 0.1, 0.12, CAR_WIDTH + 0.04),
-                goldMat
-            );
-            waist.position.set(-noseDir * NOSE_LENGTH / 2, -CAR_HEIGHT * 0.25, 0);
-            group.add(waist);
-
-            // 车窗
-            const winStart = -noseDir * NOSE_LENGTH / 2 - bodyLen / 2 + 1.5;
-            const winEnd = -noseDir * NOSE_LENGTH / 2 + bodyLen / 2 - 1.5;
+            // 车窗（深色反光玻璃）
+            const winStart = bodyOffsetX - bodyLen / 2 + 1.5;
+            const winEnd = bodyOffsetX + bodyLen / 2 - 1.5;
             for (let wx = winStart; wx <= winEnd; wx += 1.8) {
-                addWindow(group, wx, windowMat);
+                addWindow(group, wx, mats.window);
             }
 
             // 底部设备舱
-            const underBody = new THREE.Mesh(new THREE.BoxGeometry(bodyLen, 0.5, CAR_WIDTH - 0.3), darkMat);
-            underBody.position.set(-noseDir * NOSE_LENGTH / 2, -CAR_HEIGHT / 2 - 0.15, 0);
+            const underBody = new THREE.Mesh(new THREE.BoxGeometry(bodyLen, 0.5, CAR_WIDTH - 0.3), mats.dark);
+            underBody.position.set(bodyOffsetX, -CAR_HEIGHT / 2 - 0.15, 0);
             group.add(underBody);
 
-            // 受电弓（仅头车和某些中间车顶上有）
+            // 受电弓
             if (isHead) createPantograph(group, -2);
 
         } else {
-            // 中间车
-            const body = new THREE.Mesh(new THREE.BoxGeometry(length, CAR_HEIGHT, CAR_WIDTH), bodyMat);
-            body.castShadow = true;
-            body.userData.isCarBody = true;
-            body.userData.parentCar = group;
-            group.add(body);
+            // 中间车 - 银色上部
+            const silverBody = new THREE.Mesh(
+                new THREE.BoxGeometry(length, silverH, CAR_WIDTH), mats.body
+            );
+            silverBody.position.y = silverCenterY;
+            silverBody.castShadow = true;
+            silverBody.userData.isCarBody = true;
+            silverBody.userData.parentCar = group;
+            group.add(silverBody);
 
-            // 车顶（平滑弧面）
-            const roofGeo = new THREE.BoxGeometry(length, 0.15, CAR_WIDTH + 0.04);
-            const roof = new THREE.Mesh(roofGeo, bodyMat);
+            // 红色下部
+            const redBody = new THREE.Mesh(
+                new THREE.BoxGeometry(length, redH, CAR_WIDTH), mats.red
+            );
+            redBody.position.y = redCenterY;
+            redBody.castShadow = true;
+            group.add(redBody);
+
+            // 车顶
+            const roof = new THREE.Mesh(
+                new THREE.BoxGeometry(length, 0.15, CAR_WIDTH + 0.04), mats.body
+            );
             roof.position.y = CAR_HEIGHT / 2 + 0.05;
             group.add(roof);
 
-            // 金色腰线
-            const waist = new THREE.Mesh(
-                new THREE.BoxGeometry(length + 0.1, 0.12, CAR_WIDTH + 0.04),
-                goldMat
-            );
-            waist.position.y = -CAR_HEIGHT * 0.25;
-            group.add(waist);
+            // 金色装饰线
+            addGoldLines(group, length, 0, silverCenterY - silverH / 2);
 
             // 车窗
             for (let wx = -length / 2 + 1.5; wx <= length / 2 - 1.5; wx += 1.8) {
-                addWindow(group, wx, windowMat);
+                addWindow(group, wx, mats.window);
             }
 
             // 车门（每侧2个）
             for (const zSide of [-1, 1]) {
                 for (const xPos of [-length * 0.3, length * 0.3]) {
-                    addDoor(group, xPos, zSide, darkMat);
+                    addDoor(group, xPos, zSide, mats.dark);
                 }
             }
 
             // 底部设备舱
-            const underBody = new THREE.Mesh(new THREE.BoxGeometry(length, 0.5, CAR_WIDTH - 0.3), darkMat);
+            const underBody = new THREE.Mesh(new THREE.BoxGeometry(length, 0.5, CAR_WIDTH - 0.3), mats.dark);
             underBody.position.y = -CAR_HEIGHT / 2 - 0.15;
             group.add(underBody);
 
@@ -360,7 +474,10 @@
             }
 
             // 车厢连接处挡板
-            const divMat = new THREE.MeshLambertMaterial({ color: 0xdcdcdc });
+            const divMat = new THREE.MeshStandardMaterial({
+                color: 0xdcdcdc, metalness: 0.3, roughness: 0.4,
+                envMap: envMap, envMapIntensity: 0.4
+            });
             for (const xEnd of [length / 2, -length / 2]) {
                 const div = new THREE.Mesh(new THREE.BoxGeometry(0.08, CAR_HEIGHT + 0.02, CAR_WIDTH + 0.04), divMat);
                 div.position.x = xEnd;
@@ -368,7 +485,7 @@
             }
         }
 
-        // 转向架（所有车厢通用）
+        // 转向架
         const carLen = isHead || isTail ? HEAD_LENGTH : MID_LENGTH;
         createBogies(group, carLen, isHead, isTail);
 
@@ -378,25 +495,107 @@
         return group;
     }
 
-    // ============ 流线型车鼻 ============
-    function createNose(group, dir, bodyMat, goldMat) {
-        // 使用 LatheGeometry 生成光滑旋转体车鼻
+    // ============ 金色装饰线（红银交界 + 底部） ============
+    function addGoldLines(group, bodyLen, bodyOffsetX, junctionY) {
+        // junctionY = 红银交界线的Y坐标
+
+        // 金色线 1：红银交界处（最醒目，稍微突出车身）
+        const goldLine1 = new THREE.Mesh(
+            new THREE.BoxGeometry(bodyLen + 0.06, 0.12, CAR_WIDTH + 0.08),
+            mats.gold
+        );
+        goldLine1.position.set(bodyOffsetX, junctionY, 0);
+        group.add(goldLine1);
+
+        // 金色线 2：红色区域中部
+        const redH = CAR_HEIGHT * 0.25;
+        const goldLine2 = new THREE.Mesh(
+            new THREE.BoxGeometry(bodyLen + 0.04, 0.05, CAR_WIDTH + 0.06),
+            mats.gold
+        );
+        goldLine2.position.set(bodyOffsetX, junctionY - redH * 0.4, 0);
+        group.add(goldLine2);
+
+        // 金色线 3：红色区域底部
+        const goldLine3 = new THREE.Mesh(
+            new THREE.BoxGeometry(bodyLen + 0.06, 0.06, CAR_WIDTH + 0.08),
+            mats.gold
+        );
+        goldLine3.position.set(bodyOffsetX, -CAR_HEIGHT / 2, 0);
+        group.add(goldLine3);
+    }
+
+    // ============ 流线型车鼻（顶点着色：银顶/红底/金过渡） ============
+    function createNose(group, dir, matsRef) {
+        // 更尖锐的飞龙造型曲线
         const points = [];
-        const noseSegs = 30;
+        const noseSegs = 40;
         for (let i = 0; i <= noseSegs; i++) {
             const t = i / noseSegs; // 0=尖端, 1=根部
-            // 使用三次贝塞尔曲线形状：从尖端逐渐展开到全宽
-            const radius = CAR_WIDTH / 2 * Math.pow(t, 0.6);
+            // 更锐利的展开曲线
+            const radius = CAR_WIDTH / 2 * (1 - Math.pow(1 - t, 2.2));
             const x = t * NOSE_LENGTH;
             points.push(new THREE.Vector2(radius, x));
         }
 
-        const latheGeo = new THREE.LatheGeometry(points, 32, 0, Math.PI * 2);
-        const noseMesh = new THREE.Mesh(latheGeo, bodyMat);
+        const latheGeo = new THREE.LatheGeometry(points, 48, 0, Math.PI * 2);
+
+        // 添加顶点颜色：上部银白，下部暗红，过渡处金色
+        const colors = [];
+        const positions = latheGeo.attributes.position;
+        const silverColor = new THREE.Color(0xe8e8e8);
+        const redColor = new THREE.Color(0xBB2020);
+        const goldColor = new THREE.Color(0xC8A951);
+
+        for (let i = 0; i < positions.count; i++) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+
+            // 在局部空间中，y 沿车鼻方向，x 是半径
+            // 旋转后 y → 垂直方向，需要通过 x (半径) 和角度判断上下
+            // LatheGeometry 的 x 就是半径，角度从 attribute 推算
+            const r = Math.sqrt(x * x + positions.getZ(i) * positions.getZ(i));
+            const maxR = CAR_WIDTH / 2;
+            // 判断该顶点在旋转体中的上下位置
+            // 用 z 分量（压扁前的"高度方向"）
+            const z = positions.getZ(i);
+            // 在 scale.y=0.52 压扁后，z 正方向是上方
+            const normalizedUp = r > 0.01 ? z / r : 0;
+
+            let color;
+            if (normalizedUp > 0.25) {
+                // 上部：银白
+                color = silverColor;
+            } else if (normalizedUp > 0.05) {
+                // 过渡区：金色
+                const blend = (normalizedUp - 0.05) / 0.2;
+                color = new THREE.Color().lerpColors(goldColor, silverColor, blend);
+            } else if (normalizedUp > -0.2) {
+                // 中间偏下：金色到红色过渡
+                const blend = (normalizedUp + 0.2) / 0.25;
+                color = new THREE.Color().lerpColors(redColor, goldColor, blend);
+            } else {
+                // 下部：暗红
+                color = redColor;
+            }
+
+            colors.push(color.r, color.g, color.b);
+        }
+
+        latheGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const noseMat = new THREE.MeshStandardMaterial({
+            vertexColors: true,
+            metalness: 0.75,
+            roughness: 0.18,
+            envMap: envMap,
+            envMapIntensity: 0.9,
+        });
+
+        const noseMesh = new THREE.Mesh(latheGeo, noseMat);
         noseMesh.rotation.z = dir > 0 ? Math.PI / 2 : -Math.PI / 2;
         noseMesh.position.x = dir > 0 ? NOSE_LENGTH / 2 : -NOSE_LENGTH / 2;
-        // 垂直方向压扁，模拟复兴号扁平的子弹头
-        noseMesh.scale.y = 0.55;
+        noseMesh.scale.y = 0.52; // 更扁平的飞龙造型
         noseMesh.castShadow = true;
         noseMesh.userData.isCarBody = true;
         noseMesh.userData.parentCar = group;
@@ -404,9 +603,9 @@
 
         // 金色V形条纹（沿车鼻两侧）
         const vLen = NOSE_LENGTH * 0.6;
-        const vStripeGeo = new THREE.BoxGeometry(vLen, 0.04, 0.08);
+        const vStripeGeo = new THREE.BoxGeometry(vLen, 0.05, 0.1);
         for (const zSide of [-1, 1]) {
-            const vStripe = new THREE.Mesh(vStripeGeo, goldMat);
+            const vStripe = new THREE.Mesh(vStripeGeo, matsRef.gold);
             vStripe.position.set(dir * NOSE_LENGTH * 0.25, -CAR_HEIGHT * 0.1, zSide * CAR_WIDTH * 0.3);
             vStripe.rotation.z = dir * zSide * 0.12;
             vStripe.rotation.y = zSide * 0.1;
@@ -425,10 +624,11 @@
             win.rotation.y = zSide > 0 ? Math.PI / 2 : -Math.PI / 2;
             group.add(win);
 
-            // 窗框
-            const frameMat = new THREE.MeshLambertMaterial({ color: COLOR.windowFrame });
-            const frameGeo = new THREE.BoxGeometry(1.3, 1.0, 0.02);
-            const frame = new THREE.Mesh(frameGeo, frameMat);
+            // 窗框（金属质感）
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(1.3, 1.0, 0.02),
+                mats.windowFrame
+            );
             frame.position.copy(win.position);
             frame.position.z += zSide * (-0.01);
             frame.rotation.y = win.rotation.y;
