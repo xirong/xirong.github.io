@@ -2821,7 +2821,7 @@ function generateJupiterVolumeComparison(container, subtitle) {
         <div class="volume-hero">
             <div class="volume-sun-circle" style="
                 width: 180px; height: 180px;
-                background: radial-gradient(circle at 35% 35%, #fff5e0, #e8c88a, #d8ca9d, #c4a35a, #8b7355);
+                background: url('textures/jupiter.jpg') center/cover;
                 box-shadow: 0 0 50px rgba(216, 202, 157, 0.5), 0 0 100px rgba(196, 163, 90, 0.3);
             ">
                 <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">木星能装</span>
@@ -2931,7 +2931,7 @@ function generateSaturnVolumeComparison(container, subtitle) {
         <div class="volume-hero">
             <div class="volume-sun-circle" style="
                 width: 180px; height: 180px;
-                background: radial-gradient(circle at 35% 35%, #fff5e0, #ead6b8, #d4b896, #c4a35a, #8b7355);
+                background: url('textures/saturn.jpg') center/cover;
                 box-shadow: 0 0 50px rgba(234, 214, 184, 0.5), 0 0 100px rgba(196, 163, 90, 0.3);
             ">
                 <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">土星能装</span>
