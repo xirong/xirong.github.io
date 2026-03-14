@@ -268,7 +268,8 @@ let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonTab = 'diameter'; // 'diameter', 'mass' 或 'volume'
-let currentVolumeSelection = 'earth'; // volume tab 中选中的星球
+let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
+let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -2527,12 +2528,13 @@ function generateSizeComparison(mode) {
 
     const subtitle = document.getElementById('comparisonSubtitle');
 
-    // volume 模式下隐藏类型图例，其他模式显示
+    // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
+    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume';
     const legend = document.querySelector('.planet-types-legend');
-    if (legend) legend.style.display = mode === 'volume' ? 'none' : 'flex';
+    if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
     // volume 模式下 planets-row 不需要 flex 横排，改为 block
-    if (mode === 'volume') {
+    if (isVolumeMode) {
         container.style.display = 'block';
         container.style.padding = '15px';
     } else {
@@ -2656,6 +2658,9 @@ function generateSizeComparison(mode) {
     } else if (mode === 'volume') {
         // 太阳能装多少个
         generateVolumeComparison(container, subtitle);
+    } else if (mode === 'jupiterVolume') {
+        // 木星能装多少个
+        generateJupiterVolumeComparison(container, subtitle);
     }
 }
 
@@ -2764,6 +2769,126 @@ function generateVolumeComparison(container, subtitle) {
         el.addEventListener('click', () => {
             currentVolumeSelection = el.dataset.volumePlanet;
             generateSizeComparison('volume');
+        });
+    });
+}
+
+// ============ 木星能装多少个 ============
+function generateJupiterVolumeComparison(container, subtitle) {
+    subtitle.textContent = '木星是太阳系最大的行星，体积约为地球的 1321 倍';
+
+    const jupiterVolumeData = [
+        { key: 'saturn',   nameCN: '土星',   count: 1.7,      label: '1.7',      color: '#ead6b8' },
+        { key: 'uranus',   nameCN: '天王星', count: 21,       label: '21',       color: '#7de8d5' },
+        { key: 'neptune',  nameCN: '海王星', count: 23,       label: '23',       color: '#5b5ddf' },
+        { key: 'earth',    nameCN: '地球',   count: 1321,     label: '1,321',    color: '#6b93d6' },
+        { key: 'venus',    nameCN: '金星',   count: 1540,     label: '1,540',    color: '#e6c87a' },
+        { key: 'mars',     nameCN: '火星',   count: 8750,     label: '8,750',    color: '#c1440e' },
+        { key: 'mercury',  nameCN: '水星',   count: 23600,    label: '23,600',   color: '#b5b5b5' },
+        { key: 'moon',     nameCN: '月球',   count: 65000,    label: '65,000',   color: '#aaaaaa' },
+        { key: 'pluto',    nameCN: '冥王星', count: 203000,   label: '203,000',  color: '#c9b59a' }
+    ];
+
+    const selected = jupiterVolumeData.find(d => d.key === currentJupiterVolumeSelection) || jupiterVolumeData[3]; // 默认地球
+    const maxCount = jupiterVolumeData[jupiterVolumeData.length - 1].count;
+
+    const jupiterDiameter = 139820; // km
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    // === 1. 顶部：木星大圆 + 数字 ===
+    // 土星特殊：count < 2，强调"塞不下两个"
+    const isFractionCount = selected.count < 2;
+    const countDisplay = isFractionCount
+        ? `仅 ${selected.label}`
+        : selected.count >= 10000 ? formatNumber(selected.count) : selected.label;
+    const unitText = isFractionCount
+        ? `个${selected.nameCN}（塞不下2个！）`
+        : `个${selected.nameCN}才能填满木星`;
+
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle" style="
+                width: 180px; height: 180px;
+                background: radial-gradient(circle at 35% 35%, #fff5e0, #e8c88a, #d8ca9d, #c4a35a, #8b7355);
+                box-shadow: 0 0 50px rgba(216, 202, 157, 0.5), 0 0 100px rgba(196, 163, 90, 0.3);
+            ">
+                <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">木星能装</span>
+                <span class="volume-sun-count" style="color:#fff;">${selected.label}</span>
+                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.7);">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${countDisplay}</div>
+                <div class="unit">${unitText}</div>
+            </div>
+        </div>
+    `;
+
+    // === 2. 星球选择网格 ===
+    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(5, 1fr);">';
+    jupiterVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const pData = planetData[item.key];
+        const dotSize = Math.max(4, Math.min(28, (pData.diameter / jupiterDiameter) * 28));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-jupiter-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    // === 3. 条形图 ===
+    let barHTML = '<div class="volume-bar-chart">';
+    jupiterVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const logMax = Math.log10(maxCount);
+        const logVal = Math.log10(Math.max(1, item.count));
+        const percent = (logVal / logMax) * 100;
+
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-jupiter-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    // === 4. 底部：木星与选中星球的真实大小对比 ===
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, (selectedData.diameter / jupiterDiameter) * 80);
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="sun-ref" style="
+                    width: 80px; height: 80px;
+                    background: radial-gradient(circle at 35% 35%, #fff5e0, #d8ca9d, #c4a35a, #8b7355);
+                    box-shadow: 0 0 25px rgba(216, 202, 157, 0.4);
+                "></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>木星</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    // 绑定交互事件
+    wrapper.querySelectorAll('[data-jupiter-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            currentJupiterVolumeSelection = el.dataset.jupiterPlanet;
+            generateSizeComparison('jupiterVolume');
         });
     });
 }
