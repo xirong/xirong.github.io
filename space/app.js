@@ -2815,12 +2815,12 @@ function generateJupiterVolumeComparison(container, subtitle) {
         <div class="volume-hero">
             <div class="volume-sun-circle" style="
                 width: 180px; height: 180px;
-                background: url('textures/jupiter.jpg') center/cover;
+                background: radial-gradient(circle at 35% 35%, #fff5e0, #e8c88a, #d8ca9d, #c4a35a, #8b7355);
                 box-shadow: 0 0 50px rgba(216, 202, 157, 0.5), 0 0 100px rgba(196, 163, 90, 0.3);
             ">
-                <span class="volume-sun-label" style="color:rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.7);">木星能装</span>
-                <span class="volume-sun-count" style="color:#fff; text-shadow: 0 2px 8px rgba(0,0,0,0.8);">${selected.label}</span>
-                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.7);">个${selected.nameCN}</span>
+                <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">木星能装</span>
+                <span class="volume-sun-count" style="color:#fff;">${selected.label}</span>
+                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.7);">个${selected.nameCN}</span>
             </div>
             <div class="volume-big-number">
                 <div class="number">${countDisplay}</div>
@@ -2873,7 +2873,7 @@ function generateJupiterVolumeComparison(container, subtitle) {
             <div class="volume-size-compare">
                 <div class="sun-ref" style="
                     width: 80px; height: 80px;
-                    background: url('textures/jupiter.jpg') center/cover;
+                    background: radial-gradient(circle at 35% 35%, #fff5e0, #e8c88a, #d8ca9d, #c4a35a, #8b7355);
                     box-shadow: 0 0 25px rgba(216, 202, 157, 0.4);
                 "></div>
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
@@ -2925,12 +2925,12 @@ function generateSaturnVolumeComparison(container, subtitle) {
         <div class="volume-hero">
             <div class="volume-sun-circle" style="
                 width: 180px; height: 180px;
-                background: url('textures/saturn.jpg') center/cover;
+                background: radial-gradient(circle at 35% 35%, #fff5e0, #ead6b8, #d4b896, #c4a35a, #8b7355);
                 box-shadow: 0 0 50px rgba(234, 214, 184, 0.5), 0 0 100px rgba(196, 163, 90, 0.3);
             ">
-                <span class="volume-sun-label" style="color:rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.7);">土星能装</span>
-                <span class="volume-sun-count" style="color:#fff; text-shadow: 0 2px 8px rgba(0,0,0,0.8);">${selected.label}</span>
-                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.7);">个${selected.nameCN}</span>
+                <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">土星能装</span>
+                <span class="volume-sun-count" style="color:#fff;">${selected.label}</span>
+                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.7);">个${selected.nameCN}</span>
             </div>
             <div class="volume-big-number">
                 <div class="number">${selected.count >= 10000 ? formatNumber(selected.count) : selected.label}</div>
@@ -2983,7 +2983,7 @@ function generateSaturnVolumeComparison(container, subtitle) {
             <div class="volume-size-compare">
                 <div class="sun-ref" style="
                     width: 80px; height: 80px;
-                    background: url('textures/saturn.jpg') center/cover;
+                    background: radial-gradient(circle at 35% 35%, #fff5e0, #ead6b8, #d4b896, #c4a35a, #8b7355);
                     box-shadow: 0 0 25px rgba(234, 214, 184, 0.4);
                 "></div>
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
