@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星球加减法 - 柳智天的宇宙课堂</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 星空背景 */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--dur) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--o1); }
+            50% { opacity: var(--o2); }
+        }
+
+        /* 顶部标题 */
+        .header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 30px 20px 10px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700, #ff6b35, #ff1493, #00d4ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 4s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        /* 算式显示 */
+        .equation {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 20px;
+            margin: 10px auto;
+            max-width: 500px;
+        }
+
+        .eq-num {
+            font-size: 4rem;
+            font-weight: 900;
+            min-width: 70px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .eq-num.left-num {
+            color: #4fc3f7;
+        }
+
+        .eq-num.right-num {
+            color: #ff8a65;
+        }
+
+        .eq-num.total-num {
+            color: #66bb6a;
+        }
+
+        .eq-op {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .eq-num.pop {
+            animation: pop 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+
+        /* 主区域 */
+        .playground {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            gap: 20px;
+            padding: 10px 30px 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 360px;
+        }
+
+        .zone {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 15px;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .zone.drag-over {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .zone-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 2px;
+        }
+
+        .zone-label.left { color: rgba(79, 195, 247, 0.4); }
+        .zone-label.right { color: rgba(255, 138, 101, 0.4); }
+
+        /* 星球 */
+        .planet {
+            width: 80px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: grab;
+            transition: transform 0.2s ease;
+            touch-action: none;
+        }
+
+        .planet:hover {
+            transform: scale(1.1);
+        }
+
+        .planet:active {
+            cursor: grabbing;
+        }
+
+        .planet.dragging {
+            opacity: 0.4;
+            transform: scale(0.9);
+        }
+
+        .planet-ball {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 20px var(--glow);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .planet:hover .planet-ball {
+            box-shadow: 0 0 30px var(--glow), 0 0 60px var(--glow);
+        }
+
+        /* 土星环 */
+        .planet-ball.saturn-ring::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 20px;
+            border: 3px solid rgba(210, 180, 140, 0.6);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) rotateX(70deg);
+            pointer-events: none;
+        }
+
+        .planet-name {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .planet-number {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* 拖拽镜像 */
+        .drag-mirror {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transition: none;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+
+        .drag-mirror .planet-ball {
+            animation: mirror-pulse 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes mirror-pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+
+        /* 底部操作栏 */
+        .actions {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 10px 20px 30px;
+        }
+
+        .action-btn {
+            padding: 12px 28px;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 提示文字 */
+        .tip {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 0 20px 20px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            line-height: 1.8;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* 庆祝动画 */
+        .confetti {
+            position: fixed;
+            top: -10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            z-index: 9999;
+            pointer-events: none;
+            animation: confetti-fall var(--fall-dur) linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 等式高亮 */
+        .equation.highlight .eq-num.left-num { color: #29b6f6; text-shadow: 0 0 20px rgba(41, 182, 246, 0.5); }
+        .equation.highlight .eq-num.right-num { color: #ff7043; text-shadow: 0 0 20px rgba(255, 112, 67, 0.5); }
+        .equation.highlight .eq-num.total-num { color: #43a047; text-shadow: 0 0 20px rgba(67, 160, 71, 0.5); }
+
+        /* 响应式 */
+        @media (max-width: 700px) {
+            .playground {
+                flex-direction: column;
+                padding: 10px 15px;
+                min-height: auto;
+            }
+
+            .zone {
+                min-height: 150px;
+            }
+
+            .eq-num {
+                font-size: 3rem;
+                min-width: 50px;
+            }
+
+            .eq-op {
+                font-size: 2rem;
+            }
+
+            .planet {
+                width: 65px;
+                height: 85px;
+            }
+
+            .planet-ball {
+                width: 46px;
+                height: 46px;
+            }
+
+            .planet-ball.saturn-ring::after {
+                width: 66px;
+                height: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 星空 -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- 标题 -->
+    <div class="header">
+        <h1>星球加减法</h1>
+        <p>拖动星球，探索 10 以内的加减法</p>
+    </div>
+
+    <!-- 算式 -->
+    <div class="equation" id="equation">
+        <span class="eq-num left-num" id="leftNum">10</span>
+        <span class="eq-op">+</span>
+        <span class="eq-num right-num" id="rightNum">0</span>
+        <span class="eq-op">=</span>
+        <span class="eq-num total-num" id="totalNum">10</span>
+    </div>
+
+    <!-- 拖拽区域 -->
+    <div class="playground">
+        <div class="zone left-zone" id="leftZone">
+            <span class="zone-label left">左边</span>
+        </div>
+        <div class="zone right-zone" id="rightZone">
+            <span class="zone-label right">右边</span>
+        </div>
+    </div>
+
+    <!-- 操作 -->
+    <div class="actions">
+        <button class="action-btn" id="resetBtn">全部回左边</button>
+        <button class="action-btn" id="randomBtn">随机分一分</button>
+    </div>
+
+    <!-- 提示 -->
+    <div class="tip">
+        用手指或鼠标把星球拖到右边，算式会实时变化<br>
+        试试看：能让两边一样多吗？(5 + 5)
+    </div>
+
+    <a href="solar-system.html" class="back-btn">🪐 太阳系</a>
+
+    <script>
+        // 10 颗星球数据
+        const PLANETS = [
+            { id: 'sun',     name: '太阳',   bg: 'radial-gradient(circle at 35% 35%, #fffde7, #ffeb3b, #ff9800, #e65100)', glow: 'rgba(255, 193, 7, 0.6)' },
+            { id: 'mercury', name: '水星',   bg: 'radial-gradient(circle at 35% 35%, #e0e0e0, #9e9e9e, #616161)',           glow: 'rgba(158, 158, 158, 0.5)' },
+            { id: 'venus',   name: '金星',   bg: 'radial-gradient(circle at 35% 35%, #fff8e1, #ffe082, #f9a825)',           glow: 'rgba(249, 168, 37, 0.5)' },
+            { id: 'earth',   name: '地球',   bg: 'radial-gradient(circle at 35% 35%, #e3f2fd, #42a5f5, #1565c0, #2e7d32)', glow: 'rgba(66, 165, 245, 0.5)' },
+            { id: 'mars',    name: '火星',   bg: 'radial-gradient(circle at 35% 35%, #ffccbc, #e64a19, #bf360c)',           glow: 'rgba(230, 74, 25, 0.5)' },
+            { id: 'jupiter', name: '木星',   bg: 'radial-gradient(circle at 35% 35%, #fff3e0, #d7ccc8, #bcaaa4, #a1887f)', glow: 'rgba(188, 170, 164, 0.5)' },
+            { id: 'saturn',  name: '土星',   bg: 'radial-gradient(circle at 35% 35%, #fff8e1, #ffe0b2, #d2b48c)',           glow: 'rgba(210, 180, 140, 0.5)', ring: true },
+            { id: 'uranus',  name: '天王星', bg: 'radial-gradient(circle at 35% 35%, #e0f7fa, #80deea, #00acc1)',           glow: 'rgba(0, 172, 193, 0.5)' },
+            { id: 'neptune', name: '海王星', bg: 'radial-gradient(circle at 35% 35%, #e8eaf6, #5c6bc0, #283593)',           glow: 'rgba(92, 107, 192, 0.5)' },
+            { id: 'pluto',   name: '冥王星', bg: 'radial-gradient(circle at 35% 35%, #efebe9, #a1887f, #6d4c41)',           glow: 'rgba(109, 76, 65, 0.5)' },
+        ];
+
+        const leftZone = document.getElementById('leftZone');
+        const rightZone = document.getElementById('rightZone');
+        const leftNumEl = document.getElementById('leftNum');
+        const rightNumEl = document.getElementById('rightNum');
+        const totalNumEl = document.getElementById('totalNum');
+        const equationEl = document.getElementById('equation');
+
+        // 生成星空
+        (function createStars() {
+            const field = document.getElementById('starfield');
+            for (let i = 0; i < 120; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                const size = Math.random() * 2 + 1;
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                s.style.setProperty('--o1', (0.2 + Math.random() * 0.3).toFixed(2));
+                s.style.setProperty('--o2', (0.6 + Math.random() * 0.4).toFixed(2));
+                s.style.animationDelay = (Math.random() * 4) + 's';
+                field.appendChild(s);
+            }
+        })();
+
+        // 创建星球 DOM
+        function createPlanetEl(planet, index) {
+            const el = document.createElement('div');
+            el.className = 'planet';
+            el.dataset.id = planet.id;
+            el.draggable = true;
+
+            const ball = document.createElement('div');
+            ball.className = 'planet-ball' + (planet.ring ? ' saturn-ring' : '');
+            ball.style.background = planet.bg;
+            ball.style.setProperty('--glow', planet.glow);
+
+            const name = document.createElement('div');
+            name.className = 'planet-name';
+            name.textContent = planet.name;
+
+            el.appendChild(ball);
+            el.appendChild(name);
+            return el;
+        }
+
+        // 初始化：全部放左边
+        function init() {
+            // 清空两个区域的星球（保留 label）
+            leftZone.querySelectorAll('.planet').forEach(p => p.remove());
+            rightZone.querySelectorAll('.planet').forEach(p => p.remove());
+
+            PLANETS.forEach((p, i) => {
+                leftZone.insertBefore(createPlanetEl(p, i), leftZone.querySelector('.zone-label'));
+            });
+            updateEquation();
+        }
+
+        // 更新算式
+        function updateEquation() {
+            const leftCount = leftZone.querySelectorAll('.planet').length;
+            const rightCount = rightZone.querySelectorAll('.planet').length;
+
+            animateNum(leftNumEl, leftCount);
+            animateNum(rightNumEl, rightCount);
+            totalNumEl.textContent = '10';
+
+            // 5+5 彩蛋
+            if (leftCount === 5 && rightCount === 5) {
+                equationEl.classList.add('highlight');
+                celebrate();
+            } else {
+                equationEl.classList.remove('highlight');
+            }
+        }
+
+        function animateNum(el, val) {
+            if (el.textContent !== String(val)) {
+                el.textContent = val;
+                el.classList.remove('pop');
+                void el.offsetWidth; // reflow
+                el.classList.add('pop');
+            }
+        }
+
+        // === 拖拽逻辑 (支持鼠标 + 触摸) ===
+        let dragEl = null;
+        let mirrorEl = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        // --- 鼠标拖拽 ---
+        document.addEventListener('dragstart', e => {
+            const planet = e.target.closest('.planet');
+            if (!planet) return;
+            dragEl = planet;
+            planet.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', planet.dataset.id);
+            // 使用透明拖拽图标
+            const img = new Image();
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            e.dataTransfer.setDragImage(img, 0, 0);
+        });
+
+        document.addEventListener('dragend', e => {
+            if (dragEl) {
+                dragEl.classList.remove('dragging');
+                dragEl = null;
+            }
+        });
+
+        [leftZone, rightZone].forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', e => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if (dragEl && dragEl.parentElement !== zone) {
+                    zone.insertBefore(dragEl, zone.querySelector('.zone-label'));
+                    updateEquation();
+                }
+            });
+        });
+
+        // --- 触摸拖拽 ---
+        document.addEventListener('touchstart', e => {
+            const planet = e.target.closest('.planet');
+            if (!planet) return;
+
+            e.preventDefault();
+            dragEl = planet;
+            planet.classList.add('dragging');
+
+            const touch = e.touches[0];
+            const rect = planet.getBoundingClientRect();
+            dragOffsetX = touch.clientX - rect.left;
+            dragOffsetY = touch.clientY - rect.top;
+
+            // 创建镜像
+            mirrorEl = planet.cloneNode(true);
+            mirrorEl.className = 'planet drag-mirror';
+            mirrorEl.style.width = rect.width + 'px';
+            mirrorEl.style.left = (touch.clientX - dragOffsetX) + 'px';
+            mirrorEl.style.top = (touch.clientY - dragOffsetY) + 'px';
+            document.body.appendChild(mirrorEl);
+        }, { passive: false });
+
+        document.addEventListener('touchmove', e => {
+            if (!dragEl || !mirrorEl) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            mirrorEl.style.left = (touch.clientX - dragOffsetX) + 'px';
+            mirrorEl.style.top = (touch.clientY - dragOffsetY) + 'px';
+
+            // 检测 hover zone
+            const leftRect = leftZone.getBoundingClientRect();
+            const rightRect = rightZone.getBoundingClientRect();
+            const cx = touch.clientX;
+            const cy = touch.clientY;
+
+            leftZone.classList.toggle('drag-over',
+                cx >= leftRect.left && cx <= leftRect.right && cy >= leftRect.top && cy <= leftRect.bottom);
+            rightZone.classList.toggle('drag-over',
+                cx >= rightRect.left && cx <= rightRect.right && cy >= rightRect.top && cy <= rightRect.bottom);
+        }, { passive: false });
+
+        document.addEventListener('touchend', e => {
+            if (!dragEl) return;
+
+            if (mirrorEl) {
+                // 检测落点
+                const touch = e.changedTouches[0];
+                const cx = touch.clientX;
+                const cy = touch.clientY;
+
+                [leftZone, rightZone].forEach(zone => {
+                    const rect = zone.getBoundingClientRect();
+                    if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+                        if (dragEl.parentElement !== zone) {
+                            zone.insertBefore(dragEl, zone.querySelector('.zone-label'));
+                            updateEquation();
+                        }
+                    }
+                    zone.classList.remove('drag-over');
+                });
+
+                mirrorEl.remove();
+                mirrorEl = null;
+            }
+
+            dragEl.classList.remove('dragging');
+            dragEl = null;
+        });
+
+        // 全部回左边
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            rightZone.querySelectorAll('.planet').forEach(p => {
+                leftZone.insertBefore(p, leftZone.querySelector('.zone-label'));
+            });
+            updateEquation();
+        });
+
+        // 随机分一分
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            // 先全部回左边
+            rightZone.querySelectorAll('.planet').forEach(p => {
+                leftZone.insertBefore(p, leftZone.querySelector('.zone-label'));
+            });
+
+            // 随机选几个放右边
+            const count = 1 + Math.floor(Math.random() * 9); // 1~9
+            const planets = Array.from(leftZone.querySelectorAll('.planet'));
+            // 随机打乱
+            for (let i = planets.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [planets[i], planets[j]] = [planets[j], planets[i]];
+            }
+            for (let i = 0; i < count; i++) {
+                rightZone.insertBefore(planets[i], rightZone.querySelector('.zone-label'));
+            }
+            updateEquation();
+        });
+
+        // 庆祝 5+5
+        function celebrate() {
+            const colors = ['#ffd700', '#ff6b35', '#ff1493', '#00d4ff', '#66bb6a', '#ab47bc'];
+            for (let i = 0; i < 30; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                c.style.setProperty('--fall-dur', (1.5 + Math.random() * 2) + 's');
+                c.style.animationDelay = (Math.random() * 0.5) + 's';
+                c.style.width = (6 + Math.random() * 8) + 'px';
+                c.style.height = (6 + Math.random() * 8) + 'px';
+                document.body.appendChild(c);
+                c.addEventListener('animationend', () => c.remove());
+            }
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+
+</html>
