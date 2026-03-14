@@ -271,6 +271,7 @@ let currentComparisonTab = 'diameter'; // 'diameter', 'mass' 或 'volume'
 let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
 let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
 let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
+let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -2410,6 +2411,7 @@ function setupControls() {
     });
 
     document.getElementById('closeSizeComparison').addEventListener('click', function () {
+        cancelDragVolumeAnimation();
         document.getElementById('sizeComparison').classList.remove('visible');
     });
 
@@ -2530,7 +2532,7 @@ function generateSizeComparison(mode) {
     const subtitle = document.getElementById('comparisonSubtitle');
 
     // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
-    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume';
+    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume' || mode === 'dragVolume';
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
@@ -2665,6 +2667,10 @@ function generateSizeComparison(mode) {
     } else if (mode === 'saturnVolume') {
         // 土星能装多少个
         generateSaturnVolumeComparison(container, subtitle);
+    } else if (mode === 'dragVolume') {
+        // 拖进太阳
+        cancelDragVolumeAnimation();
+        generateDragVolumeComparison(container, subtitle);
     }
 }
 
@@ -3007,9 +3013,429 @@ function generateSaturnVolumeComparison(container, subtitle) {
     });
 }
 
+// ============ 拖进太阳 ============
+function cancelDragVolumeAnimation() {
+    if (dragVolumeAnimationId) {
+        cancelAnimationFrame(dragVolumeAnimationId);
+        dragVolumeAnimationId = null;
+    }
+}
+
+function generateDragVolumeComparison(container, subtitle) {
+    subtitle.textContent = '拖拽行星放入太阳，看看能装多少个';
+
+    const dragData = [
+        { key: 'jupiter',  nameCN: '木星',   count: 1000,      label: '1,000',    color: '#d8ca9d' },
+        { key: 'saturn',   nameCN: '土星',   count: 1700,      label: '1,700',    color: '#ead6b8' },
+        { key: 'uranus',   nameCN: '天王星', count: 20000,     label: '2 万',     color: '#7de8d5' },
+        { key: 'neptune',  nameCN: '海王星', count: 22000,     label: '2.2 万',   color: '#5b5ddf' },
+        { key: 'earth',    nameCN: '地球',   count: 1300000,   label: '130 万',   color: '#6b93d6' },
+        { key: 'venus',    nameCN: '金星',   count: 1500000,   label: '150 万',   color: '#e6c87a' },
+        { key: 'mars',     nameCN: '火星',   count: 8600000,   label: '860 万',   color: '#c1440e' },
+        { key: 'mercury',  nameCN: '水星',   count: 23000000,  label: '2300 万',  color: '#b5b5b5' },
+        { key: 'moon',     nameCN: '月球',   count: 65000000,  label: '6500 万',  color: '#aaaaaa' },
+        { key: 'pluto',    nameCN: '冥王星', count: 220000000, label: '2.2 亿',   color: '#c9b59a' }
+    ];
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'drag-volume-container';
+
+    // Canvas 大小
+    const canvasSize = 260;
+    const dpr = window.devicePixelRatio || 1;
+
+    // 行星球大小（按直径相对比例）
+    function getDotSize(key) {
+        const d = planetData[key].diameter;
+        return Math.max(8, Math.min(28, (d / 139820) * 28));
+    }
+
+    // 构建 HTML
+    let trayHTML = '';
+    dragData.forEach((item, i) => {
+        const dotSize = getDotSize(item.key);
+        trayHTML += `
+            <div class="drag-planet-item hint-pulse" data-drag-key="${item.key}" data-drag-index="${i}" style="animation-delay: ${i * 0.2}s;">
+                <div class="drag-dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="drag-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+
+    wrapper.innerHTML = `
+        <div class="drag-instruction">👆 拖拽行星放入太阳，看它能装多少个！</div>
+        <div class="drag-main-area">
+            <div class="drag-sun-area">
+                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px;"></canvas>
+            </div>
+            <div class="drag-planet-tray">${trayHTML}</div>
+        </div>
+        <div class="drag-result" id="dragResult">
+            <div class="result-number" id="dragResultNumber"></div>
+            <div class="result-text" id="dragResultText"></div>
+        </div>
+    `;
+
+    container.appendChild(wrapper);
+
+    // 初始化 Canvas - 画空太阳
+    const canvas = wrapper.querySelector('.drag-sun-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    drawIdleSun(ctx, canvasSize);
+
+    // 设置拖拽交互
+    setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData);
+}
+
+function drawIdleSun(ctx, size) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - 10;
+    ctx.clearRect(0, 0, size, size);
+
+    // 太阳渐变
+    const grad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.2, '#fff9c4');
+    grad.addColorStop(0.5, '#ffeb3b');
+    grad.addColorStop(0.8, '#ff9800');
+    grad.addColorStop(1, '#e65100');
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 光晕
+    const glow = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.15);
+    glow.addColorStop(0, 'rgba(255, 152, 0, 0.3)');
+    glow.addColorStop(1, 'rgba(255, 152, 0, 0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // 提示文字
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.font = '600 14px "Noto Sans SC"';
+    ctx.textAlign = 'center';
+    ctx.fillText('拖到这里', cx, cy);
+}
+
+function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData) {
+    const sizeComparison = document.getElementById('sizeComparison');
+    let ghost = null;
+    let dragItem = null;
+    let offsetX = 0, offsetY = 0;
+
+    wrapper.querySelectorAll('.drag-planet-item').forEach(item => {
+        item.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            const idx = parseInt(item.dataset.dragIndex);
+            dragItem = dragData[idx];
+
+            // 创建 ghost
+            const dotSize = Math.max(20, Math.min(40, (planetData[dragItem.key].diameter / 139820) * 40));
+            ghost = document.createElement('div');
+            ghost.className = 'drag-ghost';
+            ghost.style.width = dotSize + 'px';
+            ghost.style.height = dotSize + 'px';
+            ghost.style.background = dragItem.color;
+            ghost.style.boxShadow = `0 0 15px ${dragItem.color}`;
+            ghost.style.left = (e.clientX - dotSize / 2) + 'px';
+            ghost.style.top = (e.clientY - dotSize / 2) + 'px';
+            document.body.appendChild(ghost);
+
+            offsetX = dotSize / 2;
+            offsetY = dotSize / 2;
+
+            // 防止滚动
+            sizeComparison.style.overflow = 'hidden';
+
+            item.setPointerCapture(e.pointerId);
+
+            // 去掉脉冲动画
+            item.classList.remove('hint-pulse');
+            item.style.opacity = '0.4';
+        });
+
+        item.addEventListener('pointermove', (e) => {
+            if (!ghost) return;
+            ghost.style.left = (e.clientX - offsetX) + 'px';
+            ghost.style.top = (e.clientY - offsetY) + 'px';
+        });
+
+        item.addEventListener('pointerup', (e) => {
+            if (!ghost || !dragItem) return;
+
+            // 恢复滚动
+            sizeComparison.style.overflow = 'auto';
+            item.style.opacity = '1';
+
+            // 命中检测
+            const canvasRect = canvas.getBoundingClientRect();
+            const cx = canvasRect.left + canvasRect.width / 2;
+            const cy = canvasRect.top + canvasRect.height / 2;
+            const dist = Math.sqrt((e.clientX - cx) ** 2 + (e.clientY - cy) ** 2);
+            const hitRadius = canvasRect.width / 2;
+
+            if (dist < hitRadius * 1.2) {
+                // 命中太阳！
+                ghost.style.transition = 'all 0.2s ease';
+                ghost.style.left = (cx - offsetX) + 'px';
+                ghost.style.top = (cy - offsetY) + 'px';
+                ghost.style.transform = 'scale(0)';
+                ghost.style.opacity = '0';
+                setTimeout(() => ghost && ghost.remove(), 200);
+
+                // 清空结果
+                const resultNum = document.getElementById('dragResultNumber');
+                const resultText = document.getElementById('dragResultText');
+                if (resultNum) { resultNum.classList.remove('visible'); resultNum.textContent = ''; }
+                if (resultText) { resultText.classList.remove('visible'); resultText.textContent = ''; }
+
+                // 启动填充动画
+                cancelDragVolumeAnimation();
+                const ctx2 = canvas.getContext('2d');
+                ctx2.setTransform(1, 0, 0, 1, 0, 0);
+                ctx2.scale(dpr, dpr);
+                startFillAnimation(ctx2, canvasSize, dragItem);
+            } else {
+                // 未命中，回弹消失
+                ghost.classList.add('snap-back');
+                setTimeout(() => ghost && ghost.remove(), 300);
+            }
+
+            ghost = null;
+            dragItem = null;
+        });
+
+        item.addEventListener('pointercancel', () => {
+            if (ghost) { ghost.remove(); ghost = null; }
+            dragItem = null;
+            sizeComparison.style.overflow = 'auto';
+            item.style.opacity = '1';
+        });
+    });
+}
+
+function startFillAnimation(ctx, size, data) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - 10;
+    const targetCount = data.count;
+    const color = data.color;
+    const nameCN = data.nameCN;
+    const label = data.label;
+
+    // 粒子池
+    const MAX_PARTICLES = 200;
+    const particles = [];
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+        particles.push({ alive: false, x: 0, y: 0, vx: 0, vy: 0, r: 0, alpha: 1 });
+    }
+
+    // 动画参数
+    const duration = 3000; // ms
+    let fillLevel = 0; // 0~1
+    let displayCount = 0;
+    const startTime = performance.now();
+    let lastSpawnTime = 0;
+
+    // 根据数量级决定粒子大小和生成速率
+    let particleRadius, spawnInterval;
+    if (targetCount <= 2000) {
+        particleRadius = 5; spawnInterval = 15;
+    } else if (targetCount <= 30000) {
+        particleRadius = 4; spawnInterval = 10;
+    } else if (targetCount <= 2000000) {
+        particleRadius = 3; spawnInterval = 8;
+    } else {
+        particleRadius = 2; spawnInterval = 5;
+    }
+
+    function spawnParticle() {
+        for (let i = 0; i < MAX_PARTICLES; i++) {
+            if (!particles[i].alive) {
+                const p = particles[i];
+                p.alive = true;
+                // 从太阳顶部随机位置生成
+                const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.8;
+                const spawnR = r * 0.85;
+                p.x = cx + Math.cos(angle) * spawnR * (0.3 + Math.random() * 0.7);
+                p.y = cy - r * 0.7 - Math.random() * 10;
+                p.vx = (Math.random() - 0.5) * 2;
+                p.vy = Math.random() * 1 + 0.5;
+                p.r = particleRadius + Math.random() * 1.5;
+                p.alpha = 0.8 + Math.random() * 0.2;
+                return;
+            }
+        }
+    }
+
+    function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+
+        // easeInOutCubic for fill
+        fillLevel = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        // 计数器：指数加速
+        displayCount = Math.round(targetCount * fillLevel);
+
+        // 填充线的 Y 位置（从底部往上）
+        const fillY = cy + r - fillLevel * r * 2;
+
+        ctx.clearRect(0, 0, size, size);
+
+        // 1. 太阳底色
+        const sunGrad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
+        sunGrad.addColorStop(0, '#ffffff');
+        sunGrad.addColorStop(0.2, '#fff9c4');
+        sunGrad.addColorStop(0.5, '#ffeb3b');
+        sunGrad.addColorStop(0.8, '#ff9800');
+        sunGrad.addColorStop(1, '#e65100');
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.clip();
+
+        ctx.fillStyle = sunGrad;
+        ctx.fillRect(0, 0, size, size);
+
+        // 2. 填充层（行星颜色半透明从底部上升）
+        if (fillLevel > 0) {
+            ctx.fillStyle = color + '55'; // 30% opacity
+            ctx.fillRect(cx - r, fillY, r * 2, cy + r - fillY);
+
+            // 填充层顶部渐变过渡
+            const fadeGrad = ctx.createLinearGradient(0, fillY - 15, 0, fillY + 5);
+            fadeGrad.addColorStop(0, color + '00');
+            fadeGrad.addColorStop(1, color + '44');
+            ctx.fillStyle = fadeGrad;
+            ctx.fillRect(cx - r, fillY - 15, r * 2, 20);
+        }
+
+        // 3. 粒子
+        if (progress < 0.95) {
+            // 生成粒子
+            if (now - lastSpawnTime > spawnInterval) {
+                const spawnCount = Math.ceil(3 + progress * 5);
+                for (let s = 0; s < spawnCount; s++) spawnParticle();
+                lastSpawnTime = now;
+            }
+        }
+
+        // 更新和绘制粒子
+        for (let i = 0; i < MAX_PARTICLES; i++) {
+            const p = particles[i];
+            if (!p.alive) continue;
+
+            p.vy += 0.15; // 重力
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // 碰到填充线反弹
+            if (p.y + p.r > Math.max(fillY, cy - r + 5)) {
+                p.y = Math.max(fillY, cy - r + 5) - p.r;
+                p.vy *= -0.3;
+                p.vx *= 0.8;
+                if (Math.abs(p.vy) < 0.5) {
+                    p.alive = false;
+                    continue;
+                }
+            }
+
+            // 超出太阳范围检测
+            const dx = p.x - cx, dy = p.y - cy;
+            if (dx * dx + dy * dy > (r - p.r) * (r - p.r)) {
+                // 推回太阳内
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const nx = dx / dist, ny = dy / dist;
+                p.x = cx + nx * (r - p.r - 1);
+                p.y = cy + ny * (r - p.r - 1);
+                // 反射速度
+                const dot = p.vx * nx + p.vy * ny;
+                p.vx -= 1.5 * dot * nx;
+                p.vy -= 1.5 * dot * ny;
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        ctx.restore();
+
+        // 4. 光晕
+        const glow = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.15);
+        glow.addColorStop(0, 'rgba(255, 152, 0, 0.2)');
+        glow.addColorStop(1, 'rgba(255, 152, 0, 0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+
+        // 5. 计数器文字
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.clip();
+
+        let countText;
+        if (displayCount >= 100000000) {
+            countText = (displayCount / 100000000).toFixed(1) + ' 亿';
+        } else if (displayCount >= 10000) {
+            countText = (displayCount / 10000).toFixed(displayCount >= 1000000 ? 0 : 1) + ' 万';
+        } else {
+            countText = formatNumber(displayCount);
+        }
+
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.font = '900 28px "Orbitron", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(countText, cx + 1, cy - 5 + 1);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(countText, cx, cy - 5);
+
+        ctx.font = '500 13px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.fillText('个' + nameCN, cx, cy + 20);
+        ctx.restore();
+
+        if (progress < 1) {
+            dragVolumeAnimationId = requestAnimationFrame(animate);
+        } else {
+            // 动画完成，显示结果
+            dragVolumeAnimationId = null;
+            showDragResult(label, nameCN, targetCount);
+        }
+    }
+
+    dragVolumeAnimationId = requestAnimationFrame(animate);
+}
+
+function showDragResult(label, nameCN, count) {
+    const resultNum = document.getElementById('dragResultNumber');
+    const resultText = document.getElementById('dragResultText');
+    if (resultNum) {
+        resultNum.textContent = formatNumber(count);
+        setTimeout(() => resultNum.classList.add('visible'), 50);
+    }
+    if (resultText) {
+        resultText.textContent = `太阳能装 ${label} 个${nameCN}！`;
+        setTimeout(() => resultText.classList.add('visible'), 50);
+    }
+}
+
 function setupComparisonTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+            cancelDragVolumeAnimation();
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentComparisonTab = btn.dataset.tab;

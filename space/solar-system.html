@@ -1209,6 +1209,144 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
         }
+
+        /* 拖进太阳 tab */
+        .drag-volume-container {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .drag-instruction {
+            font-size: 0.95rem;
+            color: var(--accent-gold);
+            text-align: center;
+            padding: 8px 20px;
+            background: rgba(244, 208, 63, 0.1);
+            border: 1px solid rgba(244, 208, 63, 0.2);
+            border-radius: 20px;
+        }
+
+        .drag-main-area {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .drag-sun-area {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .drag-sun-canvas {
+            border-radius: 50%;
+            cursor: default;
+        }
+
+        .drag-planet-tray {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-width: 240px;
+        }
+
+        .drag-planet-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .drag-planet-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .drag-planet-item:active {
+            cursor: grabbing;
+        }
+
+        .drag-planet-item .drag-dot {
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .drag-planet-item .drag-name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .drag-ghost {
+            position: fixed;
+            z-index: 300;
+            pointer-events: none;
+            border-radius: 50%;
+            opacity: 0.9;
+            transition: none;
+        }
+
+        .drag-ghost.snap-back {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.3);
+        }
+
+        .drag-result {
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drag-result .result-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.5s ease;
+        }
+
+        .drag-result .result-number.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .drag-result .result-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            opacity: 0;
+            transition: opacity 0.5s ease 0.2s;
+        }
+
+        .drag-result .result-text.visible {
+            opacity: 1;
+        }
+
+        @keyframes pulse-drag-hint {
+            0%, 100% { border-color: rgba(255, 255, 255, 0.1); }
+            50% { border-color: rgba(244, 208, 63, 0.4); }
+        }
+
+        .drag-planet-item.hint-pulse {
+            animation: pulse-drag-hint 2s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -1375,6 +1513,7 @@
             <button class="tab-btn" data-tab="volume">☀️ 太阳能装</button>
             <button class="tab-btn" data-tab="jupiterVolume">🪐 木星能装</button>
             <button class="tab-btn" data-tab="saturnVolume">🪐 土星能装</button>
+            <button class="tab-btn" data-tab="dragVolume">🎯 拖进太阳</button>
         </div>
 
         <!-- 类型说明 -->
