@@ -270,6 +270,7 @@ let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonTab = 'diameter'; // 'diameter', 'mass' 或 'volume'
 let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
 let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
+let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -2529,7 +2530,7 @@ function generateSizeComparison(mode) {
     const subtitle = document.getElementById('comparisonSubtitle');
 
     // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
-    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume';
+    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume';
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
@@ -2661,6 +2662,9 @@ function generateSizeComparison(mode) {
     } else if (mode === 'jupiterVolume') {
         // 木星能装多少个
         generateJupiterVolumeComparison(container, subtitle);
+    } else if (mode === 'saturnVolume') {
+        // 土星能装多少个
+        generateSaturnVolumeComparison(container, subtitle);
     }
 }
 
@@ -2889,6 +2893,116 @@ function generateJupiterVolumeComparison(container, subtitle) {
         el.addEventListener('click', () => {
             currentJupiterVolumeSelection = el.dataset.jupiterPlanet;
             generateSizeComparison('jupiterVolume');
+        });
+    });
+}
+
+// ============ 土星能装多少个 ============
+function generateSaturnVolumeComparison(container, subtitle) {
+    subtitle.textContent = '土星是太阳系第二大行星，体积约为地球的 827 倍';
+
+    const saturnVolumeData = [
+        { key: 'uranus',   nameCN: '天王星', count: 13,       label: '13',       color: '#7de8d5' },
+        { key: 'neptune',  nameCN: '海王星', count: 14,       label: '14',       color: '#5b5ddf' },
+        { key: 'earth',    nameCN: '地球',   count: 827,      label: '827',      color: '#6b93d6' },
+        { key: 'venus',    nameCN: '金星',   count: 965,      label: '965',      color: '#e6c87a' },
+        { key: 'mars',     nameCN: '火星',   count: 5477,     label: '5,477',    color: '#c1440e' },
+        { key: 'mercury',  nameCN: '水星',   count: 15000,    label: '15,000',   color: '#b5b5b5' },
+        { key: 'moon',     nameCN: '月球',   count: 40000,    label: '40,000',   color: '#aaaaaa' },
+        { key: 'pluto',    nameCN: '冥王星', count: 127000,   label: '127,000',  color: '#c9b59a' }
+    ];
+
+    const selected = saturnVolumeData.find(d => d.key === currentSaturnVolumeSelection) || saturnVolumeData[2]; // 默认地球
+    const maxCount = saturnVolumeData[saturnVolumeData.length - 1].count;
+
+    const saturnDiameter = 116460; // km
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    // === 1. 顶部：土星大圆（真实纹理）+ 数字 ===
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle" style="
+                width: 180px; height: 180px;
+                background: url('textures/saturn.jpg') center/cover;
+                box-shadow: 0 0 50px rgba(234, 214, 184, 0.5), 0 0 100px rgba(196, 163, 90, 0.3);
+            ">
+                <span class="volume-sun-label" style="color:rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.7);">土星能装</span>
+                <span class="volume-sun-count" style="color:#fff; text-shadow: 0 2px 8px rgba(0,0,0,0.8);">${selected.label}</span>
+                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.7);">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${selected.count >= 10000 ? formatNumber(selected.count) : selected.label}</div>
+                <div class="unit">个${selected.nameCN}才能填满土星</div>
+            </div>
+        </div>
+    `;
+
+    // === 2. 星球选择网格 ===
+    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(4, 1fr);">';
+    saturnVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const pData = planetData[item.key];
+        const dotSize = Math.max(4, Math.min(28, (pData.diameter / saturnDiameter) * 28));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-saturn-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    // === 3. 条形图 ===
+    let barHTML = '<div class="volume-bar-chart">';
+    saturnVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const logMax = Math.log10(maxCount);
+        const logVal = Math.log10(Math.max(1, item.count));
+        const percent = (logVal / logMax) * 100;
+
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-saturn-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    // === 4. 底部：土星（纹理）与选中星球的真实大小对比 ===
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, (selectedData.diameter / saturnDiameter) * 80);
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="sun-ref" style="
+                    width: 80px; height: 80px;
+                    background: url('textures/saturn.jpg') center/cover;
+                    box-shadow: 0 0 25px rgba(234, 214, 184, 0.4);
+                "></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>土星</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    // 绑定交互事件
+    wrapper.querySelectorAll('[data-saturn-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            currentSaturnVolumeSelection = el.dataset.saturnPlanet;
+            generateSizeComparison('saturnVolume');
         });
     });
 }
