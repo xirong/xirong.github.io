@@ -2554,6 +2554,21 @@ function generateSizeComparison(mode) {
         moon: '🌙 卫星'
     };
 
+    // 行星纹理贴图映射
+    const planetTextures = {
+        sun: 'textures/sun.jpg',
+        jupiter: 'textures/jupiter.jpg',
+        saturn: 'textures/saturn.jpg',
+        earth: 'textures/earth_daymap.jpg',
+        mars: 'textures/mars.jpg',
+        mercury: 'textures/mercury.jpg',
+        venus: 'textures/venus_atmosphere.jpg',
+        neptune: 'textures/neptune.jpg',
+        uranus: 'textures/uranus.jpg',
+        moon: 'textures/moon.jpg',
+        pluto: 'textures/pluto.jpg'
+    };
+
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
         const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
@@ -2576,15 +2591,17 @@ function generateSizeComparison(mode) {
                 displaySize = Math.max(5, displaySize);
             }
 
+            const bgStyle = planetTextures[name]
+                ? `background: url('${planetTextures[name]}') center/cover;`
+                : `background: #${data.color.toString(16).padStart(6, '0')};`;
+
             const div = document.createElement('div');
             div.className = `comparison-planet ${categoryClass}`;
             div.innerHTML = `
                 <div class="sphere" style="
                     width: ${displaySize}px;
                     height: ${displaySize}px;
-                    background: ${name === 'sun' ?
-                    'radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336)' :
-                    `#${data.color.toString(16).padStart(6, '0')}`};
+                    ${bgStyle}
                     color: #${data.color.toString(16).padStart(6, '0')};
                     ${name === 'sun' ? 'box-shadow: 0 0 60px rgba(255, 152, 0, 0.8), 0 0 120px rgba(255, 87, 34, 0.5);' : ''}
                 "></div>
@@ -2639,15 +2656,17 @@ function generateSizeComparison(mode) {
                 earthMassLabel = `= ${earthMasses.toFixed(4)} 地球质量`;
             }
 
+            const bgStyle2 = planetTextures[name]
+                ? `background: url('${planetTextures[name]}') center/cover;`
+                : `background: #${data.color.toString(16).padStart(6, '0')};`;
+
             const div = document.createElement('div');
             div.className = `comparison-planet ${categoryClass}`;
             div.innerHTML = `
                 <div class="sphere" style="
                     width: ${displaySize}px;
                     height: ${displaySize}px;
-                    background: ${name === 'sun' ?
-                    'radial-gradient(circle at 30% 30%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #f44336)' :
-                    `#${data.color.toString(16).padStart(6, '0')}`};
+                    ${bgStyle2}
                     color: #${data.color.toString(16).padStart(6, '0')};
                     ${name === 'sun' ? 'box-shadow: 0 0 60px rgba(255, 152, 0, 0.8), 0 0 120px rgba(255, 87, 34, 0.5);' : ''}
                 "></div>
