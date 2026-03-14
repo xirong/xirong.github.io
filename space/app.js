@@ -267,7 +267,8 @@ let selectedPlanet = null;
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
-let currentComparisonTab = 'diameter'; // 'diameter' 或 'mass'
+let currentComparisonTab = 'diameter'; // 'diameter', 'mass' 或 'volume'
+let currentVolumeSelection = 'earth'; // volume tab 中选中的星球
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -2526,6 +2527,19 @@ function generateSizeComparison(mode) {
 
     const subtitle = document.getElementById('comparisonSubtitle');
 
+    // volume 模式下隐藏类型图例，其他模式显示
+    const legend = document.querySelector('.planet-types-legend');
+    if (legend) legend.style.display = mode === 'volume' ? 'none' : 'flex';
+
+    // volume 模式下 planets-row 不需要 flex 横排，改为 block
+    if (mode === 'volume') {
+        container.style.display = 'block';
+        container.style.padding = '15px';
+    } else {
+        container.style.display = 'flex';
+        container.style.padding = '30px';
+    }
+
     // 类型标签映射
     const categoryLabels = {
         terrestrial: '🪨 岩石质',
@@ -2575,7 +2589,7 @@ function generateSizeComparison(mode) {
             `;
             container.appendChild(div);
         });
-    } else {
+    } else if (mode === 'mass') {
         // 按质量排序（从大到小）
         const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
         const sortedPlanets = allPlanets.sort((a, b) => planetData[b].mass - planetData[a].mass);
@@ -2639,7 +2653,119 @@ function generateSizeComparison(mode) {
             `;
             container.appendChild(div);
         });
+    } else if (mode === 'volume') {
+        // 太阳能装多少个
+        generateVolumeComparison(container, subtitle);
     }
+}
+
+// ============ 太阳能装多少个 ============
+function generateVolumeComparison(container, subtitle) {
+    subtitle.textContent = '太阳的体积约为地球的 130 万倍';
+
+    // 太阳能装多少个的数据（基于体积比）
+    const volumeData = [
+        { key: 'jupiter',  nameCN: '木星',   count: 1000,     label: '1,000',    color: '#d8ca9d' },
+        { key: 'saturn',   nameCN: '土星',   count: 1700,     label: '1,700',    color: '#ead6b8' },
+        { key: 'uranus',   nameCN: '天王星', count: 20000,    label: '2 万',     color: '#7de8d5' },
+        { key: 'neptune',  nameCN: '海王星', count: 22000,    label: '2.2 万',   color: '#5b5ddf' },
+        { key: 'earth',    nameCN: '地球',   count: 1300000,  label: '130 万',   color: '#6b93d6' },
+        { key: 'venus',    nameCN: '金星',   count: 1500000,  label: '150 万',   color: '#e6c87a' },
+        { key: 'mars',     nameCN: '火星',   count: 8600000,  label: '860 万',   color: '#c1440e' },
+        { key: 'mercury',  nameCN: '水星',   count: 23000000, label: '2300 万',  color: '#b5b5b5' },
+        { key: 'moon',     nameCN: '月球',   count: 65000000, label: '6500 万',  color: '#aaaaaa' },
+        { key: 'pluto',    nameCN: '冥王星', count: 220000000,label: '2.2 亿',   color: '#c9b59a' }
+    ];
+
+    const selected = volumeData.find(d => d.key === currentVolumeSelection) || volumeData[4]; // 默认地球
+    const maxCount = volumeData[volumeData.length - 1].count; // 冥王星最大
+
+    // 根据体积算显示球的相对大小（太阳圆内）
+    // 太阳直径 1,392,700 km
+    const sunDiameter = 1392700;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    // === 1. 顶部：太阳大圆 + 数字 ===
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle">
+                <span class="volume-sun-label">太阳能装</span>
+                <span class="volume-sun-count">${selected.label}</span>
+                <span class="volume-sun-unit">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${formatNumber(selected.count)}</div>
+                <div class="unit">个${selected.nameCN}才能填满太阳</div>
+            </div>
+        </div>
+    `;
+
+    // === 2. 星球选择网格 ===
+    let gridHTML = '<div class="volume-planet-grid">';
+    volumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        // 球的显示大小按直径比例（相对木星）
+        const pData = planetData[item.key];
+        const dotSize = Math.max(4, Math.min(30, (pData.diameter / 139820) * 30));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-volume-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    // === 3. 条形图 ===
+    let barHTML = '<div class="volume-bar-chart">';
+    volumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        // 用对数比例，让条形图差异不那么极端
+        const logMax = Math.log10(maxCount);
+        const logVal = Math.log10(item.count);
+        const percent = (logVal / logMax) * 100;
+
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-volume-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    // === 4. 底部：太阳与选中星球的真实大小对比 ===
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, (selectedData.diameter / sunDiameter) * 80);
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="sun-ref"></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>太阳</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    // 绑定交互事件
+    wrapper.querySelectorAll('[data-volume-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            currentVolumeSelection = el.dataset.volumePlanet;
+            generateSizeComparison('volume');
+        });
+    });
 }
 
 function setupComparisonTabs() {

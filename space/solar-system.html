@@ -995,6 +995,220 @@
             background: rgba(158, 158, 158, 0.3);
             color: #aaaaaa;
         }
+
+        /* 太阳能装多少个 - volume tab */
+        .volume-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* 顶部：太阳大圆 + 选中星球小圆 */
+        .volume-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .volume-sun-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffffff, #fff9c4, #ffeb3b, #ff9800, #e65100);
+            box-shadow: 0 0 60px rgba(255, 152, 0, 0.6), 0 0 120px rgba(255, 87, 34, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .volume-sun-label {
+            font-size: 0.75rem;
+            color: rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+
+        .volume-sun-count {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 0.8);
+        }
+
+        .volume-sun-unit {
+            font-size: 0.8rem;
+            color: rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+
+        /* 大数字展示 */
+        .volume-big-number {
+            text-align: center;
+        }
+
+        .volume-big-number .number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+        }
+
+        .volume-big-number .unit {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* 星球选择网格 */
+        .volume-planet-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .volume-planet-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .volume-planet-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .volume-planet-card.active {
+            background: rgba(255, 152, 0, 0.1);
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.2);
+        }
+
+        .volume-planet-card .dot {
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .volume-planet-card .card-name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .volume-planet-card.active .card-name {
+            color: var(--text-primary);
+        }
+
+        /* 条形图 */
+        .volume-bar-chart {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .volume-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 3px 0;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .volume-bar-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .volume-bar-row.active {
+            background: rgba(255, 152, 0, 0.08);
+        }
+
+        .volume-bar-label {
+            width: 50px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .volume-bar-row.active .volume-bar-label {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .volume-bar-track {
+            flex: 1;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .volume-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.7);
+            min-width: fit-content;
+            white-space: nowrap;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 底部太阳与小星球对比 */
+        .volume-size-compare {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .volume-size-compare .sun-ref {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #fff9c4, #ffeb3b, #ff9800, #e65100);
+            box-shadow: 0 0 30px rgba(255, 152, 0, 0.4);
+        }
+
+        .volume-size-compare .planet-ref {
+            border-radius: 50%;
+            min-width: 3px;
+            min-height: 3px;
+        }
+
+        .volume-compare-labels {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+
+        .volume-compare-labels span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 
@@ -1158,6 +1372,7 @@
         <div class="comparison-tabs">
             <button class="tab-btn active" data-tab="diameter">📏 按直径</button>
             <button class="tab-btn" data-tab="mass">⚖️ 按质量</button>
+            <button class="tab-btn" data-tab="volume">☀️ 太阳能装</button>
         </div>
 
         <!-- 类型说明 -->
