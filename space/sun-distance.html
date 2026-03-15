@@ -41,12 +41,12 @@
         .subtitle { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-top: 4px; }
 
         /* ============ Tab Buttons ============ */
-        .target-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
+        .target-tabs { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; justify-content: flex-start; }
         .tab-btn {
             padding: 8px 18px; border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
             color: rgba(255,255,255,0.6); font-size: 0.88rem; font-weight: 700;
-            cursor: pointer; transition: all 0.3s; font-family: inherit;
+            cursor: pointer; transition: all 0.3s; font-family: inherit; white-space: nowrap; flex-shrink: 0;
         }
         .tab-btn:hover { background: rgba(255,255,255,0.1); }
         .tab-btn.active { background: rgba(255,152,0,0.2); border-color: #ff9800; color: #ff9800; }
@@ -223,8 +223,15 @@
         </header>
 
         <div class="target-tabs">
-            <button class="tab-btn active" data-target="earth" onclick="switchTarget('earth')">☀️→🌍 太阳→地球</button>
-            <button class="tab-btn" data-target="uranus" onclick="switchTarget('uranus')">☀️→🔵 太阳→天王星</button>
+            <button class="tab-btn" data-target="mercury" onclick="switchTarget('mercury')">☿ 水星</button>
+            <button class="tab-btn" data-target="venus" onclick="switchTarget('venus')">♀ 金星</button>
+            <button class="tab-btn active" data-target="earth" onclick="switchTarget('earth')">🌍 地球</button>
+            <button class="tab-btn" data-target="mars" onclick="switchTarget('mars')">🔴 火星</button>
+            <button class="tab-btn" data-target="jupiter" onclick="switchTarget('jupiter')">🟤 木星</button>
+            <button class="tab-btn" data-target="saturn" onclick="switchTarget('saturn')">🪐 土星</button>
+            <button class="tab-btn" data-target="uranus" onclick="switchTarget('uranus')">🔵 天王星</button>
+            <button class="tab-btn" data-target="neptune" onclick="switchTarget('neptune')">🌊 海王星</button>
+            <button class="tab-btn" data-target="pluto" onclick="switchTarget('pluto')">⚪ 冥王星</button>
         </div>
 
         <div class="scene-wrap">
@@ -296,10 +303,18 @@
         { name: '土星', au: 9.54, r: 1.2, tex: 'textures/saturn.jpg', hasRing: true },
         { name: '天王星', au: 19.19, r: 0.8, tex: 'textures/uranus.jpg' },
         { name: '海王星', au: 30.07, r: 0.7, tex: 'textures/neptune.jpg' },
+        { name: '冥王星', au: 39.48, r: 0.2, tex: 'textures/pluto.jpg' },
     ];
     const VIEWS = {
-        earth:  { pos: [4, 5, 25],   look: [4, 0, 0],  minD: 12, maxD: 80 },
-        uranus: { pos: [60, 12, 140], look: [60, 0, 0], minD: 40, maxD: 400 },
+        mercury:{ pos: [1.5, 3, 12],   look: [1.5, 0, 0],  minD: 8,  maxD: 40 },
+        venus:  { pos: [3, 4, 18],     look: [3, 0, 0],     minD: 10, maxD: 50 },
+        earth:  { pos: [4, 5, 25],     look: [4, 0, 0],     minD: 12, maxD: 80 },
+        mars:   { pos: [6, 5, 28],     look: [6, 0, 0],     minD: 12, maxD: 80 },
+        jupiter:{ pos: [20, 8, 60],    look: [20, 0, 0],    minD: 25, maxD: 120 },
+        saturn: { pos: [38, 10, 100],  look: [38, 0, 0],    minD: 30, maxD: 200 },
+        uranus: { pos: [60, 12, 140],  look: [60, 0, 0],    minD: 40, maxD: 400 },
+        neptune:{ pos: [120, 15, 250], look: [120, 0, 0],   minD: 60, maxD: 500 },
+        pluto:  { pos: [158, 18, 320], look: [158, 0, 0],   minD: 80, maxD: 600 },
     };
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -435,7 +450,7 @@
     sl.position.set(0, -SUN_R - 3, 0); sl.scale.set(10, 2.5, 1);
     scene.add(sl);
 
-    // ============ 距离线 ============
+    // ============ 距离线（所有行星） ============
     function makeDash(x1, x2, color, opacity) {
         const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x1,0,0), new THREE.Vector3(x2,0,0)]);
         const m = new THREE.LineDashedMaterial({ color, opacity, transparent: true, dashSize: 1.2, gapSize: 0.8 });
@@ -443,21 +458,29 @@
         return l;
     }
 
-    const earthLineX = 1.0 * AU;
-    const earthLine = makeDash(SUN_R + 0.3, earthLineX - 0.5 - 0.3, '#ffd54f', 0.35);
-    scene.add(earthLine);
-    const earthDL = makeTextSprite('1.5 亿公里（1 AU）', 44, 'rgba(255,213,77,0.9)');
-    earthDL.position.set(earthLineX/2, 2.5, 0); earthDL.scale.set(16, 4, 1);
-    scene.add(earthDL);
-
-    const uranusLineX = 19.19 * AU;
-    const uranusLine = makeDash(SUN_R + 0.3, uranusLineX - 0.8 - 0.3, '#73c5d0', 0.35);
-    uranusLine.visible = false;
-    scene.add(uranusLine);
-    const uranusDL = makeTextSprite('28.7 亿公里（19.19 AU）', 44, 'rgba(115,197,208,0.9)');
-    uranusDL.position.set(uranusLineX/2, 3.5, 0); uranusDL.scale.set(22, 5.5, 1);
-    uranusDL.visible = false;
-    scene.add(uranusDL);
+    const DIST_CFG = [
+        { key:'mercury', x:0.39*AU, r:0.25, color:'#a0a0a0', lbl:'5,850万公里（0.39 AU）', ls:[14,3.5] },
+        { key:'venus',   x:0.72*AU, r:0.45, color:'#e8c56d', lbl:'1.08亿公里（0.72 AU）', ls:[14,3.5] },
+        { key:'earth',   x:1.0*AU,  r:0.5,  color:'#ffd54f', lbl:'1.5亿公里（1 AU）', ls:[16,4] },
+        { key:'mars',    x:1.52*AU, r:0.3,  color:'#ff6b35', lbl:'2.28亿公里（1.52 AU）', ls:[16,4] },
+        { key:'jupiter', x:5.2*AU,  r:1.5,  color:'#c88b3a', lbl:'7.8亿公里（5.2 AU）', ls:[18,4.5] },
+        { key:'saturn',  x:9.54*AU, r:1.2,  color:'#e0c882', lbl:'14.3亿公里（9.54 AU）', ls:[18,4.5] },
+        { key:'uranus',  x:19.19*AU,r:0.8,  color:'#73c5d0', lbl:'28.7亿公里（19.19 AU）', ls:[20,5] },
+        { key:'neptune', x:30.07*AU,r:0.7,  color:'#3f54ba', lbl:'45.1亿公里（30.07 AU）', ls:[20,5] },
+        { key:'pluto',   x:39.48*AU,r:0.2,  color:'#b8a9c9', lbl:'59.2亿公里（39.48 AU）', ls:[20,5] },
+    ];
+    const distObjs = {};
+    DIST_CFG.forEach(c => {
+        const line = makeDash(SUN_R+0.3, c.x-c.r-0.3, c.color, 0.35);
+        line.visible = (c.key === 'earth');
+        scene.add(line);
+        const dl = makeTextSprite(c.lbl, 44, c.color);
+        dl.position.set(c.x/2, c.x > 50 ? 3.5 : 2.5, 0);
+        dl.scale.set(c.ls[0], c.ls[1], 1);
+        dl.visible = (c.key === 'earth');
+        scene.add(dl);
+        distObjs[c.key] = { line, label: dl };
+    });
 
     // ============ 星空粒子 ============
     const N = 2000, sP = new Float32Array(N*3), sC = new Float32Array(N*3), sS = new Float32Array(N);
@@ -490,8 +513,10 @@
         camTgt = { pos: v.pos, look: v.look };
         camAnimating = true;
         controls.minDistance = v.minD; controls.maxDistance = v.maxD;
-        earthLine.visible = (target === 'earth'); earthDL.visible = (target === 'earth');
-        uranusLine.visible = (target === 'uranus'); uranusDL.visible = (target === 'uranus');
+        Object.keys(distObjs).forEach(k => {
+            distObjs[k].line.visible = (k === target);
+            distObjs[k].label.visible = (k === target);
+        });
     };
 
     function resize() {
@@ -506,8 +531,7 @@
         sunMat.uniforms.time.value = t; coronaMat.uniforms.time.value = t; sMat.uniforms.time.value = t;
         planetMeshes.forEach(m => { m.rotation.y += 0.003; });
         if (cloudMesh) cloudMesh.rotation.y -= 0.001;
-        if (earthLine.visible) earthLine.material.opacity = 0.25 + Math.sin(t*1.5)*0.1;
-        if (uranusLine.visible) uranusLine.material.opacity = 0.25 + Math.sin(t*1.5)*0.1;
+        Object.values(distObjs).forEach(d => { if (d.line.visible) d.line.material.opacity = 0.25 + Math.sin(t*1.5)*0.1; });
         if (camAnimating && camTgt) {
             const s = 0.05;
             camera.position.x += (camTgt.pos[0]-camera.position.x)*s;
@@ -716,6 +740,83 @@ const URANUS_VEHICLES = [
     },
 ];
 
+const MERCURY_DISTANCE = 58_500_000;
+const MERCURY_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'1,335年 — 从唐朝走到现在！',funFact:'从唐朝出发一直走，到现在才刚到水星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'8.7年',fun:'智天走到上高中'},{label:'经过1,000万公里',dist:'1,000万公里',time:'228年',fun:'从清朝走到现在'},{label:'经过3,000万公里',dist:'3,000万公里',time:'685年',fun:'从元朝走到现在'},{label:'经过5,000万公里',dist:'5,000万公里',time:'1,141年',fun:'从北宋走到现在'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'1,335年',fun:'从唐朝走到现在！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'267年 — 从清朝骑到现在！',funFact:'从清朝康熙年间开始骑，现在才到水星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'1.7年',fun:'骑不到两年'},{label:'经过1,000万公里',dist:'1,000万公里',time:'45.6年',fun:'智天骑到退休'},{label:'经过3,000万公里',dist:'3,000万公里',time:'137年',fun:'骑了好几代人'},{label:'经过5,000万公里',dist:'5,000万公里',time:'228年',fun:'从清朝骑到现在'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'267年',fun:'从清朝骑到现在！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'55.6年 — 智天开到退休！',funFact:'智天从出生开始开车，开到退休才到水星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'4个半月',fun:'一个学期还没结束'},{label:'经过1,000万公里',dist:'1,000万公里',time:'9.5年',fun:'智天开到上小学四年级'},{label:'经过3,000万公里',dist:'3,000万公里',time:'28.5年',fun:'智天开到三十岁'},{label:'经过5,000万公里',dist:'5,000万公里',time:'47.5年',fun:'快要退休了'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'55.6年',fun:'智天开到退休！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'19.1年 — 智天坐到大学毕业！',funFact:'智天出生就坐高铁，大学毕业才到水星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'45天',fun:'一个半月'},{label:'经过1,000万公里',dist:'1,000万公里',time:'3.3年',fun:'坐了三年多'},{label:'经过3,000万公里',dist:'3,000万公里',time:'9.8年',fun:'智天坐到上四年级'},{label:'经过5,000万公里',dist:'5,000万公里',time:'16.3年',fun:'智天坐到上高中'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'19.1年',fun:'智天坐到大学毕业！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'7.4年 — 智天飞到上小学！',funFact:'从幼儿园开始飞，上小学二年级才到水星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'18天',fun:'不到三个星期'},{label:'经过1,000万公里',dist:'1,000万公里',time:'1.3年',fun:'飞了一年多'},{label:'经过3,000万公里',dist:'3,000万公里',time:'3.8年',fun:'快飞四年了'},{label:'经过5,000万公里',dist:'5,000万公里',time:'6.3年',fun:'智天飞到上小学'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'7.4年',fun:'智天飞到上小学二年级！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'2个月 — 放一个暑假！',funFact:'火箭飞两个月就到水星，刚好一个暑假！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'9.5小时',fun:'睡一觉就到月球了'},{label:'经过1,000万公里',dist:'1,000万公里',time:'10天',fun:'一个多星期'},{label:'经过3,000万公里',dist:'3,000万公里',time:'1个月',fun:'一个月整'},{label:'经过5,000万公里',dist:'5,000万公里',time:'52天',fun:'快两个月了'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'2个月',fun:'正好一个暑假！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'3分15秒 — 刷个牙就到了！',funFact:'光速飞到水星只要3分多钟，刷完牙就到了！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'1.3秒',fun:'眨一下眼'},{label:'经过1,000万公里',dist:'1,000万公里',time:'33秒',fun:'数30下'},{label:'经过3,000万公里',dist:'3,000万公里',time:'1分40秒',fun:'唱一首儿歌'},{label:'经过5,000万公里',dist:'5,000万公里',time:'2分47秒',fun:'快刷完牙了'},{label:'到达水星 ☿',dist:'5,850万公里（0.39 AU）',time:'3分15秒',fun:'刷完牙就到了！'}]},
+];
+
+const VENUS_DISTANCE = 108_000_000;
+const VENUS_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'2,464年 — 从春秋战国走到现在！',funFact:'从孔子时代出发走路，到现在才刚到金星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'8.7年',fun:'智天走到上高中'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'1,335年',fun:'从唐朝走到现在'},{label:'经过8,000万公里',dist:'8,000万公里',time:'1,826年',fun:'从东汉走到现在'},{label:'经过1亿公里',dist:'1亿公里',time:'2,282年',fun:'从战国时期走到现在'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'2,464年',fun:'从春秋战国走到现在！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'493年 — 从明朝骑到现在！',funFact:'从明朝开始骑电动车，到现在才到金星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'1.7年',fun:'骑不到两年'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'267年',fun:'从清朝骑到现在'},{label:'经过8,000万公里',dist:'8,000万公里',time:'365年',fun:'从明末骑到现在'},{label:'经过1亿公里',dist:'1亿公里',time:'456年',fun:'从明朝中期骑到现在'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'493年',fun:'从明朝骑到现在！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'103年 — 从清末开到现在！',funFact:'从清朝末年开始开车，现在刚好到金星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'4个半月',fun:'一个学期还没结束'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'55.6年',fun:'智天开到退休'},{label:'经过8,000万公里',dist:'8,000万公里',time:'76年',fun:'开了一辈子'},{label:'经过1亿公里',dist:'1亿公里',time:'95年',fun:'超过一辈子了'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'103年',fun:'从清末开到现在！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'35.2年 — 智天坐到三十多岁！',funFact:'智天出生就坐高铁，要坐到三十多岁才到金星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'45天',fun:'一个半月'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'19.1年',fun:'智天坐到大学毕业'},{label:'经过8,000万公里',dist:'8,000万公里',time:'26.1年',fun:'智天坐到二十六岁'},{label:'经过1亿公里',dist:'1亿公里',time:'32.6年',fun:'智天坐到三十多岁'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'35.2年',fun:'智天坐到三十五岁！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'13.7年 — 智天飞到上初中！',funFact:'从幼儿园开始飞，上初中才到金星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'18天',fun:'不到三个星期'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'7.4年',fun:'智天飞到上小学'},{label:'经过8,000万公里',dist:'8,000万公里',time:'10.1年',fun:'智天飞到十岁'},{label:'经过1亿公里',dist:'1亿公里',time:'12.7年',fun:'智天快上初中了'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'13.7年',fun:'智天飞到上初中！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'3.7个月 — 差不多一个学期！',funFact:'火箭飞不到四个月就到金星，一个学期都不到！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'9.5小时',fun:'睡一觉就到月球了'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'2个月',fun:'正好一个暑假'},{label:'经过8,000万公里',dist:'8,000万公里',time:'83天',fun:'快三个月了'},{label:'经过1亿公里',dist:'1亿公里',time:'104天',fun:'三个半月'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'112天',fun:'差不多一个学期！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'6分钟 — 吃半个苹果的时间！',funFact:'光速飞到金星只要6分钟，吃半个苹果就到了！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'1.3秒',fun:'眨一下眼'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'3分15秒',fun:'刷完牙了'},{label:'经过8,000万公里',dist:'8,000万公里',time:'4分27秒',fun:'听一首儿歌'},{label:'经过1亿公里',dist:'1亿公里',time:'5分33秒',fun:'苹果快吃完了'},{label:'到达金星 ♀',dist:'1.08亿公里（0.72 AU）',time:'6分钟',fun:'吃半个苹果就到了！'}]},
+];
+
+const MARS_DISTANCE = 228_000_000;
+const MARS_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'5,202年 — 从三皇五帝走到今天！',funFact:'步行到火星要五千多年，比中华文明还久！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'9年',fun:'智天走到上初中'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'1,335年',fun:'从唐朝走到现在'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'2,464年',fun:'从春秋时期走到现在'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'3,422年',fun:'从商朝走到现在'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'5,202年',fun:'从三皇五帝走到今天！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'1,040年 — 从北宋骑到现在！',funFact:'从宋太祖时代骑电动车出发，现在才到火星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'2年',fun:'骑两年就到月球了'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'267年',fun:'从清朝骑到现在'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'493年',fun:'从明朝骑到现在'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'684年',fun:'从元朝骑到现在'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'1,040年',fun:'从北宋骑到现在！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'217年 — 从清朝开到现在！',funFact:'从清朝嘉庆年间出发开车，现在刚到火星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'4个月',fun:'一个学期还没完'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'56年',fun:'智天开到头发白了'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'103年',fun:'开一辈子还不够'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'143年',fun:'爷爷传爸爸传儿子'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'217年',fun:'从清朝开到现在！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'74年 — 坐一辈子高铁！',funFact:'从出生坐到老，一辈子都花在高铁上才到火星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'45天',fun:'一个半月'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'19年',fun:'智天坐到大学毕业'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'35年',fun:'智天坐到中年'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'49年',fun:'智天坐到头发白了'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'74年',fun:'坐一辈子高铁！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'29年 — 智天飞到三十岁！',funFact:'智天从出生开始坐飞机，飞到29岁才到火星！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'18天',fun:'差不多半个月'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'7年',fun:'智天飞到上小学'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'14年',fun:'智天飞到上高中'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'19年',fun:'智天飞到上大学'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'29年',fun:'智天飞到三十岁！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'8个月 — 不到一年就到了！',funFact:'火箭飞8个月就能到火星，真正的太空旅行！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'9.5小时',fun:'睡一觉就到月球'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'2个月',fun:'暑假刚开始'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'3.7个月',fun:'差不多一个学期'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'5个月',fun:'差不多一个学期'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'8个月',fun:'不到一年就到了！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'12分40秒 — 课间休息的时间！',funFact:'光速到火星只要12分钟多，刚好课间休息！',milestones:[{label:'到达月球距离 🌙',dist:'38万公里',time:'1.3秒',fun:'眨一下眼睛'},{label:'到达水星轨道 ☿',dist:'5,850万公里',time:'3分15秒',fun:'刷一次牙'},{label:'到达金星轨道 ♀',dist:'1.08亿公里',time:'6分钟',fun:'吃几口早饭'},{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'8分20秒',fun:'吃半个苹果'},{label:'到达火星 🔴',dist:'2.28亿公里（1.52 AU）',time:'12分40秒',fun:'课间休息的时间！'}]},
+];
+
+const JUPITER_DISTANCE = 780_000_000;
+const JUPITER_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'17,796年 — 从旧石器时代走到今天！',funFact:'步行到木星？从原始人开始走，现在才刚到！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里（1 AU）',time:'3,422年',fun:'从商朝走到现在'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'5,202年',fun:'从三皇五帝走到现在'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'9,126年',fun:'比中华文明还早'},{label:'经过6亿公里',dist:'6亿公里',time:'13,689年',fun:'从旧石器时代走来'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'17,796年',fun:'从旧石器时代走到今天！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'3,559年 — 从商朝骑到现在！',funFact:'从商朝开始骑电动车，骑到今天才到木星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'684年',fun:'从元朝骑到现在'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'1,040年',fun:'从北宋骑到现在'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'1,825年',fun:'从东汉骑到现在'},{label:'经过6亿公里',dist:'6亿公里',time:'2,738年',fun:'从春秋骑到现在'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'3,559年',fun:'从商朝骑到现在！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'742年 — 从南宋开到现在！',funFact:'从南宋时期出发开车，现在才刚到木星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'143年',fun:'爷爷传爸爸传儿子'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'217年',fun:'从清朝开到现在'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'380年',fun:'从明朝开到现在'},{label:'经过6亿公里',dist:'6亿公里',time:'570年',fun:'从明朝初年开到现在'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'742年',fun:'从南宋开到现在！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'254年 — 从清朝坐到现在！',funFact:'从清朝乾隆年间出发坐高铁，现在才到木星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'49年',fun:'智天坐到头发白了'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'74年',fun:'一辈子'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'130年',fun:'从清朝末年坐到现在'},{label:'经过6亿公里',dist:'6亿公里',time:'196年',fun:'从清朝坐到现在'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'254年',fun:'从清朝坐到现在！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'99年 — 飞一辈子还多！',funFact:'坐飞机飞到木星要99年，比一辈子还长！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'19年',fun:'智天飞到上大学'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'29年',fun:'智天飞到三十岁'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'51年',fun:'飞到头发白了'},{label:'经过6亿公里',dist:'6亿公里',time:'76年',fun:'飞了一辈子'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'99年',fun:'飞一辈子还多！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'2.2年 — 两年多一点！',funFact:'火箭飞两年多就能到木星，太空探测器就是这么去的！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'5个月',fun:'差不多一个学期'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'8个月',fun:'不到一年'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'1.1年',fun:'刚过一年'},{label:'经过6亿公里',dist:'6亿公里',time:'1.7年',fun:'快两年了'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'2.2年',fun:'两年多一点！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'43分20秒 — 一节课的时间！',funFact:'光速飞到木星要43分钟，正好上一节课！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'8分20秒',fun:'吃半个苹果'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'12分40秒',fun:'课间休息'},{label:'穿过小行星带 ☄️',dist:'约4亿公里',time:'22分13秒',fun:'做几道数学题'},{label:'经过6亿公里',dist:'6亿公里',time:'33分20秒',fun:'半节课过去了'},{label:'到达木星 🟤',dist:'7.8亿公里（5.2 AU）',time:'43分20秒',fun:'一节课的时间！'}]},
+];
+
+const SATURN_DISTANCE = 1_431_000_000;
+const SATURN_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'32,649年 — 比人类文明还要久！',funFact:'步行到土星？三万多年，比整个人类文明还长！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'3,422年',fun:'从商朝走到现在'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'5,202年',fun:'从三皇五帝走到现在'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'17,796年',fun:'从旧石器时代走来'},{label:'经过10亿公里',dist:'10亿公里',time:'22,815年',fun:'比已知文明史还早'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'32,649年',fun:'比人类文明还要久！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'6,530年 — 比中华文明还久！',funFact:'从黄帝时代骑电动车出发，现在都到不了土星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'684年',fun:'从元朝骑到现在'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'1,040年',fun:'从北宋骑到现在'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'3,559年',fun:'从商朝骑到现在'},{label:'经过10亿公里',dist:'10亿公里',time:'4,563年',fun:'从三皇五帝骑到现在'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'6,530年',fun:'比中华文明还久！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'1,360年 — 从唐朝开到现在！',funFact:'从唐朝开始开车，一路开到现在才到土星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'143年',fun:'爷爷传爸爸传儿子'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'217年',fun:'从清朝开到现在'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'742年',fun:'从南宋开到现在'},{label:'经过10亿公里',dist:'10亿公里',time:'951年',fun:'从北宋开到现在'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'1,360年',fun:'从唐朝开到现在！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'466年 — 从明朝坐到现在！',funFact:'从明朝出发坐高铁，现在才到土星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'49年',fun:'智天坐到头发白了'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'74年',fun:'一辈子'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'254年',fun:'从清朝坐到现在'},{label:'经过10亿公里',dist:'10亿公里',time:'326年',fun:'从清朝初年坐到现在'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'466年',fun:'从明朝坐到现在！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'181年 — 从清朝飞到现在！',funFact:'从清朝道光年间起飞，飞到现在才到土星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'19年',fun:'智天飞到上大学'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'29年',fun:'智天飞到三十岁'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'99年',fun:'飞一辈子还多'},{label:'经过10亿公里',dist:'10亿公里',time:'127年',fun:'飞一辈子都不够'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'181年',fun:'从清朝飞到现在！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'4.1年 — 差不多上完小学！',funFact:'火箭飞四年才能到土星，智天都快上完小学了！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'5个月',fun:'差不多一个学期'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'8个月',fun:'不到一年'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'2.2年',fun:'两年多一点'},{label:'经过10亿公里',dist:'10亿公里',time:'2.9年',fun:'快三年了'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'4.1年',fun:'差不多上完小学！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'1小时19分 — 看半部电影！',funFact:'光速飞到土星要将近一个半小时，看半部电影！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'8分20秒',fun:'吃半个苹果'},{label:'到达火星轨道 🔴',dist:'2.28亿公里',time:'12分40秒',fun:'课间休息'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'43分20秒',fun:'一节课的时间'},{label:'经过10亿公里',dist:'10亿公里',time:'55分33秒',fun:'快一个小时了'},{label:'到达土星 🪐',dist:'14.3亿公里（9.54 AU）',time:'1小时19分',fun:'看半部电影！'}]},
+];
+
+const NEPTUNE_DISTANCE = 4_510_500_000;
+const NEPTUNE_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'102,911年 — 远远超过人类文明的全部历史！',funFact:'步行到海王星？就算从石器时代走到现在，也才走了不到一半！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里（1 AU）',time:'3,424年',fun:'从大禹治水走到今天'},{label:'到达木星轨道 🟤',dist:'7.8亿公里（5.2 AU）',time:'17,799年',fun:'从旧石器时代走来'},{label:'到达土星轨道 🪐',dist:'14.3亿公里（9.54 AU）',time:'32,627年',fun:'比已知文明史还早'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里（19.19 AU）',time:'65,480年',fun:'比人类文明还要久'},{label:'到达海王星 🌊',dist:'45.1亿公里（30.07 AU）',time:'102,911年',fun:'十万年！远超人类全部历史！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'20,582年 — 从旧石器时代骑到今天还不够！',funFact:'两万多年前人类还住在山洞里，骑电动车到海王星要这么久！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'685年',fun:'从元朝骑到现在'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'3,560年',fun:'从商朝骑到现在'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'6,525年',fun:'比中华文明还早'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里',time:'13,096年',fun:'从石器时代骑到今天'},{label:'到达海王星 🌊',dist:'45.1亿公里',time:'20,582年',fun:'两万年！人类那时还在山洞里！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'4,288年 — 从三皇五帝时代开到现在！',funFact:'从黄帝时代开始开车，到今天刚好能到海王星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'143年',fun:'爷爷传爸爸传儿子'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'742年',fun:'从南宋开到现在'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'1,359年',fun:'从唐朝开到现在'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里',time:'2,729年',fun:'从春秋时期开到现在'},{label:'到达海王星 🌊',dist:'45.1亿公里',time:'4,288年',fun:'从三皇五帝时代开到现在！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'1,470年 — 从南北朝坐到现在！',funFact:'从南北朝时期出发坐高铁，到今天才能到海王星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'49年',fun:'智天坐到头发白了'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'254年',fun:'从清朝坐到现在'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'466年',fun:'从明朝坐到现在'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里',time:'935年',fun:'从北宋坐到现在'},{label:'到达海王星 🌊',dist:'45.1亿公里',time:'1,470年',fun:'从南北朝坐到现在！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'572年 — 从明朝飞到现在！',funFact:'从明朝永乐大帝时起飞，现在才刚到海王星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'19年',fun:'智天飞到大学毕业'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'99年',fun:'飞一辈子还多'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'181年',fun:'从清朝飞到现在'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里',time:'364年',fun:'从明末飞到现在'},{label:'到达海王星 🌊',dist:'45.1亿公里',time:'572年',fun:'从明朝飞到现在！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'12.9年 — 智天坐到上初中！',funFact:'火箭飞将近13年才能到海王星，比天王星还要多飞5年！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'5个月',fun:'差不多一个学期'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'2.2年',fun:'两年多一点'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'4.1年',fun:'差不多上完小学'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里',time:'8.2年',fun:'从小学坐到初中'},{label:'到达海王星 🌊',dist:'45.1亿公里',time:'12.9年',fun:'智天坐到上初中！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'4小时10分 — 从早上出发中午前到！',funFact:'光速飞也要4个多小时！海王星是太阳系最远的大行星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'8分20秒',fun:'吃半个苹果'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'43分',fun:'一节课的时间'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'1小时19分',fun:'看半部电影'},{label:'到达天王星轨道 🔵',dist:'28.7亿公里',time:'2小时39分',fun:'看一部电影'},{label:'到达海王星 🌊',dist:'45.1亿公里',time:'4小时10分',fun:'从早上出发中午前到！'}]},
+];
+
+const PLUTO_DISTANCE = 5_922_000_000;
+const PLUTO_VEHICLES = [
+    { id:'walk',icon:'🚶',name:'步行',speedKmH:5,speedDisplay:'5 km/h',color:'#9e9e9e',arrivalMsg:'135,126年 — 十三万年！人类那时还不会说话！',funFact:'步行到冥王星？十三万年前智人刚刚出现在非洲！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里（1 AU）',time:'3,424年',fun:'从大禹治水走到今天'},{label:'到达木星轨道 🟤',dist:'7.8亿公里（5.2 AU）',time:'17,799年',fun:'从旧石器时代走来'},{label:'到达土星轨道 🪐',dist:'14.3亿公里（9.54 AU）',time:'32,627年',fun:'比已知文明史还早'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里（30.07 AU）',time:'102,911年',fun:'十万年！远超人类全部历史'},{label:'到达冥王星 ⚪',dist:'59.2亿公里（39.48 AU）',time:'135,126年',fun:'十三万年！智人刚刚出现！'}]},
+    { id:'ebike',icon:'🛵',name:'电动车',speedKmH:25,speedDisplay:'25 km/h',color:'#66bb6a',arrivalMsg:'27,025年 — 从旧石器时代骑到今天远远不够！',funFact:'两万七千年前人类还在画洞穴壁画，骑电动车到冥王星要这么久！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'685年',fun:'从元朝骑到现在'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'3,560年',fun:'从商朝骑到现在'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'6,525年',fun:'比中华文明还早'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里',time:'20,582年',fun:'两万年！人类那时住山洞'},{label:'到达冥王星 ⚪',dist:'59.2亿公里',time:'27,025年',fun:'人类那时还在画洞穴壁画！'}]},
+    { id:'car',icon:'🚗',name:'小汽车',speedKmH:120,speedDisplay:'120 km/h',color:'#42a5f5',arrivalMsg:'5,630年 — 比中华文明的全部历史还长！',funFact:'五千多年前还没有文字呢，开车到冥王星要这么久！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'143年',fun:'爷爷传爸爸传儿子'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'742年',fun:'从南宋开到现在'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'1,359年',fun:'从唐朝开到现在'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里',time:'4,288年',fun:'从三皇五帝开到现在'},{label:'到达冥王星 ⚪',dist:'59.2亿公里',time:'5,630年',fun:'比中华文明全部历史还长！'}]},
+    { id:'train',icon:'🚄',name:'高铁',speedKmH:350,speedDisplay:'350 km/h',color:'#ab47bc',arrivalMsg:'1,930年 — 从汉朝坐到现在！',funFact:'从东汉末年出发坐高铁，到2026年才刚好到冥王星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'49年',fun:'智天坐到头发白了'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'254年',fun:'从清朝坐到现在'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'466年',fun:'从明朝坐到现在'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里',time:'1,470年',fun:'从南北朝坐到现在'},{label:'到达冥王星 ⚪',dist:'59.2亿公里',time:'1,930年',fun:'从东汉坐到现在！'}]},
+    { id:'plane',icon:'✈️',name:'飞机',speedKmH:900,speedDisplay:'900 km/h',color:'#26c6da',arrivalMsg:'751年 — 从南宋飞到现在！',funFact:'从南宋末年起飞，到今天才能到冥王星！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'19年',fun:'智天飞到大学毕业'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'99年',fun:'飞一辈子还多'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'181年',fun:'从清朝飞到现在'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里',time:'572年',fun:'从明朝飞到现在'},{label:'到达冥王星 ⚪',dist:'59.2亿公里',time:'751年',fun:'从南宋飞到现在！'}]},
+    { id:'rocket',icon:'🚀',name:'火箭',speedKmH:40000,speedDisplay:'4万 km/h',color:'#ff7043',arrivalMsg:'16.9年 — 智天坐到上大学！',funFact:'火箭飞将近17年才能到冥王星，智天都上大学了！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'5个月',fun:'差不多一个学期'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'2.2年',fun:'两年多一点'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'4.1年',fun:'差不多上完小学'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里',time:'12.9年',fun:'从小学坐到初中'},{label:'到达冥王星 ⚪',dist:'59.2亿公里',time:'16.9年',fun:'智天坐到上大学！'}]},
+    { id:'light',icon:'⚡',name:'光',speedKmH:1_080_000_000,speedDisplay:'30万 km/s',color:'#ffd54f',arrivalMsg:'5小时29分 — 从早上出发下午才到！',funFact:'光速飞也要5个半小时！冥王星是太阳系最远的家族成员！',milestones:[{label:'到达地球轨道 🌍',dist:'1.5亿公里',time:'8分20秒',fun:'吃半个苹果'},{label:'到达木星轨道 🟤',dist:'7.8亿公里',time:'43分',fun:'一节课的时间'},{label:'到达土星轨道 🪐',dist:'14.3亿公里',time:'1小时19分',fun:'看半部电影'},{label:'到达海王星轨道 🌊',dist:'45.1亿公里',time:'4小时10分',fun:'从早上到中午'},{label:'到达冥王星 ⚪',dist:'59.2亿公里',time:'5小时29分',fun:'从早上出发下午才到！'}]},
+];
+
 const SPEED_HINTS = {
     10000: '1秒 ≈ 2.8小时，适合观看 ⚡光',
     1000000: '1秒 ≈ 11.6天，适合观看 🚀火箭',
@@ -735,7 +836,18 @@ let rankCounter = 0;
 let expandedCard = null;
 const vStates = {};
 
-function getVehicles() { return currentTarget === 'uranus' ? URANUS_VEHICLES : EARTH_VEHICLES; }
+const PLANET_CFG = {
+    mercury:{ dist: MERCURY_DISTANCE, vehicles: MERCURY_VEHICLES, name:'水星', intro:'水星到太阳有 5,850 万公里（0.39 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到水星要多久？', journey:'水星之旅', footer:'⚡光到水星只要 3 分 15 秒，🚶步行要 1,335 年！水星离太阳最近！', defSpeed: 100_000_000 },
+    venus:  { dist: VENUS_DISTANCE, vehicles: VENUS_VEHICLES, name:'金星', intro:'金星到太阳有 1.08 亿公里（0.72 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到金星要多久？', journey:'金星之旅', footer:'⚡光到金星只要 6 分钟，🚶步行要 2,464 年！金星是离地球最近的行星！', defSpeed: 100_000_000 },
+    earth:  { dist: EARTH_DISTANCE, vehicles: EARTH_VEHICLES, name:'地球', intro:'地球到太阳有 1 亿 5 千万公里远！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'谁能最快到达太阳？', journey:'太阳之旅', footer:'⚡光比🚶步行快 2.16 亿倍！太阳真的好远好远！', defSpeed: 100_000_000 },
+    mars:   { dist: MARS_DISTANCE, vehicles: MARS_VEHICLES, name:'火星', intro:'火星到太阳有 2.28 亿公里（1.52 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到火星要多久？', journey:'火星之旅', footer:'⚡光到火星要 12 分 40 秒，🚶步行要 5,202 年！火星比地球远一半！', defSpeed: 100_000_000 },
+    jupiter:{ dist: JUPITER_DISTANCE, vehicles: JUPITER_VEHICLES, name:'木星', intro:'木星到太阳有 7.8 亿公里（5.2 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到木星要多久？', journey:'木星之旅', footer:'⚡光到木星要 43 分钟，🚶步行要 17,796 年！木星是太阳系最大的行星！', defSpeed: 1_000_000_000 },
+    saturn: { dist: SATURN_DISTANCE, vehicles: SATURN_VEHICLES, name:'土星', intro:'土星到太阳有 14.3 亿公里（9.54 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到土星要多久？', journey:'土星之旅', footer:'⚡光到土星要 1 小时 19 分，🚶步行要 32,649 年！土星有美丽的光环！', defSpeed: 1_000_000_000 },
+    uranus: { dist: URANUS_DISTANCE, vehicles: URANUS_VEHICLES, name:'天王星', intro:'天王星到太阳有 28.7 亿公里（19.19 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到天王星要多久？', journey:'天王星之旅', footer:'⚡光到天王星要 2 小时 40 分，🚶步行要 65,718 年！天王星真的超级远！', defSpeed: 1_000_000_000 },
+    neptune:{ dist: NEPTUNE_DISTANCE, vehicles: NEPTUNE_VEHICLES, name:'海王星', intro:'海王星到太阳有 45.1 亿公里（30.07 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到海王星要多久？', journey:'海王星之旅', footer:'⚡光到海王星要 4 小时 10 分，🚶步行要 102,911 年！海王星是最远的大行星！', defSpeed: 1_000_000_000 },
+    pluto:  { dist: PLUTO_DISTANCE, vehicles: PLUTO_VEHICLES, name:'冥王星', intro:'冥王星到太阳有 59.2 亿公里（39.48 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！', subtitle:'从太阳到冥王星要多久？', journey:'冥王星之旅', footer:'⚡光到冥王星要 5 小时 29 分，🚶步行要 135,126 年！冥王星是太阳系最远的成员！', defSpeed: 10_000_000_000 },
+};
+function getVehicles() { return PLANET_CFG[currentTarget].vehicles; }
 
 // ============ DOM 引用 ============
 const tracksEl = document.getElementById('tracks');
@@ -747,45 +859,34 @@ const speedHintEl = document.getElementById('speedHint');
 // ============ Tab 切换 ============
 function switchTarget(target) {
     if (currentTarget === target) return;
+    const cfg = PLANET_CFG[target];
+    if (!cfg) return;
     currentTarget = target;
-    sunDistance = target === 'uranus' ? URANUS_DISTANCE : EARTH_DISTANCE;
+    sunDistance = cfg.dist;
 
-    // Tab 按钮
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
 
-    // 重置赛跑
     raceState = 'idle'; simSeconds = 0; lastTs = null; rankCounter = 0;
     timerEl.textContent = '0 秒';
     finishEl.classList.remove('show');
 
-    // 重建赛道
     tracksEl.innerHTML = '';
     expandedCard = null;
     Object.keys(vStates).forEach(k => delete vStates[k]);
-    getVehicles().forEach(v => {
+    cfg.vehicles.forEach(v => {
         vStates[v.id] = { arrived: false, rank: 0 };
         buildTrack(v);
     });
     showIdleBtns();
 
-    // 更新文字
-    if (target === 'uranus') {
-        document.getElementById('introText').innerHTML = '天王星到太阳有 28.7 亿公里（19.19 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！';
-        document.getElementById('subtitleText').textContent = '从太阳到天王星要多久？';
-        document.getElementById('exploreLink').style.display = 'none';
-    } else {
-        document.getElementById('introText').innerHTML = '地球到太阳有 1 亿 5 千万公里远！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！';
-        document.getElementById('subtitleText').textContent = '谁能最快到达太阳？';
-        document.getElementById('exploreLink').style.display = '';
-    }
+    document.getElementById('introText').innerHTML = cfg.intro;
+    document.getElementById('subtitleText').textContent = cfg.subtitle;
+    document.getElementById('exploreLink').style.display = (target === 'earth') ? '' : 'none';
 
-    // 更新默认倍速
-    const defSpeed = target === 'uranus' ? 1_000_000_000 : 100_000_000;
-    speedMul = defSpeed;
-    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed) === defSpeed));
-    speedHintEl.textContent = SPEED_HINTS[defSpeed] || '';
+    speedMul = cfg.defSpeed;
+    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed) === cfg.defSpeed));
+    speedHintEl.textContent = SPEED_HINTS[cfg.defSpeed] || '';
 
-    // 3D 场景
     if (window.updateScene3D) window.updateScene3D(target);
 }
 
@@ -807,7 +908,7 @@ function buildTrack(v) {
     el.style.setProperty('--tc', v.color);
 
     const totalTime = formatTime(sunDistance / v.speedKmH * 3600);
-    const journeyName = currentTarget === 'uranus' ? '天王星之旅' : '太阳之旅';
+    const journeyName = PLANET_CFG[currentTarget].journey;
 
     el.innerHTML = `
         <div class="track-main">
@@ -972,9 +1073,7 @@ function onAllDone() {
         html += `<div>${medal} ${v.icon} ${v.name} — ${formatTime(sunDistance / v.speedKmH * 3600)}</div>`;
     });
     document.getElementById('finishRanks').innerHTML = html;
-    document.getElementById('finishFooter').textContent = currentTarget === 'uranus'
-        ? '⚡光到天王星要 2 小时 40 分，🚶步行要 65,718 年！天王星真的超级远！'
-        : '⚡光比🚶步行快 2.16 亿倍！太阳真的好远好远！';
+    document.getElementById('finishFooter').textContent = PLANET_CFG[currentTarget].footer;
     finishEl.classList.add('show');
 }
 
