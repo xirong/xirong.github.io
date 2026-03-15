@@ -1797,21 +1797,93 @@ function createSaturnRings(saturn, saturnSize) {
     saturn.add(rings);
 }
 
+// ============ AU 距离数据 ============
+const auDistances = {
+    '太阳': null,
+    '水星': '0.4 AU',
+    '金星': '0.7 AU',
+    '地球': '1.0 AU',
+    '月球': null,
+    '火星': '1.5 AU',
+    '谷神星': '2.8 AU',
+    '木星': '5.2 AU',
+    '土星': '9.5 AU',
+    '天王星': '19.2 AU',
+    '海王星': '30 AU',
+    '冥王星': '39.5 AU',
+    '奥尔特云': null
+};
+
 // ============ 创建行星标签 ============
 function createPlanetLabel(planet, name) {
+    const au = auDistances[name];
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    canvas.width = 256;
+    canvas.width = au ? 400 : 256;
     canvas.height = 64;
 
     context.fillStyle = 'rgba(0, 0, 0, 0.5)';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
+    // 绘制名字
     context.font = 'bold 32px Noto Sans SC';
-    context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillStyle = '#ffffff';
-    context.fillText(name, canvas.width / 2, canvas.height / 2);
+
+    if (au) {
+        // 有 AU 时：名字居左偏中，AU 标签在右侧
+        const nameWidth = context.measureText(name).width;
+        const auFont = '22px Noto Sans SC';
+        context.save();
+        context.font = auFont;
+        const auWidth = context.measureText(au).width;
+        context.restore();
+
+        const gap = 10;
+        const totalWidth = nameWidth + gap + auWidth + 16; // 16 for AU badge padding
+        const startX = (canvas.width - totalWidth) / 2;
+
+        // 绘制名字
+        context.font = 'bold 32px Noto Sans SC';
+        context.textAlign = 'left';
+        context.fillStyle = '#ffffff';
+        context.fillText(name, startX, canvas.height / 2);
+
+        // 绘制 AU 小标签（带圆角背景）
+        const auX = startX + nameWidth + gap;
+        const auY = canvas.height / 2;
+        const badgePadH = 8, badgePadV = 4;
+        const badgeW = auWidth + badgePadH * 2;
+        const badgeH = 26;
+        const badgeX = auX;
+        const badgeY = auY - badgeH / 2;
+        const radius = 6;
+
+        // 圆角矩形背景
+        context.fillStyle = 'rgba(0, 212, 255, 0.15)';
+        context.beginPath();
+        context.moveTo(badgeX + radius, badgeY);
+        context.lineTo(badgeX + badgeW - radius, badgeY);
+        context.quadraticCurveTo(badgeX + badgeW, badgeY, badgeX + badgeW, badgeY + radius);
+        context.lineTo(badgeX + badgeW, badgeY + badgeH - radius);
+        context.quadraticCurveTo(badgeX + badgeW, badgeY + badgeH, badgeX + badgeW - radius, badgeY + badgeH);
+        context.lineTo(badgeX + radius, badgeY + badgeH);
+        context.quadraticCurveTo(badgeX, badgeY + badgeH, badgeX, badgeY + badgeH - radius);
+        context.lineTo(badgeX, badgeY + radius);
+        context.quadraticCurveTo(badgeX, badgeY, badgeX + radius, badgeY);
+        context.closePath();
+        context.fill();
+
+        // AU 文字
+        context.font = auFont;
+        context.textAlign = 'left';
+        context.fillStyle = '#00d4ff';
+        context.fillText(au, badgeX + badgePadH, auY + 1);
+    } else {
+        // 无 AU 时：名字居中
+        context.textAlign = 'center';
+        context.fillStyle = '#ffffff';
+        context.fillText(name, canvas.width / 2, canvas.height / 2);
+    }
 
     const texture = new THREE.CanvasTexture(canvas);
     const material = new THREE.SpriteMaterial({
@@ -1820,7 +1892,7 @@ function createPlanetLabel(planet, name) {
     });
 
     const sprite = new THREE.Sprite(material);
-    sprite.scale.set(10, 2.5, 1);
+    sprite.scale.set(au ? 15 : 10, au ? 2.5 : 2.5, 1);
     sprite.position.y = planet.userData.size + 3;
     sprite.visible = showLabels;
 
