@@ -40,6 +40,17 @@
         }
         .subtitle { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-top: 4px; }
 
+        /* ============ Tab Buttons ============ */
+        .target-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
+        .tab-btn {
+            padding: 8px 18px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6); font-size: 0.88rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; font-family: inherit;
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.1); }
+        .tab-btn.active { background: rgba(255,152,0,0.2); border-color: #ff9800; color: #ff9800; }
+
         /* ============ 3D Scene ============ */
         .scene-wrap {
             position: relative; width: 100%; height: 240px;
@@ -198,6 +209,7 @@
             .btn-primary { padding: 10px 28px; font-size: 1.1rem; }
             .milestone-time { min-width: 70px; font-size: 0.8rem; }
             .arrival-banner { padding-left: 38px; font-size: 0.8rem; }
+            .tab-btn { padding: 6px 14px; font-size: 0.82rem; }
         }
     </style>
 </head>
@@ -207,17 +219,22 @@
         <header class="header">
             <a href="../index.html" class="back-btn">← 返回乐园</a>
             <h1>☀️ 太空赛跑</h1>
-            <p class="subtitle">谁能最快到达太阳？</p>
+            <p class="subtitle" id="subtitleText">谁能最快到达太阳？</p>
         </header>
+
+        <div class="target-tabs">
+            <button class="tab-btn active" data-target="earth" onclick="switchTarget('earth')">☀️→🌍 太阳→地球</button>
+            <button class="tab-btn" data-target="uranus" onclick="switchTarget('uranus')">☀️→🔵 太阳→天王星</button>
+        </div>
 
         <div class="scene-wrap">
             <div id="scene3d"></div>
             <div class="scene-hint" id="sceneHint">🖱️ 拖动旋转</div>
         </div>
 
-        <p class="intro">地球到太阳有 1 亿 5 千万公里远！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！</p>
+        <p class="intro" id="introText">地球到太阳有 1 亿 5 千万公里远！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！</p>
 
-        <div style="text-align:center; margin-bottom:18px;">
+        <div id="exploreLink" style="text-align:center; margin-bottom:18px;">
             <a href="sun-distance-explore.html" target="_blank" style="
                 display:inline-block; padding:10px 24px; border-radius:24px;
                 background:linear-gradient(135deg, #1a237e, #0d47a1, #01579b);
@@ -244,6 +261,7 @@
                 <button class="speed-btn" data-speed="1000000">100万x</button>
                 <button class="speed-btn active" data-speed="100000000">1亿x</button>
                 <button class="speed-btn" data-speed="1000000000">10亿x</button>
+                <button class="speed-btn" data-speed="10000000000">100亿x</button>
                 <div class="speed-hint" id="speedHint">1秒 ≈ 3.2年，适合观看飞机、高铁、汽车</div>
             </div>
         </div>
@@ -262,297 +280,255 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-// ============ 3D 太阳+地球场景 ============
+// ============ 3D 太阳系全景场景 ============
 (function() {
     const container = document.getElementById('scene3d');
     if (!container) return;
 
-    // ---- 布局常量 ----
-    const EARTH_POS = -28;
-    const SUN_POS = 28;
-    const MID = (EARTH_POS + SUN_POS) / 2;
-    const EARTH_R = 2;
-    const SUN_R = 8;
+    const AU = 8; // 1 AU = 8 场景单位
+    const SUN_R = 2.5;
+    const PLANETS = [
+        { name: '水星', au: 0.39, r: 0.25, tex: 'textures/mercury.jpg' },
+        { name: '金星', au: 0.72, r: 0.45, tex: 'textures/venus_atmosphere.jpg' },
+        { name: '地球', au: 1.0, r: 0.5, tex: 'textures/earth_daymap.jpg', isEarth: true },
+        { name: '火星', au: 1.52, r: 0.3, tex: 'textures/mars.jpg' },
+        { name: '木星', au: 5.2, r: 1.5, tex: 'textures/jupiter.jpg' },
+        { name: '土星', au: 9.54, r: 1.2, tex: 'textures/saturn.jpg', hasRing: true },
+        { name: '天王星', au: 19.19, r: 0.8, tex: 'textures/uranus.jpg' },
+        { name: '海王星', au: 30.07, r: 0.7, tex: 'textures/neptune.jpg' },
+    ];
+    const VIEWS = {
+        earth:  { pos: [4, 5, 25],   look: [4, 0, 0],  minD: 12, maxD: 80 },
+        uranus: { pos: [60, 12, 140], look: [60, 0, 0], minD: 40, maxD: 400 },
+    };
 
-    // ---- Renderer ----
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(MID, 8, 55);
-    camera.lookAt(MID, 0, 0);
+    camera.position.set(4, 5, 25);
 
-    // ---- OrbitControls ----
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.target.set(MID, 0, 0);
-    controls.enablePan = false;
-    controls.enableZoom = true;
-    controls.minDistance = 25;
-    controls.maxDistance = 120;
-    controls.maxPolarAngle = Math.PI * 0.85;
-    controls.minPolarAngle = Math.PI * 0.15;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.rotateSpeed = 0.5;
+    controls.target.set(4, 0, 0);
+    controls.enablePan = false; controls.enableZoom = true;
+    controls.minDistance = 12; controls.maxDistance = 80;
+    controls.maxPolarAngle = Math.PI * 0.85; controls.minPolarAngle = Math.PI * 0.15;
+    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.rotateSpeed = 0.5;
 
-    // 用户交互后隐藏提示
     let hintHidden = false;
     controls.addEventListener('start', () => {
         if (!hintHidden) {
-            const hint = document.getElementById('sceneHint');
-            if (hint) hint.classList.add('hidden');
+            const h = document.getElementById('sceneHint');
+            if (h) h.classList.add('hidden');
             hintHidden = true;
         }
     });
 
-    // 环境光
-    scene.add(new THREE.AmbientLight(0x334466, 0.4));
+    scene.add(new THREE.AmbientLight(0x334466, 0.6));
+    const textureLoader = new THREE.TextureLoader();
 
     // ============ 太阳 ============
-    const sunGeo = new THREE.SphereGeometry(SUN_R, 64, 64);
     const sunMat = new THREE.ShaderMaterial({
         uniforms: { time: { value: 0 } },
-        vertexShader: `
-            varying vec3 vNormal; varying vec2 vUv;
-            void main() {
-                vNormal = normalize(normalMatrix * normal); vUv = uv;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform float time; varying vec3 vNormal; varying vec2 vUv;
-            float noise(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
-            float fbm(vec2 p) {
-                float v = 0.0, a = 0.5;
-                for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
-                return v;
-            }
-            void main() {
-                float n = fbm(vUv * 10.0 + time * 0.1);
-                float n2 = fbm(vUv * 20.0 - time * 0.15);
-                vec3 c1 = vec3(1.0, 0.95, 0.5), c2 = vec3(1.0, 0.7, 0.2), c3 = vec3(1.0, 0.5, 0.1);
-                vec3 color = mix(mix(c1, c2, n), c3, n2 * 0.3);
-                color += vec3(1.0, 0.6, 0.2) * pow(1.0 - dot(vNormal, vec3(0,0,1)), 2.0) * 0.5;
-                gl_FragColor = vec4(color, 1.0);
-            }
-        `
+        vertexShader: `varying vec3 vNormal; varying vec2 vUv;
+            void main(){ vNormal=normalize(normalMatrix*normal); vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+        fragmentShader: `uniform float time; varying vec3 vNormal; varying vec2 vUv;
+            float noise(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+            float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.;a*=.5;}return v;}
+            void main(){float n=fbm(vUv*10.+time*.1);float n2=fbm(vUv*20.-time*.15);
+            vec3 c=mix(mix(vec3(1,.95,.5),vec3(1,.7,.2),n),vec3(1,.5,.1),n2*.3);
+            c+=vec3(1,.6,.2)*pow(1.-dot(vNormal,vec3(0,0,1)),2.)*.5;gl_FragColor=vec4(c,1.);}`
     });
-    const sunMesh = new THREE.Mesh(sunGeo, sunMat);
-    sunMesh.position.set(SUN_POS, 0, 0);
+    const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(SUN_R, 64, 64), sunMat);
+    sunMesh.position.set(0, 0, 0);
     scene.add(sunMesh);
 
-    // 太阳光晕 - 内层
     const coronaMat = new THREE.ShaderMaterial({
         uniforms: { time: { value: 0 } },
-        vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-        fragmentShader: `uniform float time; varying vec3 vN; void main(){ float i=pow(0.6-dot(vN,vec3(0,0,1)),2.0); gl_FragColor=vec4(vec3(1,.7,.2)*i*(sin(time*2.)*.1+.9), i*.6); }`,
+        vertexShader: `varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+        fragmentShader: `uniform float time;varying vec3 vN;void main(){float i=pow(.6-dot(vN,vec3(0,0,1)),2.);gl_FragColor=vec4(vec3(1,.7,.2)*i*(sin(time*2.)*.1+.9),i*.6);}`,
         transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide
     });
-    sunMesh.add(new THREE.Mesh(new THREE.SphereGeometry(SUN_R * 1.25, 32, 32), coronaMat));
-
-    // 太阳光晕 - 外层
+    sunMesh.add(new THREE.Mesh(new THREE.SphereGeometry(SUN_R*1.25,32,32), coronaMat));
     const outerGlowMat = new THREE.ShaderMaterial({
-        vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-        fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.4-dot(vN,vec3(0,0,1)),3.0); gl_FragColor=vec4(vec3(1,.5,.1)*i, i*.3); }`,
+        vertexShader: `varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+        fragmentShader: `varying vec3 vN;void main(){float i=pow(.4-dot(vN,vec3(0,0,1)),3.);gl_FragColor=vec4(vec3(1,.5,.1)*i,i*.3);}`,
         transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide
     });
-    sunMesh.add(new THREE.Mesh(new THREE.SphereGeometry(SUN_R * 1.75, 32, 32), outerGlowMat));
+    sunMesh.add(new THREE.Mesh(new THREE.SphereGeometry(SUN_R*1.75,32,32), outerGlowMat));
+    sunMesh.add(new THREE.PointLight(0xffdd88, 2, 500));
 
-    // 太阳点光源
-    sunMesh.add(new THREE.PointLight(0xffdd88, 2, 200));
+    // ============ 行星 ============
+    const planetMeshes = [];
+    let cloudMesh;
 
-    // ============ 地球 ============
-    const earthGeo = new THREE.SphereGeometry(EARTH_R, 64, 64);
-    const textureLoader = new THREE.TextureLoader();
-    const earthDayMap = textureLoader.load('textures/earth_daymap.jpg');
-    const earthMat = new THREE.ShaderMaterial({
-        uniforms: {
-            time: { value: 0 },
-            dayTexture: { value: earthDayMap },
-            sunDirection: { value: new THREE.Vector3(1, 0, 0) }
-        },
-        vertexShader: `
-            uniform vec3 sunDirection;
-            varying vec3 vNormal, vViewDir, vSunDir; varying vec2 vUv;
-            void main() {
-                vNormal = normalize(normalMatrix * normal); vUv = uv;
-                vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-                vViewDir = normalize(-mvPos.xyz);
-                vSunDir = normalize(mat3(viewMatrix) * sunDirection);
-                gl_Position = projectionMatrix * mvPos;
-            }
-        `,
-        fragmentShader: `
-            uniform sampler2D dayTexture;
-            varying vec3 vNormal, vViewDir, vSunDir; varying vec2 vUv;
-            void main() {
-                vec3 sc = texture2D(dayTexture, vUv).rgb * 1.15;
-                sc *= max(dot(vNormal, vSunDir), 0.0) * 0.55 + 0.45;
-                float f = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 4.0);
-                gl_FragColor = vec4(mix(sc, vec3(0.3, 0.6, 1.0), f * 0.15), 1.0);
-            }
-        `
-    });
-    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
-    earthMesh.position.set(EARTH_POS, 0, 0);
-    scene.add(earthMesh);
-
-    // 地球云层
-    const cloudMat = new THREE.MeshPhongMaterial({
-        map: textureLoader.load('textures/earth_clouds.jpg'),
-        transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide
-    });
-    const cloudMesh = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R * 1.015, 32, 32), cloudMat);
-    earthMesh.add(cloudMesh);
-
-    // 地球大气层光晕
-    const atmoMat = new THREE.ShaderMaterial({
-        vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-        fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.55-dot(vN,vec3(0,0,1)),3.0); gl_FragColor=vec4(vec3(.3,.6,1.), i*.4); }`,
-        transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false
-    });
-    earthMesh.add(new THREE.Mesh(new THREE.SphereGeometry(EARTH_R * 1.1, 32, 32), atmoMat));
-
-    // ============ 连线 + 距离标注 ============
-    // 虚线：从地球表面到太阳表面
-    const lineStart = EARTH_POS + EARTH_R + 0.5;
-    const lineEnd = SUN_POS - SUN_R - 0.5;
-    const lineGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(lineStart, 0, 0),
-        new THREE.Vector3(lineEnd, 0, 0)
-    ]);
-    const lineMat = new THREE.LineDashedMaterial({
-        color: 0xffffff, opacity: 0.25, transparent: true,
-        dashSize: 1.2, gapSize: 0.8
-    });
-    const distLine = new THREE.Line(lineGeo, lineMat);
-    distLine.computeLineDistances();
-    scene.add(distLine);
-
-    // 线两端的小光点
-    [lineStart, lineEnd].forEach(x => {
-        const dotGeo = new THREE.SphereGeometry(0.2, 8, 8);
-        const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
-        const dot = new THREE.Mesh(dotGeo, dotMat);
-        dot.position.set(x, 0, 0);
-        scene.add(dot);
-    });
-
-    // 距离文字 Sprite
     function makeTextSprite(text, fontSize, color) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 512; canvas.height = 128;
-        ctx.font = `bold ${fontSize}px "Noto Sans SC", sans-serif`;
+        const c = document.createElement('canvas'), ctx = c.getContext('2d');
+        c.width = 512; c.height = 128;
+        ctx.font = `bold ${fontSize}px "Noto Sans SC",sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = color;
-        ctx.fillText(text, 256, 64);
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.minFilter = THREE.LinearFilter;
-        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
-        const sprite = new THREE.Sprite(mat);
-        sprite.scale.set(20, 5, 1);
-        return sprite;
+        ctx.fillStyle = color; ctx.fillText(text, 256, 64);
+        const tex = new THREE.CanvasTexture(c); tex.minFilter = THREE.LinearFilter;
+        const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+        s.scale.set(20, 5, 1);
+        return s;
     }
 
-    // "1.5 亿公里" 主标注
-    const distLabel = makeTextSprite('1.5 亿公里', 48, 'rgba(255,213,77,0.85)');
-    distLabel.position.set(MID, 3.5, 0);
-    scene.add(distLabel);
+    PLANETS.forEach(p => {
+        const x = p.au * AU;
+        const geo = new THREE.SphereGeometry(p.r, 32, 32);
+        let mesh;
 
-    // "地球" 标注 — 大字醒目
-    const earthLabel = makeTextSprite('地球', 80, 'rgba(100,180,255,1)');
-    earthLabel.position.set(EARTH_POS, -EARTH_R - 4.5, 0);
-    earthLabel.scale.set(18, 4.5, 1);
-    scene.add(earthLabel);
+        if (p.isEarth) {
+            const eMat = new THREE.ShaderMaterial({
+                uniforms: { dayTexture: { value: textureLoader.load(p.tex) }, sunDirection: { value: new THREE.Vector3(-1,0,0) } },
+                vertexShader: `uniform vec3 sunDirection;varying vec3 vNormal,vViewDir,vSunDir;varying vec2 vUv;
+                    void main(){vNormal=normalize(normalMatrix*normal);vUv=uv;vec4 mv=modelViewMatrix*vec4(position,1.);
+                    vViewDir=normalize(-mv.xyz);vSunDir=normalize(mat3(viewMatrix)*sunDirection);gl_Position=projectionMatrix*mv;}`,
+                fragmentShader: `uniform sampler2D dayTexture;varying vec3 vNormal,vViewDir,vSunDir;varying vec2 vUv;
+                    void main(){vec3 sc=texture2D(dayTexture,vUv).rgb*1.15;sc*=max(dot(vNormal,vSunDir),0.)*.55+.45;
+                    float f=pow(1.-max(dot(vNormal,vViewDir),0.),4.);gl_FragColor=vec4(mix(sc,vec3(.3,.6,1.),f*.15),1.);}`
+            });
+            mesh = new THREE.Mesh(geo, eMat);
+            const cMat = new THREE.MeshPhongMaterial({ map: textureLoader.load('textures/earth_clouds.jpg'), transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide });
+            cloudMesh = new THREE.Mesh(new THREE.SphereGeometry(p.r*1.015, 32, 32), cMat);
+            mesh.add(cloudMesh);
+            const atmo = new THREE.ShaderMaterial({
+                vertexShader: `varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+                fragmentShader: `varying vec3 vN;void main(){float i=pow(.55-dot(vN,vec3(0,0,1)),3.);gl_FragColor=vec4(vec3(.3,.6,1.),i*.4);}`,
+                transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false
+            });
+            mesh.add(new THREE.Mesh(new THREE.SphereGeometry(p.r*1.1,32,32), atmo));
+        } else {
+            mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ map: textureLoader.load(p.tex), shininess: 10 }));
+        }
 
-    // "太阳" 标注 — 大字醒目
-    const sunLabel = makeTextSprite('太阳', 80, 'rgba(255,210,80,1)');
-    sunLabel.position.set(SUN_POS, -SUN_R - 5, 0);
-    sunLabel.scale.set(18, 4.5, 1);
-    scene.add(sunLabel);
+        mesh.position.set(x, 0, 0);
+        scene.add(mesh);
+        planetMeshes.push(mesh);
+
+        // 土星环
+        if (p.hasRing) {
+            const rGeo = new THREE.RingGeometry(p.r*1.4, p.r*2.3, 64);
+            const pos = rGeo.attributes.position, uv = rGeo.attributes.uv;
+            for (let i = 0; i < pos.count; i++) {
+                const d = Math.sqrt(pos.getX(i)**2 + pos.getY(i)**2);
+                uv.setXY(i, (d - p.r*1.4)/(p.r*0.9), 0.5);
+            }
+            const ring = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({
+                map: textureLoader.load('textures/saturn_ring.png'), side: THREE.DoubleSide, transparent: true, opacity: 0.7
+            }));
+            ring.rotation.x = Math.PI * 0.45;
+            mesh.add(ring);
+        }
+
+        // 行星标签
+        const lbl = makeTextSprite(p.name, 56, 'rgba(255,255,255,0.8)');
+        lbl.position.set(x, -p.r - 2, 0); lbl.scale.set(8, 2, 1);
+        scene.add(lbl);
+    });
+
+    // 太阳标签
+    const sl = makeTextSprite('太阳', 70, 'rgba(255,210,80,1)');
+    sl.position.set(0, -SUN_R - 3, 0); sl.scale.set(10, 2.5, 1);
+    scene.add(sl);
+
+    // ============ 距离线 ============
+    function makeDash(x1, x2, color, opacity) {
+        const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x1,0,0), new THREE.Vector3(x2,0,0)]);
+        const m = new THREE.LineDashedMaterial({ color, opacity, transparent: true, dashSize: 1.2, gapSize: 0.8 });
+        const l = new THREE.Line(g, m); l.computeLineDistances();
+        return l;
+    }
+
+    const earthLineX = 1.0 * AU;
+    const earthLine = makeDash(SUN_R + 0.3, earthLineX - 0.5 - 0.3, '#ffd54f', 0.35);
+    scene.add(earthLine);
+    const earthDL = makeTextSprite('1.5 亿公里（1 AU）', 44, 'rgba(255,213,77,0.9)');
+    earthDL.position.set(earthLineX/2, 2.5, 0); earthDL.scale.set(16, 4, 1);
+    scene.add(earthDL);
+
+    const uranusLineX = 19.19 * AU;
+    const uranusLine = makeDash(SUN_R + 0.3, uranusLineX - 0.8 - 0.3, '#73c5d0', 0.35);
+    uranusLine.visible = false;
+    scene.add(uranusLine);
+    const uranusDL = makeTextSprite('28.7 亿公里（19.19 AU）', 44, 'rgba(115,197,208,0.9)');
+    uranusDL.position.set(uranusLineX/2, 3.5, 0); uranusDL.scale.set(22, 5.5, 1);
+    uranusDL.visible = false;
+    scene.add(uranusDL);
 
     // ============ 星空粒子 ============
-    const starCount = 2000;
-    const sPos = new Float32Array(starCount * 3);
-    const sCol = new Float32Array(starCount * 3);
-    const sSiz = new Float32Array(starCount);
-    for (let i = 0; i < starCount; i++) {
-        const i3 = i * 3;
-        const r = 200 + Math.random() * 200;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        sPos[i3] = r * Math.sin(phi) * Math.cos(theta);
-        sPos[i3+1] = r * Math.sin(phi) * Math.sin(theta);
-        sPos[i3+2] = r * Math.cos(phi);
-        const c = Math.random();
-        if (c < 0.6) { sCol[i3]=1; sCol[i3+1]=1; sCol[i3+2]=1; }
-        else if (c < 0.8) { sCol[i3]=0.7; sCol[i3+1]=0.8; sCol[i3+2]=1; }
-        else { sCol[i3]=1; sCol[i3+1]=0.95; sCol[i3+2]=0.8; }
-        sSiz[i] = Math.random() * 2 + 0.5;
+    const N = 2000, sP = new Float32Array(N*3), sC = new Float32Array(N*3), sS = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+        const i3=i*3, r=300+Math.random()*300, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+        sP[i3]=r*Math.sin(ph)*Math.cos(th); sP[i3+1]=r*Math.sin(ph)*Math.sin(th); sP[i3+2]=r*Math.cos(ph);
+        const c=Math.random();
+        if(c<.6){sC[i3]=1;sC[i3+1]=1;sC[i3+2]=1;}else if(c<.8){sC[i3]=.7;sC[i3+1]=.8;sC[i3+2]=1;}else{sC[i3]=1;sC[i3+1]=.95;sC[i3+2]=.8;}
+        sS[i]=Math.random()*2+.5;
     }
-    const starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
-    starGeo.setAttribute('color', new THREE.BufferAttribute(sCol, 3));
-    starGeo.setAttribute('size', new THREE.BufferAttribute(sSiz, 1));
-    const starMat = new THREE.ShaderMaterial({
+    const sGeo = new THREE.BufferGeometry();
+    sGeo.setAttribute('position', new THREE.BufferAttribute(sP,3));
+    sGeo.setAttribute('color', new THREE.BufferAttribute(sC,3));
+    sGeo.setAttribute('size', new THREE.BufferAttribute(sS,1));
+    const sMat = new THREE.ShaderMaterial({
         uniforms: { time: { value: 0 } },
-        vertexShader: `
-            attribute float size; attribute vec3 color;
-            varying vec3 vColor; uniform float time;
-            void main() {
-                vColor = color;
-                vec4 mv = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = size * (300.0 / -mv.z) * (sin(time*2.0+position.x*.01)*.3+.7);
-                gl_Position = projectionMatrix * mv;
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vColor;
-            void main() {
-                float d = length(gl_PointCoord - .5);
-                float a = 1.0 - smoothstep(0.0, 0.5, d);
-                gl_FragColor = vec4(vColor, (a + exp(-d*3.)*.5) * .9);
-            }
-        `,
+        vertexShader: `attribute float size;attribute vec3 color;varying vec3 vColor;uniform float time;
+            void main(){vColor=color;vec4 mv=modelViewMatrix*vec4(position,1.);
+            gl_PointSize=size*(300./-mv.z)*(sin(time*2.+position.x*.01)*.3+.7);gl_Position=projectionMatrix*mv;}`,
+        fragmentShader: `varying vec3 vColor;void main(){float d=length(gl_PointCoord-.5);
+            float a=1.-smoothstep(0.,.5,d);gl_FragColor=vec4(vColor,(a+exp(-d*3.)*.5)*.9);}`,
         transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
     });
-    scene.add(new THREE.Points(starGeo, starMat));
+    scene.add(new THREE.Points(sGeo, sMat));
 
-    // ============ 尺寸自适应 ============
+    // ============ 相机切换 ============
+    let camTgt = null, camAnimating = false;
+    window.updateScene3D = function(target) {
+        const v = VIEWS[target] || VIEWS.earth;
+        camTgt = { pos: v.pos, look: v.look };
+        camAnimating = true;
+        controls.minDistance = v.minD; controls.maxDistance = v.maxD;
+        earthLine.visible = (target === 'earth'); earthDL.visible = (target === 'earth');
+        uranusLine.visible = (target === 'uranus'); uranusDL.visible = (target === 'uranus');
+    };
+
     function resize() {
         const w = container.clientWidth, h = container.clientHeight;
-        renderer.setSize(w, h);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
+        renderer.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix();
     }
-    resize();
-    window.addEventListener('resize', resize);
+    resize(); window.addEventListener('resize', resize);
 
-    // ============ 动画循环 ============
-    function animate3D(ts) {
-        requestAnimationFrame(animate3D);
+    function anim3D(ts) {
+        requestAnimationFrame(anim3D);
         const t = ts * 0.001;
-        sunMat.uniforms.time.value = t;
-        coronaMat.uniforms.time.value = t;
-        starMat.uniforms.time.value = t;
-        earthMesh.rotation.y += 0.002;
-        cloudMesh.rotation.y -= 0.001;
-        // 虚线脉冲呼吸
-        lineMat.opacity = 0.2 + Math.sin(t * 1.5) * 0.08;
-        controls.update();
-        renderer.render(scene, camera);
+        sunMat.uniforms.time.value = t; coronaMat.uniforms.time.value = t; sMat.uniforms.time.value = t;
+        planetMeshes.forEach(m => { m.rotation.y += 0.003; });
+        if (cloudMesh) cloudMesh.rotation.y -= 0.001;
+        if (earthLine.visible) earthLine.material.opacity = 0.25 + Math.sin(t*1.5)*0.1;
+        if (uranusLine.visible) uranusLine.material.opacity = 0.25 + Math.sin(t*1.5)*0.1;
+        if (camAnimating && camTgt) {
+            const s = 0.05;
+            camera.position.x += (camTgt.pos[0]-camera.position.x)*s;
+            camera.position.y += (camTgt.pos[1]-camera.position.y)*s;
+            camera.position.z += (camTgt.pos[2]-camera.position.z)*s;
+            controls.target.x += (camTgt.look[0]-controls.target.x)*s;
+            controls.target.y += (camTgt.look[1]-controls.target.y)*s;
+            controls.target.z += (camTgt.look[2]-controls.target.z)*s;
+            if (Math.abs(camera.position.z-camTgt.pos[2]) < 0.1) camAnimating = false;
+        }
+        controls.update(); renderer.render(scene, camera);
     }
-    requestAnimationFrame(animate3D);
+    requestAnimationFrame(anim3D);
 })();
 </script>
 <script>
 // ============ 数据 ============
-const SUN_DISTANCE = 150_000_000;
+const EARTH_DISTANCE = 150_000_000;
+const URANUS_DISTANCE = 2_878_500_000; // 19.19 AU
 
-const VEHICLES = [
+const EARTH_VEHICLES = [
     {
         id: 'walk', icon: '🚶', name: '步行',
         speedKmH: 5, speedDisplay: '5 km/h', color: '#9e9e9e',
@@ -646,21 +622,120 @@ const VEHICLES = [
     },
 ];
 
+const URANUS_VEHICLES = [
+    {
+        id: 'walk', icon: '🚶', name: '步行',
+        speedKmH: 5, speedDisplay: '5 km/h', color: '#9e9e9e',
+        arrivalMsg: '65,718年 — 比人类文明还要久！',
+        funFact: '步行到天王星？整个人类文明史都不够！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里（1 AU）', time: '3,424年', fun: '从大禹治水走到今天' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '5,205年', fun: '从三皇五帝走到今天' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '17,808年', fun: '从旧石器时代走来' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '32,648年', fun: '比已知文明史还早' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里（19.19 AU）', time: '65,718年', fun: '比人类文明还要久！' },
+        ]
+    },
+    {
+        id: 'ebike', icon: '🛵', name: '电动车',
+        speedKmH: 25, speedDisplay: '25 km/h', color: '#66bb6a',
+        arrivalMsg: '13,144年 — 从石器时代骑到今天！',
+        funFact: '从新石器时代开始骑，现在也到不了天王星！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里', time: '685年', fun: '从元朝骑到现在' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '1,041年', fun: '从北宋骑到现在' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '3,562年', fun: '从商朝骑到现在' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '6,530年', fun: '比中华文明还早' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里', time: '13,144年', fun: '从石器时代骑到今天！' },
+        ]
+    },
+    {
+        id: 'car', icon: '🚗', name: '小汽车',
+        speedKmH: 120, speedDisplay: '120 km/h', color: '#42a5f5',
+        arrivalMsg: '2,738年 — 从春秋时期开到现在！',
+        funFact: '从孔子时代开始开车，现在刚好到天王星！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里', time: '143年', fun: '爷爷传爸爸传儿子' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '217年', fun: '从清朝开到现在' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '742年', fun: '从南宋开到现在' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '1,360年', fun: '从唐朝开到现在' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里', time: '2,738年', fun: '从春秋时期开到现在！' },
+        ]
+    },
+    {
+        id: 'train', icon: '🚄', name: '高铁',
+        speedKmH: 350, speedDisplay: '350 km/h', color: '#ab47bc',
+        arrivalMsg: '938年 — 从北宋坐到现在！',
+        funFact: '从宋太祖时代出发，现在才到天王星！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里', time: '49年', fun: '智天坐到头发白了' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '74年', fun: '一辈子' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '254年', fun: '从清朝坐到现在' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '466年', fun: '从明朝坐到现在' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里', time: '938年', fun: '从北宋坐到现在！' },
+        ]
+    },
+    {
+        id: 'plane', icon: '✈️', name: '飞机',
+        speedKmH: 900, speedDisplay: '900 km/h', color: '#26c6da',
+        arrivalMsg: '365年 — 从清朝飞到现在！',
+        funFact: '从清朝顺治年间起飞，现在才到天王星！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里', time: '19年', fun: '智天飞到大学毕业' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '29年', fun: '智天飞到三十岁' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '99年', fun: '飞一辈子还多' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '181年', fun: '从清朝飞到现在' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里', time: '365年', fun: '从清朝飞到现在！' },
+        ]
+    },
+    {
+        id: 'rocket', icon: '🚀', name: '火箭',
+        speedKmH: 40000, speedDisplay: '4万 km/h', color: '#ff7043',
+        arrivalMsg: '8.2年 — 智天坐到上初中！',
+        funFact: '火箭飞8年多才能到天王星，太远了！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里', time: '5个月', fun: '差不多一个学期' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '8个月', fun: '不到一年' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '2.2年', fun: '两年多一点' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '4.1年', fun: '差不多上完小学' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里', time: '8.2年', fun: '智天坐到上初中！' },
+        ]
+    },
+    {
+        id: 'light', icon: '⚡', name: '光',
+        speedKmH: 1_080_000_000, speedDisplay: '30万 km/s', color: '#ffd54f',
+        arrivalMsg: '2小时40分 — 看一部电影的时间！',
+        funFact: '光速飞也要将近3小时！天王星真的好远！',
+        milestones: [
+            { label: '到达地球轨道 🌍', dist: '1.5亿公里', time: '8分20秒', fun: '吃半个苹果' },
+            { label: '到达火星轨道 🔴', dist: '2.28亿公里', time: '12分40秒', fun: '课间休息' },
+            { label: '到达木星轨道 🟤', dist: '7.8亿公里', time: '43分', fun: '一节课的时间' },
+            { label: '到达土星轨道 🪐', dist: '14.3亿公里', time: '1小时20分', fun: '看半部电影' },
+            { label: '到达天王星 🔵', dist: '28.7亿公里', time: '2小时40分', fun: '看一部电影的时间！' },
+        ]
+    },
+];
+
 const SPEED_HINTS = {
     10000: '1秒 ≈ 2.8小时，适合观看 ⚡光',
     1000000: '1秒 ≈ 11.6天，适合观看 🚀火箭',
     100000000: '1秒 ≈ 3.2年，适合观看 ✈️🚄🚗',
     1000000000: '1秒 ≈ 31.7年，所有交通工具可见',
+    10000000000: '1秒 ≈ 317年，快速浏览',
 };
 
 // ============ 状态 ============
-let raceState = 'idle'; // idle | running | paused | finished
+let currentTarget = 'earth';
+let sunDistance = EARTH_DISTANCE;
+let raceState = 'idle';
 let simSeconds = 0;
 let speedMul = 100_000_000;
 let lastTs = null;
 let rankCounter = 0;
 let expandedCard = null;
 const vStates = {};
+
+function getVehicles() { return currentTarget === 'uranus' ? URANUS_VEHICLES : EARTH_VEHICLES; }
 
 // ============ DOM 引用 ============
 const tracksEl = document.getElementById('tracks');
@@ -669,9 +744,54 @@ const actionArea = document.getElementById('actionArea');
 const finishEl = document.getElementById('finish');
 const speedHintEl = document.getElementById('speedHint');
 
+// ============ Tab 切换 ============
+function switchTarget(target) {
+    if (currentTarget === target) return;
+    currentTarget = target;
+    sunDistance = target === 'uranus' ? URANUS_DISTANCE : EARTH_DISTANCE;
+
+    // Tab 按钮
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
+
+    // 重置赛跑
+    raceState = 'idle'; simSeconds = 0; lastTs = null; rankCounter = 0;
+    timerEl.textContent = '0 秒';
+    finishEl.classList.remove('show');
+
+    // 重建赛道
+    tracksEl.innerHTML = '';
+    expandedCard = null;
+    Object.keys(vStates).forEach(k => delete vStates[k]);
+    getVehicles().forEach(v => {
+        vStates[v.id] = { arrived: false, rank: 0 };
+        buildTrack(v);
+    });
+    showIdleBtns();
+
+    // 更新文字
+    if (target === 'uranus') {
+        document.getElementById('introText').innerHTML = '天王星到太阳有 28.7 亿公里（19.19 AU）！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！';
+        document.getElementById('subtitleText').textContent = '从太阳到天王星要多久？';
+        document.getElementById('exploreLink').style.display = 'none';
+    } else {
+        document.getElementById('introText').innerHTML = '地球到太阳有 1 亿 5 千万公里远！<br>坐不同的交通工具出发，要多久才能到呢？点击赛道查看旅程故事！';
+        document.getElementById('subtitleText').textContent = '谁能最快到达太阳？';
+        document.getElementById('exploreLink').style.display = '';
+    }
+
+    // 更新默认倍速
+    const defSpeed = target === 'uranus' ? 1_000_000_000 : 100_000_000;
+    speedMul = defSpeed;
+    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed) === defSpeed));
+    speedHintEl.textContent = SPEED_HINTS[defSpeed] || '';
+
+    // 3D 场景
+    if (window.updateScene3D) window.updateScene3D(target);
+}
+
 // ============ 初始化 ============
 function init() {
-    VEHICLES.forEach(v => {
+    getVehicles().forEach(v => {
         vStates[v.id] = { arrived: false, rank: 0 };
         buildTrack(v);
     });
@@ -686,7 +806,8 @@ function buildTrack(v) {
     el.dataset.id = v.id;
     el.style.setProperty('--tc', v.color);
 
-    const totalTime = formatTime(SUN_DISTANCE / v.speedKmH * 3600);
+    const totalTime = formatTime(sunDistance / v.speedKmH * 3600);
+    const journeyName = currentTarget === 'uranus' ? '天王星之旅' : '太阳之旅';
 
     el.innerHTML = `
         <div class="track-main">
@@ -705,7 +826,7 @@ function buildTrack(v) {
         <div class="arrival-banner" data-banner>${v.arrivalMsg}</div>
         <div class="journey-card" data-card>
             <div class="journey-inner">
-                <div class="journey-title">${v.icon} ${v.name}的太阳之旅（${v.speedDisplay}）</div>
+                <div class="journey-title">${v.icon} ${v.name}的${journeyName}（${v.speedDisplay}）</div>
                 ${v.milestones.map(m => `
                     <div class="milestone">
                         <div class="milestone-time">${m.time}</div>
@@ -761,111 +882,74 @@ function setupSpeedBtns() {
 function startRace() {
     raceState = 'running';
     lastTs = null;
-    // 启动时给进度条加过渡
     document.querySelectorAll('[data-fill]').forEach(f => f.classList.add('animate'));
     showRunningBtns();
     requestAnimationFrame(animate);
 }
 
-function pauseRace() {
-    raceState = 'paused';
-    showPausedBtns();
-}
+function pauseRace() { raceState = 'paused'; showPausedBtns(); }
 
 function resumeRace() {
-    raceState = 'running';
-    lastTs = null;
-    showRunningBtns();
-    requestAnimationFrame(animate);
+    raceState = 'running'; lastTs = null;
+    showRunningBtns(); requestAnimationFrame(animate);
 }
 
 function resetRace() {
-    raceState = 'idle';
-    simSeconds = 0;
-    lastTs = null;
-    rankCounter = 0;
-
-    VEHICLES.forEach(v => {
+    raceState = 'idle'; simSeconds = 0; lastTs = null; rankCounter = 0;
+    getVehicles().forEach(v => {
         const s = vStates[v.id];
-        s.arrived = false;
-        s.rank = 0;
-        const el = s.el;
-        el.classList.remove('arrived');
-        el.querySelector('[data-fill]').style.width = '0%';
-        el.querySelector('[data-fill]').classList.remove('animate');
-        el.querySelector('[data-status]').textContent = formatTime(SUN_DISTANCE / v.speedKmH * 3600);
-        el.querySelector('[data-status]').classList.remove('done');
-        el.querySelector('[data-banner]').classList.remove('show');
+        if (!s || !s.el) return;
+        s.arrived = false; s.rank = 0;
+        s.el.classList.remove('arrived');
+        s.el.querySelector('[data-fill]').style.width = '0%';
+        s.el.querySelector('[data-fill]').classList.remove('animate');
+        s.el.querySelector('[data-status]').textContent = formatTime(sunDistance / v.speedKmH * 3600);
+        s.el.querySelector('[data-status]').classList.remove('done');
+        s.el.querySelector('[data-banner]').classList.remove('show');
     });
-
     timerEl.textContent = '0 秒';
     finishEl.classList.remove('show');
     showIdleBtns();
 }
 
 // ============ 按钮切换 ============
-function showIdleBtns() {
-    actionArea.innerHTML = '<button class="btn-primary pulse" onclick="startRace()">🏁 出发！</button>';
-}
+function showIdleBtns() { actionArea.innerHTML = '<button class="btn-primary pulse" onclick="startRace()">🏁 出发！</button>'; }
 function showRunningBtns() {
-    actionArea.innerHTML = `
-        <button class="btn-secondary" onclick="pauseRace()">⏸️ 暂停</button>
-        <button class="btn-secondary" onclick="resetRace()">🔄 重来</button>
-    `;
+    actionArea.innerHTML = '<button class="btn-secondary" onclick="pauseRace()">⏸️ 暂停</button> <button class="btn-secondary" onclick="resetRace()">🔄 重来</button>';
 }
 function showPausedBtns() {
-    actionArea.innerHTML = `
-        <button class="btn-secondary" onclick="resumeRace()">▶️ 继续</button>
-        <button class="btn-secondary" onclick="resetRace()">🔄 重来</button>
-    `;
+    actionArea.innerHTML = '<button class="btn-secondary" onclick="resumeRace()">▶️ 继续</button> <button class="btn-secondary" onclick="resetRace()">🔄 重来</button>';
 }
-function showFinishedBtns() {
-    actionArea.innerHTML = '<button class="btn-primary" onclick="resetRace()">🔄 再来一次！</button>';
-}
+function showFinishedBtns() { actionArea.innerHTML = '<button class="btn-primary" onclick="resetRace()">🔄 再来一次！</button>'; }
 
 // ============ 动画引擎 ============
 function animate(ts) {
     if (raceState !== 'running') return;
     if (lastTs === null) lastTs = ts;
-
-    const dt = Math.min(ts - lastTs, 100); // cap at 100ms
+    const dt = Math.min(ts - lastTs, 100);
     lastTs = ts;
     simSeconds += (dt / 1000) * speedMul;
 
     let allDone = true;
+    const vehicles = getVehicles();
 
-    VEHICLES.forEach(v => {
+    vehicles.forEach(v => {
         const s = vStates[v.id];
         if (s.arrived) return;
-
         const dist = v.speedKmH * (simSeconds / 3600);
-        const progress = Math.min(1, dist / SUN_DISTANCE);
-
+        const progress = Math.min(1, dist / sunDistance);
         s.el.querySelector('[data-fill]').style.width = (progress * 100) + '%';
-
         if (progress >= 1) {
-            s.arrived = true;
-            rankCounter++;
-            s.rank = rankCounter;
+            s.arrived = true; rankCounter++; s.rank = rankCounter;
             onArrived(v, s);
-        } else {
-            allDone = false;
-        }
+        } else { allDone = false; }
     });
 
-    // 确认是否全部到达
-    if (allDone) {
-        VEHICLES.forEach(v => { if (!vStates[v.id].arrived) allDone = false; });
-    }
-
+    if (allDone) { vehicles.forEach(v => { if (!vStates[v.id].arrived) allDone = false; }); }
     timerEl.textContent = formatTime(simSeconds);
 
-    if (allDone) {
-        raceState = 'finished';
-        onAllDone();
-    } else {
-        requestAnimationFrame(animate);
-    }
+    if (allDone) { raceState = 'finished'; onAllDone(); }
+    else { requestAnimationFrame(animate); }
 }
 
 function onArrived(v, s) {
@@ -879,44 +963,36 @@ function onArrived(v, s) {
 
 function onAllDone() {
     showFinishedBtns();
-    // 构建排名
-    const sorted = VEHICLES.slice().sort((a, b) => vStates[a.id].rank - vStates[b.id].rank);
+    const vehicles = getVehicles();
+    const sorted = vehicles.slice().sort((a, b) => vStates[a.id].rank - vStates[b.id].rank);
     const medals = ['🥇','🥈','🥉'];
     let html = '';
     sorted.forEach((v, i) => {
         const medal = i < 3 ? medals[i] : `${i+1}.`;
-        const totalTime = formatTime(SUN_DISTANCE / v.speedKmH * 3600);
-        html += `<div>${medal} ${v.icon} ${v.name} — ${totalTime}</div>`;
+        html += `<div>${medal} ${v.icon} ${v.name} — ${formatTime(sunDistance / v.speedKmH * 3600)}</div>`;
     });
     document.getElementById('finishRanks').innerHTML = html;
-    document.getElementById('finishFooter').textContent = '⚡光比🚶步行快 2.16 亿倍！太阳真的好远好远！';
+    document.getElementById('finishFooter').textContent = currentTarget === 'uranus'
+        ? '⚡光到天王星要 2 小时 40 分，🚶步行要 65,718 年！天王星真的超级远！'
+        : '⚡光比🚶步行快 2.16 亿倍！太阳真的好远好远！';
     finishEl.classList.add('show');
 }
 
 // ============ 时间格式化 ============
 function formatTime(seconds) {
     if (seconds < 1) return '不到1秒';
-    if (seconds < 60) {
-        return Math.floor(seconds) + '秒';
-    }
+    if (seconds < 60) return Math.floor(seconds) + '秒';
     if (seconds < 3600) {
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
+        const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60);
         return s > 0 ? `${m}分${s}秒` : `${m}分钟`;
     }
     if (seconds < 86400) {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
+        const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60);
         return m > 0 ? `${h}小时${m}分` : `${h}小时`;
     }
     const days = seconds / 86400;
-    if (days < 30) {
-        return Math.floor(days) + '天';
-    }
-    if (days < 365.25) {
-        const months = Math.floor(days / 30.44);
-        return months + '个月';
-    }
+    if (days < 30) return Math.floor(days) + '天';
+    if (days < 365.25) return Math.floor(days / 30.44) + '个月';
     const years = seconds / (86400 * 365.25);
     if (years < 10) return years.toFixed(1) + '年';
     if (years < 1000) return Math.round(years) + '年';
@@ -927,8 +1003,7 @@ function formatTime(seconds) {
 function createStars() {
     const el = document.getElementById('stars');
     for (let i = 0; i < 100; i++) {
-        const s = document.createElement('div');
-        s.className = 'star';
+        const s = document.createElement('div'); s.className = 'star';
         const size = Math.random() * 2.5 + 0.5;
         s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
         el.appendChild(s);
