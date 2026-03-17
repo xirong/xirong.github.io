@@ -120,6 +120,21 @@ const planetData = {
         relativeSize: 0.074, // 940/12742
         orbitRadius: 110 // 在小行星带内（innerRadius=100, outerRadius=120）
     },
+    ganymede: {
+        name: '木卫三',
+        nameCN: '木卫三',
+        type: '卫星',
+        diameter: 5268, // km — 太阳系最大的卫星
+        mass: 0.1482, // 10²⁴ kg
+        category: 'moon',
+        distance: 778.5, // 百万 km（随木星绕日）
+        orbitPeriod: 4333, // 天（木星公转周期）
+        rotationPeriod: 7.15, // 天（同步自转，绕木星一圈）
+        color: 0xaabbcc,
+        emissive: 0x334455,
+        description: '木卫三（盖尼米德）是太阳系中最大的卫星，比水星还大！它是唯一拥有自身磁场的卫星。表面有两种地形：古老的暗色区域布满陨石坑，年轻的亮色区域有很多沟槽和山脊。科学家认为它的冰壳下面可能有一片比地球所有海洋加起来还大的咸水海洋！',
+        relativeSize: 0.413 // 5268/12742
+    },
     jupiter: {
         name: '木星',
         nameCN: '木星',
@@ -2638,12 +2653,14 @@ function generateSizeComparison(mode) {
         neptune: 'textures/neptune.jpg',
         uranus: 'textures/uranus.jpg',
         moon: 'textures/moon.jpg',
-        pluto: 'textures/pluto.jpg'
+        pluto: 'textures/pluto.jpg',
+        ceres: 'textures/ceres.jpg',
+        ganymede: 'textures/ganymede.jpg'
     };
 
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
-        const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
+        const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'ceres'];
         subtitle.textContent = '以地球为参考（直径 = 12,742 km）';
 
         const sunDisplaySize = 300;
@@ -2685,7 +2702,7 @@ function generateSizeComparison(mode) {
         });
     } else if (mode === 'mass') {
         // 按质量排序（从大到小）
-        const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto'];
+        const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'ceres'];
         const sortedPlanets = allPlanets.sort((a, b) => planetData[b].mass - planetData[a].mass);
         subtitle.textContent = '以地球为参考（质量 = 5.97 × 10²⁴ kg）';
 
