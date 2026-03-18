@@ -2623,6 +2623,10 @@ function generateSizeComparison(mode) {
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
+    // 放大对比链接只在 diameter 模式下显示
+    const existingLink = document.getElementById('sizeDetailLink');
+    if (existingLink && mode !== 'diameter') existingLink.style.display = 'none';
+
     // volume 模式下 planets-row 不需要 flex 横排，改为 block
     if (isVolumeMode) {
         container.style.display = 'block';
@@ -2662,6 +2666,21 @@ function generateSizeComparison(mode) {
         // 按直径排序（从大到小）
         const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'ceres'];
         subtitle.textContent = '以地球为参考（直径 = 12,742 km）';
+
+        // 放大版链接（插入到 subtitle 后面、container 前面）
+        let detailLink = document.getElementById('sizeDetailLink');
+        if (!detailLink) {
+            detailLink = document.createElement('a');
+            detailLink.id = 'sizeDetailLink';
+            detailLink.href = 'size-detail.html';
+            detailLink.target = '_blank';
+            detailLink.textContent = '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
+            detailLink.style.cssText = 'display:inline-block;margin-bottom:15px;padding:8px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#7de8d5;font-size:0.9rem;text-decoration:none;transition:all 0.3s;cursor:pointer;';
+            detailLink.onmouseover = function() { this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='#7de8d5'; };
+            detailLink.onmouseout = function() { this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.2)'; };
+            subtitle.parentNode.insertBefore(detailLink, container);
+        }
+        detailLink.style.display = 'inline-block';
 
         const sunDisplaySize = 300;
         const jupiterDisplaySize = 140;
