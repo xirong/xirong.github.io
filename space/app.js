@@ -8,6 +8,7 @@ const planetData = {
     sun: {
         name: '太阳',
         nameCN: '太阳',
+        nameEN: 'Sun',
         type: '恒星',
         diameter: 1392700, // km
         mass: 1989100, // 10²⁴ kg
@@ -24,6 +25,7 @@ const planetData = {
     mercury: {
         name: '水星',
         nameCN: '水星',
+        nameEN: 'Mercury',
         type: '类地行星',
         diameter: 4879,
         mass: 0.330, // 10²⁴ kg
@@ -40,6 +42,7 @@ const planetData = {
     venus: {
         name: '金星',
         nameCN: '金星',
+        nameEN: 'Venus',
         type: '类地行星',
         diameter: 12104,
         mass: 4.87, // 10²⁴ kg
@@ -56,6 +59,7 @@ const planetData = {
     earth: {
         name: '地球',
         nameCN: '地球',
+        nameEN: 'Earth',
         type: '类地行星',
         diameter: 12742,
         mass: 5.97, // 10²⁴ kg
@@ -74,6 +78,7 @@ const planetData = {
     moon: {
         name: '月球',
         nameCN: '月球',
+        nameEN: 'Moon',
         type: '卫星',
         diameter: 3474,
         mass: 0.0735, // 10²⁴ kg
@@ -89,6 +94,7 @@ const planetData = {
     mars: {
         name: '火星',
         nameCN: '火星',
+        nameEN: 'Mars',
         type: '类地行星',
         diameter: 6779,
         mass: 0.642, // 10²⁴ kg
@@ -107,6 +113,7 @@ const planetData = {
     ceres: {
         name: '谷神星',
         nameCN: '谷神星',
+        nameEN: 'Ceres',
         type: '矮行星',
         diameter: 940, // km
         mass: 0.000938, // 10²⁴ kg
@@ -123,6 +130,7 @@ const planetData = {
     ganymede: {
         name: '木卫三',
         nameCN: '木卫三',
+        nameEN: 'Ganymede',
         type: '卫星',
         diameter: 5268, // km — 太阳系最大的卫星
         mass: 0.1482, // 10²⁴ kg
@@ -138,6 +146,7 @@ const planetData = {
     jupiter: {
         name: '木星',
         nameCN: '木星',
+        nameEN: 'Jupiter',
         type: '气态巨行星',
         diameter: 139820,
         mass: 1898, // 10²⁴ kg
@@ -156,6 +165,7 @@ const planetData = {
     saturn: {
         name: '土星',
         nameCN: '土星',
+        nameEN: 'Saturn',
         type: '气态巨行星',
         diameter: 116460,
         mass: 568, // 10²⁴ kg
@@ -175,6 +185,7 @@ const planetData = {
     uranus: {
         name: '天王星',
         nameCN: '天王星',
+        nameEN: 'Uranus',
         type: '冰巨行星',
         diameter: 50724,
         mass: 86.8, // 10²⁴ kg
@@ -193,6 +204,7 @@ const planetData = {
     neptune: {
         name: '海王星',
         nameCN: '海王星',
+        nameEN: 'Neptune',
         type: '冰巨行星',
         diameter: 49244,
         mass: 102, // 10²⁴ kg
@@ -211,6 +223,7 @@ const planetData = {
     pluto: {
         name: '冥王星',
         nameCN: '冥王星',
+        nameEN: 'Pluto',
         type: '矮行星',
         diameter: 2377,
         mass: 0.0130, // 10²⁴ kg
@@ -229,6 +242,7 @@ const planetData = {
     oortCloud: {
         name: '奥尔特云',
         nameCN: '奥尔特云',
+        nameEN: 'Oort Cloud',
         type: '彗星云团',
         diameter: 200000, // AU（约 30 万亿公里直径）
         mass: 5, // 约5倍地球质量（估计值）
@@ -257,6 +271,55 @@ let kuiperBelt; // 柯伊伯带
 let oortCloudInner;  // 内奥尔特云粒子
 let oortCloudOuter;  // 外奥尔特云球壳
 let oortCloudBoundary; // 边界标识
+
+// ============ 音频播放（Edge-TTS MP3 + Web Speech API 降级） ============
+let currentAudio = null;
+
+function playPlanetAudio(planetKey) {
+    // 停止上一段音频
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    window.speechSynthesis && window.speechSynthesis.cancel();
+
+    const data = planetData[planetKey];
+    if (!data || !data.nameEN) return;
+
+    // 构造降级文本
+    const distText = planetAudioDistText[planetKey] || '';
+    const fallbackText = `${data.nameCN}，${data.nameEN}，${distText}`;
+
+    const audioPath = `audio/solar/${planetKey}.mp3`;
+    const audio = new Audio(audioPath);
+    currentAudio = audio;
+
+    audio.play().catch(() => {
+        // MP3 加载失败，降级到 Web Speech API
+        if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(fallbackText);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+    });
+}
+
+// 每个天体的距离描述文本（用于 TTS 降级）
+const planetAudioDistText = {
+    sun: '太阳系的中心恒星',
+    mercury: '距离太阳0.4个天文单位',
+    venus: '距离太阳0.7个天文单位',
+    earth: '距离太阳1个天文单位',
+    moon: '地球的天然卫星',
+    mars: '距离太阳1.5个天文单位',
+    ceres: '距离太阳2.8个天文单位',
+    jupiter: '距离太阳5.2个天文单位',
+    saturn: '距离太阳9.5个天文单位',
+    uranus: '距离太阳19.2个天文单位',
+    neptune: '距离太阳30个天文单位',
+    pluto: '距离太阳39.5个天文单位',
+};
 
 // ============ 人造卫星数据 ============
 const satellitesData = [
@@ -1105,7 +1168,7 @@ function createPlanets() {
         }
 
         // 创建行星标签
-        createPlanetLabel(planet, data.nameCN);
+        createPlanetLabel(planet, data.nameCN, data.nameEN);
 
         scene.add(planet);
         planets[name] = planet;
@@ -1471,7 +1534,7 @@ function createMoon() {
     };
 
     // 创建月球标签
-    createPlanetLabel(moon, '月球');
+    createPlanetLabel(moon, '月球', 'Moon');
 
     scene.add(moon);
     planets.moon = moon;
@@ -1830,74 +1893,96 @@ const auDistances = {
 };
 
 // ============ 创建行星标签 ============
-function createPlanetLabel(planet, name) {
+function createPlanetLabel(planet, name, nameEN) {
     const au = auDistances[name];
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    canvas.width = au ? 400 : 256;
+
+    // 根据内容多少动态设置 canvas 宽度
+    const hasEN = !!nameEN;
+    canvas.width = (au || hasEN) ? 512 : 256;
     canvas.height = 64;
 
     context.fillStyle = 'rgba(0, 0, 0, 0.5)';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 绘制名字
-    context.font = 'bold 32px Noto Sans SC';
     context.textBaseline = 'middle';
+    const centerY = canvas.height / 2;
 
+    // 测量各部分宽度
+    const cnFont = 'bold 32px Noto Sans SC';
+    const enFont = 'bold 20px Orbitron, sans-serif';
+    const auFont = '22px Noto Sans SC';
+    const gap = 10;
+
+    context.font = cnFont;
+    const cnWidth = context.measureText(name).width;
+
+    let enWidth = 0;
+    if (hasEN) {
+        context.font = enFont;
+        enWidth = context.measureText(nameEN).width;
+    }
+
+    let auBadgeWidth = 0;
+    let auTextWidth = 0;
+    const badgePadH = 8;
     if (au) {
-        // 有 AU 时：名字居左偏中，AU 标签在右侧
-        const nameWidth = context.measureText(name).width;
-        const auFont = '22px Noto Sans SC';
-        context.save();
         context.font = auFont;
-        const auWidth = context.measureText(au).width;
-        context.restore();
+        auTextWidth = context.measureText(au).width;
+        auBadgeWidth = auTextWidth + badgePadH * 2;
+    }
 
-        const gap = 10;
-        const totalWidth = nameWidth + gap + auWidth + 16; // 16 for AU badge padding
-        const startX = (canvas.width - totalWidth) / 2;
+    // 计算总宽度
+    let totalWidth = cnWidth;
+    if (hasEN) totalWidth += gap + enWidth;
+    if (au) totalWidth += gap + auBadgeWidth;
 
-        // 绘制名字
-        context.font = 'bold 32px Noto Sans SC';
-        context.textAlign = 'left';
-        context.fillStyle = '#ffffff';
-        context.fillText(name, startX, canvas.height / 2);
+    const startX = (canvas.width - totalWidth) / 2;
+    let curX = startX;
 
-        // 绘制 AU 小标签（带圆角背景）
-        const auX = startX + nameWidth + gap;
-        const auY = canvas.height / 2;
-        const badgePadH = 8, badgePadV = 4;
-        const badgeW = auWidth + badgePadH * 2;
+    // 绘制中文名
+    context.font = cnFont;
+    context.textAlign = 'left';
+    context.fillStyle = '#ffffff';
+    context.fillText(name, curX, centerY);
+    curX += cnWidth;
+
+    // 绘制英文名（金色 Orbitron 字体）
+    if (hasEN) {
+        curX += gap;
+        context.font = enFont;
+        context.fillStyle = '#f4d03f';
+        context.fillText(nameEN, curX, centerY + 1);
+        curX += enWidth;
+    }
+
+    // 绘制 AU 小标签（带圆角背景）
+    if (au) {
+        curX += gap;
         const badgeH = 26;
-        const badgeX = auX;
-        const badgeY = auY - badgeH / 2;
+        const badgeY = centerY - badgeH / 2;
         const radius = 6;
 
         // 圆角矩形背景
         context.fillStyle = 'rgba(0, 212, 255, 0.15)';
         context.beginPath();
-        context.moveTo(badgeX + radius, badgeY);
-        context.lineTo(badgeX + badgeW - radius, badgeY);
-        context.quadraticCurveTo(badgeX + badgeW, badgeY, badgeX + badgeW, badgeY + radius);
-        context.lineTo(badgeX + badgeW, badgeY + badgeH - radius);
-        context.quadraticCurveTo(badgeX + badgeW, badgeY + badgeH, badgeX + badgeW - radius, badgeY + badgeH);
-        context.lineTo(badgeX + radius, badgeY + badgeH);
-        context.quadraticCurveTo(badgeX, badgeY + badgeH, badgeX, badgeY + badgeH - radius);
-        context.lineTo(badgeX, badgeY + radius);
-        context.quadraticCurveTo(badgeX, badgeY, badgeX + radius, badgeY);
+        context.moveTo(curX + radius, badgeY);
+        context.lineTo(curX + auBadgeWidth - radius, badgeY);
+        context.quadraticCurveTo(curX + auBadgeWidth, badgeY, curX + auBadgeWidth, badgeY + radius);
+        context.lineTo(curX + auBadgeWidth, badgeY + badgeH - radius);
+        context.quadraticCurveTo(curX + auBadgeWidth, badgeY + badgeH, curX + auBadgeWidth - radius, badgeY + badgeH);
+        context.lineTo(curX + radius, badgeY + badgeH);
+        context.quadraticCurveTo(curX, badgeY + badgeH, curX, badgeY + badgeH - radius);
+        context.lineTo(curX, badgeY + radius);
+        context.quadraticCurveTo(curX, badgeY, curX + radius, badgeY);
         context.closePath();
         context.fill();
 
         // AU 文字
         context.font = auFont;
-        context.textAlign = 'left';
         context.fillStyle = '#00d4ff';
-        context.fillText(au, badgeX + badgePadH, auY + 1);
-    } else {
-        // 无 AU 时：名字居中
-        context.textAlign = 'center';
-        context.fillStyle = '#ffffff';
-        context.fillText(name, canvas.width / 2, canvas.height / 2);
+        context.fillText(au, curX + badgePadH, centerY + 1);
     }
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -1907,7 +1992,8 @@ function createPlanetLabel(planet, name) {
     });
 
     const sprite = new THREE.Sprite(material);
-    sprite.scale.set(au ? 15 : 10, au ? 2.5 : 2.5, 1);
+    const spriteWidth = (au || hasEN) ? 18 : 10;
+    sprite.scale.set(spriteWidth, 2.5, 1);
     sprite.position.y = planet.userData.size + 3;
     sprite.visible = showLabels;
 
@@ -2437,6 +2523,9 @@ function selectPlanet(name) {
 
     // 显示面板
     document.getElementById('planetInfo').classList.add('visible');
+
+    // 播放中英文语音介绍
+    playPlanetAudio(name);
 
     // 更新行星选择器
     document.querySelectorAll('.planet-dot').forEach(dot => {
