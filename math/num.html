@@ -312,6 +312,28 @@
 
         .hundred-frame .cell-number {
             font-size: clamp(0.5rem, 1.2vw, 0.8rem);
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .hundred-frame .frame-cell.col-five {
+            background: #e67e22;
+            border-color: #e67e22;
+            border-style: solid;
+        }
+
+        .hundred-frame .frame-cell.col-five .cell-number {
+            color: white;
+        }
+
+        .hundred-frame .frame-cell.col-ten {
+            background: #2980b9;
+            border-color: #2980b9;
+            border-style: solid;
+        }
+
+        .hundred-frame .frame-cell.col-ten .cell-number {
+            color: white;
         }
 
         .hundred-frame .chip {
@@ -966,6 +988,12 @@
                     num.className = 'cell-number';
                     num.textContent = i + 1;
                     cell.appendChild(num);
+                    // 百格框：第5列橙色，第10列蓝色
+                    if (state.mode === 'hundred') {
+                        const n = i + 1;
+                        if (n % 10 === 5) cell.classList.add('col-five');
+                        else if (n % 10 === 0) cell.classList.add('col-ten');
+                    }
                     cell.addEventListener('dragover', handleDragOver);
                     cell.addEventListener('dragleave', handleDragLeave);
                     cell.addEventListener('drop', handleDrop);
