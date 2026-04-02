@@ -576,6 +576,165 @@
             border: 2px solid #00ff88;
             box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
         }
+
+        /* ============ 信息面板折叠按钮 ============ */
+        .info-toggle {
+            display: none;
+        }
+
+        /* ============ 手机端适配 ============ */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .logo-text h1 {
+                font-size: 1.1rem;
+            }
+
+            .logo-text p {
+                font-size: 0.7rem;
+            }
+
+            .back-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .legend {
+                top: 75px;
+                right: 12px;
+                padding: 10px 14px;
+                border-radius: 12px;
+            }
+
+            .legend-title {
+                font-size: 0.7rem;
+                margin-bottom: 8px;
+            }
+
+            .legend-item {
+                font-size: 0.65rem;
+                gap: 6px;
+                margin-bottom: 5px;
+            }
+
+            .legend-dot {
+                width: 9px;
+                height: 9px;
+            }
+
+            /* 信息面板 - 手机端贴底折叠 */
+            .info-panel {
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-width: 100%;
+                border-radius: 16px 16px 0 0;
+                padding: 0;
+                transform: translateY(calc(100% - 44px));
+                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .info-panel.expanded {
+                transform: translateY(0);
+            }
+
+            .info-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                width: 100%;
+                padding: 12px 20px;
+                background: none;
+                border: none;
+                border-bottom: 1px solid var(--glass-border);
+                color: var(--accent-cyan);
+                font-family: 'Noto Sans SC', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 500;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .info-toggle::before {
+                content: '';
+                display: block;
+                width: 36px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+                position: absolute;
+                top: 6px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .info-toggle .toggle-arrow {
+                transition: transform 0.35s ease;
+                font-size: 0.7rem;
+            }
+
+            .info-panel.expanded .info-toggle .toggle-arrow {
+                transform: rotate(180deg);
+            }
+
+            .info-content {
+                padding: 12px 20px 20px;
+            }
+
+            .info-panel h2 {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+
+            .info-panel p {
+                font-size: 0.8rem;
+                line-height: 1.5;
+                margin-bottom: 6px;
+            }
+
+            /* 比例尺 - 手机端贴左下角，避开折叠面板 */
+            .scale-info {
+                bottom: auto;
+                top: 75px;
+                right: auto;
+                left: 12px;
+                padding: 8px 12px;
+                border-radius: 10px;
+            }
+
+            .scale-info .title {
+                font-size: 0.65rem;
+            }
+
+            .scale-info .value {
+                font-size: 0.8rem;
+            }
+
+            .return-btn {
+                bottom: 60px;
+                right: 16px;
+                padding: 10px 18px;
+                font-size: 0.8rem;
+            }
+
+            /* 弹窗适配 */
+            .galaxy-popup,
+            .star-system-popup {
+                width: calc(100vw - 32px);
+                max-width: 360px;
+                left: 16px !important;
+                right: 16px !important;
+            }
+        }
     </style>
 </head>
 
@@ -606,6 +765,10 @@
 
     <!-- 信息面板 -->
     <div class="info-panel" id="infoPanel">
+        <button class="info-toggle" id="infoToggle">
+            <span>🌌 银河系简介</span>
+            <span class="toggle-arrow">▲</span>
+        </button>
         <div class="info-content">
             <h2>🌌 银河系</h2>
             <p>银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。</p>
@@ -751,6 +914,13 @@
             💡 比邻星是距离我们最近的恒星！
         </div>
     </div>
+
+    <!-- 信息面板折叠交互 -->
+    <script>
+        document.getElementById('infoToggle').addEventListener('click', function () {
+            document.getElementById('infoPanel').classList.toggle('expanded');
+        });
+    </script>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

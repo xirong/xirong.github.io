@@ -1377,6 +1377,27 @@
         .drag-planet-item.hint-pulse {
             animation: pulse-drag-hint 2s ease-in-out infinite;
         }
+
+        /* ============ 手机端适配 ============ */
+        @media (max-width: 768px) {
+            .scale-indicator {
+                bottom: auto;
+                top: 100px;
+                right: auto;
+                left: 12px;
+                padding: 6px 10px;
+                border-radius: 8px;
+            }
+
+            .scale-title {
+                font-size: 0.6rem;
+                margin-bottom: 2px;
+            }
+
+            .scale-value {
+                font-size: 0.7rem;
+            }
+        }
     </style>
 </head>
 
