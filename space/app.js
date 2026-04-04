@@ -349,6 +349,8 @@ let currentComparisonTab = 'diameter'; // 'diameter', 'mass' 或 'volume'
 let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
 let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
 let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
+let currentUranusVolumeSelection = 'earth'; // uranusVolume tab 中选中的星球
+let currentNeptuneVolumeSelection = 'earth'; // neptuneVolume tab 中选中的星球
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
 
 // ============ 卫星数据 ============
@@ -2708,7 +2710,7 @@ function generateSizeComparison(mode) {
     const subtitle = document.getElementById('comparisonSubtitle');
 
     // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
-    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume' || mode === 'dragVolume';
+    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume' || mode === 'uranusVolume' || mode === 'neptuneVolume' || mode === 'dragVolume';
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
@@ -2883,6 +2885,12 @@ function generateSizeComparison(mode) {
     } else if (mode === 'saturnVolume') {
         // 土星能装多少个
         generateSaturnVolumeComparison(container, subtitle);
+    } else if (mode === 'uranusVolume') {
+        // 天王星能装多少个
+        generateUranusVolumeComparison(container, subtitle);
+    } else if (mode === 'neptuneVolume') {
+        // 海王星能装多少个
+        generateNeptuneVolumeComparison(container, subtitle);
     } else if (mode === 'dragVolume') {
         // 拖进太阳
         cancelDragVolumeAnimation();
@@ -3225,6 +3233,222 @@ function generateSaturnVolumeComparison(container, subtitle) {
         el.addEventListener('click', () => {
             currentSaturnVolumeSelection = el.dataset.saturnPlanet;
             generateSizeComparison('saturnVolume');
+        });
+    });
+}
+
+// ============ 天王星能装多少个 ============
+function generateUranusVolumeComparison(container, subtitle) {
+    subtitle.textContent = '天王星是太阳系第三大行星，体积约为地球的 63 倍';
+
+    const uranusVolumeData = [
+        { key: 'earth',    nameCN: '地球',   count: 63,       label: '63',       color: '#6b93d6' },
+        { key: 'venus',    nameCN: '金星',   count: 74,       label: '74',       color: '#e6c87a' },
+        { key: 'mars',     nameCN: '火星',   count: 419,      label: '419',      color: '#c1440e' },
+        { key: 'mercury',  nameCN: '水星',   count: 1123,     label: '1,123',    color: '#b5b5b5' },
+        { key: 'moon',     nameCN: '月球',   count: 3112,     label: '3,112',    color: '#aaaaaa' },
+        { key: 'pluto',    nameCN: '冥王星', count: 9711,     label: '9,711',    color: '#c9b59a' }
+    ];
+
+    const selected = uranusVolumeData.find(d => d.key === currentUranusVolumeSelection) || uranusVolumeData[0]; // 默认地球
+    const maxCount = uranusVolumeData[uranusVolumeData.length - 1].count;
+
+    const uranusDiameter = 50724; // km
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    // === 1. 顶部：天王星大圆（真实纹理）+ 数字 ===
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle" style="
+                width: 180px; height: 180px;
+                background: url('textures/uranus.jpg') center/cover;
+                box-shadow: 0 0 50px rgba(125, 232, 213, 0.5), 0 0 100px rgba(58, 154, 140, 0.3);
+            ">
+                <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">天王星能装</span>
+                <span class="volume-sun-count" style="color:#fff;">${selected.label}</span>
+                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.7);">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${selected.count >= 10000 ? formatNumber(selected.count) : selected.label}</div>
+                <div class="unit">个${selected.nameCN}才能填满天王星</div>
+            </div>
+        </div>
+    `;
+
+    // === 2. 星球选择网格 ===
+    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(3, 1fr);">';
+    uranusVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const pData = planetData[item.key];
+        const dotSize = Math.max(4, Math.min(28, (pData.diameter / uranusDiameter) * 28));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-uranus-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    // === 3. 条形图 ===
+    let barHTML = '<div class="volume-bar-chart">';
+    uranusVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const logMax = Math.log10(maxCount);
+        const logVal = Math.log10(Math.max(1, item.count));
+        const percent = (logVal / logMax) * 100;
+
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-uranus-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    // === 4. 底部：天王星与选中星球的真实大小对比 ===
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, (selectedData.diameter / uranusDiameter) * 80);
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="sun-ref" style="
+                    width: 80px; height: 80px;
+                    background: radial-gradient(circle at 35% 35%, #c8f5ef, #7de8d5, #5cbfb0, #3a9a8c, #2a7a6c);
+                    box-shadow: 0 0 25px rgba(125, 232, 213, 0.4);
+                "></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>天王星</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    // 绑定交互事件
+    wrapper.querySelectorAll('[data-uranus-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            currentUranusVolumeSelection = el.dataset.uranusPlanet;
+            generateSizeComparison('uranusVolume');
+        });
+    });
+}
+
+// ============ 海王星能装多少个 ============
+function generateNeptuneVolumeComparison(container, subtitle) {
+    subtitle.textContent = '海王星是太阳系第四大行星，体积约为地球的 58 倍';
+
+    const neptuneVolumeData = [
+        { key: 'earth',    nameCN: '地球',   count: 58,       label: '58',       color: '#6b93d6' },
+        { key: 'venus',    nameCN: '金星',   count: 67,       label: '67',       color: '#e6c87a' },
+        { key: 'mars',     nameCN: '火星',   count: 383,      label: '383',      color: '#c1440e' },
+        { key: 'mercury',  nameCN: '水星',   count: 1027,     label: '1,027',    color: '#b5b5b5' },
+        { key: 'moon',     nameCN: '月球',   count: 2847,     label: '2,847',    color: '#aaaaaa' },
+        { key: 'pluto',    nameCN: '冥王星', count: 8889,     label: '8,889',    color: '#c9b59a' }
+    ];
+
+    const selected = neptuneVolumeData.find(d => d.key === currentNeptuneVolumeSelection) || neptuneVolumeData[0]; // 默认地球
+    const maxCount = neptuneVolumeData[neptuneVolumeData.length - 1].count;
+
+    const neptuneDiameter = 49244; // km
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    // === 1. 顶部：海王星大圆（真实纹理）+ 数字 ===
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle" style="
+                width: 180px; height: 180px;
+                background: url('textures/neptune.jpg') center/cover;
+                box-shadow: 0 0 50px rgba(91, 93, 223, 0.5), 0 0 100px rgba(26, 26, 139, 0.3);
+            ">
+                <span class="volume-sun-label" style="color:rgba(255,255,255,0.7);">海王星能装</span>
+                <span class="volume-sun-count" style="color:#fff;">${selected.label}</span>
+                <span class="volume-sun-unit" style="color:rgba(255,255,255,0.7);">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${selected.count >= 10000 ? formatNumber(selected.count) : selected.label}</div>
+                <div class="unit">个${selected.nameCN}才能填满海王星</div>
+            </div>
+        </div>
+    `;
+
+    // === 2. 星球选择网格 ===
+    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(3, 1fr);">';
+    neptuneVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const pData = planetData[item.key];
+        const dotSize = Math.max(4, Math.min(28, (pData.diameter / neptuneDiameter) * 28));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-neptune-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    // === 3. 条形图 ===
+    let barHTML = '<div class="volume-bar-chart">';
+    neptuneVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const logMax = Math.log10(maxCount);
+        const logVal = Math.log10(Math.max(1, item.count));
+        const percent = (logVal / logMax) * 100;
+
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-neptune-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    // === 4. 底部：海王星与选中星球的真实大小对比 ===
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, (selectedData.diameter / neptuneDiameter) * 80);
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="sun-ref" style="
+                    width: 80px; height: 80px;
+                    background: radial-gradient(circle at 35% 35%, #9a9cff, #5b5ddf, #4040c0, #2a2a9a, #1a1a6a);
+                    box-shadow: 0 0 25px rgba(91, 93, 223, 0.4);
+                "></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>海王星</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    // 绑定交互事件
+    wrapper.querySelectorAll('[data-neptune-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            currentNeptuneVolumeSelection = el.dataset.neptunePlanet;
+            generateSizeComparison('neptuneVolume');
         });
     });
 }
