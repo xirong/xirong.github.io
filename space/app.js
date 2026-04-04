@@ -3103,7 +3103,7 @@ function generateJupiterVolumeComparison(container, subtitle) {
             <div class="volume-size-compare">
                 <div class="sun-ref" style="
                     width: 80px; height: 80px;
-                    background: radial-gradient(circle at 35% 35%, #fff5e0, #e8c88a, #d8ca9d, #c4a35a, #8b7355);
+                    background: url('textures/jupiter.jpg') center/cover;
                     box-shadow: 0 0 25px rgba(216, 202, 157, 0.4);
                 "></div>
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
@@ -3213,7 +3213,7 @@ function generateSaturnVolumeComparison(container, subtitle) {
             <div class="volume-size-compare">
                 <div class="sun-ref" style="
                     width: 80px; height: 80px;
-                    background: radial-gradient(circle at 35% 35%, #fff5e0, #ead6b8, #d4b896, #c4a35a, #8b7355);
+                    background: url('textures/saturn.jpg') center/cover;
                     box-shadow: 0 0 25px rgba(234, 214, 184, 0.4);
                 "></div>
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
@@ -3321,7 +3321,7 @@ function generateUranusVolumeComparison(container, subtitle) {
             <div class="volume-size-compare">
                 <div class="sun-ref" style="
                     width: 80px; height: 80px;
-                    background: radial-gradient(circle at 35% 35%, #c8f5ef, #7de8d5, #5cbfb0, #3a9a8c, #2a7a6c);
+                    background: url('textures/uranus.jpg') center/cover;
                     box-shadow: 0 0 25px rgba(125, 232, 213, 0.4);
                 "></div>
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
@@ -3429,7 +3429,7 @@ function generateNeptuneVolumeComparison(container, subtitle) {
             <div class="volume-size-compare">
                 <div class="sun-ref" style="
                     width: 80px; height: 80px;
-                    background: radial-gradient(circle at 35% 35%, #9a9cff, #5b5ddf, #4040c0, #2a2a9a, #1a1a6a);
+                    background: url('textures/neptune.jpg') center/cover;
                     box-shadow: 0 0 25px rgba(91, 93, 223, 0.4);
                 "></div>
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
