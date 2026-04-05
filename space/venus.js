@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '2 + 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 2,
-                answer: '>',
-                hint: '3比2大！金星比水星大哦！'
+                type: 'fillin',
+                question: '金星上有3片厚厚的云，又飘来了2片，一共有几片云？',
+                answer: 5,
+                hint: '3加2等于5'
+            },
+            {
+                type: 'sequential',
+                question: '金星大气里有4片云，被风吹走了1片，又飘来了3片，现在有几片？',
+                expression: '4 - 1 + 3',
+                answer: 6,
+                hint: '先算4减1等于3，再算3加3等于6'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '4 + 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！金星的云层比地球厚！'
+                type: 'fillin',
+                question: '金星大气层里有8朵厚厚的云，大风吹走了3朵，还剩几朵？',
+                answer: 5,
+                hint: '8减3等于5'
+            },
+            {
+                type: 'sequential',
+                question: '金星大气里有6团黄云，散开了2团，又聚集了1团，现在有几团？',
+                expression: '6 - 2 + 1',
+                answer: 5,
+                hint: '先算6减2等于4，再算4加1等于5'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '9 - 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 4,
-                right: 7,
-                answer: '<',
-                hint: '4比7小！金星温度比地球高很多倍！'
+                type: 'fillin',
+                question: '金星高温融化了8块铅，又放进去了2块，被融化的一共有几块？',
+                answer: 10,
+                hint: '8加2等于10'
+            },
+            {
+                type: 'sequential',
+                question: '金星上有7块熔岩，高温融化了3块，冷却变硬了2块，现在有几块没融化？',
+                expression: '7 - 3 + 2',
+                answer: 6,
+                hint: '先算7减3等于4，再算4加2等于6'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '4 + 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 2,
-                right: 8,
-                answer: '<',
-                hint: '2比8小！金星转得比地球慢很多！'
+                type: 'fillin',
+                question: '金星倒着转，小宇航员看到太阳从西边升起了3次，又落下了4次，一共几次？',
+                answer: 7,
+                hint: '3加4等于7'
+            },
+            {
+                type: 'sequential',
+                question: '金星自转了5圈，地球转了9圈，地球多转了几圈，再加上火星转了1圈，总共多几圈？',
+                expression: '9 - 5 + 1',
+                answer: 5,
+                hint: '先算9减5等于4，再算4加1等于5'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '10 - 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 7,
-                right: 7,
-                answer: '=',
-                hint: '7等于7！两边一样多！'
+                type: 'fillin',
+                question: '雷达扫描了10个金星火山，有3个太模糊没看清，清楚的有几个？',
+                answer: 7,
+                hint: '10减3等于7'
+            },
+            {
+                type: 'sequential',
+                question: '金星上发现了6座火山，新喷发了2座，又有1座停下来了，正在喷发的有几座？',
+                expression: '6 + 2 - 1',
+                answer: 7,
+                hint: '先算6加2等于8，再算8减1等于7'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '2 + 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！拍的照片比发回的多！'
+                type: 'fillin',
+                question: '金星号探测器带了8个零件，被高温烧坏了3个，还剩几个？',
+                answer: 5,
+                hint: '8减3等于5'
+            },
+            {
+                type: 'sequential',
+                question: '探测器拍了5张金星照片，发回了2张，又拍了4张，一共有几张没发回？',
+                expression: '5 - 2 + 4',
+                answer: 7,
+                hint: '先算5减2等于3，再算3加4等于7'
             }
         ]
     }
@@ -1303,6 +1333,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

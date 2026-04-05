@@ -53,12 +53,17 @@ const chaptersData = [
                 hint: '7 - 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 2,
-                answer: '>',
-                hint: '3比2大！地球上海洋比陆地多！'
+                type: 'fillin',
+                question: '地球上有3片海洋，又发现了2片，一共有几片？',
+                answer: 5,
+                hint: '3 + 2 = 5'
+            },
+            {
+                type: 'sequential',
+                question: '地球上有8朵云，飘走了3朵，又飘来了2朵，现在有几朵？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算 8-3=5，再算 5+2=7'
             }
         ]
     },
@@ -104,12 +109,17 @@ const chaptersData = [
                 hint: '1 + 1 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！白天比黑夜的小鸟多！'
+                type: 'fillin',
+                question: '白天有5只小鸟在唱歌，飞来了3只，一共几只？',
+                answer: 8,
+                hint: '5 + 3 = 8'
+            },
+            {
+                type: 'sequential',
+                question: '树上有9只小鸟，飞走了4只，又飞来了2只，现在有几只？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算 9-4=5，再算 5+2=7'
             }
         ]
     },
@@ -155,12 +165,17 @@ const chaptersData = [
                 hint: '9 - 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 7,
-                right: 3,
-                answer: '>',
-                hint: '7比3大！海洋占了7份，陆地只有3份！'
+                type: 'fillin',
+                question: '池塘里有7条鱼和3只虾，一共有几只小动物？',
+                answer: 10,
+                hint: '7 + 3 = 10'
+            },
+            {
+                type: 'sequential',
+                question: '池塘有10条鱼，游走了6条，又游来了3条，现在有几条？',
+                expression: '10 - 6 + 3',
+                answer: 7,
+                hint: '先算 10-6=4，再算 4+3=7'
             }
         ]
     },
@@ -206,12 +221,17 @@ const chaptersData = [
                 hint: '8 - 5 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 6,
-                right: 2,
-                answer: '>',
-                hint: '6比2大！白云比乌云多！'
+                type: 'fillin',
+                question: '天空中有6朵白云和2朵乌云，一共有几朵云？',
+                answer: 8,
+                hint: '6 + 2 = 8'
+            },
+            {
+                type: 'sequential',
+                question: '天上有10朵云，散开了5朵，又飘来了3朵，现在有几朵？',
+                expression: '10 - 5 + 3',
+                answer: 8,
+                hint: '先算 10-5=5，再算 5+3=8'
             }
         ]
     },
@@ -257,12 +277,17 @@ const chaptersData = [
                 hint: '10 - 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 4,
-                right: 4,
-                answer: '=',
-                hint: '4等于4！一年四季一样多！'
+                type: 'fillin',
+                question: '春天开了4朵花，秋天落了2朵，还剩几朵？',
+                answer: 2,
+                hint: '4 - 2 = 2'
+            },
+            {
+                type: 'sequential',
+                question: '花园有8朵花，摘了3朵送妈妈，又开了4朵，现在有几朵？',
+                expression: '8 - 3 + 4',
+                answer: 9,
+                hint: '先算 8-3=5，再算 5+4=9'
             }
         ]
     },
@@ -308,12 +333,17 @@ const chaptersData = [
                 hint: '6 - 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 4,
-                answer: '>',
-                hint: '5比4大！兔子比松鼠多1只！'
+                type: 'fillin',
+                question: '森林里有5只兔子和4只松鼠，一共有几只小动物？',
+                answer: 9,
+                hint: '5 + 4 = 9'
+            },
+            {
+                type: 'sequential',
+                question: '草地上有7只兔子，跑走了3只，又来了5只，现在有几只？',
+                expression: '7 - 3 + 5',
+                answer: 9,
+                hint: '先算 7-3=4，再算 4+5=9'
             }
         ]
     }
@@ -1403,6 +1433,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

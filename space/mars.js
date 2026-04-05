@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '6 - 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 4,
-                right: 3,
-                answer: '>',
-                hint: '4比3大！火星排在第4颗，地球排第3颗！'
+                type: 'fillin',
+                question: '火星的红色沙漠上有4块大石头，又滚来了3块，一共有几块？',
+                answer: 7,
+                hint: '4加3等于7'
+            },
+            {
+                type: 'sequential',
+                question: '火星沙漠里有8粒红色石子，风吹走了3粒，又落下来2粒，现在有几粒？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '5 + 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 9,
-                answer: '<',
-                hint: '3比9小！奥林帕斯山比珠峰高3倍呢！'
+                type: 'fillin',
+                question: '奥林帕斯山周围有9个小丘，地震消失了2个，还剩几个？',
+                answer: 7,
+                hint: '9减2等于7'
+            },
+            {
+                type: 'sequential',
+                question: '火星地形探测器发现了5条峡谷，又找到了3条，其中2条已经研究完了，还有几条没研究？',
+                expression: '5 + 3 - 2',
+                answer: 6,
+                hint: '先算5加3等于8，再算8减2等于6'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '9 - 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 1,
-                right: 8,
-                answer: '<',
-                hint: '1比8小！火星大气只有地球的1%！'
+                type: 'fillin',
+                question: '火星沙尘暴刮了3天，又停了2天，这次沙尘暴一共持续了几天？',
+                answer: 5,
+                hint: '3加2等于5'
+            },
+            {
+                type: 'sequential',
+                question: '火星上有10团沙尘，大风吹走了4团，又卷起了2团，天空中有几团沙尘？',
+                expression: '10 - 4 + 2',
+                answer: 8,
+                hint: '先算10减4等于6，再算6加2等于8'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '7 - 1 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 2,
-                answer: '>',
-                hint: '3比2大！找到的冰比岩石多！'
+                type: 'fillin',
+                question: '火星北极有5块大冰，科学家取走了2块研究，还剩几块？',
+                answer: 3,
+                hint: '5减2等于3'
+            },
+            {
+                type: 'sequential',
+                question: '火星上找到了4块冰，又发现了3块，融化了2块，还有几块冰？',
+                expression: '4 + 3 - 2',
+                answer: 5,
+                hint: '先算4加3等于7，再算7减2等于5'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '4 + 6 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 6,
-                right: 6,
-                answer: '=',
-                hint: '6等于6！两边一样多！'
+                type: 'fillin',
+                question: '火星车祝融号行驶了6天，好奇号行驶了3天，两辆车一共行驶了几天？',
+                answer: 9,
+                hint: '6加3等于9'
+            },
+            {
+                type: 'sequential',
+                question: '机器人探测器拍了7张照片，传输失败了2张，又补拍了3张，一共成功几张？',
+                expression: '7 - 2 + 3',
+                answer: 8,
+                hint: '先算7减2等于5，再算5加3等于8'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '5 + 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 2,
-                right: 1,
-                answer: '>',
-                hint: '2比1大！火星的卫星比地球多！'
+                type: 'fillin',
+                question: '火卫一绕火星跑得很快，一天能转8圈，火卫二只转2圈，火卫一多转了几圈？',
+                answer: 6,
+                hint: '8减2等于6'
+            },
+            {
+                type: 'sequential',
+                question: '火卫一转了5圈，火卫二转了3圈，又来了一颗新卫星转了1圈，三颗卫星一共转了几圈？',
+                expression: '5 + 3 + 1',
+                answer: 9,
+                hint: '先算5加3等于8，再算8加1等于9'
             }
         ]
     }
@@ -1260,6 +1290,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

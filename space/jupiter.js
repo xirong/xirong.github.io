@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '10 - 4 = 6'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 8,
-                right: 5,
-                answer: '>',
-                hint: '8比5大！'
+                type: 'fillin',
+                question: '木星能装下10个小行星，已经装了4个，还能装几个？',
+                answer: 6,
+                hint: '10减4等于6'
+            },
+            {
+                type: 'sequential',
+                question: '木星装了9颗小星球，飞走了3颗，又被吸引来了2颗，现在装了几颗？',
+                expression: '9 - 3 + 2',
+                answer: 8,
+                hint: '先算9减3等于6，再算6加2等于8'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '3 + 4 = 7'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 6,
-                answer: '<',
-                hint: '3比6小！'
+                type: 'fillin',
+                question: '木星气体云有8团，其中3团变成了风暴，还剩几团安静的气体云？',
+                answer: 5,
+                hint: '8减3等于5'
+            },
+            {
+                type: 'sequential',
+                question: '木星大气有5层云，刮风混合了2层，又分开了1层，现在有几层分开的云？',
+                expression: '5 - 2 + 1',
+                answer: 4,
+                hint: '先算5减2等于3，再算3加1等于4'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '9 - 1 = 8'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 7,
-                right: 7,
-                answer: '=',
-                hint: '7和7一样大！'
+                type: 'fillin',
+                question: '大红斑里有9股旋转气流，平静了4股，还有几股在旋转？',
+                answer: 5,
+                hint: '9减4等于5'
+            },
+            {
+                type: 'sequential',
+                question: '大红斑风暴持续了6天，又加强了2天，减弱了1天，一共刮了几天？',
+                expression: '6 + 2 - 1',
+                answer: 7,
+                hint: '先算6加2等于8，再算8减1等于7'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '5 + 3 = 8'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 4,
-                right: 9,
-                answer: '<',
-                hint: '4比9小！'
+                type: 'fillin',
+                question: '木卫二的冰面下有4条地下河，科学家又发现了5条，一共几条？',
+                answer: 9,
+                hint: '4加5等于9'
+            },
+            {
+                type: 'sequential',
+                question: '木星有8颗大卫星，飞走了3颗，又来了2颗，现在有几颗大卫星？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '6 - 2 = 4'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 7,
-                answer: '<',
-                hint: '3比7小！木星环比土星环少。'
+                type: 'fillin',
+                question: '木星环上有7粒大尘埃，飞走了3粒，还剩几粒？',
+                answer: 4,
+                hint: '7减3等于4'
+            },
+            {
+                type: 'sequential',
+                question: '木星环上有5粒尘埃，又飘来3粒，被太阳风吹走了2粒，还剩几粒？',
+                expression: '5 + 3 - 2',
+                answer: 6,
+                hint: '先算5加3等于8，再算8减2等于6'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '10 - 1 = 9'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！大石头比小石头多。'
+                type: 'fillin',
+                question: '木星帮地球挡住了6颗小行星，地球自己挡住了2颗，木星比地球多挡了几颗？',
+                answer: 4,
+                hint: '6减2等于4'
+            },
+            {
+                type: 'sequential',
+                question: '木星吸引了9颗彗星，其中4颗撞上木星，又飞来了2颗，现在还有几颗在附近？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算9减4等于5，再算5加2等于7'
             }
         ]
     }
@@ -1158,6 +1188,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

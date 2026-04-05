@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '4加3等于7哦！'
             },
             {
-                type: 'compare',
-                question: '比一比，海王星离太阳的距离和地球比',
-                left: 8,
-                right: 3,
-                answer: '>',
-                hint: '8比3大！海王星离太阳远得多！'
+                type: 'fillin',
+                question: '海王星是最远的行星，离太阳的距离是地球的4倍，再加3倍更远，一共是几倍？',
+                answer: 7,
+                hint: '4加3等于7'
+            },
+            {
+                type: 'sequential',
+                question: '探险队出发去海王星，准备了9天粮食，用了4天，补充了2天的，还剩几天？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算9减4等于5，再算5加2等于7'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '4减1等于3哦！'
             },
             {
-                type: 'compare',
-                question: '比一比，海王星装得下的地球数量',
-                left: 9,
-                right: 9,
-                answer: '=',
-                hint: '9和9一样大，它们相等！'
+                type: 'fillin',
+                question: '海王星的深蓝色很美，科学家数了5个蓝色区域，又发现了3个，一共几个？',
+                answer: 8,
+                hint: '5加3等于8'
+            },
+            {
+                type: 'sequential',
+                question: '海王星大气有10层深蓝色云，消散了4层，又生成了2层，现在有几层？',
+                expression: '10 - 4 + 2',
+                answer: 8,
+                hint: '先算10减4等于6，再算6加2等于8'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '10减4等于6哦！'
             },
             {
-                type: 'compare',
-                question: '比一比，海王星和地球的风速',
-                left: 10,
-                right: 3,
-                answer: '>',
-                hint: '10比3大！海王星的风快多了！'
+                type: 'fillin',
+                question: '大暗斑超强风暴已经刮了6天，又刮了3天，一共刮了几天？',
+                answer: 9,
+                hint: '6加3等于9'
+            },
+            {
+                type: 'sequential',
+                question: '大暗斑风暴有8个旋臂，消失了3个，又多出了2个，现在有几个旋臂？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '6 - 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，海卫一喷冰泉的次数',
-                left: 2,
-                right: 4,
-                answer: '<',
-                hint: '2比4小！第一次喷得少！'
+                type: 'fillin',
+                question: '海卫一倒着转，喷了5次冰泉，海王星又让它多喷了3次，一共喷了几次？',
+                answer: 8,
+                hint: '5加3等于8'
+            },
+            {
+                type: 'sequential',
+                question: '海卫一有9次氮冰喷发，平息了4次，极寒又触发了2次，现在有几次喷发？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算9减4等于5，再算5加2等于7'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '8减5等于3哦！'
             },
             {
-                type: 'compare',
-                question: '比一比，钻石和冰块的数量',
-                left: 4,
-                right: 2,
-                answer: '>',
-                hint: '4比2大！钻石比冰块多！'
+                type: 'fillin',
+                question: '海王星极冷的深处下了7颗钻石雨，又下了2颗，一共几颗？',
+                answer: 9,
+                hint: '7加2等于9'
+            },
+            {
+                type: 'sequential',
+                question: '钻石雨下了6颗，智天捡了2颗，爸爸又找到了3颗，一共有几颗钻石？',
+                expression: '6 - 2 + 3',
+                answer: 7,
+                hint: '先算6减2等于4，再算4加3等于7'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '10减1等于9哦！'
             },
             {
-                type: 'compare',
-                question: '比一比，科学家计算的天数',
-                left: 3,
-                right: 4,
-                answer: '<',
-                hint: '3比4小！第二次算得更久！'
+                type: 'fillin',
+                question: '科学家用数学发现了海王星，算了8道题，错了1道，答对了几道？',
+                answer: 7,
+                hint: '8减1等于7'
+            },
+            {
+                type: 'sequential',
+                question: '科学家观测了6颗星，发现3颗不对，又重新找了4颗，现在找了几颗？',
+                expression: '6 - 3 + 4',
+                answer: 7,
+                hint: '先算6减3等于3，再算3加4等于7'
             }
         ]
     }
@@ -1300,6 +1330,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

@@ -52,12 +52,17 @@ const chaptersData = [
                 hint: '8 - 1 = 7'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 8,
-                right: 1,
-                answer: '>',
-                hint: '8比1大！竖着转的行星比横着转的多。'
+                type: 'fillin',
+                question: '天王星横躺着转，4颗行星竖着转，又发现了3颗竖着转的，竖着转的有几颗？',
+                answer: 7,
+                hint: '4加3等于7'
+            },
+            {
+                type: 'sequential',
+                question: '天文学家观测了8颗行星，横着转的有1颗，剩下的竖着转，又发现新转法2颗，竖着转的有几颗？',
+                expression: '8 - 1 - 2',
+                answer: 5,
+                hint: '先算8减1等于7，再算7减2等于5'
             }
         ]
     },
@@ -103,12 +108,17 @@ const chaptersData = [
                 hint: '3 - 1 = 2'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 2,
-                right: 2,
-                answer: '=',
-                hint: '2和2一样大！冰巨星和气态巨行星一样多。'
+                type: 'fillin',
+                question: '天王星有3种冰，又发现了4种新物质，一共发现了几种？',
+                answer: 7,
+                hint: '3加4等于7'
+            },
+            {
+                type: 'sequential',
+                question: '天王星内部有9块大冰，融化了4块，又结冻了2块，现在有几块冰？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算9减4等于5，再算5加2等于7'
             }
         ]
     },
@@ -154,12 +164,17 @@ const chaptersData = [
                 hint: '13 - 3 = 10'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 9,
-                right: 4,
-                answer: '>',
-                hint: '9比4大！先发现的环比后发现的多。'
+                type: 'fillin',
+                question: '天王星有13道光环，科学家已经给9道起了名字，还有几道没有名字？',
+                answer: 4,
+                hint: '13减9等于4'
+            },
+            {
+                type: 'sequential',
+                question: '天王星有6道亮环，又发现了4道暗环，暗环中有1道消失了，现在共有几道环？',
+                expression: '6 + 4 - 1',
+                answer: 9,
+                hint: '先算6加4等于10，再算10减1等于9'
             }
         ]
     },
@@ -205,12 +220,17 @@ const chaptersData = [
                 hint: '5 + 3 = 8'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！拍大卫星比拍小卫星多。'
+                type: 'fillin',
+                question: '天王星有5颗大卫星，又发现了3颗中型卫星，一共发现了几颗？',
+                answer: 8,
+                hint: '5加3等于8'
+            },
+            {
+                type: 'sequential',
+                question: '天王星有10颗卫星被拍到了，跑掉了3颗，又发现了2颗，现在看到几颗？',
+                expression: '10 - 3 + 2',
+                answer: 9,
+                hint: '先算10减3等于7，再算7加2等于9'
             }
         ]
     },
@@ -256,12 +276,17 @@ const chaptersData = [
                 hint: '21 - 4 = 17'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 42,
-                right: 42,
-                answer: '=',
-                hint: '42和42一样大！白天和黑夜一样长。'
+                type: 'fillin',
+                question: '天王星极寒的冬天有3个月亮升起，夏天多升起了4个，夏天共升起几个？',
+                answer: 7,
+                hint: '3加4等于7'
+            },
+            {
+                type: 'sequential',
+                question: '天王星的蓝绿色让人看见了8颗云，消散了5颗，又新冒出3颗，现在有几颗云？',
+                expression: '8 - 5 + 3',
+                answer: 6,
+                hint: '先算8减5等于3，再算3加3等于6'
             }
         ]
     },
@@ -307,12 +332,17 @@ const chaptersData = [
                 hint: '6 + 4 = 10'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 6,
-                right: 4,
-                answer: '>',
-                hint: '6比4大！天王星的照片比卫星的多。'
+                type: 'fillin',
+                question: '赫歇尔用望远镜看了6颗星，又看了4颗，一共看了几颗？',
+                answer: 10,
+                hint: '6加4等于10'
+            },
+            {
+                type: 'sequential',
+                question: '旅行者2号拍了9张天王星照片，损坏了2张，又拍了3张，现在有几张？',
+                expression: '9 - 2 + 3',
+                answer: 10,
+                hint: '先算9减2等于7，再算7加3等于10'
             }
         ]
     }
@@ -1460,6 +1490,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

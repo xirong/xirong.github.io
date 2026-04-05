@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '4 + 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 6,
-                right: 1,
-                answer: '>',
-                hint: '6比1大哦！'
+                type: 'fillin',
+                question: '月球上有4个陨石坑，又被小行星撞出了3个新坑，现在一共有几个陨石坑？',
+                answer: 7,
+                hint: '4加3等于7'
+            },
+            {
+                type: 'sequential',
+                question: '月球上原来有8块月球岩石，宇航员带走了3块，又捡回来了2块，现在有几块？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '9 - 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！大碎片比小碎片多！'
+                type: 'fillin',
+                question: '月球基地里有6名宇航员，又乘飞船来了4名，现在月球基地有几名宇航员？',
+                answer: 10,
+                hint: '6加4等于10'
+            },
+            {
+                type: 'sequential',
+                question: '月球基地有9套太空服，坏了2套送去修理，又新运来了3套，现在有几套太空服？',
+                expression: '9 - 2 + 3',
+                answer: 10,
+                hint: '先算9减2等于7，再算7加3等于10'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '2 + 6 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 4,
-                answer: '<',
-                hint: '3比4小哦！'
+                type: 'fillin',
+                question: '月球车在月球上行驶了5圈，因为低重力又多跑了2圈，一共跑了几圈？',
+                answer: 7,
+                hint: '5加2等于7'
+            },
+            {
+                type: 'sequential',
+                question: '月球车出发时带了10块月球岩石，放下了4块，又装上了1块，现在带着几块？',
+                expression: '10 - 4 + 1',
+                answer: 7,
+                hint: '先算10减4等于6，再算6加1等于7'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '8 - 5 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 3,
-                answer: '=',
-                hint: '两个都是3，一样多！'
+                type: 'fillin',
+                question: '阿波罗飞船上有3名宇航员穿着太空服，还有5名没穿，一共有几名宇航员？',
+                answer: 8,
+                hint: '3加5等于8'
+            },
+            {
+                type: 'sequential',
+                question: '宇航员在月球插了6面旗帜，风把2面吹倒了，他们又插了4面新旗，现在立着几面旗？',
+                expression: '6 - 2 + 4',
+                answer: 8,
+                hint: '先算6减2等于4，再算4加4等于8'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '10 - 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 2,
-                right: 5,
-                answer: '<',
-                hint: '2比5小！小陨石坑比大陨石坑多！'
+                type: 'fillin',
+                question: '月球表面有8个大陨石坑，宇宙射线填平了3个，还剩几个大陨石坑？',
+                answer: 5,
+                hint: '8减3等于5'
+            },
+            {
+                type: 'sequential',
+                question: '探测器发现了5个月海，又发现了3个新月海，后来证实其中2个不是月海，真正的月海有几个？',
+                expression: '5 + 3 - 2',
+                answer: 6,
+                hint: '先算5加3等于8，再算8减2等于6'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '7 - 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 6,
-                answer: '<',
-                hint: '5比6小！'
+                type: 'fillin',
+                question: '宇航员太空服里有7瓶氧气，用掉了2瓶，还剩几瓶氧气？',
+                answer: 5,
+                hint: '7减2等于5'
+            },
+            {
+                type: 'sequential',
+                question: '月球基地有4瓶氧气，补充了6瓶，宇航员用掉了3瓶，现在还有几瓶？',
+                expression: '4 + 6 - 3',
+                answer: 7,
+                hint: '先算4加6等于10，再算10减3等于7'
             }
         ]
     }
@@ -1066,6 +1096,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

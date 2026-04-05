@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '9 - 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，太阳和地球谁大？用数字表示：',
-                left: 9,
-                right: 1,
-                answer: '>',
-                hint: '9比1大！太阳比地球大得多！'
+                type: 'fillin',
+                question: '太阳能板今天收集了6份光能，又收集了4份，一共收集了几份光能？',
+                answer: 10,
+                hint: '6加4等于10'
+            },
+            {
+                type: 'sequential',
+                question: '太阳能板有8份光能，用掉了3份照明，又收集了2份，现在有几份光能？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '数一数，一共用了几个？'
             },
             {
-                type: 'compare',
-                question: '比一比，太阳光到地球的时间和到月球的时间：',
-                left: 8,
-                right: 1,
-                answer: '>',
-                hint: '8比1大！光到地球要8分钟，到月球只要1秒多！'
+                type: 'fillin',
+                question: '太阳发出了9束光线，有4束照到了地球，还有几束没照到地球？',
+                answer: 5,
+                hint: '9减4等于5'
+            },
+            {
+                type: 'sequential',
+                question: '太阳发出了7束光线，地球接收了3束，植物又吸收了2束用于光合作用，剩余几束光线照射着地面？',
+                expression: '7 - 3 - 2',
+                answer: 2,
+                hint: '先算7减3等于4，再算4减2等于2'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '2 + 8 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，太阳表面温度和地球温度谁高？用数字代替：',
-                left: 10,
-                right: 3,
-                answer: '>',
-                hint: '10比3大！太阳表面比地球热得多！'
+                type: 'fillin',
+                question: '太阳表面有5个热区，又出现了3个新热区，一共有几个热区？',
+                answer: 8,
+                hint: '5加3等于8'
+            },
+            {
+                type: 'sequential',
+                question: '太阳表面有9个热区，冷却了4个变成暗区，又爆发了2个新热区，现在有几个热区？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算9减4等于5，再算5加2等于7'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '9 - 3 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，大黑子的数量和小黑子的数量：',
-                left: 5,
-                right: 2,
-                answer: '>',
-                hint: '5比2大！大黑子比小黑子多！'
+                type: 'fillin',
+                question: '太阳上出现了6个太阳黑子，消失了4个，还剩几个太阳黑子？',
+                answer: 2,
+                hint: '6减4等于2'
+            },
+            {
+                type: 'sequential',
+                question: '太阳上有4个太阳黑子，耀斑爆发新增了5个，其中3个快速消失了，还剩几个太阳黑子？',
+                expression: '4 + 5 - 3',
+                answer: 6,
+                hint: '先算4加5等于9，再算9减3等于6'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '3 + 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，白天的时间和黑夜的时间（夏天）：',
-                left: 8,
-                right: 5,
-                answer: '>',
-                hint: '8比5大！夏天白天比黑夜长！'
+                type: 'fillin',
+                question: '花园里有3朵向日葵，太阳照射后又开了4朵，现在一共有几朵向日葵？',
+                answer: 7,
+                hint: '3加4等于7'
+            },
+            {
+                type: 'sequential',
+                question: '花园里有8朵花，太阳太强晒蔫了2朵，下雨后又开了3朵，现在有几朵花？',
+                expression: '8 - 2 + 3',
+                answer: 9,
+                hint: '先算8减2等于6，再算6加3等于9'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '6 + 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，红巨星和白矮星谁更大？用数字代替：',
-                left: 10,
-                right: 1,
-                answer: '>',
-                hint: '10比1大！红巨星比白矮星大得多！'
+                type: 'fillin',
+                question: '太阳风带走了6颗宇宙尘埃，又卷走了3颗，一共带走了几颗尘埃？',
+                answer: 9,
+                hint: '6加3等于9'
+            },
+            {
+                type: 'sequential',
+                question: '太阳有10份热量，变成红巨星后散发了4份，剩余热量变成白矮星又冷却了3份，最后还有几份热量？',
+                expression: '10 - 4 - 3',
+                answer: 3,
+                hint: '先算10减4等于6，再算6减3等于3'
             }
         ]
     }
@@ -1221,6 +1251,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '9 - 1 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，水星绕太阳的速度和地球的速度：',
-                left: 9,
-                right: 3,
-                answer: '>',
-                hint: '9比3大！水星跑得比地球快多了！'
+                type: 'fillin',
+                question: '水星跑了7圈太阳，地球才跑了1圈，水星比地球多跑了几圈？',
+                answer: 6,
+                hint: '7减1等于6'
+            },
+            {
+                type: 'sequential',
+                question: '水星绕太阳跑了5圈，又跑了3圈，中途停下来休息后再跑了2圈，一共跑了几圈？',
+                expression: '5 + 3 + 2',
+                answer: 10,
+                hint: '先算5加3等于8，再算8加2等于10'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '6 - 4 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，水星白天温度和晚上温度（用数字代替）：',
-                left: 10,
-                right: 0,
-                answer: '>',
-                hint: '10比0大！水星白天比晚上热得多！'
+                type: 'fillin',
+                question: '水星白天温度升了8格，晚上冷却了5格，最终变化了几格？',
+                answer: 3,
+                hint: '8减5等于3'
+            },
+            {
+                type: 'sequential',
+                question: '温度计白天升了6格，又升了2格，到了晚上降了4格，最终是几格？',
+                expression: '6 + 2 - 4',
+                answer: 4,
+                hint: '先算6加2等于8，再算8减4等于4'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '10 - 7 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，大陨石坑的数量和小陨石坑的数量：',
-                left: 4,
-                right: 5,
-                answer: '<',
-                hint: '4比5小！小陨石坑比大陨石坑多！'
+                type: 'fillin',
+                question: '水星表面有6个陨石坑，小行星又撞出了3个新坑，现在一共有几个陨石坑？',
+                answer: 9,
+                hint: '6加3等于9'
+            },
+            {
+                type: 'sequential',
+                question: '水星表面有10个陨石坑，小行星填平了3个，探测器又发现了2个新坑，现在一共有几个陨石坑？',
+                expression: '10 - 3 + 2',
+                answer: 9,
+                hint: '先算10减3等于7，再算7加2等于9'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '9 - 1 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，水星的一天和一年谁更长？（用数字代替）',
-                left: 7,
-                right: 4,
-                answer: '>',
-                hint: '7比4大！水星的一天比一年还长！'
+                type: 'fillin',
+                question: '水星自转一圈要59天，比地球的自转（1天）多了几天？（简化：9减1等于几）',
+                answer: 8,
+                hint: '9减1等于8'
+            },
+            {
+                type: 'sequential',
+                question: '水星的一天超长！宇航员带了8瓶水，喝掉了3瓶，又补充了2瓶，还剩几瓶水？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '5 - 0 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，地球的卫星数量和水星的卫星数量：',
-                left: 1,
-                right: 0,
-                answer: '>',
-                hint: '1比0大！地球有月亮，水星没有！'
+                type: 'fillin',
+                question: '水星没有卫星！太阳系8颗行星中，有2颗没有卫星，有卫星的行星有几颗？',
+                answer: 6,
+                hint: '8减2等于6'
+            },
+            {
+                type: 'sequential',
+                question: '木星有4颗大卫星，又发现了3颗新卫星，水星有0颗卫星，木星的卫星比水星多几颗？',
+                expression: '4 + 3 - 0',
+                answer: 7,
+                hint: '先算4加3等于7，再算7减0等于7'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '3 + 2 = ?'
             },
             {
-                type: 'compare',
-                question: '比一比，信使号拍的照片和传回的照片数量：',
-                left: 6,
-                right: 4,
-                answer: '>',
-                hint: '6比4大！拍的比传回来的多！'
+                type: 'fillin',
+                question: '信使号探测器拍了10张水星照片，传回了7张，还有几张没传回？',
+                answer: 3,
+                hint: '10减7等于3'
+            },
+            {
+                type: 'sequential',
+                question: '贝皮科伦坡号飞行了5年，又飞了3年，到达水星后绕飞了2年，一共飞了几年？',
+                expression: '5 + 3 + 2',
+                answer: 10,
+                hint: '先算5加3等于8，再算8加2等于10'
             }
         ]
     }
@@ -1164,6 +1194,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');

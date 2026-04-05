@@ -51,12 +51,17 @@ const chaptersData = [
                 hint: '8 - 2 = 6'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 3,
-                right: 4,
-                answer: '<',
-                hint: '3比4小！明亮的环比暗淡的环少。'
+                type: 'fillin',
+                question: '土星环上有7块大冰块，又飞来了3块，现在一共几块？',
+                answer: 10,
+                hint: '7加3等于10'
+            },
+            {
+                type: 'sequential',
+                question: '土星环上有8块冰块，碎了3块，又飘来了2块，现在有几块？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -101,12 +106,17 @@ const chaptersData = [
                 hint: '4 + 3 = 7'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 3,
-                answer: '>',
-                hint: '5比3大！浮着的球比沉下去的多。'
+                type: 'fillin',
+                question: '游泳池里放了4个土星，又放了3个土星，一共放了几个？',
+                answer: 7,
+                hint: '4加3等于7'
+            },
+            {
+                type: 'sequential',
+                question: '游泳池里有9个球，沉下去3个，又浮上来2个，现在浮着几个？',
+                expression: '9 - 3 + 2',
+                answer: 8,
+                hint: '先算9减3等于6，再算6加2等于8'
             }
         ]
     },
@@ -151,12 +161,17 @@ const chaptersData = [
                 hint: '6 - 0 = 6'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 6,
-                right: 6,
-                answer: '=',
-                hint: '6和6一样大！'
+                type: 'fillin',
+                question: '土星风暴刮了6条边，停下了0条，还有几条在转？',
+                answer: 6,
+                hint: '6减0等于6'
+            },
+            {
+                type: 'sequential',
+                question: '土星有4个大风暴，又来了5个，平息了3个，现在有几个？',
+                expression: '4 + 5 - 3',
+                answer: 6,
+                hint: '先算4加5等于9，再算9减3等于6'
             }
         ]
     },
@@ -201,12 +216,17 @@ const chaptersData = [
                 hint: '9 - 4 = 5'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 2,
-                right: 4,
-                answer: '<',
-                hint: '2比4小！大湖比小湖少。'
+                type: 'fillin',
+                question: '土卫六上有7条甲烷河，又出现了2条新的，一共有几条？',
+                answer: 9,
+                hint: '7加2等于9'
+            },
+            {
+                type: 'sequential',
+                question: '土卫六有8片湖，干涸了3片，又新生成了2片，现在有几片？',
+                expression: '8 - 3 + 2',
+                answer: 7,
+                hint: '先算8减3等于5，再算5加2等于7'
             }
         ]
     },
@@ -251,12 +271,17 @@ const chaptersData = [
                 hint: '10 - 3 = 7'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 4,
-                right: 2,
-                answer: '>',
-                hint: '4比2大！有冰的卫星比没冰的多。'
+                type: 'fillin',
+                question: '土卫二喷出5股冰泉，土卫六喷出3股甲烷，一共几股？',
+                answer: 8,
+                hint: '5加3等于8'
+            },
+            {
+                type: 'sequential',
+                question: '土卫二有9股冰泉，停了4股，又喷出2股，现在有几股？',
+                expression: '9 - 4 + 2',
+                answer: 7,
+                hint: '先算9减4等于5，再算5加2等于7'
             }
         ]
     },
@@ -301,12 +326,17 @@ const chaptersData = [
                 hint: '7 - 0 = 7'
             },
             {
-                type: 'compare',
-                question: '比一比大小',
-                left: 5,
-                right: 4,
-                answer: '>',
-                hint: '5比4大！土星照片比卫星照片多。'
+                type: 'fillin',
+                question: '卡西尼号飞行了7年，中途检查了2次设备，还剩几年没检查？',
+                answer: 5,
+                hint: '7减2等于5'
+            },
+            {
+                type: 'sequential',
+                question: '卡西尼号拍了5张土星照片，又拍了3张，发回了4张，还剩几张？',
+                expression: '5 + 3 - 4',
+                answer: 4,
+                hint: '先算5加3等于8，再算8减4等于4'
             }
         ]
     }
@@ -1323,6 +1353,27 @@ function showMath(ch) {
             compareDiv.appendChild(btn);
         });
         optionsDiv.appendChild(compareDiv);
+    } else if (mathQ.type === 'sequential') {
+        // 连续加减法：显示故事 + 高亮算式 + 数字键盘
+        const exprParts = mathQ.expression.replace(/\s/g, '').split(/([+\-])/);
+        let exprHTML = exprParts.map(p => {
+            if (p === '+' || p === '-') return `<span class="seq-op">${p}</span>`;
+            return `<span>${p}</span>`;
+        }).join(' ');
+        exprHTML += ` <span class="seq-op">=</span> <span class="seq-q">?</span>`;
+        document.getElementById('quizQuestion').innerHTML =
+            `${mathQ.question}<div class="sequential-expr">${exprHTML}</div>`;
+        playAudio(audioPath, mathQ.question);
+        const numpad = document.createElement('div');
+        numpad.className = 'math-numpad';
+        for (let n = 0; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.className = 'numpad-btn';
+            btn.textContent = n;
+            btn.onclick = () => handleQuizAnswer(btn, n === mathQ.answer, mathQ.hint, 'math');
+            numpad.appendChild(btn);
+        }
+        optionsDiv.appendChild(numpad);
     }
 
     panel.classList.add('visible');
