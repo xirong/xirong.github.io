@@ -2776,6 +2776,7 @@ function generateSizeComparison(mode) {
         const sunDisplaySize = 300;
         const jupiterDisplaySize = 140;
         const jupiterDiameter = 139820;
+        const earthDiameter = 12742;
 
         sortedPlanets.forEach(name => {
             const data = planetData[name];
@@ -2794,6 +2795,31 @@ function generateSizeComparison(mode) {
                 ? `background: url('${planetTextures[name]}') center/cover;`
                 : `background: #${data.color.toString(16).padStart(6, '0')};`;
 
+            // 计算地球直径倍数
+            const earthRatio = data.diameter / earthDiameter;
+            let earthCompareHTML = '';
+            if (name === 'earth') {
+                earthCompareHTML = '<div class="earth-ratio earth-ref">🌍 = 1（参考基准）</div>';
+            } else if (earthRatio >= 1.5) {
+                const rounded = Math.round(earthRatio);
+                earthCompareHTML = `<div class="earth-ratio earth-big">≈ ${rounded} 个地球</div>`;
+                // 可视化小地球圆点
+                if (rounded <= 12) {
+                    earthCompareHTML += '<div class="earth-dots">' +
+                        Array(rounded).fill('<span class="earth-dot"></span>').join('') +
+                        '</div>';
+                } else {
+                    // 超过12个用压缩展示：8个圆点 + 省略号 + 总数
+                    earthCompareHTML += '<div class="earth-dots earth-dots-many">' +
+                        Array(8).fill('<span class="earth-dot"></span>').join('') +
+                        '<span class="earth-dot-ellipsis">···×' + rounded + '</span>' +
+                        '</div>';
+                }
+            } else {
+                const pct = Math.round(earthRatio * 100);
+                earthCompareHTML = `<div class="earth-ratio earth-small">≈ 地球的 ${pct}%</div>`;
+            }
+
             const div = document.createElement('div');
             div.className = `comparison-planet ${categoryClass}`;
             div.innerHTML = `
@@ -2806,6 +2832,7 @@ function generateSizeComparison(mode) {
                 "></div>
                 <div class="name">${data.nameCN}</div>
                 <div class="size">${formatNumber(data.diameter)} km</div>
+                ${earthCompareHTML}
                 <span class="type-label ${categoryClass}">${categoryLabels[categoryClass] || data.type}</span>
             `;
             container.appendChild(div);
