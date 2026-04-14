@@ -479,6 +479,46 @@
             color: var(--text-secondary);
             margin-top: 5px;
         }
+
+        /* 日食进度面板 */
+        .eclipse-progress-panel {
+            position: fixed;
+            left: 30px;
+            bottom: 30px;
+            z-index: 100;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-radius: 15px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+        }
+
+        .eclipse-progress-panel.visible {
+            display: flex;
+        }
+
+        .eclipse-progress-panel .title {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .eclipse-progress-panel .phase-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            text-align: center;
+        }
+
+        .eclipse-progress-panel .speed-slider {
+            width: 120px;
+        }
     </style>
 </head>
 
@@ -528,6 +568,10 @@
             <span class="icon">🌋</span>
             <span>内部结构</span>
         </button>
+        <button class="mode-btn" data-mode="eclipse" title="观察日食过程">
+            <span class="icon">🌑</span>
+            <span>日食</span>
+        </button>
     </div>
 
     <!-- 轴倾斜指示器 -->
@@ -535,6 +579,14 @@
         <div class="title">地轴倾斜角度</div>
         <div class="angle">23.5°</div>
         <div class="desc">这就是四季产生的原因！</div>
+    </div>
+
+    <!-- 日食进度控制 -->
+    <div class="eclipse-progress-panel" id="eclipseProgressPanel">
+        <div class="title">日食进度</div>
+        <div class="phase-label" id="eclipsePhaseLabel">初始</div>
+        <input type="range" class="speed-slider" id="eclipseSlider" min="0" max="100" step="0.1" value="0">
+        <div class="speed-value" id="eclipseProgressValue">0%</div>
     </div>
 
     <!-- 速度控制 -->

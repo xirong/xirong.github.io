@@ -20,6 +20,22 @@ let orbitAngle = 0;
 let isPlaying = true;
 let hasCompletedOrbit = false;
 
+// ============ 日食模式状态 ============
+let eclipseGroup = null;
+let eclipseProgress = 0;       // 0.0 → 1.0
+let ecl_skyPlane = null;
+let ecl_sunGlow = null;
+let ecl_sunDisc = null;
+let ecl_coronaRays = null;
+let ecl_coronaInner = null;
+let ecl_moonDisc = null;
+let ecl_diamondRing = null;
+let ecl_eclipseStars = null;
+
+const ECLIPSE_SUN_RADIUS = 6.0;
+const ECLIPSE_MOON_RADIUS = 6.15;
+const ECLIPSE_CAMERA_Z = 20.0;
+
 // 地球参数
 const EARTH_RADIUS = 5;
 const EARTH_ORBIT_RADIUS = 80;  // 半长轴
@@ -75,6 +91,27 @@ const seasonInfo = {
                 <p>苏联的<span class="highlight">科拉超深钻孔</span>挖了12.2公里，仅穿透地壳的1/3！温度已达180°C，再往下钻头就会熔化。</p>
             </div>
         `
+    },
+    eclipse: {
+        title: '🌑 日食',
+        content: `
+            <p>日食是<span class="highlight">月球</span>跑到太阳和地球中间，把太阳<span class="highlight">遮住</span>了！</p>
+            <p>太阳比月球大<span class="highlight">400倍</span>，但太阳也比月球<span class="highlight">远400倍</span>，所以从地球上看，它们几乎<span class="highlight">一样大</span>！这真是太神奇了！</p>
+            <p>日全食时，天空会突然变黑，能看到太阳周围美丽的<span class="highlight">日冕</span>——那是太阳的大气层在发光！</p>
+            <div class="fun-fact">
+                <div class="fun-fact-title">✨ 智天，你知道吗？</div>
+                <p>日全食时还会出现<span class="highlight">钻石环</span>效应！月球边缘凹凸不平的山谷让最后一丝阳光钻出来，就像钻石一样闪闪发光，只会持续几秒钟！</p>
+            </div>
+            <div class="fun-fact">
+                <div class="fun-fact-title">🔭 日食四个阶段</div>
+                <p>
+                <span class="highlight">第一接触</span> → 月球刚碰到太阳边缘<br>
+                <span class="highlight">偏食阶段</span> → 月球越来越多地盖住太阳<br>
+                <span class="highlight">日全食</span> → 太阳完全被遮住，日冕出现<br>
+                <span class="highlight">第四接触</span> → 月球离开太阳，日食结束
+                </p>
+            </div>
+        `
     }
 };
 
@@ -107,6 +144,7 @@ function init() {
     createAxisIndicator();
     addLights();
     createStructureModel();
+    createEclipseScene();
 
     window.addEventListener('resize', onWindowResize);
     window.addEventListener('click', onStructureClick);
@@ -994,6 +1032,433 @@ function createBoundaryLabels(baseRadius) {
     });
 }
 
+// ============ 创建日食场景 ============
+function createEclipseScene() {
+    eclipseGroup = new THREE.Group();
+    eclipseGroup.visible = false;
+    scene.add(eclipseGroup);
+
+    const textureLoader = new THREE.TextureLoader();
+
+    // ---- 1. 天空背景平面 ----
+    const skyGeo = new THREE.PlaneGeometry(200, 120);
+    const skyMat = new THREE.ShaderMaterial({
+        uniforms: {
+            skyDarkness: { value: 0.0 },
+            time: { value: 0.0 }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float skyDarkness;
+            uniform float time;
+            varying vec2 vUv;
+            void main() {
+                // 白天蓝色天空（上深下浅）
+                vec3 dayTop = vec3(0.05, 0.15, 0.55);
+                vec3 dayBottom = vec3(0.35, 0.6, 0.95);
+                vec3 dayBlue = mix(dayBottom, dayTop, vUv.y);
+                // 全食时的黑暗天空
+                vec3 nightBlack = vec3(0.0, 0.0, 0.02);
+                // 地平线微光（偏食阶段）
+                float horizonGlow = smoothstep(0.25, 0.0, vUv.y) * (1.0 - skyDarkness) * 0.3;
+                vec3 horizonColor = vec3(0.95, 0.45, 0.1);
+                vec3 skyColor = mix(dayBlue, nightBlack, skyDarkness);
+                skyColor = mix(skyColor, horizonColor, horizonGlow * skyDarkness * 2.0);
+                gl_FragColor = vec4(skyColor, 1.0);
+            }
+        `
+    });
+    ecl_skyPlane = new THREE.Mesh(skyGeo, skyMat);
+    ecl_skyPlane.position.z = -2;
+    ecl_skyPlane.renderOrder = 0;
+    eclipseGroup.add(ecl_skyPlane);
+
+    // ---- 2. 日食星空（天空变暗时出现） ----
+    const starCount = 300;
+    const starPos = new Float32Array(starCount * 3);
+    const starSizes = new Float32Array(starCount);
+    for (let i = 0; i < starCount; i++) {
+        starPos[i * 3] = (Math.random() - 0.5) * 180;
+        starPos[i * 3 + 1] = (Math.random() - 0.5) * 100;
+        starPos[i * 3 + 2] = -1;
+        starSizes[i] = 0.5 + Math.random() * 2.0;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    // 圆形星星纹理
+    const starCanvas = document.createElement('canvas');
+    starCanvas.width = 32;
+    starCanvas.height = 32;
+    const starCtx = starCanvas.getContext('2d');
+    const gradient = starCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    starCtx.fillStyle = gradient;
+    starCtx.fillRect(0, 0, 32, 32);
+    const starTexture = new THREE.CanvasTexture(starCanvas);
+    const starMat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1.5,
+        map: starTexture,
+        transparent: true,
+        opacity: 0,
+        sizeAttenuation: true,
+        depthWrite: false
+    });
+    ecl_eclipseStars = new THREE.Points(starGeo, starMat);
+    ecl_eclipseStars.renderOrder = 1;
+    ecl_eclipseStars.visible = false;
+    eclipseGroup.add(ecl_eclipseStars);
+
+    // ---- 3. 太阳外发光（始终可见的柔和光晕） ----
+    const outerGlowGeo = new THREE.SphereGeometry(ECLIPSE_SUN_RADIUS * 2.8, 32, 32);
+    const outerGlowMat = new THREE.ShaderMaterial({
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(0.4 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                intensity = max(intensity, 0.0);
+                vec3 color = vec3(1.0, 0.7, 0.15) * intensity;
+                gl_FragColor = vec4(color, intensity * 0.4);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        depthWrite: false
+    });
+    ecl_sunGlow = new THREE.Mesh(outerGlowGeo, outerGlowMat);
+    ecl_sunGlow.renderOrder = 1;
+    eclipseGroup.add(ecl_sunGlow);
+
+    // ---- 4. 太阳盘面（使用 sun.jpg 真实纹理） ----
+    const sunMap = textureLoader.load('textures/sun.jpg');
+    const sunGeo = new THREE.SphereGeometry(ECLIPSE_SUN_RADIUS, 64, 64);
+    const sunMat = new THREE.ShaderMaterial({
+        uniforms: {
+            sunTexture: { value: sunMap },
+            time: { value: 0 },
+            coverage: { value: 0 }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            void main() {
+                vUv = uv;
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D sunTexture;
+            uniform float time;
+            uniform float coverage;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            void main() {
+                vec3 texColor = texture2D(sunTexture, vUv).rgb;
+                texColor *= 1.4;
+                float pulse = 1.0 + 0.03 * sin(time * 2.5);
+                texColor *= pulse;
+                // 边缘暗化（limb darkening，真实太阳效果）
+                float limb = dot(vNormal, vec3(0.0, 0.0, 1.0));
+                limb = 0.5 + 0.5 * pow(limb, 0.4);
+                texColor *= limb;
+                gl_FragColor = vec4(texColor, 1.0);
+            }
+        `
+    });
+    ecl_sunDisc = new THREE.Mesh(sunGeo, sunMat);
+    ecl_sunDisc.renderOrder = 2;
+    eclipseGroup.add(ecl_sunDisc);
+
+    // ---- 5. 日冕射线（全食时可见的放射状光芒） ----
+    const rayCount = 24;
+    const positions = [];
+    const alphas = [];
+    for (let i = 0; i < rayCount; i++) {
+        const angle = (i / rayCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+        const len = ECLIPSE_SUN_RADIUS * (1.5 + Math.random() * 3.0);
+        const baseWidth = 0.2 + Math.random() * 0.25;
+        const cos_a = Math.cos(angle), sin_a = Math.sin(angle);
+        const perpCos = Math.cos(angle + Math.PI / 2);
+        const perpSin = Math.sin(angle + Math.PI / 2);
+        const innerR = ECLIPSE_SUN_RADIUS * 1.02;
+        // 三角形：2 个底部顶点 + 1 个尖端
+        positions.push(
+            cos_a * innerR + perpCos * baseWidth, sin_a * innerR + perpSin * baseWidth, 0.1,
+            cos_a * innerR - perpCos * baseWidth, sin_a * innerR - perpSin * baseWidth, 0.1,
+            cos_a * (innerR + len), sin_a * (innerR + len), 0.1
+        );
+        alphas.push(0.9, 0.9, 0.0);
+    }
+    const rayGeo = new THREE.BufferGeometry();
+    rayGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    rayGeo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(alphas, 1));
+    const rayMat = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+            attribute float aAlpha;
+            varying float vAlpha;
+            varying vec3 vPos;
+            void main() {
+                vAlpha = aAlpha;
+                vPos = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            varying float vAlpha;
+            varying vec3 vPos;
+            void main() {
+                float dist = length(vPos.xy);
+                float pulse = 0.8 + 0.2 * sin(time * 1.5 + dist * 0.3);
+                // 日冕颜色：内白外蓝
+                vec3 innerColor = vec3(1.0, 1.0, 0.95);
+                vec3 outerColor = vec3(0.5, 0.7, 1.0);
+                vec3 coronaCol = mix(innerColor, outerColor, 1.0 - vAlpha);
+                gl_FragColor = vec4(coronaCol * pulse, vAlpha * 0.8);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+    });
+    ecl_coronaRays = new THREE.Mesh(rayGeo, rayMat);
+    ecl_coronaRays.renderOrder = 3;
+    ecl_coronaRays.visible = false;
+    eclipseGroup.add(ecl_coronaRays);
+
+    // ---- 6. 日冕内光晕（柔和的内圈光环） ----
+    const innerCoronaGeo = new THREE.SphereGeometry(ECLIPSE_SUN_RADIUS * 1.6, 32, 32);
+    const innerCoronaMat = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 },
+            coronaStrength: { value: 0 }
+        },
+        vertexShader: `
+            varying vec3 vNormal;
+            void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            uniform float coronaStrength;
+            varying vec3 vNormal;
+            void main() {
+                float intensity = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                float pulse = 0.9 + 0.1 * sin(time * 2.0);
+                vec3 color = mix(vec3(1.0, 1.0, 0.95), vec3(0.5, 0.7, 1.0), intensity);
+                gl_FragColor = vec4(color * pulse, intensity * coronaStrength * 0.6);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        depthWrite: false
+    });
+    ecl_coronaInner = new THREE.Mesh(innerCoronaGeo, innerCoronaMat);
+    ecl_coronaInner.renderOrder = 3;
+    eclipseGroup.add(ecl_coronaInner);
+
+    // ---- 7. 月球盘面（暗色剪影，使用 moon.jpg 纹理） ----
+    const moonMap = textureLoader.load('textures/moon.jpg');
+    const moonGeo = new THREE.SphereGeometry(ECLIPSE_MOON_RADIUS, 64, 64);
+    const moonMat = new THREE.MeshBasicMaterial({
+        map: moonMap,
+        color: 0x111111   // 暗色调，作为剪影
+    });
+    ecl_moonDisc = new THREE.Mesh(moonGeo, moonMat);
+    ecl_moonDisc.position.set(18, 0, 0.3);
+    ecl_moonDisc.renderOrder = 4;
+    eclipseGroup.add(ecl_moonDisc);
+
+    // ---- 8. 钻石环闪光（第二/三接触时闪现） ----
+    // 创建星光纹理
+    const drCanvas = document.createElement('canvas');
+    drCanvas.width = 128;
+    drCanvas.height = 128;
+    const drCtx = drCanvas.getContext('2d');
+    // 径向渐变：中心白亮，向外淡出
+    const drGrad = drCtx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    drGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    drGrad.addColorStop(0.1, 'rgba(255, 255, 240, 0.9)');
+    drGrad.addColorStop(0.3, 'rgba(255, 240, 200, 0.5)');
+    drGrad.addColorStop(0.6, 'rgba(200, 220, 255, 0.2)');
+    drGrad.addColorStop(1, 'rgba(150, 200, 255, 0)');
+    drCtx.fillStyle = drGrad;
+    drCtx.fillRect(0, 0, 128, 128);
+    // 十字星芒
+    drCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    drCtx.lineWidth = 2;
+    drCtx.beginPath();
+    drCtx.moveTo(0, 64); drCtx.lineTo(128, 64);
+    drCtx.moveTo(64, 0); drCtx.lineTo(64, 128);
+    drCtx.moveTo(20, 20); drCtx.lineTo(108, 108);
+    drCtx.moveTo(108, 20); drCtx.lineTo(20, 108);
+    drCtx.stroke();
+    const drTexture = new THREE.CanvasTexture(drCanvas);
+
+    const drGeo = new THREE.BufferGeometry();
+    drGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 1], 3));
+    const drMat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 80,
+        map: drTexture,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false
+    });
+    ecl_diamondRing = new THREE.Points(drGeo, drMat);
+    ecl_diamondRing.renderOrder = 5;
+    ecl_diamondRing.visible = false;
+    eclipseGroup.add(ecl_diamondRing);
+}
+
+// ============ 日食视觉参数计算 ============
+function getEclipseVisualParams(p) {
+    // 月球从 x=+18 移到 x=-18
+    const moonX = 18 - p * 36;
+
+    // 月球与太阳中心的距离
+    const dist = Math.abs(moonX);
+    const overlap = ECLIPSE_SUN_RADIUS + ECLIPSE_MOON_RADIUS - dist;
+
+    // 太阳被遮挡比例（近似）
+    let sunCoverage = 0;
+    if (overlap > 0) {
+        sunCoverage = Math.min(overlap / (ECLIPSE_SUN_RADIUS * 2), 1.0);
+        sunCoverage = Math.pow(sunCoverage, 0.6); // 非线性，让遮挡效果更明显
+    }
+
+    // 天空变暗程度
+    const totalityCenter = 0.5;
+    const distFromTotality = Math.abs(p - totalityCenter);
+    const skyDarkness = Math.max(0, 1.0 - distFromTotality / 0.35);
+    const skyDarknessSmooth = Math.pow(skyDarkness, 1.5); // 让变暗更集中在全食附近
+
+    // 日冕可见度（仅在全食附近）
+    const totalityWidth = 0.05;
+    const coronaAlpha = Math.max(0, 1.0 - distFromTotality / totalityWidth);
+
+    // 钻石环效果（第二接触 ~0.44-0.46，第三接触 ~0.54-0.56）
+    let diamondRing = 0;
+    const dr2Center = 0.45, dr3Center = 0.55;
+    const drWidth = 0.015;
+    const dr2Dist = Math.abs(p - dr2Center);
+    const dr3Dist = Math.abs(p - dr3Center);
+    if (dr2Dist < drWidth) {
+        diamondRing = Math.cos(dr2Dist / drWidth * Math.PI * 0.5);
+    } else if (dr3Dist < drWidth) {
+        diamondRing = Math.cos(dr3Dist / drWidth * Math.PI * 0.5);
+    }
+
+    // 阶段标签
+    let phaseLabel = '初始';
+    if (p <= 0.0) phaseLabel = '初始';
+    else if (p < 0.15) phaseLabel = '第一接触';
+    else if (p < 0.44) phaseLabel = '偏食（遮挡增加）';
+    else if (p < 0.46) phaseLabel = '✨ 钻石环！';
+    else if (p < 0.54) phaseLabel = '🌑 日全食！';
+    else if (p < 0.56) phaseLabel = '✨ 钻石环！';
+    else if (p < 0.85) phaseLabel = '偏食（遮挡减少）';
+    else if (p < 1.0) phaseLabel = '第四接触';
+    else phaseLabel = '日食结束';
+
+    return { moonX, skyDarkness: skyDarknessSmooth, coronaAlpha, diamondRing, sunCoverage, phaseLabel };
+}
+
+// ============ 更新日食场景 ============
+function updateEclipseScene(p) {
+    if (!eclipseGroup || !eclipseGroup.visible) return;
+
+    const params = getEclipseVisualParams(p);
+
+    // 1. 月球位置
+    ecl_moonDisc.position.x = params.moonX;
+
+    // 2. 天空背景暗度
+    ecl_skyPlane.material.uniforms.skyDarkness.value = params.skyDarkness;
+
+    // 3. 太阳盘面亮度
+    ecl_sunDisc.material.uniforms.coverage.value = params.sunCoverage;
+
+    // 4. 太阳外发光随遮挡减弱
+    ecl_sunGlow.material.opacity = 1.0 - params.sunCoverage * 0.7;
+
+    // 5. 日冕可见度
+    ecl_coronaRays.visible = params.coronaAlpha > 0.01;
+    if (ecl_coronaRays.visible) {
+        ecl_coronaRays.material.opacity = params.coronaAlpha;
+    }
+    ecl_coronaInner.material.uniforms.coronaStrength.value = params.coronaAlpha;
+
+    // 6. 钻石环
+    ecl_diamondRing.visible = params.diamondRing > 0.01;
+    if (ecl_diamondRing.visible) {
+        ecl_diamondRing.material.opacity = params.diamondRing * 0.95;
+        // 钻石环位置：月球边缘面向太阳残光的一侧
+        // 月球从右往左移动：全食前，太阳残光在月球左侧；全食后，在右侧
+        const side = (p < 0.5) ? -1 : 1;
+        ecl_diamondRing.position.set(
+            params.moonX + side * ECLIPSE_MOON_RADIUS * 0.95,
+            0,
+            1
+        );
+    }
+
+    // 7. 星星（天空暗度 > 0.6 时出现）
+    const starOpacity = Math.max(0, (params.skyDarkness - 0.6) / 0.4);
+    ecl_eclipseStars.visible = starOpacity > 0.01;
+    ecl_eclipseStars.material.opacity = starOpacity;
+
+    // 8. 阶段标签
+    const phaseEl = document.getElementById('eclipsePhaseLabel');
+    if (phaseEl) phaseEl.textContent = params.phaseLabel;
+
+    // 9. 信息面板标题动态更新
+    if (currentMode === 'eclipse') {
+        document.querySelector('#infoPanel h2').innerHTML = '🌑 ' + params.phaseLabel;
+    }
+}
+
+// ============ 日冕脉动动画 ============
+function updateEclipseCoronaPulse(time) {
+    if (ecl_coronaRays && ecl_coronaRays.material.uniforms) {
+        ecl_coronaRays.material.uniforms.time.value = time;
+    }
+    if (ecl_coronaInner && ecl_coronaInner.material.uniforms) {
+        ecl_coronaInner.material.uniforms.time.value = time;
+    }
+    if (ecl_sunDisc && ecl_sunDisc.material.uniforms) {
+        ecl_sunDisc.material.uniforms.time.value = time;
+    }
+    if (ecl_skyPlane && ecl_skyPlane.material.uniforms) {
+        ecl_skyPlane.material.uniforms.time.value = time;
+    }
+}
+
 // 内部结构动画更新
 function updateStructureAnimation(time) {
     if (!structureGroup || !structureGroup.visible) return;
@@ -1102,6 +1567,17 @@ function setupControls() {
 
     const playBtn = document.getElementById('playPauseBtn');
     if (playBtn) playBtn.addEventListener('click', togglePlayPause);
+
+    // 日食进度滑块
+    const eclipseSlider = document.getElementById('eclipseSlider');
+    if (eclipseSlider) {
+        eclipseSlider.addEventListener('input', () => {
+            eclipseProgress = parseFloat(eclipseSlider.value) / 100;
+            updateEclipseScene(eclipseProgress);
+            const pv = document.getElementById('eclipseProgressValue');
+            if (pv) pv.textContent = (eclipseProgress * 100).toFixed(1) + '%';
+        });
+    }
 }
 
 function updateInfoPanel() {
@@ -1127,27 +1603,26 @@ function updateUIForMode() {
     earth.position.x = EARTH_ORBIT_RADIUS;
     earth.position.z = 0;
 
+    // 恢复 OrbitControls（日食模式会禁用）
+    controls.enabled = true;
+
     // 根据模式显示/隐藏四季标记
     const showSeasonMarkers = (currentMode === 'revolution');
     seasonMarkers.forEach(marker => {
         marker.visible = showSeasonMarkers;
     });
 
-    // 内部结构模式特殊处理
+    // 特殊模式标记
     const isStructure = (currentMode === 'structure');
+    const isEclipse = (currentMode === 'eclipse');
+    const hideMainScene = isStructure || isEclipse;
 
-    // 轨道在内部结构模式下隐藏
-    if (earthOrbit) {
-        earthOrbit.visible = !isStructure;
-    }
-    // 太阳在内部结构模式下隐藏
-    if (sun) {
-        sun.visible = !isStructure;
-    }
-    // 地球在内部结构模式下隐藏（用内部结构模型替代）
-    if (earth) {
-        earth.visible = !isStructure;
-    }
+    // 主场景对象在内部结构和日食模式下隐藏
+    if (earthOrbit) earthOrbit.visible = !hideMainScene;
+    if (sun) sun.visible = !hideMainScene;
+    if (earth) earth.visible = !hideMainScene;
+    if (starField) starField.visible = !isEclipse; // 日食有自己的星空
+
     // 内部结构模型
     if (structureGroup) {
         structureGroup.visible = isStructure;
@@ -1158,13 +1633,35 @@ function updateUIForMode() {
         }
     }
 
+    // 日食场景
+    if (eclipseGroup) {
+        eclipseGroup.visible = isEclipse;
+        if (isEclipse) {
+            eclipseProgress = 0;
+            updateEclipseScene(0);
+            const slider = document.getElementById('eclipseSlider');
+            if (slider) slider.value = 0;
+            const pv = document.getElementById('eclipseProgressValue');
+            if (pv) pv.textContent = '0%';
+        }
+    }
+
+    // 日食进度面板
+    const eclipsePanel = document.getElementById('eclipseProgressPanel');
+    if (eclipsePanel) {
+        if (isEclipse) eclipsePanel.classList.add('visible');
+        else eclipsePanel.classList.remove('visible');
+    }
+
     // 隐藏/显示时间和速度控制
-    document.getElementById('timeDisplay').style.display = isStructure ? 'none' : '';
+    document.getElementById('timeDisplay').style.display = hideMainScene ? 'none' : '';
     document.querySelector('.speed-control').style.display = isStructure ? 'none' : '';
+
+    // 恢复场景背景色
+    scene.background = new THREE.Color(0x000005);
 
     switch (currentMode) {
         case 'rotation':
-            // 与初始视角一致
             camera.position.set(0, 30, 50);
             controls.target.copy(earth.position);
             break;
@@ -1174,16 +1671,23 @@ function updateUIForMode() {
             axisIndicator.classList.add('visible');
             break;
         case 'structure':
-            // 从正前方稍偏右上俯视，主要展示剖面
             camera.position.set(4, 3, 18);
             controls.target.set(0, 0, 0);
             controls.minDistance = 10;
             controls.maxDistance = 50;
             break;
+        case 'eclipse':
+            camera.position.set(0, 0, ECLIPSE_CAMERA_Z);
+            controls.target.set(0, 0, 0);
+            controls.update(); // 先更新一次让相机对准目标
+            controls.enabled = false; // 然后锁定视角
+            camera.lookAt(0, 0, 0); // 确保相机朝向正确
+            scene.background = new THREE.Color(0x000000);
+            break;
     }
 
-    // 非 structure 模式恢复默认距离限制
-    if (currentMode !== 'structure') {
+    // 非 structure/eclipse 模式恢复默认距离限制
+    if (currentMode !== 'structure' && currentMode !== 'eclipse') {
         controls.minDistance = 15;
         controls.maxDistance = 200;
     }
@@ -1203,7 +1707,7 @@ function animate() {
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
 
-    if (currentMode !== 'structure') {
+    if (currentMode !== 'structure' && currentMode !== 'eclipse') {
         if (sun.material.uniforms) sun.material.uniforms.time.value = time;
 
         if (earth.material.uniforms) {
@@ -1245,6 +1749,28 @@ function animate() {
         }
     }
 
+    // 日食模式动画
+    if (currentMode === 'eclipse') {
+        // 日冕脉动（即使暂停也要更新）
+        updateEclipseCoronaPulse(time);
+
+        if (isPlaying) {
+            eclipseProgress += delta * animationSpeed * 0.04;
+            if (eclipseProgress >= 1.0) {
+                eclipseProgress = 1.0;
+                isPlaying = false;
+                updatePlayButton();
+                showCompletionMessage('🌑☀️ 日食结束！太阳重新出现！');
+            }
+            updateEclipseScene(eclipseProgress);
+            // 同步滑块
+            const slider = document.getElementById('eclipseSlider');
+            if (slider) slider.value = eclipseProgress * 100;
+            const pv = document.getElementById('eclipseProgressValue');
+            if (pv) pv.textContent = (eclipseProgress * 100).toFixed(1) + '%';
+        }
+    }
+
     // 内部结构动画
     updateStructureAnimation(time);
 
@@ -1252,7 +1778,7 @@ function animate() {
     moon.position.x = Math.cos(moonAngle) * MOON_ORBIT_RADIUS;
     moon.position.z = Math.sin(moonAngle) * MOON_ORBIT_RADIUS;
 
-    if (currentMode !== 'structure') {
+    if (currentMode !== 'structure' && currentMode !== 'eclipse') {
         document.getElementById('dayCount').textContent = `第 ${Math.floor(dayCount) + 1} 天`;
         document.getElementById('yearProgress').textContent = `公转进度: ${yearProgress.toFixed(1)}%`;
     }
@@ -1261,7 +1787,9 @@ function animate() {
         controls.target.copy(earth.position);
     }
 
-    controls.update();
+    if (currentMode !== 'eclipse') {
+        controls.update();
+    }
     renderer.render(scene, camera);
 }
 
@@ -1298,6 +1826,13 @@ function togglePlayPause() {
         hasCompletedOrbit = false;
         dayCount = 0;
         yearProgress = 0;
+    }
+    // 日食模式：播完后重播
+    if (currentMode === 'eclipse' && eclipseProgress >= 1.0) {
+        eclipseProgress = 0;
+        updateEclipseScene(0);
+        const slider = document.getElementById('eclipseSlider');
+        if (slider) slider.value = 0;
     }
     isPlaying = !isPlaying;
     updatePlayButton();
