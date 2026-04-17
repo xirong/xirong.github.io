@@ -257,6 +257,172 @@ const planetData = {
     }
 };
 
+// ============ 太阳系介绍浮层数据 ============
+const solarGuideTravelItems = [
+    { type: 'planet', key: 'mercury', nameCN: '水星', nameEN: 'Mercury', time: '3分13秒' },
+    { type: 'planet', key: 'venus', nameCN: '金星', nameEN: 'Venus', time: '6分05秒' },
+    { type: 'planet', key: 'earth', nameCN: '地球', nameEN: 'Earth', time: '8分17秒' },
+    { type: 'planet', key: 'mars', nameCN: '火星', nameEN: 'Mars', time: '12分39秒' },
+    { type: 'belt', title: '小行星带', line1: '约 100 万颗', line2: '直径 > 1 km' },
+    { type: 'planet', key: 'jupiter', nameCN: '木星', nameEN: 'Jupiter', time: '43分28秒' },
+    { type: 'planet', key: 'saturn', nameCN: '土星', nameEN: 'Saturn', time: '1时18分' },
+    { type: 'planet', key: 'uranus', nameCN: '天王星', nameEN: 'Uranus', time: '2时40分' },
+    { type: 'planet', key: 'neptune', nameCN: '海王星', nameEN: 'Neptune', time: '4时02分' },
+    { type: 'planet', key: 'pluto', nameCN: '冥王星', nameEN: 'Pluto', time: '4时46分' }
+];
+
+const solarGuideTimeline = [
+    { year: '约46亿年前', label: '太阳系形成' },
+    { year: '约45亿年前', label: '小行星带形成' },
+    { year: '约45亿年前', label: '地球形成' },
+    { year: '约38亿年前', label: '生命起源' },
+    { year: '约6600万年前', label: '恐龙灭绝' },
+    { year: '约300万年前', label: '人类出现' },
+    { year: '20世纪中叶', label: '太空时代' }
+];
+
+const solarGuidePlanetCards = [
+    {
+        key: 'mercury',
+        nameCN: '水星',
+        nameEN: 'Mercury',
+        diameter: '4,879 km',
+        distance: '57,909,227 km',
+        rotation: '58.6 地球日',
+        temperature: '-180°C ~ 430°C',
+        moons: '0',
+        quote: '我虽然是最小的，但跑得很快，因为我离太阳最近！',
+        accent: '#b89564',
+        outline: 'rgba(184, 149, 100, 0.38)',
+        glow: 'rgba(184, 149, 100, 0.34)'
+    },
+    {
+        key: 'venus',
+        nameCN: '金星',
+        nameEN: 'Venus',
+        diameter: '12,104 km',
+        distance: '108,209,475 km',
+        rotation: '243 地球日',
+        temperature: '462°C ~ 472°C',
+        moons: '0',
+        quote: '我很热情，但我的爱会让你窒息，欢迎来到地狱级高温！',
+        accent: '#d8a45b',
+        outline: 'rgba(216, 164, 91, 0.38)',
+        glow: 'rgba(216, 164, 91, 0.34)'
+    },
+    {
+        key: 'earth',
+        nameCN: '地球',
+        nameEN: 'Earth',
+        diameter: '12,742 km',
+        distance: '149,598,023 km',
+        rotation: '23.9 小时',
+        temperature: '-88°C ~ 58°C',
+        moons: '1',
+        quote: '我是你唯一的家园，请好好珍惜我，别让我生病了！',
+        accent: '#57a8ff',
+        outline: 'rgba(87, 168, 255, 0.38)',
+        glow: 'rgba(87, 168, 255, 0.34)'
+    },
+    {
+        key: 'mars',
+        nameCN: '火星',
+        nameEN: 'Mars',
+        diameter: '6,779 km',
+        distance: '227,943,824 km',
+        rotation: '24.6 小时',
+        temperature: '-140°C ~ -20°C',
+        moons: '2',
+        quote: '人类总想来我这里定居，也许有一天，我会不再孤单。',
+        accent: '#ff8357',
+        outline: 'rgba(255, 131, 87, 0.38)',
+        glow: 'rgba(255, 131, 87, 0.34)'
+    },
+    {
+        key: 'jupiter',
+        nameCN: '木星',
+        nameEN: 'Jupiter',
+        diameter: '139,820 km',
+        distance: '778,340,821 km',
+        rotation: '9.9 小时',
+        temperature: '-145°C',
+        moons: '95+',
+        quote: '我是太阳系的大哥，肚子上有个大红斑，比地球还大！',
+        accent: '#d59d69',
+        outline: 'rgba(213, 157, 105, 0.38)',
+        glow: 'rgba(213, 157, 105, 0.34)'
+    },
+    {
+        key: 'saturn',
+        nameCN: '土星',
+        nameEN: 'Saturn',
+        diameter: '116,460 km',
+        distance: '1,426,666,422 km',
+        rotation: '10.7 小时',
+        temperature: '-178°C',
+        moons: '146+',
+        quote: '我的环是最美的，但我可不是靠脸吃饭的，我很有气质！',
+        accent: '#e2c06e',
+        outline: 'rgba(226, 192, 110, 0.38)',
+        glow: 'rgba(226, 192, 110, 0.34)'
+    },
+    {
+        key: 'uranus',
+        nameCN: '天王星',
+        nameEN: 'Uranus',
+        diameter: '50,724 km',
+        distance: '2,870,658,186 km',
+        rotation: '17.2 小时',
+        temperature: '-224°C',
+        moons: '27',
+        quote: '我喜欢躺着转，因为我特立独行，不需要理由。',
+        accent: '#68d7df',
+        outline: 'rgba(104, 215, 223, 0.38)',
+        glow: 'rgba(104, 215, 223, 0.34)'
+    },
+    {
+        key: 'neptune',
+        nameCN: '海王星',
+        nameEN: 'Neptune',
+        diameter: '49,244 km',
+        distance: '4,498,396,441 km',
+        rotation: '16.1 小时',
+        temperature: '-214°C',
+        moons: '14',
+        quote: '我风暴不断，风速快到离谱，没人比我更狂野！',
+        accent: '#7b82ff',
+        outline: 'rgba(123, 130, 255, 0.38)',
+        glow: 'rgba(123, 130, 255, 0.34)'
+    },
+    {
+        key: 'pluto',
+        nameCN: '冥王星',
+        nameEN: 'Pluto',
+        diameter: '2,377 km',
+        distance: '5,906,376,272 km',
+        rotation: '153.3 小时',
+        temperature: '-229°C ~ -243°C',
+        moons: '5',
+        quote: '曾经的第九行星，2006 年被降级，但我依然很酷！',
+        accent: '#c9ab8d',
+        outline: 'rgba(201, 171, 141, 0.38)',
+        glow: 'rgba(201, 171, 141, 0.34)'
+    }
+];
+
+const solarGuideTextureMap = {
+    sun: 'textures/sun.jpg',
+    mercury: 'textures/mercury.jpg',
+    venus: 'textures/venus_atmosphere.jpg',
+    earth: 'textures/earth_daymap.jpg',
+    mars: 'textures/mars.jpg',
+    jupiter: 'textures/jupiter.jpg',
+    saturn: 'textures/saturn.jpg',
+    uranus: 'textures/uranus.jpg',
+    neptune: 'textures/neptune.jpg',
+    pluto: 'textures/pluto.jpg'
+};
+
 // ============ 全局变量 ============
 let scene, camera, renderer, controls;
 let planets = {};
@@ -444,6 +610,7 @@ function init() {
 
     // 按钮事件
     setupControls();
+    renderPlanetGuide();
 
     // 生成大小对比
     generateSizeComparison();
@@ -2581,16 +2748,57 @@ function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
 }
 
+function openSizeComparisonPanel() {
+    closePlanetGuidePanel();
+    const panel = document.getElementById('sizeComparison');
+    if (!panel) return;
+    panel.classList.add('visible');
+    panel.scrollTop = 0;
+}
+
+function closeSizeComparisonPanel() {
+    cancelDragVolumeAnimation();
+    const panel = document.getElementById('sizeComparison');
+    if (panel) {
+        panel.classList.remove('visible');
+    }
+}
+
+function openPlanetGuidePanel() {
+    closeSizeComparisonPanel();
+    const panel = document.getElementById('planetGuidePanel');
+    if (!panel) return;
+    panel.classList.add('visible');
+    panel.scrollTop = 0;
+}
+
+function closePlanetGuidePanel() {
+    const panel = document.getElementById('planetGuidePanel');
+    if (panel) {
+        panel.classList.remove('visible');
+    }
+}
+
 // ============ 设置控制按钮 ============
 function setupControls() {
+    // 太阳系介绍
+    const showPlanetGuideBtn = document.getElementById('showPlanetGuide');
+    if (showPlanetGuideBtn) {
+        showPlanetGuideBtn.addEventListener('click', openPlanetGuidePanel);
+    }
+
+    const closePlanetGuideBtn = document.getElementById('closePlanetGuide');
+    if (closePlanetGuideBtn) {
+        closePlanetGuideBtn.addEventListener('click', closePlanetGuidePanel);
+    }
+
     // 大小对比
     document.getElementById('showComparison').addEventListener('click', function () {
-        document.getElementById('sizeComparison').classList.add('visible');
+        openSizeComparisonPanel();
     });
 
     document.getElementById('closeSizeComparison').addEventListener('click', function () {
-        cancelDragVolumeAnimation();
-        document.getElementById('sizeComparison').classList.remove('visible');
+        closeSizeComparisonPanel();
     });
 
     // 重置视角
@@ -2658,6 +2866,136 @@ function setupControls() {
             switchSunStyle(style);
         };
     });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closePlanetGuidePanel();
+            closeSizeComparisonPanel();
+        }
+    });
+}
+
+// ============ 太阳系介绍浮层渲染 ============
+function renderPlanetGuide() {
+    const container = document.getElementById('planetGuideContent');
+    if (!container) return;
+
+    const travelListHTML = solarGuideTravelItems.map(item => {
+        if (item.type === 'belt') {
+            return `
+                <div class="planet-guide-belt-item">
+                    <div class="planet-guide-belt-visual" aria-hidden="true"></div>
+                    <div class="planet-guide-belt-copy">
+                        <strong>${item.title}</strong>
+                        <span>${item.line1}</span>
+                        <span>${item.line2}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        const trackClass = item.key === 'saturn' ? 'planet-guide-track-dot saturn' : 'planet-guide-track-dot';
+        return `
+            <div class="planet-guide-travel-item">
+                <div class="${trackClass}" style="background-image: url('${getSolarGuideTexture(item.key)}');" aria-hidden="true"></div>
+                <div class="planet-guide-track-name">
+                    <span class="cn">${item.nameCN}</span>
+                    <span class="en">${item.nameEN}</span>
+                </div>
+                <div class="planet-guide-track-line" aria-hidden="true"></div>
+                <div class="planet-guide-track-time">${item.time}</div>
+            </div>
+        `;
+    }).join('');
+
+    const timelineHTML = solarGuideTimeline.map(event => `
+        <div class="planet-guide-era">
+            <div class="planet-guide-era-year">${event.year}</div>
+            <div class="planet-guide-era-dot" aria-hidden="true"></div>
+            <div class="planet-guide-era-label">${event.label}</div>
+        </div>
+    `).join('');
+
+    const cardsHTML = solarGuidePlanetCards.map(planet => {
+        const avatarClass = planet.key === 'saturn' ? 'planet-guide-avatar saturn' : 'planet-guide-avatar';
+        return `
+            <article class="planet-guide-card" style="--guide-accent: ${planet.accent}; --guide-outline: ${planet.outline}; --guide-glow: ${planet.glow};">
+                <div class="planet-guide-card-main">
+                    <div class="planet-guide-avatar-wrap">
+                        <div class="${avatarClass}" style="background-image: url('${getSolarGuideTexture(planet.key)}');" aria-hidden="true"></div>
+                    </div>
+                    <div class="planet-guide-card-body">
+                        <div class="planet-guide-card-heading">
+                            <h3>${planet.nameCN}</h3>
+                            <span>${planet.nameEN}</span>
+                        </div>
+                        <div class="planet-guide-card-stats">
+                            <div class="planet-guide-stat-column">
+                                ${createGuideStat('◎', '直径', planet.diameter)}
+                                ${createGuideStat('☉', '与太阳距离', planet.distance)}
+                                ${createGuideStat('↻', '自转周期', planet.rotation)}
+                            </div>
+                            <div class="planet-guide-stat-column">
+                                ${createGuideStat('🌡', '表面温度', planet.temperature)}
+                                ${createGuideStat('☾', '已知卫星数', planet.moons)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="planet-guide-card-quote">
+                        <div class="planet-guide-quote-label">星球自述</div>
+                        <p>${planet.quote}</p>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="planet-guide-layout">
+            <section class="planet-guide-left">
+                <div class="planet-guide-title-block">
+                    <h2>太阳系行星指南</h2>
+                    <p>Your Guide To The Solar System</p>
+                    <div class="planet-guide-badge">八大行星，数据档案，光速旅行时间</div>
+                </div>
+                <div class="planet-guide-space-map">
+                    <div class="planet-guide-sun-core" aria-hidden="true"></div>
+                    <div class="planet-guide-sun-label">
+                        <strong>太阳</strong>
+                        <span>SUN</span>
+                    </div>
+                    <div class="planet-guide-light-label">光速旅行时间</div>
+                    <div class="planet-guide-travel-list">
+                        ${travelListHTML}
+                    </div>
+                    <div class="planet-guide-disclaimer">
+                        数据基于 2024 年最新观测<br>
+                        不按现实比例绘制
+                    </div>
+                </div>
+                <div class="planet-guide-timeline">
+                    ${timelineHTML}
+                </div>
+            </section>
+            <section class="planet-guide-right">
+                ${cardsHTML}
+            </section>
+        </div>
+    `;
+}
+
+function createGuideStat(icon, label, value) {
+    return `
+        <div class="planet-guide-stat">
+            <span class="planet-guide-stat-icon">${icon}</span>
+            <span class="planet-guide-stat-label">${label}</span>
+            <span class="planet-guide-stat-value">${value}</span>
+        </div>
+    `;
+}
+
+function getSolarGuideTexture(key) {
+    return solarGuideTextureMap[key] || solarGuideTextureMap.earth;
 }
 
 // ============ 更新行星大小 ============
@@ -3933,4 +4271,3 @@ function formatOrbitPeriod(days) {
 
 // ============ 启动 ============
 window.addEventListener('DOMContentLoaded', init);
-

@@ -880,6 +880,507 @@
             color: var(--text-primary);
         }
 
+        /* 太阳系介绍浮层 */
+        .planet-guide-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 210;
+            width: min(1260px, 95vw);
+            max-height: 92vh;
+            padding: 30px;
+            border-radius: 26px;
+            background:
+                radial-gradient(circle at top left, rgba(244, 208, 63, 0.08), transparent 26%),
+                radial-gradient(circle at top right, rgba(0, 212, 255, 0.07), transparent 28%),
+                rgba(6, 9, 18, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(30px);
+            overflow-y: auto;
+            display: none;
+        }
+
+        .planet-guide-panel.visible {
+            display: block;
+        }
+
+        .planet-guide-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background:
+                linear-gradient(120deg, rgba(255, 255, 255, 0.06), transparent 18%, transparent 78%, rgba(255, 255, 255, 0.04)),
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0 1px, transparent 1.2px),
+                radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.04) 0 1px, transparent 1.4px),
+                radial-gradient(circle at 35% 75%, rgba(255, 255, 255, 0.05) 0 1px, transparent 1.2px);
+            background-size: auto, 38px 38px, 46px 46px, 52px 52px;
+            opacity: 0.7;
+        }
+
+        .planet-guide-shell {
+            position: relative;
+            z-index: 1;
+        }
+
+        .planet-guide-layout {
+            display: grid;
+            grid-template-columns: minmax(360px, 0.92fr) minmax(0, 1.18fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        .planet-guide-left {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .planet-guide-title-block h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 3.1vw, 3.15rem);
+            line-height: 1.05;
+            letter-spacing: 2px;
+            text-shadow: 0 0 25px rgba(244, 208, 63, 0.25);
+        }
+
+        .planet-guide-title-block p {
+            margin-top: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.92rem;
+            letter-spacing: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+        }
+
+        .planet-guide-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 18px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(244, 208, 63, 0.28);
+            background: rgba(244, 208, 63, 0.08);
+            color: #ffd76b;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .planet-guide-space-map {
+            position: relative;
+            min-height: 690px;
+            padding: 38px 24px 24px 164px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background:
+                radial-gradient(circle at left center, rgba(255, 147, 41, 0.12), transparent 26%),
+                linear-gradient(180deg, rgba(9, 13, 25, 0.9), rgba(5, 8, 16, 0.86));
+            overflow: hidden;
+        }
+
+        .planet-guide-space-map::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.9) 0 1px, transparent 1.4px),
+                radial-gradient(circle at 20% 58%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.2px),
+                radial-gradient(circle at 72% 16%, rgba(255, 255, 255, 0.75) 0 1px, transparent 1.3px),
+                radial-gradient(circle at 84% 48%, rgba(255, 255, 255, 0.65) 0 1px, transparent 1.2px),
+                radial-gradient(circle at 62% 82%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.4px);
+            opacity: 0.85;
+            pointer-events: none;
+        }
+
+        .planet-guide-sun-core {
+            position: absolute;
+            left: -172px;
+            top: 108px;
+            width: 348px;
+            height: 348px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 38% 38%, rgba(255, 255, 255, 0.95), rgba(255, 249, 196, 0.72), rgba(255, 152, 0, 0.18)),
+                url('textures/sun.jpg') center/cover;
+            box-shadow:
+                0 0 100px rgba(255, 152, 0, 0.45),
+                0 0 180px rgba(244, 67, 54, 0.16);
+        }
+
+        .planet-guide-sun-core::after {
+            content: '';
+            position: absolute;
+            inset: -16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 176, 87, 0.28);
+            box-shadow: inset 0 0 30px rgba(255, 193, 7, 0.12);
+        }
+
+        .planet-guide-sun-label {
+            position: absolute;
+            left: 26px;
+            top: 458px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1;
+        }
+
+        .planet-guide-sun-label strong {
+            font-size: 2rem;
+            color: #fff0ca;
+            letter-spacing: 1px;
+        }
+
+        .planet-guide-sun-label span {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 2px;
+        }
+
+        .planet-guide-light-label {
+            position: relative;
+            z-index: 1;
+            margin-left: 120px;
+            margin-bottom: 18px;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            color: rgba(255, 232, 169, 0.9);
+            text-transform: uppercase;
+        }
+
+        .planet-guide-travel-list {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .planet-guide-travel-item {
+            display: grid;
+            grid-template-columns: 52px minmax(84px, auto) minmax(48px, 1fr) auto;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .planet-guide-track-dot {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-position: center;
+            background-size: cover;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.18);
+        }
+
+        .planet-guide-track-dot.saturn::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            right: -12px;
+            top: 50%;
+            height: 14px;
+            border: 2px solid rgba(234, 214, 184, 0.78);
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-radius: 50%;
+            transform: translateY(-50%) rotate(-18deg);
+        }
+
+        .planet-guide-track-name .cn {
+            display: block;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .planet-guide-track-name .en {
+            display: block;
+            margin-top: 2px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1.2px;
+            color: rgba(255, 255, 255, 0.58);
+            text-transform: uppercase;
+        }
+
+        .planet-guide-track-line {
+            height: 1px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.22);
+        }
+
+        .planet-guide-track-time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #ffe39a;
+            white-space: nowrap;
+        }
+
+        .planet-guide-belt-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 2px 0 4px 10px;
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .planet-guide-belt-visual {
+            width: 78px;
+            height: 18px;
+            border-radius: 999px;
+            background:
+                radial-gradient(circle, rgba(238, 197, 134, 0.78) 0 1px, transparent 1.8px),
+                radial-gradient(circle, rgba(214, 174, 115, 0.72) 0 1px, transparent 1.9px),
+                radial-gradient(circle, rgba(165, 134, 94, 0.78) 0 1px, transparent 2px);
+            background-position: 0 2px, 14px 9px, 28px 4px;
+            background-size: 18px 14px, 20px 14px, 18px 14px;
+        }
+
+        .planet-guide-belt-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .planet-guide-belt-copy strong {
+            color: #f6d48b;
+            font-size: 1rem;
+        }
+
+        .planet-guide-belt-copy span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .planet-guide-disclaimer {
+            position: absolute;
+            left: 24px;
+            bottom: 24px;
+            width: 162px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(3, 7, 16, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.75rem;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.68);
+            z-index: 1;
+        }
+
+        .planet-guide-timeline {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 12px;
+            padding-top: 12px;
+        }
+
+        .planet-guide-timeline::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 45px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(244, 208, 63, 0.7), rgba(0, 212, 255, 0.45));
+        }
+
+        .planet-guide-era {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .planet-guide-era-year {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.72rem;
+            color: #ffe39a;
+            letter-spacing: 0.3px;
+        }
+
+        .planet-guide-era-dot {
+            position: relative;
+            z-index: 1;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid rgba(10, 10, 20, 0.95);
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.3);
+        }
+
+        .planet-guide-era-label {
+            font-size: 0.78rem;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.74);
+        }
+
+        .planet-guide-right {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .planet-guide-card {
+            position: relative;
+            padding: 15px 18px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.025));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            outline: 1px solid var(--guide-outline, rgba(255, 255, 255, 0.14));
+            outline-offset: -1px;
+            overflow: hidden;
+        }
+
+        .planet-guide-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent 25%, transparent 78%, rgba(255, 255, 255, 0.03));
+            pointer-events: none;
+        }
+
+        .planet-guide-card-main {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 70px minmax(0, 1.35fr) minmax(150px, 0.82fr);
+            gap: 14px;
+            align-items: center;
+        }
+
+        .planet-guide-avatar-wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        .planet-guide-card-body {
+            min-width: 0;
+        }
+
+        .planet-guide-avatar {
+            position: relative;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background-position: center;
+            background-size: cover;
+            box-shadow: 0 0 22px var(--guide-glow, rgba(255, 255, 255, 0.22));
+        }
+
+        .planet-guide-avatar.saturn::before {
+            content: '';
+            position: absolute;
+            left: -14px;
+            right: -14px;
+            top: 50%;
+            height: 20px;
+            border: 2px solid rgba(234, 214, 184, 0.78);
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-radius: 50%;
+            transform: translateY(-50%) rotate(-18deg);
+        }
+
+        .planet-guide-card-heading {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .planet-guide-card-heading h3 {
+            font-size: 1.38rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .planet-guide-card-heading span {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.74rem;
+            letter-spacing: 1.4px;
+            color: rgba(255, 255, 255, 0.58);
+            text-transform: uppercase;
+        }
+
+        .planet-guide-card-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .planet-guide-stat-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .planet-guide-stat {
+            display: grid;
+            grid-template-columns: 16px 68px minmax(0, 1fr);
+            gap: 6px;
+            align-items: start;
+            font-size: 0.78rem;
+        }
+
+        .planet-guide-stat-icon {
+            font-size: 0.8rem;
+            color: var(--guide-accent, #ffd76b);
+            transform: translateY(1px);
+        }
+
+        .planet-guide-stat-label {
+            font-size: 0.74rem;
+            color: rgba(255, 255, 255, 0.65);
+            white-space: nowrap;
+        }
+
+        .planet-guide-stat-value {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+            word-break: normal;
+            overflow-wrap: normal;
+        }
+
+        .planet-guide-card-quote {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            min-height: 100%;
+            padding-left: 16px;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .planet-guide-quote-label {
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            color: var(--guide-accent, #ffd76b);
+        }
+
+        .planet-guide-card-quote p {
+            font-size: 0.84rem;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.74);
+        }
+
         .planets-row {
             display: flex;
             align-items: flex-end;
@@ -1438,6 +1939,213 @@
 
         /* ============ 手机端适配 ============ */
         @media (max-width: 768px) {
+            .controls {
+                top: 250px;
+            }
+
+            .sun-style-selector {
+                top: 86px;
+            }
+
+            .planet-guide-panel {
+                width: 96vw;
+                max-height: 90vh;
+                padding: 18px 14px 20px;
+                border-radius: 20px;
+            }
+
+            .planet-guide-layout {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .planet-guide-title-block h2 {
+                font-size: 1.8rem;
+                letter-spacing: 1px;
+            }
+
+            .planet-guide-title-block p {
+                font-size: 0.74rem;
+                letter-spacing: 2px;
+            }
+
+            .planet-guide-badge {
+                margin-top: 14px;
+                padding: 8px 12px;
+                font-size: 0.74rem;
+                line-height: 1.5;
+            }
+
+            .planet-guide-space-map {
+                min-height: auto;
+                padding: 26px 14px 18px 86px;
+            }
+
+            .planet-guide-sun-core {
+                left: -76px;
+                top: 144px;
+                width: 172px;
+                height: 172px;
+                box-shadow: 0 0 48px rgba(255, 152, 0, 0.35);
+            }
+
+            .planet-guide-sun-label {
+                left: 16px;
+                top: auto;
+                bottom: 140px;
+            }
+
+            .planet-guide-sun-label strong {
+                font-size: 1.3rem;
+            }
+
+            .planet-guide-sun-label span {
+                font-size: 0.68rem;
+            }
+
+            .planet-guide-light-label {
+                margin-left: 0;
+                margin-bottom: 14px;
+                font-size: 0.66rem;
+                letter-spacing: 1.2px;
+            }
+
+            .planet-guide-travel-item {
+                grid-template-columns: 38px minmax(0, 1fr) auto;
+                gap: 10px;
+            }
+
+            .planet-guide-track-dot {
+                width: 30px;
+                height: 30px;
+            }
+
+            .planet-guide-track-name .cn {
+                font-size: 0.92rem;
+            }
+
+            .planet-guide-track-name .en {
+                font-size: 0.58rem;
+            }
+
+            .planet-guide-track-line {
+                display: none;
+            }
+
+            .planet-guide-track-time {
+                font-size: 0.8rem;
+            }
+
+            .planet-guide-belt-item {
+                margin-left: 0;
+                padding: 10px 12px;
+            }
+
+            .planet-guide-belt-visual {
+                width: 56px;
+            }
+
+            .planet-guide-belt-copy strong {
+                font-size: 0.88rem;
+            }
+
+            .planet-guide-belt-copy span {
+                font-size: 0.72rem;
+            }
+
+            .planet-guide-disclaimer {
+                position: static;
+                width: 100%;
+                margin-top: 16px;
+                font-size: 0.7rem;
+            }
+
+            .planet-guide-timeline {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                padding-top: 0;
+            }
+
+            .planet-guide-timeline::before {
+                display: none;
+            }
+
+            .planet-guide-era {
+                padding: 10px 8px;
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+            }
+
+            .planet-guide-era-year {
+                font-size: 0.66rem;
+            }
+
+            .planet-guide-era-label {
+                font-size: 0.72rem;
+            }
+
+            .planet-guide-card {
+                padding: 14px;
+                border-radius: 18px;
+            }
+
+            .planet-guide-card-main {
+                grid-template-columns: 54px 1fr;
+                gap: 12px;
+            }
+
+            .planet-guide-avatar {
+                width: 44px;
+                height: 44px;
+            }
+
+            .planet-guide-avatar.saturn::before {
+                left: -10px;
+                right: -10px;
+                height: 15px;
+            }
+
+            .planet-guide-card-heading {
+                margin-bottom: 8px;
+            }
+
+            .planet-guide-card-heading h3 {
+                font-size: 1.06rem;
+            }
+
+            .planet-guide-card-heading span {
+                font-size: 0.62rem;
+            }
+
+            .planet-guide-card-stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .planet-guide-stat {
+                grid-template-columns: 16px 68px 1fr;
+                gap: 6px;
+                font-size: 0.72rem;
+            }
+
+            .planet-guide-stat-value {
+                font-size: 0.72rem;
+            }
+
+            .planet-guide-card-quote {
+                grid-column: 1 / -1;
+                margin-top: 2px;
+                padding-left: 0;
+                padding-top: 12px;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .planet-guide-card-quote p {
+                font-size: 0.78rem;
+            }
+
             .scale-indicator {
                 bottom: auto;
                 top: 100px;
@@ -1454,6 +2162,52 @@
 
             .scale-value {
                 font-size: 0.7rem;
+            }
+
+            .size-comparison {
+                width: 96vw;
+                max-width: 96vw;
+                max-height: 90vh;
+                padding: 18px 14px 20px;
+                border-radius: 20px;
+            }
+
+            .size-comparison h2 {
+                margin-bottom: 18px;
+                font-size: 1.35rem;
+            }
+
+            .comparison-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .tab-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .planet-types-legend {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .legend-item {
+                font-size: 0.74rem;
+            }
+
+            .comparison-subtitle {
+                margin-bottom: 18px;
+                text-align: center;
+            }
+
+            .planets-row {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 18px;
+                padding: 8px 4px 20px;
+                overflow-x: auto;
             }
         }
     </style>
@@ -1516,6 +2270,10 @@
 
     <!-- 控制面板 -->
     <div class="controls">
+        <button class="control-btn" id="showPlanetGuide" title="查看太阳系介绍">
+            <span class="icon">📖</span>
+            <span>介绍</span>
+        </button>
         <button class="control-btn" id="showComparison" title="查看大小对比">
             <span class="icon">📊</span>
             <span>大小对比</span>
@@ -1608,6 +2366,14 @@
     <div class="scale-indicator">
         <div class="scale-title">当前比例</div>
         <div class="scale-value" id="scaleValue">教学模式</div>
+    </div>
+
+    <!-- 太阳系介绍浮层 -->
+    <div class="planet-guide-panel" id="planetGuidePanel">
+        <button class="size-comparison-close" id="closePlanetGuide" title="关闭介绍" aria-label="关闭介绍">✕</button>
+        <div class="planet-guide-shell" id="planetGuideContent">
+            <!-- 动态生成 -->
+        </div>
     </div>
 
     <!-- 大小对比面板 -->
