@@ -21,6 +21,7 @@ let currentZoomLevel = 5; // 当前缩放层级
 let starSystems = []; // 恒星系统对象数组（银河系尺度）
 let neighborhoodStarSystems = []; // 太阳系邻域恒星系统（局部尺度）
 let isNeighborhoodView = false; // 当前是否处于邻域视图
+let focusedControlsTarget = null; // 当前缩放焦点
 const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
 const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 
@@ -2602,8 +2603,40 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+// ============ 设置缩放焦点 ============
+function setControlsFocus(point, options = {}) {
+    if (!point) return;
+
+    focusedControlsTarget = point.clone();
+
+    if (options.immediate) {
+        controls.target.copy(focusedControlsTarget);
+    }
+
+    controls.update();
+}
+
+// ============ 聚焦到对象 ============
+function focusControlsOnObject(object, options = {}) {
+    if (!object) return;
+
+    const worldPosition = new THREE.Vector3();
+    object.getWorldPosition(worldPosition);
+    setControlsFocus(worldPosition, options);
+}
+
+// ============ 清除缩放焦点 ============
+function clearControlsFocus() {
+    focusedControlsTarget = null;
+}
+
 // ============ 更新控制目标点 ============
 function updateControlsTarget(distance) {
+    if (focusedControlsTarget) {
+        controls.target.lerp(focusedControlsTarget, 0.18);
+        return;
+    }
+
     // 远距离时平滑过渡控制中心点
     if (distance > 50000) {
         const t = Math.min((distance - 50000) / 100000, 1);
@@ -2741,6 +2774,7 @@ function returnToMilkyWay() {
     const startPosition = camera.position.clone();
     const duration = 2000;
     const startTime = Date.now();
+    clearControlsFocus();
 
     function animateReturn() {
         const elapsed = Date.now() - startTime;
@@ -3025,6 +3059,7 @@ function onCanvasClick(event) {
 
             const intersects = raycaster.intersectObject(starSystem.clickTarget);
             if (intersects.length > 0) {
+                focusControlsOnObject(starSystem, { immediate: true });
                 showStarSystemPopup(starSystem.key, event.clientX, event.clientY);
                 return;
             }
@@ -3037,6 +3072,7 @@ function onCanvasClick(event) {
 
         const intersects = raycaster.intersectObject(starSystem.clickTarget);
         if (intersects.length > 0) {
+            focusControlsOnObject(starSystem, { immediate: true });
             showStarSystemPopup(starSystem.key, event.clientX, event.clientY);
             return;
         }
@@ -3048,6 +3084,7 @@ function onCanvasClick(event) {
 
         const intersects = raycaster.intersectObject(galaxy.clickTarget);
         if (intersects.length > 0) {
+            focusControlsOnObject(galaxy, { immediate: true });
             showGalaxyPopup(galaxy.key, event.clientX, event.clientY);
             return;
         }
