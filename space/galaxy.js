@@ -2373,9 +2373,13 @@ function createStarSystemClickTarget(radius) {
     const material = new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0,
-        depthWrite: false
+        depthWrite: false,
+        depthTest: false,
+        colorWrite: false
     });
-    return new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = 'clickTarget';
+    return mesh;
 }
 
 // ============ 创建星系点击目标 ============
@@ -2384,9 +2388,12 @@ function createGalaxyClickTarget(pos, radius) {
     const material = new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0,
-        depthWrite: false
+        depthWrite: false,
+        depthTest: false,
+        colorWrite: false
     });
     const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = 'clickTarget';
     mesh.position.copy(pos);
     return mesh;
 }
@@ -2849,7 +2856,7 @@ function updateStarSystems(elapsed, distance) {
         if (visible) {
             starSystem.traverse(child => {
                 if (child.material && child.material.opacity !== undefined) {
-                    if (child.name !== 'planetRing') {
+                    if (child.name !== 'planetRing' && child.name !== 'clickTarget') {
                         child.material.opacity = Math.max(0, Math.min(1, opacity * (child.material.userData?.baseOpacity || 0.8)));
                     }
                 }
@@ -2912,7 +2919,7 @@ function updateNeighborhoodView(elapsed, distance) {
         if (starSystem.visible) {
             starSystem.traverse(child => {
                 if (child.material && child.material.opacity !== undefined) {
-                    if (child.name !== 'planetRing') {
+                    if (child.name !== 'planetRing' && child.name !== 'clickTarget') {
                         child.material.opacity = transitionFactor * 0.8;
                     }
                 }
