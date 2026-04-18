@@ -14,6 +14,7 @@ let oortCloud; // 奥尔特云
 let starField; // 背景星空
 let cosmicStarField; // 宇宙深空背景
 let clock;
+let textureLoader;
 let raycaster, mouse;
 let externalGalaxies = []; // 外部星系对象数组
 let galaxyLabels = []; // 星系名称标签
@@ -22,6 +23,7 @@ let starSystems = []; // 恒星系统对象数组（银河系尺度）
 let neighborhoodStarSystems = []; // 太阳系邻域恒星系统（局部尺度）
 let isNeighborhoodView = false; // 当前是否处于邻域视图
 let focusedControlsTarget = null; // 当前缩放焦点
+const starTextureCache = new Map();
 const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
 const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 
@@ -237,6 +239,7 @@ const neighborhoodStarConfigs = {
                 label: 'A',
                 radius: 7.5,
                 color: '#fff1b8',
+                textureProfile: 'sun',
                 position: { x: -7, y: 0, z: 0 },
                 glowScale: 1.6,
                 glowOpacity: 0.55
@@ -245,6 +248,7 @@ const neighborhoodStarConfigs = {
                 label: 'B',
                 radius: 5.5,
                 color: '#ffc56b',
+                textureProfile: 'orange',
                 position: { x: 8, y: 3, z: 0 },
                 glowScale: 1.5,
                 glowOpacity: 0.5
@@ -253,6 +257,7 @@ const neighborhoodStarConfigs = {
                 label: '比邻星',
                 radius: 2.6,
                 color: '#ff6a5e',
+                textureProfile: 'redDwarf',
                 position: { x: -18, y: -10, z: 4 },
                 glowScale: 1.9,
                 glowOpacity: 0.65,
@@ -265,6 +270,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 1.2,
         elevation: 0.2,
         color: '#ff6633',
+        textureProfile: 'redDwarf',
         starType: 'single',
         hasPlanets: true
     },
@@ -273,6 +279,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 0.8,
         elevation: -0.15,
         color: '#aaccff',
+        textureProfile: 'blueWhite',
         starType: 'binary',
         hasPlanets: false
     },
@@ -281,6 +288,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 1.6,
         elevation: 0.05,
         color: '#ffcc00',
+        textureProfile: 'orange',
         starType: 'single',
         hasPlanets: true
     },
@@ -289,6 +297,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 0.5,
         elevation: -0.3,
         color: '#ff6633',
+        textureProfile: 'redDwarf',
         starType: 'single',
         hasPlanets: false
     },
@@ -297,6 +306,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 1.9,
         elevation: 0.25,
         color: '#ff8844',
+        textureProfile: 'redDwarf',
         starType: 'single',
         hasPlanets: false
     },
@@ -305,6 +315,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 0.1,
         elevation: 0.4,
         color: '#aaccff',
+        textureProfile: 'blueWhite',
         starType: 'single',
         hasPlanets: false
     },
@@ -313,6 +324,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 1.4,
         elevation: -0.1,
         color: '#ff6633',
+        textureProfile: 'redDwarf',
         starType: 'single',
         hasPlanets: true
     },
@@ -321,6 +333,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 0.6,
         elevation: 0.15,
         color: '#ffdd66',
+        textureProfile: 'yellow',
         starType: 'single',
         hasPlanets: true
     },
@@ -329,6 +342,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 1.1,
         elevation: -0.2,
         color: '#ffffcc',
+        textureProfile: 'white',
         starType: 'binary',
         hasPlanets: false
     },
@@ -337,6 +351,7 @@ const neighborhoodStarConfigs = {
         angle: Math.PI * 1.7,
         elevation: 0.35,
         color: '#ff8833',
+        textureProfile: 'orange',
         starType: 'single',
         hasPlanets: false
     }
@@ -349,6 +364,7 @@ const galacticStarConfigs = {
         distanceLY: 700,
         zone: 'A',
         color: '#ff4444',
+        textureProfile: 'betelgeuse',
         size: 'supergiant',
         hasPlanets: false,
         offset: { x: 0.6, y: 0.2, z: -0.8 }
@@ -357,6 +373,7 @@ const galacticStarConfigs = {
         distanceLY: 550,
         zone: 'A',
         color: '#ff4444',
+        textureProfile: 'antares',
         size: 'supergiant',
         hasPlanets: false,
         offset: { x: -0.7, y: -0.1, z: 0.7 }
@@ -365,6 +382,7 @@ const galacticStarConfigs = {
         distanceLY: 1400,
         zone: 'A',
         color: '#ffcc00',
+        textureProfile: 'sun',
         size: 'normal',
         hasPlanets: true,
         offset: { x: 0.3, y: 0.05, z: 0.95 }
@@ -373,6 +391,7 @@ const galacticStarConfigs = {
         distanceLY: 3900,
         zone: 'A',
         color: '#ff3333',
+        textureProfile: 'redSupergiant',
         size: 'hypergiant',
         hasPlanets: false,
         offset: { x: -0.5, y: 0.1, z: -0.85 }
@@ -381,6 +400,7 @@ const galacticStarConfigs = {
         distanceLY: 9500,
         zone: 'B',
         color: '#ff3333',
+        textureProfile: 'redSupergiant',
         size: 'hypergiant',
         hasPlanets: false,
         offset: { x: 0.8, y: -0.05, z: 0.6 }
@@ -389,10 +409,24 @@ const galacticStarConfigs = {
         distanceLY: 25000,
         zone: 'B',
         color: '#4488ff',
+        textureProfile: 'blueWhite',
         size: 'hypergiant',
         hasPlanets: false,
         offset: { x: -0.95, y: 0.0, z: -0.3 }
     }
+};
+
+// ============ 恒星纹理配置 ============
+const starTextureProfiles = {
+    sun: 'textures/sun.jpg',
+    yellow: 'textures/stars/yellow_star_surface.jpg',
+    orange: 'textures/stars/orange_star_surface.jpg',
+    redDwarf: 'textures/stars/red_dwarf_surface.jpg',
+    blueWhite: 'textures/stars/blue_white_star_surface.jpg',
+    white: 'textures/stars/white_star_surface.jpg',
+    betelgeuse: 'textures/stars/betelgeuse_surface.jpg',
+    antares: 'textures/stars/antares_surface.jpg',
+    redSupergiant: 'textures/stars/red_supergiant_surface.jpg'
 };
 
 // ============ 星系数据 ============
@@ -599,6 +633,41 @@ const infoPanelContent = {
     }
 };
 
+// ============ 获取恒星纹理 ============
+function getStarTexture(textureProfile) {
+    const texturePath = starTextureProfiles[textureProfile];
+    if (!texturePath || !textureLoader) return null;
+
+    if (!starTextureCache.has(texturePath)) {
+        const texture = textureLoader.load(texturePath);
+        texture.encoding = THREE.sRGBEncoding;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.anisotropy = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
+        starTextureCache.set(texturePath, texture);
+    }
+
+    return starTextureCache.get(texturePath);
+}
+
+// ============ 创建恒星表面材质 ============
+function createStarSurfaceMaterial(fallbackColor, textureProfile) {
+    const texture = getStarTexture(textureProfile);
+    const material = new THREE.MeshBasicMaterial(
+        texture
+            ? {
+                map: texture,
+                color: 0xffffff
+            }
+            : {
+                color: new THREE.Color(fallbackColor)
+            }
+    );
+
+    material.userData.baseOpacity = 1.0;
+    return material;
+}
+
 // ============ 初始化 ============
 function init() {
     clock = new THREE.Clock();
@@ -624,6 +693,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.getElementById('canvas-container').appendChild(renderer.domElement);
+    textureLoader = new THREE.TextureLoader();
 
     // 创建控制器（扩展最大距离）
     controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -1208,9 +1278,7 @@ function createSolarSystemMarker() {
 
     // 太阳（一个发光的小点）
     const sunGeometry = new THREE.SphereGeometry(15, 32, 32);
-    const sunMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffcc00
-    });
+    const sunMaterial = createStarSurfaceMaterial('#ffcc00', 'sun');
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     solarSystem.add(sun);
 
@@ -1869,9 +1937,7 @@ function createGalacticStar(key, config, position) {
 
     // 主星球体
     const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
-    const starMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(config.color)
-    });
+    const starMaterial = createStarSurfaceMaterial(config.color, config.textureProfile);
     const star = new THREE.Mesh(starGeometry, starMaterial);
     group.add(star);
 
@@ -2045,9 +2111,7 @@ function createNeighborhoodSun() {
 
     // 太阳核心（适中大小）
     const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
-    const sunMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffdd00
-    });
+    const sunMaterial = createStarSurfaceMaterial('#ffdd00', 'sun');
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     sunGroup.add(sun);
 
@@ -2146,9 +2210,7 @@ function addNeighborhoodStarComponent(parent, component) {
     componentGroup.position.set(position.x || 0, position.y || 0, position.z || 0);
 
     const starGeometry = new THREE.SphereGeometry(radius, 32, 32);
-    const starMaterial = new THREE.MeshBasicMaterial({
-        color: starColor
-    });
+    const starMaterial = createStarSurfaceMaterial(component.color || '#ffffff', component.textureProfile);
     const star = new THREE.Mesh(starGeometry, starMaterial);
     componentGroup.add(star);
 
@@ -2245,9 +2307,7 @@ function createNeighborhoodStar(key, config, position) {
     } else {
         // 主星
         const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
-        const starMaterial = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(config.color)
-        });
+        const starMaterial = createStarSurfaceMaterial(config.color, config.textureProfile);
         const star = new THREE.Mesh(starGeometry, starMaterial);
         group.add(star);
 
