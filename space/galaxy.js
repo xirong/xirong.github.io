@@ -37,7 +37,7 @@ const starSystemData = {
         distance: '4.37光年',
         brightness: '视星等 -0.27',
         planets: 1,
-        description: '距离太阳系最近的恒星系统，由三颗恒星组成：半人马座α A、B和比邻星。',
+        description: '距离太阳系最近的恒星系统，由三颗恒星组成：半人马座α A、B和比邻星，画面里更亮的黄白色主星是A，旁边偏橙的是B，更远处的小红星就是比邻星。',
         funFact: '比邻星是距离我们最近的恒星，它周围发现了一颗可能宜居的行星——比邻星b！'
     },
     barnardStar: {
@@ -228,7 +228,36 @@ const neighborhoodStarConfigs = {
         elevation: 0.1, // 仰角
         color: '#ffcc00',
         starType: 'triple',
-        hasPlanets: true
+        hasPlanets: true,
+        systemRadius: 24,
+        labelOffsetY: 36,
+        components: [
+            {
+                label: 'A',
+                radius: 7.5,
+                color: '#fff1b8',
+                position: { x: -7, y: 0, z: 0 },
+                glowScale: 1.6,
+                glowOpacity: 0.55
+            },
+            {
+                label: 'B',
+                radius: 5.5,
+                color: '#ffc56b',
+                position: { x: 8, y: 3, z: 0 },
+                glowScale: 1.5,
+                glowOpacity: 0.5
+            },
+            {
+                label: '比邻星',
+                radius: 2.6,
+                color: '#ff6a5e',
+                position: { x: -18, y: -10, z: 4 },
+                glowScale: 1.9,
+                glowOpacity: 0.65,
+                labelOffsetY: 8
+            }
+        ]
     },
     barnardStar: {
         distanceLY: 6,
@@ -2106,29 +2135,27 @@ function createNeighborhoodSun() {
     neighborhoodStarSystems.push(sunGroup);
 }
 
-// ============ 创建邻域视图中的恒星 ============
-function createNeighborhoodStar(key, config, position) {
-    const group = new THREE.Group();
-    group.position.copy(position);
+// ============ 添加邻域恒星组件 ============
+function addNeighborhoodStarComponent(parent, component) {
+    const componentGroup = new THREE.Group();
+    const position = component.position || { x: 0, y: 0, z: 0 };
+    const radius = component.radius || 4;
+    const starColor = new THREE.Color(component.color || '#ffffff');
 
-    // 根据恒星类型确定大小
-    let starSize = 5;
-    if (config.starType === 'triple') starSize = 7;
-    else if (config.starType === 'binary') starSize = 6;
+    componentGroup.position.set(position.x || 0, position.y || 0, position.z || 0);
 
-    // 主星
-    const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
+    const starGeometry = new THREE.SphereGeometry(radius, 32, 32);
     const starMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(config.color)
+        color: starColor
     });
     const star = new THREE.Mesh(starGeometry, starMaterial);
-    group.add(star);
+    componentGroup.add(star);
 
-    // 光晕
-    const glowGeometry = new THREE.SphereGeometry(starSize * 1.8, 32, 32);
+    const glowGeometry = new THREE.SphereGeometry(radius * (component.glowScale || 1.8), 32, 32);
     const glowMaterial = new THREE.ShaderMaterial({
         uniforms: {
-            glowColor: { value: new THREE.Color(config.color) }
+            glowColor: { value: starColor },
+            glowOpacity: { value: component.glowOpacity || 0.8 }
         },
         vertexShader: `
             varying vec3 vNormal;
@@ -2139,10 +2166,11 @@ function createNeighborhoodStar(key, config, position) {
         `,
         fragmentShader: `
             uniform vec3 glowColor;
+            uniform float glowOpacity;
             varying vec3 vNormal;
             void main() {
                 float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                gl_FragColor = vec4(glowColor, intensity * 0.8);
+                gl_FragColor = vec4(glowColor, intensity * glowOpacity);
             }
         `,
         transparent: true,
@@ -2150,11 +2178,113 @@ function createNeighborhoodStar(key, config, position) {
         side: THREE.BackSide
     });
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    group.add(glow);
+    componentGroup.add(glow);
+
+    if (component.label) {
+        const labelOffsetY = component.labelOffsetY !== undefined ? component.labelOffsetY : radius * 2.4;
+        createNeighborhoodComponentLabel(
+            componentGroup,
+            component.label,
+            0,
+            labelOffsetY,
+            0,
+            component.color || '#ffffff'
+        );
+    }
+
+    parent.add(componentGroup);
+    return componentGroup;
+}
+
+// ============ 创建邻域恒星组件标签 ============
+function createNeighborhoodComponentLabel(parent, text, x, y, z, color) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 192;
+    canvas.height = 64;
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = 'bold 18px Noto Sans SC';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = color;
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true
+    });
+
+    const sprite = new THREE.Sprite(material);
+    const labelWidth = text.length > 2 ? 24 : 12;
+    sprite.scale.set(labelWidth, 8, 1);
+    sprite.position.set(x, y, z);
+    sprite.name = 'neighborhoodComponentLabel';
+
+    parent.add(sprite);
+}
+
+// ============ 创建邻域视图中的恒星 ============
+function createNeighborhoodStar(key, config, position) {
+    const group = new THREE.Group();
+    group.position.copy(position);
+
+    // 根据恒星类型确定大小
+    let starSize = 5;
+    if (config.starType === 'triple') starSize = 7;
+    else if (config.starType === 'binary') starSize = 6;
+
+    if (config.components && config.components.length > 0) {
+        for (const component of config.components) {
+            addNeighborhoodStarComponent(group, component);
+        }
+    } else {
+        // 主星
+        const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
+        const starMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(config.color)
+        });
+        const star = new THREE.Mesh(starGeometry, starMaterial);
+        group.add(star);
+
+        // 光晕
+        const glowGeometry = new THREE.SphereGeometry(starSize * 1.8, 32, 32);
+        const glowMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor: { value: new THREE.Color(config.color) }
+            },
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 glowColor;
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(glowColor, intensity * 0.8);
+                }
+            `,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide
+        });
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        group.add(glow);
+    }
+
+    const systemRadius = config.systemRadius || starSize * 3;
+    const labelOffsetY = config.labelOffsetY || starSize * 4;
 
     // 如果有行星，添加绿色脉冲环
     if (config.hasPlanets) {
-        const planetRingGeometry = new THREE.RingGeometry(starSize * 2, starSize * 2.3, 64);
+        const planetRingGeometry = new THREE.RingGeometry(systemRadius, systemRadius * 1.15, 64);
         const planetRingMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ff88,
             transparent: true,
@@ -2188,14 +2318,14 @@ function createNeighborhoodStar(key, config, position) {
     distanceLine.visible = false;
 
     // 点击目标
-    const clickTarget = createStarSystemClickTarget(starSize * 3);
+    const clickTarget = createStarSystemClickTarget(systemRadius * 1.2);
     group.add(clickTarget);
     group.clickTarget = clickTarget;
 
     // 标签（显示名称和距离）
     const data = starSystemData[key];
     if (data) {
-        createNeighborhoodStarLabel(group, `${data.name}\n${config.distanceLY}光年`, 0, starSize * 4, 0, key);
+        createNeighborhoodStarLabel(group, `${data.name}\n${config.distanceLY}光年`, 0, labelOffsetY, 0, key);
     }
 
     scene.add(group);
