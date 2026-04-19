@@ -41,14 +41,15 @@
         .container {
             position: relative;
             z-index: 1;
-            max-width: 900px;
+            max-width: 1480px;
             margin: 0 auto;
-            padding: 40px 20px 60px;
+            padding: 36px 24px 72px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 48px;
+            max-width: 880px;
+            margin: 0 auto 40px;
         }
 
         .header h1 {
@@ -67,26 +68,50 @@
         }
 
         .themes {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 24px;
+            align-items: start;
+        }
+
+        .theme-section {
+            grid-column: span 4;
+            background: rgba(8, 14, 38, 0.62);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.24);
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-space,
+        .theme-explorer {
+            grid-column: span 6;
         }
 
         .theme-section h2 {
             font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 16px;
-            padding-left: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
 
         .theme-section h2 .emoji {
             margin-right: 8px;
         }
 
+        .section-desc {
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.62);
+            line-height: 1.55;
+            margin-bottom: 18px;
+        }
+
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
         }
 
         .card {
@@ -95,8 +120,9 @@
             color: #fff;
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 18px;
+            padding: 20px;
+            min-height: 168px;
             transition: all 0.3s ease;
         }
 
@@ -127,6 +153,7 @@
 
         /* 各主题颜色 */
         .theme-space .card:hover { border-color: #00d9ff; }
+        .theme-explorer .card:hover { border-color: #8cf7d5; }
         .theme-math .card:hover { border-color: #ffd93d; }
         .theme-puzzle .card:hover { border-color: #26de81; }
         .theme-eng .card:hover { border-color: #ff6b6b; }
@@ -518,6 +545,33 @@
                 transparent 85%);
         }
 
+        @media (max-width: 1200px) {
+            .container { max-width: 1080px; }
+            .theme-space,
+            .theme-explorer {
+                grid-column: span 12;
+            }
+            .theme-section {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 820px) {
+            .themes {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+            .theme-section,
+            .theme-space,
+            .theme-explorer {
+                grid-column: auto;
+                padding: 20px;
+            }
+            .cards {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
         @media (max-width: 600px) {
             .header h1 { font-size: 1.8rem; }
             .cards { grid-template-columns: 1fr; }
@@ -537,6 +591,7 @@
         <div class="themes">
             <div class="theme-section theme-space">
                 <h2><span class="emoji">🚀</span>太空天文</h2>
+                <p class="section-desc">把宇宙主题先平铺成更好找的入口，宽屏下一眼就能看到更多内容</p>
                 <div class="cards">
                     <a class="card" href="space/solar-system.html">
                         <span class="icon">🪐</span>
@@ -553,6 +608,38 @@
                         <div class="title">地球的奥秘</div>
                         <div class="desc">了解地球的自转、公转和四季变化</div>
                     </a>
+                    <a class="card" href="space/galaxy.html">
+                        <span class="icon">🌌</span>
+                        <div class="title">银河系探索</div>
+                        <div class="desc">从太阳系飞向银河系，探索宇宙尺度</div>
+                    </a>
+                    <a class="card" href="space/asteroid-impact.html">
+                        <span class="icon">☄️</span>
+                        <div class="title">陨石撞击地球</div>
+                        <div class="desc">模拟陨石撞击，了解陨石的知识</div>
+                    </a>
+                    <a class="card" href="space/space-words.html">
+                        <span class="icon">🌟</span>
+                        <div class="title">太阳系识字乐园</div>
+                        <div class="desc">跟着星球学汉字，同步幼儿园课本154字</div>
+                    </a>
+                    <a class="card" href="space/blackhole.html">
+                        <span class="icon">🕳️</span>
+                        <div class="title">黑洞探索</div>
+                        <div class="desc">走进卡冈图雅，了解黑洞的奥秘</div>
+                    </a>
+                    <a class="card" href="space/sun-distance.html">
+                        <span class="icon">☀️</span>
+                        <div class="title">地日距离大挑战</div>
+                        <div class="desc">太空赛跑！看谁最快到达太阳</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="theme-section theme-explorer">
+                <h2><span class="emoji">🛰️</span>威瓦天阳系-探险家系列</h2>
+                <p class="section-desc">把探险家课程单独整理成一组，从太阳到海王星可以连续浏览，不用再在首页里翻很久</p>
+                <div class="cards">
                     <a class="card" href="space/earth-explorer.html">
                         <span class="icon">🌍</span>
                         <div class="title">地球探险家</div>
@@ -603,36 +690,12 @@
                         <div class="title">海王星探险家</div>
                         <div class="desc">6大章节闯关，探索冰巨星、钻石雨、超级风暴</div>
                     </a>
-                    <a class="card" href="space/galaxy.html">
-                        <span class="icon">🌌</span>
-                        <div class="title">银河系探索</div>
-                        <div class="desc">从太阳系飞向银河系，探索宇宙尺度</div>
-                    </a>
-                    <a class="card" href="space/asteroid-impact.html">
-                        <span class="icon">☄️</span>
-                        <div class="title">陨石撞击地球</div>
-                        <div class="desc">模拟陨石撞击，了解陨石的知识</div>
-                    </a>
-                    <a class="card" href="space/space-words.html">
-                        <span class="icon">🌟</span>
-                        <div class="title">太阳系识字乐园</div>
-                        <div class="desc">跟着星球学汉字，同步幼儿园课本154字</div>
-                    </a>
-                    <a class="card" href="space/blackhole.html">
-                        <span class="icon">🕳️</span>
-                        <div class="title">黑洞探索</div>
-                        <div class="desc">走进卡冈图雅，了解黑洞的奥秘</div>
-                    </a>
-                    <a class="card" href="space/sun-distance.html">
-                        <span class="icon">☀️</span>
-                        <div class="title">地日距离大挑战</div>
-                        <div class="desc">太空赛跑！看谁最快到达太阳</div>
-                    </a>
                 </div>
             </div>
 
             <div class="theme-section theme-math">
                 <h2><span class="emoji">🔢</span>数学</h2>
+                <p class="section-desc">数学小游戏保持单独分类，孩子进入首页后更容易直接定位</p>
                 <div class="cards">
                     <a class="card" href="math/num.html">
                         <span class="icon">🧮</span>
@@ -649,6 +712,7 @@
 
             <div class="theme-section theme-puzzle">
                 <h2><span class="emoji">🧩</span>地理拼图</h2>
+                <p class="section-desc">把地图拼图单独收纳，宽屏时不再被太空内容一路往下挤</p>
                 <div class="cards">
                     <a class="card" href="puzzle/china.html">
                         <span class="icon">🇨🇳</span>
@@ -665,6 +729,7 @@
 
             <div class="theme-section theme-eng">
                 <h2><span class="emoji">⚙️</span>机械工程</h2>
+                <p class="section-desc">工程科普继续保留独立区域，首页会更像平铺目录，而不是长长一列</p>
                 <div class="cards">
                     <a class="card" href="engineering/elevator.html">
                         <span class="icon">🏗️</span>
