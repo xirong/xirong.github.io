@@ -106,7 +106,7 @@
         /* 主游戏区域 */
         .game-container {
             position: fixed;
-            top: 55px;
+            top: 60px;
             left: 0; right: 0; bottom: 0;
             display: flex;
             z-index: 1;
@@ -118,20 +118,55 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 8px 14px 12px;
             min-height: 0;
         }
 
         #mapContainer {
-            width: 100%;
-            height: 100%;
-            max-width: 750px;
+            width: min(100%, calc((100vh - 92px) * 1.18));
+            max-width: none;
+            max-height: calc(100vh - 92px);
+            aspect-ratio: 595.28 / 504;
             position: relative;
         }
 
         #mapContainer svg {
             width: 100%;
             height: 100%;
+        }
+
+        .province-label-group {
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .province-label-group.unplaced {
+            opacity: 0.72;
+        }
+        .province-label-group.placed {
+            opacity: 1;
+        }
+        .province-label-name,
+        .province-label-capital {
+            text-anchor: middle;
+            paint-order: stroke;
+            stroke: rgba(5, 8, 20, 0.95);
+            stroke-linejoin: round;
+        }
+        .province-label-name {
+            fill: #ffffff;
+            font-weight: 900;
+            stroke-width: 2.8px;
+        }
+        .province-label-capital {
+            fill: #c8f7ff;
+            font-weight: 700;
+            stroke-width: 2.4px;
+        }
+        .province-label-group.placed .province-label-name {
+            fill: #fff1a8;
+        }
+        .province-label-group.placed .province-label-capital {
+            fill: #00d9ff;
         }
 
         /* 目标轮廓样式 */
@@ -156,8 +191,8 @@
 
         /* 拼图块区域 */
         .puzzle-area {
-            width: 320px;
-            min-width: 320px;
+            width: clamp(260px, 17vw, 300px);
+            min-width: clamp(260px, 17vw, 300px);
             background: linear-gradient(270deg, rgba(10,10,26,0.98) 0%, rgba(10,10,26,0.9) 90%, transparent 100%);
             padding: 10px;
             display: flex;
@@ -258,18 +293,24 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
+            width: calc(100% + 16px);
             text-align: center;
             pointer-events: none;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.8);
         }
-        .piece-emoji {
-            font-size: 1.2rem;
-            display: block;
-        }
         .piece-name {
-            font-size: 0.65rem;
-            font-weight: 700;
+            display: block;
+            font-size: 0.66rem;
+            font-weight: 800;
             color: white;
+            white-space: nowrap;
+        }
+        .piece-capital {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.5rem;
+            font-weight: 700;
+            color: rgba(255, 241, 168, 0.95);
             white-space: nowrap;
         }
 
@@ -520,6 +561,13 @@
                 <span class="province-type" id="provinceType">直辖市</span>
             </div>
             <div class="detail-item">
+                <span class="detail-emoji">📍</span>
+                <div>
+                    <div class="detail-label" id="capitalLabel">首都</div>
+                    <div class="detail-value" id="capitalName">北京市</div>
+                </div>
+            </div>
+            <div class="detail-item">
                 <span class="detail-emoji" id="foodEmoji">🦆</span>
                 <div>
                     <div class="detail-label">特色美食</div>
@@ -597,6 +645,15 @@
 
         // 拼图块尺寸配置
         const PIECE_MAX_SIZE = 70; // 最大尺寸
+        const LABEL_LAYOUT_OVERRIDES = {
+            beijing: { x: 431, y: 204, nameSize: 10, capitalSize: 8, capitalDy: 11 },
+            tianjin: { x: 447, y: 213, nameSize: 9, capitalSize: 7.5, capitalDy: 10 },
+            shanghai: { x: 505, y: 329, nameSize: 9, capitalSize: 7.5, capitalDy: 10 },
+            chongqing: { x: 349, y: 362, nameSize: 11, capitalSize: 8.5, capitalDy: 12 },
+            xianggang: { x: 438, y: 430, nameSize: 8, capitalSize: 7, capitalDy: 9 },
+            aomen: { x: 405, y: 437, nameSize: 8, capitalSize: 7, capitalDy: 9 },
+            hainan: { x: 351, y: 491, nameSize: 10, capitalSize: 8, capitalDy: 11 }
+        };
 
         // ============ 初始化 ============
         async function init() {
@@ -679,6 +736,8 @@
                 puzzleScroll.appendChild(piece);
                 provinces[key].pieceElement = piece;
             });
+
+            renderProvinceLabels();
         }
 
         // ============ 创建拼图块（真实省份形状）============
@@ -723,8 +782,8 @@
             const label = document.createElement('div');
             label.className = 'piece-label';
             label.innerHTML = `
-                <span class="piece-emoji">${info.landmark.emoji}</span>
                 <span class="piece-name">${info.name}</span>
+                <span class="piece-capital">${getCapitalDisplayName(info)}</span>
             `;
             piece.appendChild(label);
 
@@ -934,25 +993,23 @@
             province.targetElement.style.fill = '';
             province.targetElement.style.stroke = '';
 
-            // 在地图上添加省份标签（emoji + 名称）
-            addProvinceLabel(key, province);
-
             // 点击查看详情 + 播放语音
             province.targetElement.onclick = () => {
                 showProvinceInfo(province.info);
-                const text = `${province.info.name}，美食是${province.info.food.name}，著名景点有${province.info.landmark.name}。${province.info.funFact}`;
+                const text = getProvinceSpeechText(province.info);
                 playProvinceAudio(key, text);
             };
 
             province.placed = true;
+            updateProvinceLabelAppearance(province);
             placedCount++;
             updateProgress();
-            showToast(`✅ ${province.info.name} 放对了！`);
+            showToast(`✅ ${province.info.name} 放对了，${province.info.capital.label}是${province.info.capital.name}`);
             playSound('success');
 
             // 播放省份介绍语音
             const info = province.info;
-            const fallbackText = `${info.name}，美食是${info.food.name}，著名景点有${info.landmark.name}。${info.funFact}`;
+            const fallbackText = getProvinceSpeechText(info);
             playProvinceAudio(key, fallbackText);
 
             if (placedCount >= Object.keys(provinces).length) {
@@ -960,52 +1017,83 @@
             }
         }
 
-        // 在地图上添加省份标签
-        function addProvinceLabel(key, province) {
+        function renderProvinceLabels() {
+            Object.entries(provinces).forEach(([key, province]) => {
+                if (!province.labelElement) {
+                    province.labelElement = createProvinceLabel(key, province);
+                }
+                updateProvinceLabelAppearance(province);
+            });
+        }
+
+        function createProvinceLabel(key, province) {
             const bbox = province.bbox;
             const info = province.info;
+            const layout = getProvinceLabelLayout(key, bbox);
+            const nameFontSize = layout.nameSize ?? getProvinceNameFontSize(bbox);
+            const capitalFontSize = layout.capitalSize ?? Math.max(7, Math.min(12, nameFontSize - 1.5));
+            const centerX = layout.x ?? (bbox.x + bbox.width / 2);
+            const centerY = layout.y ?? (bbox.y + bbox.height / 2);
+            const nameY = centerY + (layout.nameDy ?? -(capitalFontSize * 0.45));
+            const capitalY = centerY + (layout.capitalDy ?? (capitalFontSize + 4));
 
-            // 计算省份中心位置
-            const centerX = bbox.x + bbox.width / 2;
-            const centerY = bbox.y + bbox.height / 2;
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            group.setAttribute('class', 'province-label-group unplaced');
+            group.setAttribute('data-province', key);
 
-            // 根据省份大小调整字体
+            const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            nameText.setAttribute('x', centerX);
+            nameText.setAttribute('y', nameY);
+            nameText.setAttribute('font-size', nameFontSize);
+            nameText.setAttribute('class', 'province-label-name');
+            nameText.textContent = info.name;
+
+            const capitalText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            capitalText.setAttribute('x', centerX);
+            capitalText.setAttribute('y', capitalY);
+            capitalText.setAttribute('font-size', capitalFontSize);
+            capitalText.setAttribute('class', 'province-label-capital');
+            capitalText.textContent = `• ${getCapitalDisplayName(info, true)}`;
+
+            group.appendChild(nameText);
+            group.appendChild(capitalText);
+            svgDoc.appendChild(group);
+            return group;
+        }
+
+        function updateProvinceLabelAppearance(province) {
+            if (!province.labelElement) return;
+            province.labelElement.classList.toggle('placed', province.placed);
+            province.labelElement.classList.toggle('unplaced', !province.placed);
+        }
+
+        function getProvinceLabelLayout(key, bbox) {
+            const compact = bbox.width < 26 || bbox.height < 22;
+            const defaultNameSize = compact ? 8.5 : getProvinceNameFontSize(bbox);
+            const defaultCapitalSize = compact ? 7 : Math.max(7, Math.min(12, defaultNameSize - 1.5));
+            return {
+                nameSize: defaultNameSize,
+                capitalSize: defaultCapitalSize,
+                ...LABEL_LAYOUT_OVERRIDES[key]
+            };
+        }
+
+        function getProvinceNameFontSize(bbox) {
             const size = Math.min(bbox.width, bbox.height);
-            const fontSize = Math.max(8, Math.min(16, size / 4));
-            const emojiSize = Math.max(12, Math.min(24, size / 3));
+            return Math.max(8, Math.min(16, size / 4.1));
+        }
 
-            // 创建foreignObject来显示HTML内容
-            const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-            fo.setAttribute('x', centerX - 30);
-            fo.setAttribute('y', centerY - 20);
-            fo.setAttribute('width', 60);
-            fo.setAttribute('height', 40);
-            fo.setAttribute('class', 'province-label-fo');
-            fo.setAttribute('data-province', key);
-            fo.style.pointerEvents = 'none'; // 允许点击穿透到底层省份
+        function getCapitalDisplayName(info, preferMapName = false) {
+            if (!info.capital) return info.type;
+            if (preferMapName && info.capital.mapName) {
+                return info.capital.mapName;
+            }
+            return info.capital.name;
+        }
 
-            // 创建标签内容
-            const div = document.createElement('div');
-            div.style.cssText = `
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                pointer-events: none;
-            `;
-            div.innerHTML = `
-                <span style="font-size: ${emojiSize}px; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${info.landmark.emoji}</span>
-                <span style="font-size: ${fontSize}px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9); white-space: nowrap;">${info.name}</span>
-            `;
-
-            fo.appendChild(div);
-            svgDoc.appendChild(fo);
-
-            // 保存标签引用
-            province.labelElement = fo;
+        function getProvinceSpeechText(info) {
+            const capitalText = info.capital ? `${info.capital.label}是${info.capital.name}` : info.type;
+            return `${info.name}，${capitalText}，美食是${info.food.name}，著名景点有${info.landmark.name}。${info.funFact}`;
         }
 
         function updateProgress() {
@@ -1033,12 +1121,7 @@
                 province.targetElement.style.fill = '';
                 province.targetElement.style.stroke = '';
                 province.targetElement.onclick = null;
-
-                // 移除标签
-                if (province.labelElement) {
-                    province.labelElement.remove();
-                    province.labelElement = null;
-                }
+                updateProvinceLabelAppearance(province);
             });
 
             // 重新打乱
@@ -1061,7 +1144,7 @@
             province.pieceElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             province.pieceElement.style.animation = 'pulse 0.4s ease 3';
 
-            showToast(`💡 找找 ${province.info.name}（${province.info.landmark.emoji}）`);
+            showToast(`💡 找找 ${province.info.name}，${province.info.capital.label}是${province.info.capital.name}`);
 
             setTimeout(() => {
                 if (!province.placed) {
@@ -1075,6 +1158,8 @@
             document.getElementById('provinceIcon').textContent = info.landmark.emoji;
             document.getElementById('provinceName').textContent = info.name;
             document.getElementById('provinceType').textContent = info.type;
+            document.getElementById('capitalLabel').textContent = info.capital.label;
+            document.getElementById('capitalName').textContent = info.capital.name;
             document.getElementById('foodEmoji').textContent = info.food.emoji;
             document.getElementById('foodName').textContent = info.food.name;
             document.getElementById('landmarkEmoji').textContent = info.landmark.emoji;

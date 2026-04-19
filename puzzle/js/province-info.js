@@ -327,6 +327,49 @@ const ProvinceInfo = {
     }
 };
 
+const ProvinceCapitalData = {
+    "beijing": { capital: { name: "北京市", label: "首都", mapName: "北京" } },
+    "tianjin": { capital: { name: "天津市", label: "直辖市", mapName: "天津" } },
+    "shanghai": { capital: { name: "上海市", label: "直辖市", mapName: "上海" } },
+    "chongqing": { capital: { name: "重庆市", label: "直辖市", mapName: "重庆" } },
+    "heilongjiang": { capital: { name: "哈尔滨", label: "省会" } },
+    "jilin": { capital: { name: "长春", label: "省会" } },
+    "liaoning": { capital: { name: "沈阳", label: "省会" } },
+    "hebei": { capital: { name: "石家庄", label: "省会" } },
+    "shanxi": { capital: { name: "太原", label: "省会" } },
+    "neimenggu": { capital: { name: "呼和浩特", label: "首府" } },
+    "shandong": { capital: { name: "济南", label: "省会" } },
+    "jiangsu": { capital: { name: "南京", label: "省会" } },
+    "anhui": { capital: { name: "合肥", label: "省会" } },
+    "zhejiang": { capital: { name: "杭州", label: "省会" } },
+    "fujian": { capital: { name: "福州", label: "省会" } },
+    "jiangxi": { capital: { name: "南昌", label: "省会" } },
+    "taiwan": { capital: { name: "台北", label: "省会" } },
+    "henan": { capital: { name: "郑州", label: "省会" } },
+    "hubei": { capital: { name: "武汉", label: "省会" } },
+    "hunan": { capital: { name: "长沙", label: "省会" } },
+    "guangdong": { capital: { name: "广州", label: "省会" } },
+    "guangxi": { capital: { name: "南宁", label: "首府" } },
+    "hainan": { capital: { name: "海口", label: "省会" } },
+    "xianggang": { capital: { name: "香港", label: "行政中心" } },
+    "aomen": { capital: { name: "澳门", label: "行政中心" } },
+    "sichuan": { capital: { name: "成都", label: "省会" } },
+    "guizhou": { capital: { name: "贵阳", label: "省会" } },
+    "yunnan": { capital: { name: "昆明", label: "省会" } },
+    "xizang": { capital: { name: "拉萨", label: "首府" } },
+    "shanxiHZ": { capital: { name: "西安", label: "省会" } },
+    "gansu": { capital: { name: "兰州", label: "省会" } },
+    "qinghai": { capital: { name: "西宁", label: "省会" } },
+    "ningxia": { capital: { name: "银川", label: "首府" } },
+    "xinjiang": { capital: { name: "乌鲁木齐", label: "首府" } }
+};
+
+Object.entries(ProvinceCapitalData).forEach(([key, extra]) => {
+    if (ProvinceInfo[key]) {
+        Object.assign(ProvinceInfo[key], extra);
+    }
+});
+
 // 省份数量统计
 const AdminStats = {
     province: 23,      // 省

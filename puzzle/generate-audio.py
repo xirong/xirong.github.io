@@ -235,6 +235,43 @@ PROVINCES_DATA = {
     },
 }
 
+CAPITALS_DATA = {
+    "beijing": {"name": "北京市", "label": "首都"},
+    "tianjin": {"name": "天津市", "label": "直辖市"},
+    "shanghai": {"name": "上海市", "label": "直辖市"},
+    "chongqing": {"name": "重庆市", "label": "直辖市"},
+    "heilongjiang": {"name": "哈尔滨", "label": "省会"},
+    "jilin": {"name": "长春", "label": "省会"},
+    "liaoning": {"name": "沈阳", "label": "省会"},
+    "hebei": {"name": "石家庄", "label": "省会"},
+    "shanxi": {"name": "太原", "label": "省会"},
+    "neimenggu": {"name": "呼和浩特", "label": "首府"},
+    "shandong": {"name": "济南", "label": "省会"},
+    "jiangsu": {"name": "南京", "label": "省会"},
+    "anhui": {"name": "合肥", "label": "省会"},
+    "zhejiang": {"name": "杭州", "label": "省会"},
+    "fujian": {"name": "福州", "label": "省会"},
+    "jiangxi": {"name": "南昌", "label": "省会"},
+    "taiwan": {"name": "台北", "label": "省会"},
+    "henan": {"name": "郑州", "label": "省会"},
+    "hubei": {"name": "武汉", "label": "省会"},
+    "hunan": {"name": "长沙", "label": "省会"},
+    "guangdong": {"name": "广州", "label": "省会"},
+    "guangxi": {"name": "南宁", "label": "首府"},
+    "hainan": {"name": "海口", "label": "省会"},
+    "xianggang": {"name": "香港", "label": "行政中心"},
+    "aomen": {"name": "澳门", "label": "行政中心"},
+    "sichuan": {"name": "成都", "label": "省会"},
+    "guizhou": {"name": "贵阳", "label": "省会"},
+    "yunnan": {"name": "昆明", "label": "省会"},
+    "xizang": {"name": "拉萨", "label": "首府"},
+    "shanxiHZ": {"name": "西安", "label": "省会"},
+    "gansu": {"name": "兰州", "label": "省会"},
+    "qinghai": {"name": "西宁", "label": "省会"},
+    "ningxia": {"name": "银川", "label": "首府"},
+    "xinjiang": {"name": "乌鲁木齐", "label": "首府"},
+}
+
 
 def collect_all_audios():
     """收集所有需要生成的音频列表"""
@@ -242,12 +279,13 @@ def collect_all_audios():
 
     for province_id, info in PROVINCES_DATA.items():
         name = info["name"]
+        capital = CAPITALS_DATA[province_id]
         food = info["food"]
         landmark = info["landmark"]
         funFact = info["funFact"]
 
-        # 朗读内容："{name}，美食是{food}，著名景点有{landmark}。{funFact}"
-        text = f"{name}，美食是{food}，著名景点有{landmark}。{funFact}"
+        # 朗读内容："{name}，{capital_label}是{capital_name}，美食是{food}，著名景点有{landmark}。{funFact}"
+        text = f"{name}，{capital['label']}是{capital['name']}，美食是{food}，著名景点有{landmark}。{funFact}"
         path = f"audio/provinces/{province_id}.mp3"
         audios.append((path, text))
 
