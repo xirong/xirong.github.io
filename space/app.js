@@ -543,16 +543,16 @@ const moonsData = {
     ],
     // 木星的伽利略卫星
     jupiter: [
-        { name: '木卫一', nameCN: '木卫一', diameter: 3643, orbitRadius: 8, orbitSpeed: 0.07, color: 0xffdd44, desc: '艾奥，火山最活跃的天体' },
-        { name: '木卫二', nameCN: '木卫二', diameter: 3122, orbitRadius: 10, orbitSpeed: 0.055, color: 0xccddee, desc: '欧罗巴，冰下可能有海洋' },
-        { name: '木卫三', nameCN: '木卫三', diameter: 5268, orbitRadius: 12.5, orbitSpeed: 0.04, color: 0xaabbcc, desc: '盖尼米德，最大的卫星' },
-        { name: '木卫四', nameCN: '木卫四', diameter: 4821, orbitRadius: 15, orbitSpeed: 0.03, color: 0x887766, desc: '卡利斯托，古老的冰世界' }
+        { name: '木卫一', nameCN: '木卫一', diameter: 3643, orbitRadius: 8, orbitSpeed: 0.07, color: 0xffdd44, desc: '艾奥，火山最活跃的天体', texturePath: 'textures/io.jpg', brightness: 1.08, fresnelColor: 'vec3(1.0, 0.72, 0.28)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '木卫二', nameCN: '木卫二', diameter: 3122, orbitRadius: 10, orbitSpeed: 0.055, color: 0xccddee, desc: '欧罗巴，冰下可能有海洋', texturePath: 'textures/europa.jpg', brightness: 1.18, fresnelColor: 'vec3(0.82, 0.92, 1.0)', fresnelIntensity: 0.16, segments: 48 },
+        { name: '木卫三', nameCN: '木卫三', diameter: 5268, orbitRadius: 12.5, orbitSpeed: 0.04, color: 0xaabbcc, desc: '盖尼米德，最大的卫星', texturePath: 'textures/ganymede.jpg', brightness: 1.1, fresnelColor: 'vec3(0.76, 0.72, 0.62)', fresnelIntensity: 0.07, segments: 48 },
+        { name: '木卫四', nameCN: '木卫四', diameter: 4821, orbitRadius: 15, orbitSpeed: 0.03, color: 0x887766, desc: '卡利斯托，古老的冰世界', texturePath: 'textures/callisto.jpg', brightness: 1.08, fresnelColor: 'vec3(0.58, 0.52, 0.42)', fresnelIntensity: 0.06, segments: 48 }
     ],
     // 土星的卫星
     saturn: [
-        { name: '土卫六', nameCN: '土卫六', diameter: 5150, orbitRadius: 14, orbitSpeed: 0.035, color: 0xddaa55, desc: '泰坦，有浓厚大气层' },
-        { name: '土卫二', nameCN: '土卫二', diameter: 504, orbitRadius: 10, orbitSpeed: 0.06, color: 0xffffff, desc: '恩克拉多斯，喷射冰泉' },
-        { name: '土卫五', nameCN: '土卫五', diameter: 1527, orbitRadius: 12, orbitSpeed: 0.045, color: 0xcccccc, desc: '瑞亚，冰质卫星' }
+        { name: '土卫六', nameCN: '土卫六', diameter: 5150, orbitRadius: 14, orbitSpeed: 0.035, color: 0xddaa55, desc: '泰坦，有浓厚大气层', texturePath: 'textures/titan.jpg', brightness: 1.1, fresnelColor: 'vec3(0.94, 0.74, 0.36)', fresnelIntensity: 0.12, atmosphereColor: [0.95, 0.7, 0.3], atmosphereSize: 1.07, atmosphereIntensity: 0.18, segments: 48 },
+        { name: '土卫二', nameCN: '土卫二', diameter: 504, orbitRadius: 10, orbitSpeed: 0.06, color: 0xffffff, desc: '恩克拉多斯，喷射冰泉', texturePath: 'textures/enceladus.jpg', brightness: 1.24, fresnelColor: 'vec3(0.86, 0.94, 1.0)', fresnelIntensity: 0.18, segments: 48 },
+        { name: '土卫五', nameCN: '土卫五', diameter: 1527, orbitRadius: 12, orbitSpeed: 0.045, color: 0xcccccc, desc: '瑞亚，冰质卫星', texturePath: 'textures/rhea.jpg', brightness: 1.12, fresnelColor: 'vec3(0.82, 0.84, 0.88)', fresnelIntensity: 0.1, segments: 48 }
     ],
     // 天王星的卫星
     uranus: [
@@ -1476,7 +1476,8 @@ function createRealisticEarth(size) {
 // ============ 通用纹理行星创建辅助函数 ============
 // config: { texturePath, brightness, atmosphereColor, atmosphereIntensity, atmosphereSize, fresnelColor, fresnelIntensity }
 function createTexturedPlanet(size, config) {
-    const geometry = new THREE.SphereGeometry(size, 128, 128);
+    const segments = config.segments || 128;
+    const geometry = new THREE.SphereGeometry(size, segments, segments);
     const textureLoader = new THREE.TextureLoader();
     const planetMap = textureLoader.load(config.texturePath);
 
@@ -1668,6 +1669,20 @@ function createRealisticCeres(size) {
     });
 }
 
+// ============ 创建真实卫星 ============
+function createRealisticMoon(size, moonData) {
+    return createTexturedPlanet(size, {
+        texturePath: moonData.texturePath,
+        brightness: moonData.brightness || 1.0,
+        fresnelColor: moonData.fresnelColor || 'vec3(0.0)',
+        fresnelIntensity: moonData.fresnelIntensity || 0.0,
+        atmosphereColor: moonData.atmosphereColor,
+        atmosphereSize: moonData.atmosphereSize,
+        atmosphereIntensity: moonData.atmosphereIntensity,
+        segments: moonData.segments || 48
+    });
+}
+
 // ============ 创建月球 ============
 function createMoon() {
     const moonData = planetData.moon;
@@ -1786,16 +1801,17 @@ function createAllMoons() {
             // 卫星大小（根据行星大小调整）
             const moonSize = planet.userData.size * 0.12 + index * 0.05;
 
-            // 创建卫星几何体
-            const geometry = new THREE.SphereGeometry(moonSize, 32, 32);
-            const material = new THREE.MeshPhongMaterial({
-                color: moonData.color,
-                emissive: moonData.color,
-                emissiveIntensity: 0.05,
-                shininess: 20
-            });
-
-            const moonMesh = new THREE.Mesh(geometry, material);
+            const moonMesh = moonData.texturePath
+                ? createRealisticMoon(moonSize, moonData)
+                : new THREE.Mesh(
+                    new THREE.SphereGeometry(moonSize, 32, 32),
+                    new THREE.MeshPhongMaterial({
+                        color: moonData.color,
+                        emissive: moonData.color,
+                        emissiveIntensity: 0.05,
+                        shininess: 20
+                    })
+                );
             moonMesh.name = moonData.name;
             moonMesh.userData = {
                 ...moonData,
@@ -2607,6 +2623,12 @@ function animate() {
 
                 // 卫星自转
                 moonMesh.rotation.y += 0.01;
+
+                if (moonMesh.material.uniforms && moonMesh.material.uniforms.sunDirection) {
+                    const sunDir = new THREE.Vector3()
+                        .copy(moonMesh.position).negate().normalize();
+                    moonMesh.material.uniforms.sunDirection.value.copy(sunDir);
+                }
             });
         });
 
