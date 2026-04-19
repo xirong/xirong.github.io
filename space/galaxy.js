@@ -28,7 +28,7 @@ const starTextureCache = new Map();
 const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
 const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 const GALACTIC_CENTER = new THREE.Vector3(0, 0, 0);
-const GALACTIC_ROTATION_SPEED = 0.0002; // 整体放慢到更适合肉眼观察的速度，并保持页面默认视角下顺时针
+const GALACTIC_ROTATION_SPEED = -0.0002; // 整体放慢到更适合肉眼观察的速度，并保持页面默认视角下顺时针
 const tempSolarSystemPosition = new THREE.Vector3();
 const tempFocusedWorldPosition = new THREE.Vector3();
 const tempLineEndPosition = new THREE.Vector3();
