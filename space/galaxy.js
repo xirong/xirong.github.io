@@ -28,14 +28,15 @@ const starTextureCache = new Map();
 const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
 const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 const GALACTIC_CENTER = new THREE.Vector3(0, 0, 0);
-const GALACTIC_ROTATION_SPEED = -0.0002; // 整体放慢到更适合肉眼观察的速度，并保持页面默认视角下顺时针
+const GALACTIC_ROTATION_SPEED = -0.00012; // 银河整体再慢一点，只保留能被肉眼感知的缓慢旋转
+const GALACTIC_LANDMARK_SPEED_SCALE = 0.58; // 太阳系和著名恒星的公转再额外放慢，便于近距离观察
 const tempSolarSystemPosition = new THREE.Vector3();
 const tempFocusedWorldPosition = new THREE.Vector3();
 const tempLineEndPosition = new THREE.Vector3();
 const SOLAR_ORBIT_SETTINGS = {
-    speedFactor: 0.97,
-    bobAmplitude: 10,
-    bobSpeedFactor: 0.5,
+    speedFactor: 0.97 * GALACTIC_LANDMARK_SPEED_SCALE,
+    bobAmplitude: 8,
+    bobSpeedFactor: 0.35,
     bobPhase: 0.35
 };
 
@@ -2106,8 +2107,9 @@ function createGalacticStarSystems() {
             starGroup.config = config;
             starGroup.visible = false; // 由 updateStarSystems 控制可见性
             registerGalacticOrbit(starGroup, position, {
+                speedFactor: getGalacticOrbitSpeedFactor(Math.hypot(position.x, position.z)) * GALACTIC_LANDMARK_SPEED_SCALE,
                 bobAmplitude: config.size === 'hypergiant' ? 18 : 10,
-                bobSpeedFactor: 0.45
+                bobSpeedFactor: 0.35
             });
             starSystems.push(starGroup);
         }
