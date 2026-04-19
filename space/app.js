@@ -462,8 +462,7 @@ function playPlanetAudio(planetKey) {
     if (!data || !data.nameEN) return;
 
     // 构造降级文本
-    const distText = planetAudioDistText[planetKey] || '';
-    const fallbackText = `${data.nameCN}，${data.nameEN}，${distText}`;
+    const fallbackText = planetAudioNarration[planetKey] || `${data.nameCN}，${data.nameEN}`;
 
     const audioPath = `audio/solar/${planetKey}.mp3`;
     const audio = new Audio(audioPath);
@@ -480,20 +479,20 @@ function playPlanetAudio(planetKey) {
     });
 }
 
-// 每个天体的距离描述文本（用于 TTS 降级）
-const planetAudioDistText = {
-    sun: '太阳系的中心恒星',
-    mercury: '距离太阳0.4个天文单位',
-    venus: '距离太阳0.7个天文单位',
-    earth: '距离太阳1个天文单位',
-    moon: '地球的天然卫星',
-    mars: '距离太阳1.5个天文单位',
-    ceres: '距离太阳2.8个天文单位',
-    jupiter: '距离太阳5.2个天文单位',
-    saturn: '距离太阳9.5个天文单位',
-    uranus: '距离太阳19.2个天文单位',
-    neptune: '距离太阳30个天文单位',
-    pluto: '距离太阳39.5个天文单位',
+// 每个天体的语音介绍文本（用于 MP3 和 TTS 降级）
+const planetAudioNarration = {
+    sun: '太阳，Sun，太阳系的中心恒星。自转一圈约等于25.4个地球天。',
+    mercury: '水星，Mercury，距离太阳0.4个天文单位。自转一圈约等于58.6个地球天。公转一圈约等于0.24个地球年。',
+    venus: '金星，Venus，距离太阳0.7个天文单位。自转一圈约等于243个地球天。公转一圈约等于0.62个地球年。',
+    earth: '地球，Earth，距离太阳1个天文单位。自转一圈约等于1个地球天。公转一圈约等于1个地球年。',
+    moon: '月球，Moon，地球的天然卫星。自转一圈约等于27.3个地球天。绕地球公转一圈约等于27.3个地球天。',
+    mars: '火星，Mars，距离太阳1.5个天文单位。自转一圈约等于1.03个地球天。公转一圈约等于1.88个地球年。',
+    ceres: '谷神星，Ceres，距离太阳2.8个天文单位。自转一圈约等于0.38个地球天。公转一圈约等于4.6个地球年。',
+    jupiter: '木星，Jupiter，距离太阳5.2个天文单位。自转一圈约等于0.41个地球天。公转一圈约等于11.86个地球年。',
+    saturn: '土星，Saturn，距离太阳9.5个天文单位。自转一圈约等于0.45个地球天。公转一圈约等于29.46个地球年。',
+    uranus: '天王星，Uranus，距离太阳19.2个天文单位。自转一圈约等于0.72个地球天。公转一圈约等于84个地球年。',
+    neptune: '海王星，Neptune，距离太阳30个天文单位。自转一圈约等于0.67个地球天。公转一圈约等于164.8个地球年。',
+    pluto: '冥王星，Pluto，距离太阳39.5个天文单位。自转一圈约等于6.4个地球天。公转一圈约等于247.94个地球年。',
 };
 
 // ============ 人造卫星数据 ============
@@ -1716,13 +1715,17 @@ function createMoon() {
         `
     });
 
+    const demoOrbitSpeed = earth.userData.demoOrbitSpeed * (earth.userData.orbitPeriod / moonData.orbitPeriod);
+
     moon = new THREE.Mesh(geometry, moonMaterial);
     moon.name = 'moon';
     moon.userData = {
         ...moonData,
         orbitAngle: 0,
         orbitRadius: earth.userData.size * 3, // 月球轨道半径
-        orbitSpeed: 0.05,
+        orbitSpeed: demoOrbitSpeed,
+        demoOrbitSpeed: demoOrbitSpeed,
+        realOrbitSpeed: getRealOrbitSpeed(moonData.orbitPeriod),
         size: moonSize
     };
 
@@ -2563,8 +2566,11 @@ function animate() {
         if (moon && planets.earth) {
             const earth = planets.earth;
             const moonData = moon.userData;
+            const moonOrbitStep = isRealMotion
+                ? moonData.realOrbitSpeed * delta
+                : moonData.demoOrbitSpeed * 0.01 * frameFactor;
 
-            moonData.orbitAngle += moonData.orbitSpeed * 0.01;
+            moonData.orbitAngle += moonOrbitStep;
 
             // 月球位置 = 地球位置 + 月球相对于地球的轨道位置
             moon.position.x = earth.position.x + Math.cos(moonData.orbitAngle) * moonData.orbitRadius;

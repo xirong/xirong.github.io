@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Edge-TTS 音频生成脚本
-为 solar-system.html 生成每个天体的中英文+距离语音 MP3 文件
+为 solar-system.html 生成每个天体的周期说明语音 MP3 文件
 """
 
 import edge_tts
@@ -10,26 +10,26 @@ import os
 
 # 语音配置
 VOICE_CN = "zh-CN-XiaoxiaoNeural"  # 中文部分用小晓
-VOICE_EN = "en-US-AriaNeural"       # 英文部分用 Aria
 
 # 输出目录
-OUTPUT_DIR = "audio/solar"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "audio", "solar")
 
-# ============ 天体数据：key, 中文名, 英文名, 距离描述 ============
-CELESTIAL_BODIES = [
-    ("sun",      "太阳",   "Sun",        "太阳系的中心恒星"),
-    ("mercury",  "水星",   "Mercury",    "距离太阳0.4个天文单位"),
-    ("venus",    "金星",   "Venus",      "距离太阳0.7个天文单位"),
-    ("earth",    "地球",   "Earth",      "距离太阳1个天文单位"),
-    ("moon",     "月球",   "Moon",       "地球的天然卫星"),
-    ("mars",     "火星",   "Mars",       "距离太阳1.5个天文单位"),
-    ("ceres",    "谷神星", "Ceres",      "距离太阳2.8个天文单位"),
-    ("jupiter",  "木星",   "Jupiter",    "距离太阳5.2个天文单位"),
-    ("saturn",   "土星",   "Saturn",     "距离太阳9.5个天文单位"),
-    ("uranus",   "天王星", "Uranus",     "距离太阳19.2个天文单位"),
-    ("neptune",  "海王星", "Neptune",    "距离太阳30个天文单位"),
-    ("pluto",    "冥王星", "Pluto",      "距离太阳39.5个天文单位"),
-]
+# ============ 天体语音文案 ============
+CELESTIAL_AUDIO_TEXTS = {
+    "sun": "太阳，Sun，太阳系的中心恒星。自转一圈约等于25.4个地球天。",
+    "mercury": "水星，Mercury，距离太阳0.4个天文单位。自转一圈约等于58.6个地球天。公转一圈约等于0.24个地球年。",
+    "venus": "金星，Venus，距离太阳0.7个天文单位。自转一圈约等于243个地球天。公转一圈约等于0.62个地球年。",
+    "earth": "地球，Earth，距离太阳1个天文单位。自转一圈约等于1个地球天。公转一圈约等于1个地球年。",
+    "moon": "月球，Moon，地球的天然卫星。自转一圈约等于27.3个地球天。绕地球公转一圈约等于27.3个地球天。",
+    "mars": "火星，Mars，距离太阳1.5个天文单位。自转一圈约等于1.03个地球天。公转一圈约等于1.88个地球年。",
+    "ceres": "谷神星，Ceres，距离太阳2.8个天文单位。自转一圈约等于0.38个地球天。公转一圈约等于4.6个地球年。",
+    "jupiter": "木星，Jupiter，距离太阳5.2个天文单位。自转一圈约等于0.41个地球天。公转一圈约等于11.86个地球年。",
+    "saturn": "土星，Saturn，距离太阳9.5个天文单位。自转一圈约等于0.45个地球天。公转一圈约等于29.46个地球年。",
+    "uranus": "天王星，Uranus，距离太阳19.2个天文单位。自转一圈约等于0.72个地球天。公转一圈约等于84个地球年。",
+    "neptune": "海王星，Neptune，距离太阳30个天文单位。自转一圈约等于0.67个地球天。公转一圈约等于164.8个地球年。",
+    "pluto": "冥王星，Pluto，距离太阳39.5个天文单位。自转一圈约等于6.4个地球天。公转一圈约等于247.94个地球年。",
+}
 
 
 async def generate_audio(path, text, voice, semaphore):
@@ -42,14 +42,11 @@ async def generate_audio(path, text, voice, semaphore):
 
 
 async def main():
-    """主函数：为每个天体生成完整语音（中文名 + 英文名 + 距离描述）"""
+    """主函数：为每个天体生成完整语音"""
     audios = []
 
-    for key, cn, en, dist_desc in CELESTIAL_BODIES:
-        # 完整语音：中文名，英文名，距离描述
-        # 全部用中文语音读（包含英文单词，小晓可以读英文）
-        text = f"{cn}，{en}，{dist_desc}"
-        path = f"{OUTPUT_DIR}/{key}.mp3"
+    for key, text in CELESTIAL_AUDIO_TEXTS.items():
+        path = os.path.join(OUTPUT_DIR, f"{key}.mp3")
         audios.append((path, text, VOICE_CN))
 
     print(f"准备生成 {len(audios)} 个音频文件...\n")
@@ -61,7 +58,7 @@ async def main():
              for path, text, voice in audios]
     await asyncio.gather(*tasks)
 
-    print(f"\n✅ 完成！共生成 {len(audios)} 个音频文件到 {OUTPUT_DIR}/")
+    print(f"\n✅ 完成！共生成 {len(audios)} 个音频文件到 {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":
