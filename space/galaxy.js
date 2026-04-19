@@ -2681,8 +2681,9 @@ function animate() {
     updateControlsTarget(distance);
 
     // 银河系缓慢旋转
+    // 按常见天文学俯视图约定：从北银极看，银河系整体应为顺时针旋转
     if (milkyWay) {
-        milkyWay.rotation.y += 0.0008;
+        milkyWay.rotation.y -= 0.0008;
     }
 
     updateGalacticMotion(elapsed);
