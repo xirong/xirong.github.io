@@ -1286,20 +1286,14 @@ function createGlowTexture(size, color) {
     return texture;
 }
 
-// ============ 创建银河系中心黑洞 ============
-function createGalacticCenter() {
-    // 黑洞本体
-    const blackHoleGeometry = new THREE.SphereGeometry(100, 64, 64);
-    const blackHoleMaterial = new THREE.MeshBasicMaterial({
-        color: 0x000000
-    });
-    const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
-
-    // 吸积盘
-    const diskGeometry = new THREE.RingGeometry(120, 400, 128);
-    const diskMaterial = new THREE.ShaderMaterial({
+// ============ 创建银心黑洞材质 ============
+function createGalacticBlackHoleMaterial() {
+    return new THREE.ShaderMaterial({
         uniforms: {
-            time: { value: 0 }
+            time: { value: 0 },
+            texWarm: { value: getStarTexture('yellow') },
+            texHot: { value: getStarTexture('white') },
+            texCool: { value: getStarTexture('orange') }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -1309,65 +1303,156 @@ function createGalacticCenter() {
             }
         `,
         fragmentShader: `
+            precision highp float;
+
             uniform float time;
+            uniform sampler2D texWarm;
+            uniform sampler2D texHot;
+            uniform sampler2D texCool;
+
             varying vec2 vUv;
 
+            float luma(vec3 c) {
+                return dot(c, vec3(0.299, 0.587, 0.114));
+            }
+
+            float sampleTextureBand(sampler2D tex, vec2 uv) {
+                return luma(texture2D(tex, uv).rgb);
+            }
+
             void main() {
-                float angle = atan(vUv.y - 0.5, vUv.x - 0.5);
-                float dist = length(vUv - vec2(0.5));
+                vec2 p = vUv * 2.0 - 1.0;
+                p.x *= 1.12;
 
-                // 旋转效果
-                float spiral = sin(angle * 6.0 + dist * 20.0 - time * 2.0) * 0.5 + 0.5;
+                float r = length(vec2(p.x * 0.98, p.y * 1.04));
+                float x = p.x;
+                float y = p.y;
 
-                // 颜色渐变（内热外冷）
-                vec3 innerColor = vec3(1.0, 0.8, 0.3);
-                vec3 outerColor = vec3(0.8, 0.2, 0.5);
-                vec3 color = mix(innerColor, outerColor, dist * 2.0);
+                float horizon = 1.0 - smoothstep(0.58, 0.605, r);
+                float photonRing = exp(-pow((r - 0.62) / 0.022, 2.0));
+                float innerHalo = exp(-pow((r - 0.68) / 0.07, 2.0));
 
-                float alpha = (1.0 - dist * 2.0) * spiral * 0.8;
-                gl_FragColor = vec4(color, alpha);
+                float diskBand = exp(-pow(y / 0.07, 2.0));
+                float diskCore = exp(-pow(y / 0.03, 2.0));
+                float diskFalloff = 1.0 - smoothstep(0.7, 1.08, abs(x));
+
+                float topLift = 0.28 + 0.42 * exp(-pow(x / 0.48, 2.0));
+                float topWidth = mix(0.08, 0.17, exp(-pow(x / 0.6, 2.0)));
+                float topArc = exp(-pow((y - topLift) / topWidth, 2.0));
+
+                float bottomLift = -0.25 - 0.3 * exp(-pow(x / 0.42, 2.0));
+                float bottomWidth = mix(0.06, 0.11, exp(-pow(x / 0.58, 2.0)));
+                float bottomArc = exp(-pow((y - bottomLift) / bottomWidth, 2.0));
+
+                float texWarmA = sampleTextureBand(texWarm, vec2(
+                    fract(x * 0.18 + 0.5 - time * 0.01),
+                    fract(abs(y) * 1.8 + time * 0.005)
+                ));
+                float texHotA = sampleTextureBand(texHot, vec2(
+                    fract(x * 0.35 + 0.5 + time * 0.014),
+                    fract(abs(y) * 3.2 - time * 0.004)
+                ));
+                float texCoolA = sampleTextureBand(texCool, vec2(
+                    fract(x * 0.28 + 0.5 - time * 0.012),
+                    fract(abs(y) * 2.4 + time * 0.006)
+                ));
+
+                float diskTexture = clamp(texWarmA * 0.55 + texHotA * 0.4 + texCoolA * 0.25, 0.0, 1.3);
+                float arcTexture = clamp(texHotA * 0.45 + texWarmA * 0.3, 0.0, 1.1);
+                float doppler = 1.0 + clamp(x, -1.0, 1.0) * 0.24;
+
+                vec3 diskColor = mix(vec3(0.38, 0.18, 0.08), vec3(1.0, 0.84, 0.48), smoothstep(0.15, 0.95, diskTexture));
+                vec3 diskHotColor = mix(diskColor, vec3(1.0, 0.98, 0.95), smoothstep(0.45, 1.0, diskCore + diskTexture * 0.45));
+                vec3 arcColor = mix(vec3(0.74, 0.79, 0.92), vec3(0.98, 0.98, 1.0), smoothstep(0.2, 1.0, arcTexture));
+                vec3 outerBlue = vec3(0.26, 0.34, 0.62);
+
+                vec3 color = vec3(0.0);
+                color += diskHotColor * diskBand * diskFalloff * (0.32 + diskTexture * 0.62) * doppler;
+                color += diskHotColor * diskCore * diskFalloff * 0.34;
+                color += arcColor * topArc * (0.22 + arcTexture * 0.22);
+                color += arcColor * bottomArc * (0.08 + arcTexture * 0.1);
+                color += vec3(0.98, 0.97, 1.0) * photonRing * 0.56;
+                color += vec3(1.0, 0.9, 0.72) * innerHalo * 0.1;
+                color += outerBlue * exp(-pow(r / 1.25, 2.0)) * 0.12;
+
+                float alpha = 0.0;
+                alpha += diskBand * diskFalloff * (0.34 + diskTexture * 0.28);
+                alpha += topArc * 0.32;
+                alpha += bottomArc * 0.13;
+                alpha += photonRing * 0.24;
+                alpha += innerHalo * 0.08;
+                alpha = clamp(alpha, 0.0, 0.95);
+
+                vec3 finalColor = color * (1.0 - horizon);
+                finalColor = mix(finalColor, vec3(0.0), horizon);
+
+                float finalAlpha = max(alpha, horizon * 0.98);
+                if (finalAlpha < 0.01) discard;
+
+                gl_FragColor = vec4(finalColor, finalAlpha);
             }
         `,
         transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide,
-        depthWrite: false
+        depthWrite: false,
+        depthTest: false
     });
+}
 
-    const disk = new THREE.Mesh(diskGeometry, diskMaterial);
-    disk.rotation.x = Math.PI / 2;
-
-    // 光晕
-    const glowGeometry = new THREE.SphereGeometry(500, 32, 32);
-    const glowMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
-                vec3 color = vec3(0.5, 0.2, 0.8) * intensity;
-                gl_FragColor = vec4(color, intensity * 0.3);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide,
-        depthWrite: false
-    });
-
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-
+// ============ 创建银河系中心黑洞 ============
+function createGalacticCenter() {
     galacticCenter = new THREE.Group();
-    galacticCenter.add(blackHole);
-    galacticCenter.add(disk);
-    galacticCenter.add(glow);
+    galacticCenter.renderOrder = 20;
+
+    const blackHoleCard = new THREE.Mesh(
+        new THREE.PlaneGeometry(2350, 1600),
+        createGalacticBlackHoleMaterial()
+    );
+    blackHoleCard.name = 'blackHoleCard';
+    blackHoleCard.renderOrder = 21;
+    galacticCenter.add(blackHoleCard);
+
+    const coolHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: createGlowTexture(512, { r: 0.58, g: 0.72, b: 1.0 }),
+        transparent: true,
+        opacity: 0.13,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false
+    }));
+    coolHalo.name = 'coolHalo';
+    coolHalo.scale.set(3000, 2050, 1);
+    coolHalo.position.set(0, 0, -10);
+    coolHalo.renderOrder = 19;
+    galacticCenter.add(coolHalo);
+
+    const warmHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: createGlowTexture(512, { r: 1.0, g: 0.82, b: 0.45 }),
+        transparent: true,
+        opacity: 0.12,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false
+    }));
+    warmHalo.name = 'warmHalo';
+    warmHalo.scale.set(1680, 1100, 1);
+    warmHalo.position.set(0, -10, -5);
+    warmHalo.renderOrder = 20;
+    galacticCenter.add(warmHalo);
+
+    const coreShadow = new THREE.Mesh(
+        new THREE.SphereGeometry(140, 64, 64),
+        new THREE.MeshBasicMaterial({
+            color: 0x000000,
+            transparent: true,
+            opacity: 0.92,
+            depthWrite: false,
+            depthTest: false
+        })
+    );
+    coreShadow.name = 'coreShadow';
+    coreShadow.renderOrder = 22;
+    galacticCenter.add(coreShadow);
+
     scene.add(galacticCenter);
 }
 
@@ -2703,6 +2788,29 @@ function animate() {
 
     // 更新黑洞吸积盘
     if (galacticCenter) {
+        const blackHoleCard = galacticCenter.getObjectByName('blackHoleCard');
+        const coolHalo = galacticCenter.getObjectByName('coolHalo');
+        const warmHalo = galacticCenter.getObjectByName('warmHalo');
+        const coreShadow = galacticCenter.getObjectByName('coreShadow');
+
+        if (blackHoleCard) {
+            blackHoleCard.quaternion.copy(camera.quaternion);
+            const pulse = 1 + Math.sin(elapsed * 0.7) * 0.015;
+            blackHoleCard.scale.set(pulse, pulse, 1);
+        }
+
+        if (coolHalo) {
+            coolHalo.material.opacity = 0.11 + Math.sin(elapsed * 0.35) * 0.015;
+        }
+
+        if (warmHalo) {
+            warmHalo.material.opacity = 0.105 + Math.cos(elapsed * 0.48) * 0.015;
+        }
+
+        if (coreShadow) {
+            coreShadow.material.opacity = 0.9 + Math.sin(elapsed * 0.5) * 0.02;
+        }
+
         galacticCenter.children.forEach(child => {
             if (child.material && child.material.uniforms && child.material.uniforms.time) {
                 child.material.uniforms.time.value = elapsed;
@@ -3295,8 +3403,8 @@ function onCanvasClick(event) {
             const dx = event.clientX - bhScreenX;
             const dy = event.clientY - bhScreenY;
             const screenDist = Math.sqrt(dx * dx + dy * dy);
-            // 点击距离黑洞屏幕投影 80 像素以内视为命中
-            if (screenDist < 80) {
+            // 新版银心黑洞更显眼，适当放宽点击命中范围
+            if (screenDist < 110) {
                 window.location.href = 'blackhole-3d.html';
                 return;
             }
