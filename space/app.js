@@ -48,7 +48,7 @@ const planetData = {
         mass: 4.87, // 10²⁴ kg
         category: 'terrestrial',
         distance: 108.2,
-        orbitPeriod: 225,
+        orbitPeriod: 224.7,
         rotationPeriod: 243,
         color: 0xe6c87a,
         emissive: 0x8b7355,
@@ -65,7 +65,7 @@ const planetData = {
         mass: 5.97, // 10²⁴ kg
         category: 'terrestrial',
         distance: 149.6,
-        orbitPeriod: 365,
+        orbitPeriod: 365.25,
         rotationPeriod: 1,
         color: 0x6b93d6,
         emissive: 0x1a4d1a,
@@ -288,7 +288,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Mercury',
         diameter: '4,879 km',
         distance: '57,909,227 km',
-        rotation: '58.6 地球日',
+        rotation: '58.6 地球日<br>约等于 58.6 天',
+        orbit: '88 地球日<br>约等于 0.24 年',
         temperature: '-180°C ~ 430°C',
         moons: '0',
         quote: '我虽然是最小的，但跑得很快，因为我离太阳最近！',
@@ -302,7 +303,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Venus',
         diameter: '12,104 km',
         distance: '108,209,475 km',
-        rotation: '243 地球日',
+        rotation: '243 地球日<br>约等于 243 天',
+        orbit: '224.7 地球日<br>约等于 0.62 年',
         temperature: '462°C ~ 472°C',
         moons: '0',
         quote: '我很热情，但我的爱会让你窒息，欢迎来到地狱级高温！',
@@ -316,7 +318,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Earth',
         diameter: '12,742 km',
         distance: '149,598,023 km',
-        rotation: '23.9 小时',
+        rotation: '1 地球日<br>约等于 1 天',
+        orbit: '365.25 地球日<br>约等于 1 年',
         temperature: '-88°C ~ 58°C',
         moons: '1',
         quote: '我是你唯一的家园，请好好珍惜我，别让我生病了！',
@@ -330,7 +333,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Mars',
         diameter: '6,779 km',
         distance: '227,943,824 km',
-        rotation: '24.6 小时',
+        rotation: '1.03 地球日<br>约等于 1.03 天',
+        orbit: '687 地球日<br>约等于 1.88 年',
         temperature: '-140°C ~ -20°C',
         moons: '2',
         quote: '人类总想来我这里定居，也许有一天，我会不再孤单。',
@@ -344,7 +348,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Jupiter',
         diameter: '139,820 km',
         distance: '778,340,821 km',
-        rotation: '9.9 小时',
+        rotation: '0.41 地球日<br>约等于 0.41 天',
+        orbit: '4333 地球日<br>约等于 11.86 年',
         temperature: '-145°C',
         moons: '95+',
         quote: '我是太阳系的大哥，肚子上有个大红斑，比地球还大！',
@@ -358,7 +363,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Saturn',
         diameter: '116,460 km',
         distance: '1,426,666,422 km',
-        rotation: '10.7 小时',
+        rotation: '0.45 地球日<br>约等于 0.45 天',
+        orbit: '10759 地球日<br>约等于 29.46 年',
         temperature: '-178°C',
         moons: '146+',
         quote: '我的环是最美的，但我可不是靠脸吃饭的，我很有气质！',
@@ -372,7 +378,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Uranus',
         diameter: '50,724 km',
         distance: '2,870,658,186 km',
-        rotation: '17.2 小时',
+        rotation: '0.72 地球日<br>约等于 0.72 天',
+        orbit: '30687 地球日<br>约等于 84.0 年',
         temperature: '-224°C',
         moons: '27',
         quote: '我喜欢躺着转，因为我特立独行，不需要理由。',
@@ -386,7 +393,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Neptune',
         diameter: '49,244 km',
         distance: '4,498,396,441 km',
-        rotation: '16.1 小时',
+        rotation: '0.67 地球日<br>约等于 0.67 天',
+        orbit: '60190 地球日<br>约等于 164.8 年',
         temperature: '-214°C',
         moons: '14',
         quote: '我风暴不断，风速快到离谱，没人比我更狂野！',
@@ -400,7 +408,8 @@ const solarGuidePlanetCards = [
         nameEN: 'Pluto',
         diameter: '2,377 km',
         distance: '5,906,376,272 km',
-        rotation: '153.3 小时',
+        rotation: '6.4 地球日<br>约等于 6.4 天',
+        orbit: '90560 地球日<br>约等于 247.94 年',
         temperature: '-229°C ~ -243°C',
         moons: '5',
         quote: '曾经的第九行星，2006 年被降级，但我依然很酷！',
@@ -2937,6 +2946,7 @@ function renderPlanetGuide() {
                             </div>
                             <div class="planet-guide-stat-column">
                                 ${createGuideStat('🌡', '表面温度', planet.temperature)}
+                                ${createGuideStat('⟳', '公转周期', planet.orbit)}
                                 ${createGuideStat('☾', '已知卫星数', planet.moons)}
                             </div>
                         </div>
@@ -4261,12 +4271,14 @@ function formatDistance(distance) {
     return distance + ' 百万 km';
 }
 
+function formatPeriodNumber(value) {
+    return Number(value.toFixed(2)).toString();
+}
+
 function formatOrbitPeriod(days) {
-    if (days >= 365) {
-        const years = (days / 365).toFixed(1);
-        return years + ' 年';
-    }
-    return days + ' 天';
+    const orbitDays = formatPeriodNumber(days);
+    const years = formatPeriodNumber(days / 365.25);
+    return orbitDays + ' 地球日，约等于 ' + years + ' 年';
 }
 
 // ============ 启动 ============

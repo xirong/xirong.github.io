@@ -577,6 +577,8 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 0.95rem;
             color: var(--accent-cyan);
+            line-height: 1.4;
+            word-break: break-word;
         }
 
         .planet-description {
@@ -1258,9 +1260,9 @@
             position: relative;
             z-index: 1;
             display: grid;
-            grid-template-columns: 70px minmax(0, 1.35fr) minmax(150px, 0.82fr);
+            grid-template-columns: 70px minmax(0, 1fr);
             gap: 14px;
-            align-items: center;
+            align-items: start;
         }
 
         .planet-guide-avatar-wrap {
@@ -1331,8 +1333,8 @@
 
         .planet-guide-stat {
             display: grid;
-            grid-template-columns: 16px 68px minmax(0, 1fr);
-            gap: 6px;
+            grid-template-columns: 16px 62px minmax(0, 1fr);
+            gap: 8px;
             align-items: start;
             font-size: 0.78rem;
         }
@@ -1355,18 +1357,22 @@
             font-weight: 500;
             line-height: 1.5;
             color: rgba(255, 255, 255, 0.9);
-            word-break: normal;
-            overflow-wrap: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         .planet-guide-card-quote {
             display: flex;
             flex-direction: column;
+            grid-column: 1 / -1;
             justify-content: center;
             gap: 8px;
-            min-height: 100%;
-            padding-left: 16px;
-            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            min-height: auto;
+            margin-top: 4px;
+            padding-left: 0;
+            padding-top: 12px;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .planet-guide-quote-label {
@@ -1536,7 +1542,7 @@
 
             .planet-guide-right {
                 display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 10px;
                 align-content: start;
             }
@@ -2586,7 +2592,7 @@
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">公转周期</div>
-                    <div class="stat-value" id="planetOrbitPeriod">365 天</div>
+                    <div class="stat-value" id="planetOrbitPeriod">365.25 地球日，约等于 1 年</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">相对地球大小</div>
