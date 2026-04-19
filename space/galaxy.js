@@ -800,7 +800,7 @@ function init() {
     controls.dampingFactor = 0.05;
     controls.minDistance = 100;
     controls.maxDistance = 500000;
-    controls.target.copy(SOLAR_SYSTEM_POS);
+    controls.target.copy(GALACTIC_CENTER);
 
     // 创建场景内容
     createDistantStars();
@@ -2824,12 +2824,19 @@ function updateControlsTarget(distance) {
         return;
     }
 
-    // 远距离时平滑过渡控制中心点
-    if (distance > 50000) {
-        const t = Math.min((distance - 50000) / 100000, 1);
-        controls.target.lerpVectors(solarPosition, GALACTIC_CENTER, t);
+    // 默认以银河系中心为缩放中心，只有真正贴近太阳系邻域时才平滑切换到太阳系
+    const solarFocusStart = NEIGHBORHOOD_THRESHOLD * 1.2;
+    const distToSolarSystem = camera.position.distanceTo(solarPosition);
+
+    if (distToSolarSystem < solarFocusStart) {
+        const t = THREE.MathUtils.clamp(
+            1 - (distToSolarSystem - NEIGHBORHOOD_THRESHOLD) / (solarFocusStart - NEIGHBORHOOD_THRESHOLD),
+            0,
+            1
+        );
+        controls.target.lerpVectors(GALACTIC_CENTER, solarPosition, t);
     } else {
-        controls.target.copy(solarPosition);
+        controls.target.copy(GALACTIC_CENTER);
     }
 }
 
@@ -2968,10 +2975,8 @@ function returnToMilkyWay() {
         const t = Math.min(elapsed / duration, 1);
         // 缓动函数
         const easeT = 1 - Math.pow(1 - t, 3);
-        const solarPosition = getSolarSystemWorldPosition(tempSolarSystemPosition);
-
         camera.position.lerpVectors(startPosition, targetPosition, easeT);
-        controls.target.lerpVectors(controls.target.clone(), solarPosition, easeT);
+        controls.target.lerpVectors(controls.target.clone(), GALACTIC_CENTER, easeT);
 
         if (t < 1) {
             requestAnimationFrame(animateReturn);
