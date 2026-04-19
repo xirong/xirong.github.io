@@ -23,9 +23,20 @@ let starSystems = []; // 恒星系统对象数组（银河系尺度）
 let neighborhoodStarSystems = []; // 太阳系邻域恒星系统（局部尺度）
 let isNeighborhoodView = false; // 当前是否处于邻域视图
 let focusedControlsTarget = null; // 当前缩放焦点
+let focusedControlsObject = null; // 当前聚焦对象
 const starTextureCache = new Map();
 const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
 const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
+const GALACTIC_CENTER = new THREE.Vector3(0, 0, 0);
+const tempSolarSystemPosition = new THREE.Vector3();
+const tempFocusedWorldPosition = new THREE.Vector3();
+const tempLineEndPosition = new THREE.Vector3();
+const SOLAR_ORBIT_SETTINGS = {
+    speedFactor: 0.97,
+    bobAmplitude: 10,
+    bobSpeedFactor: 0.5,
+    bobPhase: 0.35
+};
 
 // 太阳系在银河系中的位置（距银心约26000光年，这里用单位表示）
 const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
@@ -666,6 +677,94 @@ function createStarSurfaceMaterial(fallbackColor, textureProfile) {
 
     material.userData.baseOpacity = 1.0;
     return material;
+}
+
+// ============ 银河系公转辅助 ============
+function getGalacticOrbitSpeedFactor(radius) {
+    if (!radius) return 1;
+    return THREE.MathUtils.clamp(1.1 - (radius / 40000) * 0.28, 0.86, 1.08);
+}
+
+function registerGalacticOrbit(object, anchor, options = {}) {
+    if (!object || !anchor) return;
+
+    const orbitRadius = Math.hypot(anchor.x, anchor.z);
+    object.userData.galacticOrbit = {
+        orbitRadius,
+        angleOffset: Math.atan2(anchor.z, anchor.x),
+        baseY: anchor.y,
+        speedFactor: options.speedFactor !== undefined ? options.speedFactor : getGalacticOrbitSpeedFactor(orbitRadius),
+        bobAmplitude: options.bobAmplitude || 0,
+        bobSpeedFactor: options.bobSpeedFactor || 0.6,
+        bobPhase: options.bobPhase !== undefined ? options.bobPhase : Math.random() * Math.PI * 2
+    };
+}
+
+function updateGalacticOrbit(object, diskAngle, elapsed) {
+    if (!object || !object.userData.galacticOrbit) return;
+
+    const orbit = object.userData.galacticOrbit;
+    const angle = orbit.angleOffset + diskAngle * orbit.speedFactor;
+    const yOffset = orbit.bobAmplitude > 0
+        ? Math.sin(elapsed * orbit.bobSpeedFactor + orbit.bobPhase) * orbit.bobAmplitude
+        : 0;
+
+    object.position.set(
+        Math.cos(angle) * orbit.orbitRadius,
+        orbit.baseY + yOffset,
+        Math.sin(angle) * orbit.orbitRadius
+    );
+}
+
+function registerNeighborhoodOffset(object, localOffset) {
+    if (!object) return;
+    object.userData.neighborhoodOffset = localOffset.clone();
+}
+
+function getSolarSystemWorldPosition(target = new THREE.Vector3()) {
+    if (solarSystem) {
+        solarSystem.getWorldPosition(target);
+        return target;
+    }
+
+    return target.copy(SOLAR_SYSTEM_POS);
+}
+
+function updateNeighborhoodSystemPositions(solarPosition) {
+    for (const starSystem of neighborhoodStarSystems) {
+        const localOffset = starSystem.userData.neighborhoodOffset;
+        if (!localOffset) continue;
+
+        starSystem.position.copy(solarPosition).add(localOffset);
+    }
+}
+
+function updateNeighborhoodDistanceLines(solarPosition) {
+    for (const starSystem of neighborhoodStarSystems) {
+        if (!starSystem.distanceLine) continue;
+
+        const linePositions = starSystem.distanceLine.geometry.attributes.position;
+        const starPosition = starSystem.getWorldPosition(tempLineEndPosition);
+        linePositions.setXYZ(0, solarPosition.x, solarPosition.y, solarPosition.z);
+        linePositions.setXYZ(1, starPosition.x, starPosition.y, starPosition.z);
+        linePositions.needsUpdate = true;
+    }
+}
+
+function updateGalacticMotion(elapsed) {
+    const diskAngle = milkyWay ? milkyWay.rotation.y : 0;
+
+    updateGalacticOrbit(solarSystem, diskAngle, elapsed);
+    updateGalacticOrbit(heliopause, diskAngle, elapsed);
+    updateGalacticOrbit(oortCloud, diskAngle, elapsed);
+
+    for (const starSystem of starSystems) {
+        updateGalacticOrbit(starSystem, diskAngle, elapsed);
+    }
+
+    const solarPosition = getSolarSystemWorldPosition(tempSolarSystemPosition);
+    updateNeighborhoodSystemPositions(solarPosition);
+    updateNeighborhoodDistanceLines(solarPosition);
 }
 
 // ============ 初始化 ============
@@ -1335,6 +1434,7 @@ function createSolarSystemMarker() {
 
     // 标签
     createLabel(solarSystem, '☀️ 太阳系\n你在这里', 0, 80, 0);
+    registerGalacticOrbit(solarSystem, SOLAR_SYSTEM_POS, SOLAR_ORBIT_SETTINGS);
 
     scene.add(solarSystem);
 }
@@ -1379,6 +1479,7 @@ function createHeliopause() {
 
     heliopause = new THREE.Mesh(geometry, material);
     heliopause.position.copy(SOLAR_SYSTEM_POS);
+    registerGalacticOrbit(heliopause, SOLAR_SYSTEM_POS, SOLAR_ORBIT_SETTINGS);
     scene.add(heliopause);
 }
 
@@ -1421,6 +1522,7 @@ function createOortCloud() {
 
     oortCloud = new THREE.Points(geometry, material);
     oortCloud.position.copy(SOLAR_SYSTEM_POS);
+    registerGalacticOrbit(oortCloud, SOLAR_SYSTEM_POS, SOLAR_ORBIT_SETTINGS);
     scene.add(oortCloud);
 }
 
@@ -1917,6 +2019,10 @@ function createGalacticStarSystems() {
             starGroup.key = key;
             starGroup.config = config;
             starGroup.visible = false; // 由 updateStarSystems 控制可见性
+            registerGalacticOrbit(starGroup, position, {
+                bobAmplitude: config.size === 'hypergiant' ? 18 : 10,
+                bobSpeedFactor: 0.45
+            });
             starSystems.push(starGroup);
         }
     }
@@ -2095,6 +2201,7 @@ function createNeighborhoodStarSystems() {
             starGroup.key = key;
             starGroup.config = config;
             starGroup.visible = false; // 初始不可见
+            registerNeighborhoodOffset(starGroup, new THREE.Vector3(x, y, z));
             neighborhoodStarSystems.push(starGroup);
         }
     }
@@ -2196,6 +2303,7 @@ function createNeighborhoodSun() {
     sunGroup.add(label);
 
     sunGroup.visible = false;
+    registerNeighborhoodOffset(sunGroup, new THREE.Vector3(0, 0, 0));
     scene.add(sunGroup);
     neighborhoodStarSystems.push(sunGroup);
 }
@@ -2577,6 +2685,8 @@ function animate() {
         milkyWay.rotation.y += 0.0008;
     }
 
+    updateGalacticMotion(elapsed);
+
     // 银河系 LOD
     if (milkyWay && milkyWayGlow) {
         if (distance > 80000) {
@@ -2651,10 +2761,11 @@ function animate() {
     }
 
     // 恒星系统更新
-    updateStarSystems(elapsed, distance);
+    const solarPosition = getSolarSystemWorldPosition(tempSolarSystemPosition);
+    updateStarSystems(elapsed, distance, solarPosition);
 
     // 更新太阳系邻域视图（多尺度切换）
-    updateNeighborhoodView(elapsed, distance);
+    updateNeighborhoodView(elapsed, distance, solarPosition);
 
     // 更新悬停效果
     updateGalaxyHover();
@@ -2667,6 +2778,7 @@ function animate() {
 function setControlsFocus(point, options = {}) {
     if (!point) return;
 
+    focusedControlsObject = null;
     focusedControlsTarget = point.clone();
 
     if (options.immediate) {
@@ -2680,18 +2792,32 @@ function setControlsFocus(point, options = {}) {
 function focusControlsOnObject(object, options = {}) {
     if (!object) return;
 
-    const worldPosition = new THREE.Vector3();
-    object.getWorldPosition(worldPosition);
-    setControlsFocus(worldPosition, options);
+    focusedControlsObject = object;
+    object.getWorldPosition(tempFocusedWorldPosition);
+    focusedControlsTarget = tempFocusedWorldPosition.clone();
+
+    if (options.immediate) {
+        controls.target.copy(tempFocusedWorldPosition);
+    }
+
+    controls.update();
 }
 
 // ============ 清除缩放焦点 ============
 function clearControlsFocus() {
     focusedControlsTarget = null;
+    focusedControlsObject = null;
 }
 
 // ============ 更新控制目标点 ============
 function updateControlsTarget(distance) {
+    const solarPosition = getSolarSystemWorldPosition(tempSolarSystemPosition);
+
+    if (focusedControlsObject) {
+        focusedControlsObject.getWorldPosition(tempFocusedWorldPosition);
+        focusedControlsTarget = tempFocusedWorldPosition.clone();
+    }
+
     if (focusedControlsTarget) {
         controls.target.lerp(focusedControlsTarget, 0.18);
         return;
@@ -2700,9 +2826,9 @@ function updateControlsTarget(distance) {
     // 远距离时平滑过渡控制中心点
     if (distance > 50000) {
         const t = Math.min((distance - 50000) / 100000, 1);
-        controls.target.lerpVectors(SOLAR_SYSTEM_POS, new THREE.Vector3(0, 0, 0), t);
+        controls.target.lerpVectors(solarPosition, GALACTIC_CENTER, t);
     } else {
-        controls.target.copy(SOLAR_SYSTEM_POS);
+        controls.target.copy(solarPosition);
     }
 }
 
@@ -2716,7 +2842,7 @@ function onWindowResize() {
 // ============ 更新比例指示器 ============
 function updateScaleIndicator() {
     const distance = camera.position.length();
-    const distToSolarSystem = camera.position.distanceTo(SOLAR_SYSTEM_POS);
+    const distToSolarSystem = camera.position.distanceTo(getSolarSystemWorldPosition(tempSolarSystemPosition));
     const scaleValue = document.getElementById('scaleValue');
     let level;
 
@@ -2841,9 +2967,10 @@ function returnToMilkyWay() {
         const t = Math.min(elapsed / duration, 1);
         // 缓动函数
         const easeT = 1 - Math.pow(1 - t, 3);
+        const solarPosition = getSolarSystemWorldPosition(tempSolarSystemPosition);
 
         camera.position.lerpVectors(startPosition, targetPosition, easeT);
-        controls.target.lerpVectors(controls.target.clone(), SOLAR_SYSTEM_POS, easeT);
+        controls.target.lerpVectors(controls.target.clone(), solarPosition, easeT);
 
         if (t < 1) {
             requestAnimationFrame(animateReturn);
@@ -2898,9 +3025,9 @@ function updateGalaxyHover() {
 }
 
 // ============ 恒星系统更新函数 ============
-function updateStarSystems(elapsed, distance) {
+function updateStarSystems(elapsed, distance, solarPosition) {
     // 计算到太阳系的距离，用于邻域视图判断
-    const distToSolarSystem = camera.position.distanceTo(SOLAR_SYSTEM_POS);
+    const distToSolarSystem = camera.position.distanceTo(solarPosition);
 
     for (const starSystem of starSystems) {
         // 可见性控制
@@ -2974,9 +3101,9 @@ function updateStarSystems(elapsed, distance) {
 }
 
 // ============ 更新太阳系邻域视图（多尺度切换）============
-function updateNeighborhoodView(elapsed, distance) {
+function updateNeighborhoodView(elapsed, distance, solarPosition) {
     // 计算相机到太阳系的距离
-    const distToSolarSystem = camera.position.distanceTo(SOLAR_SYSTEM_POS);
+    const distToSolarSystem = camera.position.distanceTo(solarPosition);
 
     // 判断是否应该进入邻域视图
     const shouldBeNeighborhood = distToSolarSystem < NEIGHBORHOOD_THRESHOLD;
