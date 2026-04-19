@@ -28,7 +28,7 @@ const starTextureCache = new Map();
 const NEIGHBORHOOD_THRESHOLD = 400; // 切换到邻域视图的距离阈值
 const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 const GALACTIC_CENTER = new THREE.Vector3(0, 0, 0);
-const GALACTIC_ROTATION_SPEED = -0.0002; // 整体放慢到更适合肉眼观察的速度
+const GALACTIC_ROTATION_SPEED = 0.0002; // 整体放慢到更适合肉眼观察的速度，并保持页面默认视角下顺时针
 const tempSolarSystemPosition = new THREE.Vector3();
 const tempFocusedWorldPosition = new THREE.Vector3();
 const tempLineEndPosition = new THREE.Vector3();
@@ -705,7 +705,7 @@ function updateGalacticOrbit(object, diskAngle, elapsed) {
     if (!object || !object.userData.galacticOrbit) return;
 
     const orbit = object.userData.galacticOrbit;
-    const angle = orbit.angleOffset + diskAngle * orbit.speedFactor;
+    const angle = orbit.angleOffset - diskAngle * orbit.speedFactor;
     const yOffset = orbit.bobAmplitude > 0
         ? Math.sin(elapsed * orbit.bobSpeedFactor + orbit.bobPhase) * orbit.bobAmplitude
         : 0;
@@ -2767,7 +2767,7 @@ function animate() {
     updateControlsTarget(distance);
 
     // 银河系缓慢旋转
-    // 按常见天文学俯视图约定：从北银极看，银河系整体应为顺时针旋转
+    // 背景星盘与著名恒星保持同向，页面默认视角下整体呈顺时针
     if (milkyWay) {
         milkyWay.rotation.y += GALACTIC_ROTATION_SPEED;
     }
