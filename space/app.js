@@ -527,6 +527,13 @@ let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星�
 let currentUranusVolumeSelection = 'earth'; // uranusVolume tab 中选中的星球
 let currentNeptuneVolumeSelection = 'earth'; // neptuneVolume tab 中选中的星球
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
+let isRealMotion = false; // 是否使用真实自转 / 公转比例
+
+// 折合后的“真实运动”速度
+// 公转：1 秒约等于 24 个地球日，地球绕太阳一圈约 15.2 秒
+// 自转：1 秒约等于 0.2 个地球日，地球自转一圈约 5 秒
+const REAL_ORBIT_DAYS_PER_SECOND = 24;
+const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -624,6 +631,7 @@ function init() {
     // 生成大小对比
     generateSizeComparison();
     setupComparisonTabs();
+    updateModeIndicator();
 
     // 隐藏加载画面
     setTimeout(() => {
@@ -1329,11 +1337,18 @@ function createPlanets() {
         }
 
         planet.name = name;
+        const demoOrbitSpeed = 0.5 / Math.sqrt(data.orbitRadius);
+        const demoRotationSpeed = 0.01 / data.rotationPeriod;
+
         planet.userData = {
             ...data,
             orbitAngle: Math.random() * Math.PI * 2,
-            orbitSpeed: 0.5 / Math.sqrt(data.orbitRadius),
-            rotationSpeed: 0.01 / data.rotationPeriod,
+            orbitSpeed: demoOrbitSpeed,
+            rotationSpeed: demoRotationSpeed,
+            demoOrbitSpeed: demoOrbitSpeed,
+            demoRotationSpeed: demoRotationSpeed,
+            realOrbitSpeed: getRealOrbitSpeed(data.orbitPeriod),
+            realRotationSpeed: getRealRotationSpeed(data.rotationPeriod),
             size: size
         };
 
@@ -2469,7 +2484,9 @@ function addLights() {
 function animate() {
     animationId = requestAnimationFrame(animate);
 
-    const elapsed = clock.getElapsedTime();
+    const delta = clock.getDelta();
+    const elapsed = clock.elapsedTime;
+    const frameFactor = delta * 60;
 
     // 更新控制器
     controls.update();
@@ -2481,7 +2498,10 @@ function animate() {
 
     // 更新太阳
     if (sun) {
-        sun.rotation.y += 0.002;
+        const sunRotationStep = isRealMotion
+            ? getRealRotationSpeed(planetData.sun.rotationPeriod) * delta
+            : 0.002 * frameFactor;
+        sun.rotation.y += sunRotationStep;
         if (sun.material.uniforms) {
             sun.material.uniforms.time.value = elapsed;
         }
@@ -2499,14 +2519,20 @@ function animate() {
 
             const planet = planets[name];
             const data = planet.userData;
+            const orbitStep = isRealMotion
+                ? data.realOrbitSpeed * delta
+                : data.demoOrbitSpeed * 0.01 * frameFactor;
+            const rotationStep = isRealMotion
+                ? data.realRotationSpeed * delta
+                : data.demoRotationSpeed * frameFactor;
 
             // 公转
-            data.orbitAngle += data.orbitSpeed * 0.01;
+            data.orbitAngle += orbitStep;
             planet.position.x = Math.cos(data.orbitAngle) * data.orbitRadius;
             planet.position.z = Math.sin(data.orbitAngle) * data.orbitRadius;
 
             // 自转
-            planet.rotation.y += data.rotationSpeed;
+            planet.rotation.y += rotationStep;
 
             // 天王星特殊倾斜
             if (name === 'uranus') {
@@ -2525,7 +2551,10 @@ function animate() {
                 }
                 // 地球云层旋转
                 if (name === 'earth' && planet.userData.cloudMesh) {
-                    planet.userData.cloudMesh.rotation.y += 0.0003;
+                    const cloudRotationStep = isRealMotion
+                        ? rotationStep * 1.05
+                        : 0.0003 * frameFactor;
+                    planet.userData.cloudMesh.rotation.y += cloudRotationStep;
                 }
             }
         });
@@ -2830,11 +2859,21 @@ function setupControls() {
     document.getElementById('toggleRealScale').addEventListener('click', function () {
         isRealScale = !isRealScale;
         this.classList.toggle('active', isRealScale);
-        document.getElementById('scaleValue').textContent = isRealScale ? '真实比例' : '教学模式';
+        updateModeIndicator();
 
         // 切换比例（真实比例下行星会非常小）
         updatePlanetScales();
     });
+
+    // 真实公转 / 自转切换
+    const toggleRealMotionBtn = document.getElementById('toggleRealMotion');
+    if (toggleRealMotionBtn) {
+        toggleRealMotionBtn.addEventListener('click', function () {
+            isRealMotion = !isRealMotion;
+            this.classList.toggle('active', isRealMotion);
+            updateModeIndicator();
+        });
+    }
 
     // 行星选择器
     document.querySelectorAll('.planet-dot').forEach(dot => {
@@ -3006,6 +3045,18 @@ function createGuideStat(icon, label, value) {
 
 function getSolarGuideTexture(key) {
     return solarGuideTextureMap[key] || solarGuideTextureMap.earth;
+}
+
+function updateModeIndicator() {
+    const scaleValue = document.getElementById('scaleValue');
+    if (!scaleValue) return;
+
+    const labels = [isRealScale ? '真实比例' : '教学模式'];
+    if (isRealMotion) {
+        labels.push('真实运动');
+    }
+
+    scaleValue.textContent = labels.join(' + ');
 }
 
 // ============ 更新行星大小 ============
@@ -4269,6 +4320,16 @@ function formatDistance(distance) {
         return (distance / 1000).toFixed(1) + ' 十亿 km';
     }
     return distance + ' 百万 km';
+}
+
+function getRealOrbitSpeed(periodDays) {
+    if (!periodDays) return 0;
+    return (Math.PI * 2 * REAL_ORBIT_DAYS_PER_SECOND) / periodDays;
+}
+
+function getRealRotationSpeed(periodDays) {
+    if (!periodDays) return 0;
+    return (Math.PI * 2 * REAL_ROTATION_DAYS_PER_SECOND) / periodDays;
 }
 
 function formatPeriodNumber(value) {
