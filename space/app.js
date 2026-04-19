@@ -538,8 +538,8 @@ const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
 const moonsData = {
     // 火星的卫星
     mars: [
-        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355 },
-        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a }
+        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '福波斯，贴近火星的不规则小卫星', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '戴摩斯，更小更暗的外侧卫星', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, segments: 48 }
     ],
     // 木星的伽利略卫星
     jupiter: [
@@ -556,12 +556,12 @@ const moonsData = {
     ],
     // 天王星的卫星
     uranus: [
-        { name: '天卫三', nameCN: '天卫三', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '泰坦尼亚' },
-        { name: '天卫四', nameCN: '天卫四', diameter: 1523, orbitRadius: 9, orbitSpeed: 0.04, color: 0x99aaaa, desc: '奥伯龙' }
+        { name: '天卫三', nameCN: '天卫三', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '泰坦尼亚', texturePath: 'textures/titania.jpg', brightness: 1.14, fresnelColor: 'vec3(0.82, 0.88, 0.94)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '天卫四', nameCN: '天卫四', diameter: 1523, orbitRadius: 9, orbitSpeed: 0.04, color: 0x99aaaa, desc: '奥伯龙', texturePath: 'textures/oberon.jpg', brightness: 1.14, fresnelColor: 'vec3(0.8, 0.84, 0.9)', fresnelIntensity: 0.08, segments: 48 }
     ],
     // 海王星的卫星
     neptune: [
-        { name: '海卫一', nameCN: '海卫一', diameter: 2707, orbitRadius: 7, orbitSpeed: -0.04, color: 0xddccbb, desc: '特里同，逆行卫星' }
+        { name: '海卫一', nameCN: '海卫一', diameter: 2707, orbitRadius: 7, orbitSpeed: -0.04, color: 0xddccbb, desc: '特里同，逆行卫星', texturePath: 'textures/triton.jpg', brightness: 1.12, fresnelColor: 'vec3(0.9, 0.86, 0.8)', fresnelIntensity: 0.08, segments: 48 }
     ]
 };
 
@@ -2107,25 +2107,20 @@ const auDistances = {
 // ============ 创建行星标签 ============
 function createPlanetLabel(planet, name, nameEN) {
     const au = auDistances[name];
+    const bodyData = planetData[planet.name];
+    const showPeriodChips = !!(bodyData && au && bodyData.orbitPeriod > 0 && bodyData.rotationPeriod > 0);
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    // 根据内容多少动态设置 canvas 宽度
     const hasEN = !!nameEN;
-    canvas.width = (au || hasEN) ? 512 : 256;
-    canvas.height = 64;
-
-    context.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    context.textBaseline = 'middle';
-    const centerY = canvas.height / 2;
-
-    // 测量各部分宽度
-    const cnFont = 'bold 32px Noto Sans SC';
-    const enFont = 'bold 20px Orbitron, sans-serif';
-    const auFont = '22px Noto Sans SC';
+    const cnFont = 'bold 30px Noto Sans SC';
+    const enFont = 'bold 18px Orbitron, sans-serif';
+    const auFont = '20px Noto Sans SC';
+    const chipFont = 'bold 18px Noto Sans SC';
     const gap = 10;
+    const badgePadH = 8;
+    const chipPadX = 12;
+    const chipGap = 14;
 
     context.font = cnFont;
     const cnWidth = context.measureText(name).width;
@@ -2138,63 +2133,100 @@ function createPlanetLabel(planet, name, nameEN) {
 
     let auBadgeWidth = 0;
     let auTextWidth = 0;
-    const badgePadH = 8;
     if (au) {
         context.font = auFont;
         auTextWidth = context.measureText(au).width;
         auBadgeWidth = auTextWidth + badgePadH * 2;
     }
 
-    // 计算总宽度
     let totalWidth = cnWidth;
     if (hasEN) totalWidth += gap + enWidth;
     if (au) totalWidth += gap + auBadgeWidth;
 
+    let rotationChipText = '';
+    let orbitChipText = '';
+    let bottomWidth = 0;
+    let rotationChipWidth = 0;
+    let orbitChipWidth = 0;
+
+    if (showPeriodChips) {
+        rotationChipText = '自转 ' + formatLabelRotationPeriod(bodyData.rotationPeriod);
+        orbitChipText = '公转 ' + formatLabelOrbitYears(bodyData.orbitPeriod);
+
+        context.font = chipFont;
+        rotationChipWidth = context.measureText(rotationChipText).width + chipPadX * 2;
+        orbitChipWidth = context.measureText(orbitChipText).width + chipPadX * 2;
+        bottomWidth = rotationChipWidth + chipGap + orbitChipWidth;
+    }
+
+    canvas.width = Math.ceil(Math.max(totalWidth + 48, bottomWidth ? bottomWidth + 48 : 0, hasEN || au ? 420 : 256));
+    canvas.height = showPeriodChips ? 108 : 64;
+
+    function drawRoundedRect(x, y, width, height, radius, fillStyle, strokeStyle) {
+        context.beginPath();
+        context.moveTo(x + radius, y);
+        context.lineTo(x + width - radius, y);
+        context.quadraticCurveTo(x + width, y, x + width, y + radius);
+        context.lineTo(x + width, y + height - radius);
+        context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        context.lineTo(x + radius, y + height);
+        context.quadraticCurveTo(x, y + height, x, y + height - radius);
+        context.lineTo(x, y + radius);
+        context.quadraticCurveTo(x, y, x + radius, y);
+        context.closePath();
+        context.fillStyle = fillStyle;
+        context.fill();
+        if (strokeStyle) {
+            context.strokeStyle = strokeStyle;
+            context.lineWidth = 1;
+            context.stroke();
+        }
+    }
+
+    drawRoundedRect(0.5, 0.5, canvas.width - 1, canvas.height - 1, 14, 'rgba(0, 0, 0, 0.58)', 'rgba(255, 255, 255, 0.06)');
+
+    context.textBaseline = 'middle';
+    const topCenterY = showPeriodChips ? 34 : canvas.height / 2;
     const startX = (canvas.width - totalWidth) / 2;
     let curX = startX;
 
-    // 绘制中文名
     context.font = cnFont;
     context.textAlign = 'left';
     context.fillStyle = '#ffffff';
-    context.fillText(name, curX, centerY);
+    context.fillText(name, curX, topCenterY);
     curX += cnWidth;
 
-    // 绘制英文名（金色 Orbitron 字体）
     if (hasEN) {
         curX += gap;
         context.font = enFont;
         context.fillStyle = '#f4d03f';
-        context.fillText(nameEN, curX, centerY + 1);
+        context.fillText(nameEN, curX, topCenterY + 1);
         curX += enWidth;
     }
 
-    // 绘制 AU 小标签（带圆角背景）
     if (au) {
         curX += gap;
         const badgeH = 26;
-        const badgeY = centerY - badgeH / 2;
-        const radius = 6;
-
-        // 圆角矩形背景
-        context.fillStyle = 'rgba(0, 212, 255, 0.15)';
-        context.beginPath();
-        context.moveTo(curX + radius, badgeY);
-        context.lineTo(curX + auBadgeWidth - radius, badgeY);
-        context.quadraticCurveTo(curX + auBadgeWidth, badgeY, curX + auBadgeWidth, badgeY + radius);
-        context.lineTo(curX + auBadgeWidth, badgeY + badgeH - radius);
-        context.quadraticCurveTo(curX + auBadgeWidth, badgeY + badgeH, curX + auBadgeWidth - radius, badgeY + badgeH);
-        context.lineTo(curX + radius, badgeY + badgeH);
-        context.quadraticCurveTo(curX, badgeY + badgeH, curX, badgeY + badgeH - radius);
-        context.lineTo(curX, badgeY + radius);
-        context.quadraticCurveTo(curX, badgeY, curX + radius, badgeY);
-        context.closePath();
-        context.fill();
-
-        // AU 文字
+        const badgeY = topCenterY - badgeH / 2;
+        drawRoundedRect(curX, badgeY, auBadgeWidth, badgeH, 6, 'rgba(0, 212, 255, 0.15)', null);
         context.font = auFont;
         context.fillStyle = '#00d4ff';
-        context.fillText(au, curX + badgePadH, centerY + 1);
+        context.fillText(au, curX + badgePadH, topCenterY + 1);
+    }
+
+    if (showPeriodChips) {
+        const bottomY = 78;
+        const chipsStartX = (canvas.width - bottomWidth) / 2;
+
+        drawRoundedRect(chipsStartX, bottomY - 13, rotationChipWidth, 28, 8, 'rgba(0, 212, 255, 0.14)', 'rgba(0, 212, 255, 0.18)');
+        context.font = chipFont;
+        context.fillStyle = '#7fe7ff';
+        context.fillText(rotationChipText, chipsStartX + chipPadX, bottomY + 1);
+
+        const orbitChipX = chipsStartX + rotationChipWidth + chipGap;
+        drawRoundedRect(orbitChipX, bottomY - 13, orbitChipWidth, 28, 8, 'rgba(244, 208, 63, 0.14)', 'rgba(244, 208, 63, 0.18)');
+        context.fillStyle = '#ffe082';
+        context.fillText(orbitChipText, orbitChipX + chipPadX, bottomY + 1);
     }
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -2204,9 +2236,9 @@ function createPlanetLabel(planet, name, nameEN) {
     });
 
     const sprite = new THREE.Sprite(material);
-    const spriteWidth = (au || hasEN) ? 18 : 10;
-    sprite.scale.set(spriteWidth, 2.5, 1);
-    sprite.position.y = planet.userData.size + 3;
+    sprite.scale.set(canvas.width / 28.5, canvas.height / 25.5, 1);
+    sprite.userData.offsetY = showPeriodChips ? 5 : 3;
+    sprite.position.y = planet.userData.size + sprite.userData.offsetY;
     sprite.visible = showLabels;
 
     planet.add(sprite);
@@ -3121,7 +3153,8 @@ function updatePlanetScales() {
 
         // 更新标签位置
         if (labels[name]) {
-            labels[name].position.y = planet.userData.size * scale + 3;
+            const offsetY = labels[name].userData.offsetY || 3;
+            labels[name].position.y = planet.userData.size * scale + offsetY;
         }
     });
 }
@@ -4362,6 +4395,20 @@ function getRealRotationSpeed(periodDays) {
 
 function formatPeriodNumber(value) {
     return Number(value.toFixed(2)).toString();
+}
+
+function formatLabelPeriodNumber(value, fractionDigits) {
+    return value.toFixed(fractionDigits).replace(/\.?0+$/, '');
+}
+
+function formatLabelRotationPeriod(days) {
+    return formatLabelPeriodNumber(days, days >= 10 ? 1 : 2) + '天';
+}
+
+function formatLabelOrbitYears(days) {
+    const years = days / 365.25;
+    const fractionDigits = years >= 100 ? 1 : 2;
+    return formatLabelPeriodNumber(years, fractionDigits) + '年';
 }
 
 function formatOrbitPeriod(days) {
