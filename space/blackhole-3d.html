@@ -107,7 +107,7 @@
 <body>
     <div class="loading" id="loading">
         <div class="ld-ring"><div class="r"></div><div class="r"></div><div class="core"></div></div>
-        <div class="ld-text">正在构建黑洞...</div>
+        <div class="ld-text">正在汇聚吸积盘...</div>
     </div>
 
     <div class="header">
@@ -115,7 +115,7 @@
             <div class="logo-icon">🕳️</div>
             <div>
                 <h1>GARGANTUA</h1>
-                <p>3D 交互 · 纯代码生成</p>
+                <p>3D 交互 · 纹理驱动</p>
             </div>
         </div>
     </div>
@@ -143,7 +143,7 @@
         </div>
     </div>
 
-    <div class="hint" id="hint">拖拽旋转 / 滚轮缩放 / 双指捏合</div>
+    <div class="hint" id="hint">拖拽微调视角 / 滚轮缩放 / 双指捏合</div>
     <a class="home-link" href="blackhole.html">← 返回黑洞探索</a>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -160,7 +160,10 @@
         return new Promise(resolve => {
             if (window.THREE && THREE.EffectComposer) { resolve(); return; }
             const check = setInterval(() => {
-                if (window.THREE && THREE.EffectComposer) { clearInterval(check); resolve(); }
+                if (window.THREE && THREE.EffectComposer) {
+                    clearInterval(check);
+                    resolve();
+                }
             }, 50);
         });
     }
@@ -168,380 +171,580 @@
     waitForThree().then(init);
 
     function init() {
-    // ============ 场景 ============
-    const W = window.innerWidth;
-    const H = window.innerHeight;
+        const W = window.innerWidth;
+        const H = window.innerHeight;
 
-    const scene = new THREE.Scene();
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x02040a, 0.006);
 
-    const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 500);
-    camera.position.set(0, 5, 32);
+        const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 400);
+        camera.position.set(0.1, 0.55, 23.2);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(W, H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.9;
-    document.body.appendChild(renderer.domElement);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(W, H);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.82;
+        document.body.appendChild(renderer.domElement);
 
-    // ============ 后处理（辉光） ============
-    const composer = new THREE.EffectComposer(renderer);
-    composer.addPass(new THREE.RenderPass(scene, camera));
+        // ============ 后处理（强化星际穿越的柔光包裹感） ============
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(new THREE.RenderPass(scene, camera));
 
-    const bloomPass = new THREE.UnrealBloomPass(
-        new THREE.Vector2(W, H),
-        0.35,  // 辉光强度（降低避免过曝）
-        0.3,   // 辉光半径
-        0.55   // 辉光阈值（只有最亮处才发光）
-    );
-    composer.addPass(bloomPass);
-
-    // ============ 控制器 ============
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 5;
-    controls.maxDistance = 40;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.3;
-    controls.target.set(0, 0, 0);
-    controls.addEventListener('start', () => { controls.autoRotate = false; });
-
-    // ============ 加载背景纹理 ============
-    const bgTexture = new THREE.TextureLoader().load('textures/starfield.jpg');
-
-    // ============ Schwarzschild 光线追踪 Shader ============
-    const vertexShader = `
-        varying vec2 vUv;
-        void main() {
-            vUv = uv;
-            gl_Position = vec4(position.xy, 0.0, 1.0);
-        }
-    `;
-
-    const fragmentShader = `
-        precision highp float;
-
-        uniform float time;
-        uniform vec2 resolution;
-        uniform vec3 camPos;
-        uniform vec3 camTarget;
-        uniform vec3 camUp;
-        uniform sampler2D bgTexture;
-
-        varying vec2 vUv;
-
-        // ============ 常量 ============
-        #define PI 3.14159265359
-        #define RS 2.0
-        #define DISK_IN 3.0
-        #define DISK_OUT 12.0
-        #define MAX_STEPS 75
-        #define ESCAPE_R 50.0
-
-        // ============ 噪声函数（吸积盘纹理） ============
-        float hash(float n) { return fract(sin(n) * 43758.5453123); }
-        float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
-
-        float noise(vec2 p) {
-            vec2 i = floor(p);
-            vec2 f = fract(p);
-            f = f * f * (3.0 - 2.0 * f);
-            float a = hash2(i);
-            float b = hash2(i + vec2(1.0, 0.0));
-            float c = hash2(i + vec2(0.0, 1.0));
-            float d = hash2(i + vec2(1.0, 1.0));
-            return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-        }
-
-        float fbm(vec2 p) {
-            float v = 0.0;
-            float a = 0.5;
-            mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-            for (int i = 0; i < 3; i++) {
-                v += a * noise(p);
-                p = rot * p * 2.0;
-                a *= 0.5;
-            }
-            return v;
-        }
-
-        // ============ 吸积盘颜色 ============
-        vec3 diskColor(float r, float angle) {
-            // 归一化径向位置
-            float t = clamp((r - DISK_IN) / (DISK_OUT - DISK_IN), 0.0, 1.0);
-
-            // 温度色板：内白热 → 金色 → 橙色 → 暗红
-            vec3 hotWhite   = vec3(1.0, 0.95, 0.85);
-            vec3 warmGold   = vec3(1.0, 0.75, 0.35);
-            vec3 deepOrange = vec3(0.9, 0.45, 0.1);
-            vec3 dimRed     = vec3(0.4, 0.15, 0.05);
-
-            vec3 col;
-            if (t < 0.15) {
-                col = mix(hotWhite, warmGold, t / 0.15);
-            } else if (t < 0.5) {
-                col = mix(warmGold, deepOrange, (t - 0.15) / 0.35);
-            } else {
-                col = mix(deepOrange, dimRed, (t - 0.5) / 0.5);
-            }
-
-            // 亮度衰减（内亮外暗）
-            float brightness = pow(1.0 - t, 2.0) * 0.7;
-
-            // 多普勒效应：一侧更亮，另一侧更暗
-            float doppler = 1.0 + 0.35 * sin(angle + time * 0.5);
-            brightness *= doppler;
-
-            // 噪声纹理（径向条纹 + 湍流）
-            float n = fbm(vec2(r * 3.0 - time * 0.3, angle * 2.0 / PI));
-            float n2 = fbm(vec2(r * 8.0, angle * 6.0 / PI + time * 0.2));
-            brightness *= (0.7 + 0.3 * n) * (0.85 + 0.15 * n2);
-
-            // ISCO 附近额外增亮（光子环附近辐射极强）
-            float iscoGlow = exp(-pow((r - DISK_IN) / 0.8, 2.0)) * 0.5;
-            brightness += iscoGlow;
-
-            // 限制最大 HDR 值，避免 bloom 过曝
-            return min(col * brightness, vec3(1.2));
-        }
-
-        // ============ 背景采样（等距柱状投影） ============
-        vec3 sampleBackground(vec3 dir) {
-            float u = 0.5 + atan(dir.z, dir.x) / (2.0 * PI);
-            float v = 0.5 - asin(clamp(dir.y, -1.0, 1.0)) / PI;
-            vec3 bg = texture2D(bgTexture, vec2(u, v)).rgb;
-            // 增亮星空，确保透镜效果可见
-            return bg * 2.0;
-        }
-
-        // ============ 主光线追踪 ============
-        void main() {
-            // 屏幕坐标 → 归一化设备坐标
-            vec2 uv = (gl_FragCoord.xy / resolution) * 2.0 - 1.0;
-            uv.x *= resolution.x / resolution.y;
-
-            // 相机坐标系
-            vec3 forward = normalize(camTarget - camPos);
-            vec3 right = normalize(cross(forward, camUp));
-            vec3 up = cross(right, forward);
-
-            // 光线方向（视场角约55度）
-            float fov = tan(radians(55.0) * 0.5);
-            vec3 rayDir = normalize(forward + fov * (uv.x * right + uv.y * up));
-
-            // 光线起点
-            vec3 p = camPos;
-            vec3 v = rayDir;
-
-            // 步长
-            float stepSize = 0.1;
-
-            // 累积颜色（用于多次穿过吸积盘）
-            vec3 color = vec3(0.0);
-            float alpha = 0.0;
-
-            // 光子环累积光度
-            float photonRingGlow = 0.0;
-
-            // 盘面穿越计数（用于衰减多次穿越的亮度）
-            int diskCrossings = 0;
-
-            // 上一步的 y 符号（用于检测盘面穿越）
-            float prevY = p.y;
-
-            // ============ 数值积分循环 ============
-            for (int i = 0; i < MAX_STEPS; i++) {
-                float r = length(p);
-
-                // 自适应步长：靠近黑洞时步长小，远处步长大
-                stepSize = 0.08 + 0.03 * r;
-
-                // Schwarzschild 引力加速度
-                vec3 h = cross(p, v);
-                float h2 = dot(h, h);
-                vec3 accel = -1.5 * h2 / pow(r, 5.0) * p;
-
-                // Verlet 积分（精度更高）
-                vec3 newV = v + accel * stepSize;
-                vec3 newP = p + newV * stepSize;
-
-                // ===== 事件视界检测 =====
-                if (r < RS) {
-                    // 落入黑洞 → 纯黑
-                    color = mix(color, vec3(0.0), 1.0 - alpha);
-                    alpha = 1.0;
-                    break;
-                }
-
-                // ===== 光子环检测（r ≈ 1.5 RS 附近） =====
-                float photonR = 1.5 * RS;
-                float photonDist = abs(r - photonR);
-                if (photonDist < 0.5) {
-                    float glow = exp(-photonDist * photonDist / 0.02) * 0.12;
-                    photonRingGlow += glow;
-                }
-
-                // ===== 吸积盘穿越检测（y 符号翻转） =====
-                float curY = newP.y;
-                if (prevY * curY < 0.0) {
-                    // 线性插值找精确穿越点
-                    float frac = abs(prevY) / (abs(prevY) + abs(curY));
-                    vec3 hitP = mix(p, newP, frac);
-                    float hitR = length(hitP.xz);
-
-                    if (hitR > DISK_IN && hitR < DISK_OUT) {
-                        float angle = atan(hitP.z, hitP.x);
-                        vec3 diskCol = diskColor(hitR, angle);
-
-                        // 每次穿越衰减：第1次 100%，第2次 40%，第3次 16%...
-                        float crossFade = pow(0.4, float(diskCrossings));
-                        diskCrossings++;
-
-                        // 半透明叠加
-                        float diskAlpha = clamp(0.85 * pow(1.0 - (hitR - DISK_IN) / (DISK_OUT - DISK_IN), 0.8), 0.0, 0.8) * crossFade;
-                        color = color + diskCol * (1.0 - alpha) * diskAlpha;
-                        alpha = alpha + (1.0 - alpha) * diskAlpha;
-                    }
-                }
-                prevY = curY;
-
-                // ===== 逃逸检测 =====
-                if (r > ESCAPE_R) {
-                    vec3 bg = sampleBackground(normalize(v));
-                    color = color + bg * (1.0 - alpha);
-                    alpha = 1.0;
-                    break;
-                }
-
-                v = newV;
-                p = newP;
-            }
-
-            // 如果光线没有逃逸也没有落入，用最后方向采样背景
-            if (alpha < 1.0) {
-                vec3 bg = sampleBackground(normalize(v));
-                color = color + bg * (1.0 - alpha);
-            }
-
-            // 叠加光子环辉光
-            vec3 photonColor = vec3(1.0, 0.9, 0.7) * min(photonRingGlow, 1.0);
-            color += photonColor;
-
-            // 输出线性 HDR 颜色，clamp 防止极端值导致 bloom 失控
-            gl_FragColor = vec4(min(color, vec3(1.5)), 1.0);
-        }
-    `;
-
-    // ============ 全屏 Shader 四边形 ============
-    const shaderMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            time: { value: 0 },
-            resolution: { value: new THREE.Vector2(W * renderer.getPixelRatio(), H * renderer.getPixelRatio()) },
-            camPos: { value: camera.position.clone() },
-            camTarget: { value: new THREE.Vector3(0, 0, 0) },
-            camUp: { value: new THREE.Vector3(0, 1, 0) },
-            bgTexture: { value: bgTexture },
-        },
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        depthTest: false,
-        depthWrite: false,
-    });
-
-    const quad = new THREE.Mesh(
-        new THREE.PlaneGeometry(2, 2),
-        shaderMaterial
-    );
-    quad.frustumCulled = false;
-    scene.add(quad);
-
-    // ============ 标注交互 ============
-    const annBtns = document.querySelectorAll('.ann-btn');
-    let activeHighlight = null;
-
-    annBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const target = btn.dataset.target;
-            if (activeHighlight === target) {
-                annBtns.forEach(b => b.style.borderColor = '');
-                activeHighlight = null;
-                return;
-            }
-            annBtns.forEach(b => b.style.borderColor = '');
-            btn.style.borderColor = '#ffcc66';
-            activeHighlight = target;
-
-            // 缓慢飞向目标
-            if (target === 'singularity' || target === 'horizon') {
-                smoothMoveTo(0, 1, 7);
-            } else if (target === 'photon') {
-                smoothMoveTo(2, 2, 8);
-            } else if (target === 'disk') {
-                smoothMoveTo(0, 8, 12);
-            } else if (target === 'lens') {
-                smoothMoveTo(0, 2, 10);
-            }
-        });
-    });
-
-    function smoothMoveTo(tx, ty, tz) {
-        controls.autoRotate = false;
-        const start = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-        const dur = 1200;
-        const t0 = performance.now();
-        function step() {
-            const p = Math.min(1, (performance.now() - t0) / dur);
-            const ease = 1 - Math.pow(1 - p, 3);
-            camera.position.set(
-                start.x + (tx - start.x) * ease,
-                start.y + (ty - start.y) * ease,
-                start.z + (tz - start.z) * ease
-            );
-            if (p < 1) requestAnimationFrame(step);
-        }
-        step();
-    }
-
-    // ============ 动画 ============
-    function animate() {
-        requestAnimationFrame(animate);
-
-        // 更新 uniforms
-        shaderMaterial.uniforms.time.value = performance.now() * 0.001;
-        shaderMaterial.uniforms.camPos.value.copy(camera.position);
-        shaderMaterial.uniforms.camTarget.value.copy(controls.target);
-
-        // 从相机矩阵中提取真实 up 向量
-        camera.updateMatrixWorld();
-        const up = new THREE.Vector3();
-        up.setFromMatrixColumn(camera.matrixWorld, 1);
-        shaderMaterial.uniforms.camUp.value.copy(up);
-
-        controls.update();
-        composer.render();
-    }
-
-    // ============ 响应式 ============
-    window.addEventListener('resize', () => {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-        composer.setSize(w, h);
-        shaderMaterial.uniforms.resolution.value.set(
-            w * renderer.getPixelRatio(),
-            h * renderer.getPixelRatio()
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(W, H),
+            0.62,
+            0.78,
+            0.42
         );
-    });
+        composer.addPass(bloomPass);
 
-    // ============ 启动 ============
-    document.getElementById('loading').classList.add('done');
-    animate();
-    setTimeout(() => document.getElementById('hint').classList.add('hide'), 5000);
+        // ============ 控制器 ============
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.enablePan = false;
+        controls.minDistance = 13;
+        controls.maxDistance = 34;
+        controls.minPolarAngle = Math.PI * 0.48;
+        controls.maxPolarAngle = Math.PI * 0.52;
+        controls.minAzimuthAngle = -0.5;
+        controls.maxAzimuthAngle = 0.5;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.16;
+        controls.target.set(0, 0.0, 0);
+        controls.addEventListener('start', () => { controls.autoRotate = false; });
 
-    } // end init
+        // ============ 纹理 ============
+        const textureLoader = new THREE.TextureLoader();
+        const maxAniso = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1;
+
+        const bgTexture = textureLoader.load('textures/starfield.jpg');
+        const diskTextureA = textureLoader.load('textures/stars/yellow_star_surface.jpg');
+        const diskTextureB = textureLoader.load('textures/stars/white_star_surface.jpg');
+        const diskTextureC = textureLoader.load('textures/stars/orange_star_surface.jpg');
+
+        [bgTexture, diskTextureA, diskTextureB, diskTextureC].forEach(tex => {
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.anisotropy = maxAniso;
+            tex.encoding = THREE.sRGBEncoding;
+        });
+
+        // ============ 星空球壳 ============
+        const starSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(180, 48, 48),
+            new THREE.MeshBasicMaterial({
+                map: bgTexture,
+                side: THREE.BackSide,
+                color: 0xb3cfff
+            })
+        );
+        starSphere.rotation.y = Math.PI * 0.22;
+        scene.add(starSphere);
+
+        // ============ 自定义材质 ============
+        function createGlowTexture(size, innerColor, midColor, outerColor) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            const gradient = ctx.createRadialGradient(
+                size / 2, size / 2, 0,
+                size / 2, size / 2, size / 2
+            );
+            gradient.addColorStop(0, innerColor);
+            gradient.addColorStop(0.35, midColor);
+            gradient.addColorStop(1, outerColor);
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.encoding = THREE.sRGBEncoding;
+            return tex;
+        }
+
+        function createDiskMaterial() {
+            return new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    texA: { value: diskTextureA },
+                    texB: { value: diskTextureB },
+                    texC: { value: diskTextureC },
+                    innerNorm: { value: 5.2 / 15.8 }
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    varying vec3 vWorldPos;
+                    varying vec3 vViewDir;
+
+                    void main() {
+                        vUv = uv;
+                        vec4 worldPos = modelMatrix * vec4(position, 1.0);
+                        vWorldPos = worldPos.xyz;
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                        vViewDir = normalize(-mvPosition.xyz);
+                        gl_Position = projectionMatrix * mvPosition;
+                    }
+                `,
+                fragmentShader: `
+                    precision highp float;
+
+                    uniform float time;
+                    uniform sampler2D texA;
+                    uniform sampler2D texB;
+                    uniform sampler2D texC;
+                    uniform float innerNorm;
+
+                    varying vec2 vUv;
+                    varying vec3 vWorldPos;
+                    varying vec3 vViewDir;
+
+                    #define PI 3.14159265359
+
+                    float luma(vec3 c) {
+                        return dot(c, vec3(0.299, 0.587, 0.114));
+                    }
+
+                    void main() {
+                        vec2 p = vUv * 2.0 - 1.0;
+                        float r = length(p);
+                        if (r <= innerNorm || r >= 1.0) discard;
+
+                        float angle = atan(p.y, p.x) / (2.0 * PI) + 0.5;
+                        float radialT = clamp((r - innerNorm) / (1.0 - innerNorm), 0.0, 1.0);
+
+                        float tex1 = luma(texture2D(texA, vec2(
+                            fract(angle * 5.8 - time * 0.07 + radialT * 1.1),
+                            fract(radialT * 2.3 + time * 0.02)
+                        )).rgb);
+                        float tex2 = luma(texture2D(texB, vec2(
+                            fract(angle * -9.6 - time * 0.12 + tex1 * 0.12),
+                            fract(radialT * 3.0 - time * 0.03)
+                        )).rgb);
+                        float tex3 = luma(texture2D(texC, vec2(
+                            fract(angle * 13.0 + time * 0.05),
+                            fract(radialT * 4.4 + tex2 * 0.16)
+                        )).rgb);
+
+                        float streak = clamp(tex1 * 0.55 + tex2 * 0.78 + tex3 * 0.35, 0.0, 1.45);
+                        float hotCore = exp(-pow((r - (innerNorm + 0.02)) / 0.036, 2.0));
+                        float innerGlow = pow(1.0 - radialT, 1.55);
+                        float edgeFade = smoothstep(innerNorm, innerNorm + 0.02, r) *
+                                         (1.0 - smoothstep(0.74, 0.98, r));
+                        float doppler = 1.0 + clamp(vWorldPos.x / 18.0, -1.0, 1.0) * 0.32;
+                        float turbulence = smoothstep(0.16, 0.95, streak);
+                        float perspective = 0.55 + 0.45 * pow(1.0 - abs(vViewDir.y), 0.35);
+
+                        vec3 deep = vec3(0.42, 0.14, 0.05);
+                        vec3 warm = vec3(1.0, 0.82, 0.45);
+                        vec3 whiteHot = vec3(0.95, 0.97, 1.0);
+
+                        vec3 color = mix(deep, warm, innerGlow * 0.85 + turbulence * 0.18);
+                        color = mix(color, whiteHot, smoothstep(0.55, 1.2, hotCore + streak * 0.48));
+                        color *= (0.16 + innerGlow * 0.82 + streak * 0.24) * doppler;
+
+                        float alpha = edgeFade * perspective * (0.1 + turbulence * 0.42);
+                        alpha *= 0.45 + hotCore * 0.65;
+
+                        if (alpha < 0.02) discard;
+                        gl_FragColor = vec4(color, clamp(alpha, 0.0, 1.0));
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+        }
+
+        function createLensMaterial(polarity, boost) {
+            return new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    texA: { value: diskTextureA },
+                    texB: { value: diskTextureB },
+                    texC: { value: diskTextureC },
+                    polarity: { value: polarity },
+                    boost: { value: boost }
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    varying vec3 vWorldPos;
+                    varying vec3 vNormalW;
+
+                    void main() {
+                        vUv = uv;
+                        vec4 worldPos = modelMatrix * vec4(position, 1.0);
+                        vWorldPos = worldPos.xyz;
+                        vNormalW = normalize(mat3(modelMatrix) * normal);
+                        gl_Position = projectionMatrix * viewMatrix * worldPos;
+                    }
+                `,
+                fragmentShader: `
+                    precision highp float;
+
+                    uniform float time;
+                    uniform sampler2D texA;
+                    uniform sampler2D texB;
+                    uniform sampler2D texC;
+                    uniform float polarity;
+                    uniform float boost;
+
+                    varying vec2 vUv;
+                    varying vec3 vWorldPos;
+                    varying vec3 vNormalW;
+
+                    float luma(vec3 c) {
+                        return dot(c, vec3(0.299, 0.587, 0.114));
+                    }
+
+                    void main() {
+                        float hemi = smoothstep(0.0, 1.35, polarity * vWorldPos.y + 0.2);
+                        float tube = abs(vUv.y - 0.5) * 2.0;
+                        float tubeMask = exp(-pow(tube / 0.72, 2.0));
+                        float arc = vUv.x;
+
+                        float tex1 = luma(texture2D(texB, vec2(
+                            fract(arc * 3.2 - time * 0.04),
+                            fract(tube * 0.9 + time * 0.02)
+                        )).rgb);
+                        float tex2 = luma(texture2D(texA, vec2(
+                            fract(arc * 7.6 + time * 0.05 + tube * 0.25),
+                            fract(tube * 1.9 - time * 0.01)
+                        )).rgb);
+                        float tex3 = luma(texture2D(texC, vec2(
+                            fract(arc * -11.0 - time * 0.06),
+                            fract(tube * 2.7 + tex1 * 0.22)
+                        )).rgb);
+
+                        float streak = clamp(tex1 * 0.36 + tex2 * 0.78 + tex3 * 0.3, 0.0, 1.5);
+                        float centerBoost = 0.68 + 0.32 * exp(-pow(vWorldPos.x / 10.0, 2.0));
+                        float spanMask = 1.0 - smoothstep(6.0, 9.2, abs(vWorldPos.x));
+                        float fresnel = pow(1.0 - abs(dot(normalize(vNormalW), vec3(0.0, 0.0, 1.0))), 1.35);
+
+                        vec3 warm = vec3(1.0, 0.84, 0.58);
+                        vec3 whiteHot = vec3(0.99, 0.98, 1.0);
+                        vec3 color = mix(warm, whiteHot, smoothstep(0.48, 1.2, streak + fresnel * 0.42));
+                        color *= boost * (0.28 + streak * 0.52 + fresnel * 0.12) * centerBoost * (0.45 + spanMask * 0.55);
+
+                        float alpha = hemi * tubeMask * (0.12 + streak * 0.32 + fresnel * 0.08) * spanMask;
+                        if (alpha < 0.02) discard;
+
+                        gl_FragColor = vec4(color, clamp(alpha, 0.0, 1.0));
+                    }
+                `,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+        }
+
+        function createLensingSheetMaterial() {
+            return new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    texA: { value: diskTextureA },
+                    texB: { value: diskTextureB },
+                    texC: { value: diskTextureC }
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+
+                    void main() {
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    precision highp float;
+
+                    uniform float time;
+                    uniform sampler2D texA;
+                    uniform sampler2D texB;
+                    uniform sampler2D texC;
+
+                    varying vec2 vUv;
+
+                    float luma(vec3 c) {
+                        return dot(c, vec3(0.299, 0.587, 0.114));
+                    }
+
+                    void main() {
+                        vec2 p = vUv * 2.0 - 1.0;
+
+                        float gTop = exp(-(p.x * p.x) / (2.0 * 0.42 * 0.42));
+                        float topY = 0.08 + gTop * 0.52;
+                        float topW = mix(0.035, 0.12, gTop);
+                        float topBand = exp(-pow((p.y - topY) / topW, 2.0));
+
+                        float gBot = exp(-(p.x * p.x) / (2.0 * 0.34 * 0.34));
+                        float botY = -0.16 - gBot * 0.48;
+                        float botW = mix(0.03, 0.1, gBot);
+                        float botBand = exp(-pow((p.y - botY) / botW, 2.0));
+
+                        float arcFlow = p.x * 0.5 + 0.5;
+                        float topTex1 = luma(texture2D(texB, vec2(
+                            fract(arcFlow * 3.2 - time * 0.03),
+                            fract(abs(p.y - topY) * 3.5 + time * 0.01)
+                        )).rgb);
+                        float topTex2 = luma(texture2D(texA, vec2(
+                            fract(arcFlow * 8.5 + time * 0.04),
+                            fract(abs(p.y - topY) * 1.8 - time * 0.02)
+                        )).rgb);
+                        float botTex = luma(texture2D(texC, vec2(
+                            fract(arcFlow * 6.4 - time * 0.035),
+                            fract(abs(p.y - botY) * 2.2 + time * 0.01)
+                        )).rgb);
+
+                        float topStreak = clamp(topTex1 * 0.35 + topTex2 * 0.7, 0.0, 1.2);
+                        float botStreak = clamp(botTex * 0.65 + topTex1 * 0.18, 0.0, 1.0);
+
+                        float sideFade = 0.35 + 0.65 * (1.0 - smoothstep(0.5, 1.0, abs(p.x)));
+                        float halo = exp(-dot(vec2(p.x * 0.75, p.y * 1.1), vec2(p.x * 0.75, p.y * 1.1)) * 1.6) * 0.05;
+                        float topCore = exp(-pow(p.x / 0.33, 2.0)) *
+                                        exp(-pow((p.y - (topY - topW * 0.15)) / (topW * 1.45), 2.0));
+
+                        vec3 topColor = mix(vec3(0.78, 0.8, 0.88), vec3(1.0, 0.99, 0.96), smoothstep(0.2, 1.0, topStreak));
+                        vec3 botColor = mix(vec3(0.72, 0.76, 0.86), vec3(1.0, 0.95, 0.9), smoothstep(0.25, 1.0, botStreak));
+
+                        vec3 color = vec3(0.0);
+                        color += topColor * topBand * (0.12 + topStreak * 0.22) * sideFade;
+                        color += vec3(1.0, 0.99, 0.97) * topCore * 0.12;
+                        color += botColor * botBand * (0.05 + botStreak * 0.09) * sideFade * 0.82;
+                        color += vec3(0.5, 0.6, 0.8) * halo;
+
+                        float alpha = topBand * (0.12 + topStreak * 0.18) * sideFade;
+                        alpha += topCore * 0.08;
+                        alpha += botBand * (0.05 + botStreak * 0.08) * sideFade * 0.82;
+                        alpha += halo * 0.4;
+
+                        if (alpha < 0.01) discard;
+                        gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.45));
+                    }
+                `,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+        }
+
+        // ============ 柔和辉光 ============
+        const blueHalo = new THREE.Sprite(
+            new THREE.SpriteMaterial({
+                map: createGlowTexture(
+                    512,
+                    'rgba(255,255,255,0.85)',
+                    'rgba(184,205,255,0.24)',
+                    'rgba(0,0,0,0)'
+                ),
+                transparent: true,
+                opacity: 0.05,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            })
+        );
+        blueHalo.scale.set(28, 28, 1);
+        blueHalo.position.set(0, 0, -1.8);
+        scene.add(blueHalo);
+
+        const warmHalo = new THREE.Sprite(
+            new THREE.SpriteMaterial({
+                map: createGlowTexture(
+                    512,
+                    'rgba(255,245,228,0.92)',
+                    'rgba(255,199,133,0.28)',
+                    'rgba(0,0,0,0)'
+                ),
+                transparent: true,
+                opacity: 0.04,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            })
+        );
+        warmHalo.scale.set(18, 18, 1);
+        warmHalo.position.set(0, 0, -1.3);
+        scene.add(warmHalo);
+
+        // ============ 黑洞主体 ============
+        const blackHole = new THREE.Mesh(
+            new THREE.SphereGeometry(4.35, 96, 96),
+            new THREE.MeshBasicMaterial({ color: 0x000000 })
+        );
+        scene.add(blackHole);
+
+        const photonRing = new THREE.Mesh(
+            new THREE.TorusGeometry(4.6, 0.09, 20, 320),
+            new THREE.MeshBasicMaterial({
+                color: 0xfffaef,
+                transparent: true,
+                opacity: 0.34,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            })
+        );
+        scene.add(photonRing);
+
+        const photonHalo = new THREE.Mesh(
+            new THREE.TorusGeometry(4.8, 0.24, 20, 320),
+            new THREE.MeshBasicMaterial({
+                color: 0xffe8c8,
+                transparent: true,
+                opacity: 0.08,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            })
+        );
+        scene.add(photonHalo);
+
+        // ============ 纹理驱动的吸积盘 ============
+        const disk = new THREE.Mesh(
+            new THREE.RingGeometry(5.2, 15.8, 320),
+            createDiskMaterial()
+        );
+        disk.rotation.x = Math.PI / 2;
+        scene.add(disk);
+
+        const diskGlow = new THREE.Mesh(
+            new THREE.RingGeometry(5.0, 16.8, 240),
+            new THREE.MeshBasicMaterial({
+                color: 0xffe0b8,
+                transparent: true,
+                opacity: 0.02,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            })
+        );
+        diskGlow.rotation.x = Math.PI / 2;
+        scene.add(diskGlow);
+
+        const lensSheet = new THREE.Mesh(
+            new THREE.PlaneGeometry(30, 20, 1, 1),
+            createLensingSheetMaterial()
+        );
+        lensSheet.position.set(0, 0.05, -0.8);
+        scene.add(lensSheet);
+
+        // ============ 透镜弧，重点贴近星际穿越的上大下小 ============
+        const topLens = new THREE.Mesh(
+            new THREE.TorusGeometry(5.7, 0.72, 48, 320),
+            createLensMaterial(1, 0.34)
+        );
+        topLens.scale.set(1.32, 0.76, 0.6);
+        topLens.position.y = 0.3;
+        topLens.visible = false;
+
+        const bottomLens = new THREE.Mesh(
+            new THREE.TorusGeometry(4.8, 0.58, 40, 320),
+            createLensMaterial(-1, 0.25)
+        );
+        bottomLens.scale.set(1.12, 0.82, 0.6);
+        bottomLens.position.y = -0.58;
+        bottomLens.visible = false;
+
+        const outerLensGlow = new THREE.Mesh(
+            new THREE.TorusGeometry(8.2, 1.7, 36, 240),
+            new THREE.MeshBasicMaterial({
+                color: 0xcad9ff,
+                transparent: true,
+                opacity: 0.018,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            })
+        );
+        outerLensGlow.scale.set(1.18, 0.82, 0.62);
+        outerLensGlow.position.y = 0.08;
+        outerLensGlow.visible = false;
+
+        // ============ 标注交互 ============
+        const annBtns = document.querySelectorAll('.ann-btn');
+        const focusTargets = {
+            singularity: { pos: new THREE.Vector3(0, 0.3, 11.8) },
+            horizon: { pos: new THREE.Vector3(0, 0.6, 13.4) },
+            photon: { pos: new THREE.Vector3(0.15, 1.0, 15.0) },
+            disk: { pos: new THREE.Vector3(0, 1.4, 19.5) },
+            lens: { pos: new THREE.Vector3(0, 2.2, 23.5) }
+        };
+        let activeHighlight = null;
+
+        annBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.target;
+                if (activeHighlight === target) {
+                    annBtns.forEach(b => b.style.borderColor = '');
+                    activeHighlight = null;
+                    return;
+                }
+                annBtns.forEach(b => b.style.borderColor = '');
+                btn.style.borderColor = '#ffcc66';
+                activeHighlight = target;
+
+                if (focusTargets[target]) {
+                    smoothMoveTo(focusTargets[target].pos);
+                }
+            });
+        });
+
+        function smoothMoveTo(nextPos) {
+            controls.autoRotate = false;
+            const start = camera.position.clone();
+            const duration = 1200;
+            const startTime = performance.now();
+
+            function step() {
+                const p = Math.min(1, (performance.now() - startTime) / duration);
+                const ease = 1.0 - Math.pow(1.0 - p, 3.0);
+                camera.position.lerpVectors(start, nextPos, ease);
+                if (p < 1) {
+                    requestAnimationFrame(step);
+                }
+            }
+
+            step();
+        }
+
+        // ============ 动画 ============
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const t = performance.now() * 0.001;
+            disk.material.uniforms.time.value = t;
+            lensSheet.material.uniforms.time.value = t;
+            topLens.material.uniforms.time.value = t;
+            bottomLens.material.uniforms.time.value = t;
+
+            starSphere.rotation.y = Math.PI * 0.22 + t * 0.003;
+
+            topLens.rotation.z = Math.sin(t * 0.18) * 0.035;
+            bottomLens.rotation.z = -Math.sin(t * 0.22) * 0.02;
+            photonRing.material.opacity = 0.32 + Math.sin(t * 1.9) * 0.025;
+            photonHalo.material.opacity = 0.07 + Math.sin(t * 1.2 + 0.5) * 0.015;
+            blueHalo.material.opacity = 0.045 + Math.sin(t * 0.6) * 0.008;
+            warmHalo.material.opacity = 0.035 + Math.cos(t * 0.7) * 0.007;
+
+            controls.update();
+            composer.render();
+        }
+
+        // ============ 响应式 ============
+        window.addEventListener('resize', () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            composer.setSize(w, h);
+        });
+
+        // ============ 启动 ============
+        document.getElementById('loading').classList.add('done');
+        animate();
+        setTimeout(() => document.getElementById('hint').classList.add('hide'), 5000);
+    }
     </script>
 </body>
 </html>
