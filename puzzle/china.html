@@ -647,13 +647,13 @@
         const PIECE_MAX_SIZE = 70; // 最大尺寸
         const MAP_LABEL_SCALE = 0.33;
         const LABEL_LAYOUT_OVERRIDES = {
-            beijing: { x: 431, y: 204, nameSize: 10, capitalSize: 8, capitalDy: 11 },
-            tianjin: { x: 447, y: 213, nameSize: 9, capitalSize: 7.5, capitalDy: 10 },
-            shanghai: { x: 505, y: 329, nameSize: 9, capitalSize: 7.5, capitalDy: 10 },
-            chongqing: { x: 349, y: 362, nameSize: 11, capitalSize: 8.5, capitalDy: 12 },
-            xianggang: { x: 438, y: 430, nameSize: 8, capitalSize: 7, capitalDy: 9 },
-            aomen: { x: 405, y: 437, nameSize: 8, capitalSize: 7, capitalDy: 9 },
-            hainan: { x: 351, y: 491, nameSize: 10, capitalSize: 8, capitalDy: 11 }
+            beijing: { nameSize: 10, capitalSize: 8 },
+            tianjin: { nameSize: 9, capitalSize: 7.5 },
+            shanghai: { nameSize: 9, capitalSize: 7.5 },
+            chongqing: { nameSize: 11, capitalSize: 8.5 },
+            xianggang: { x: 418.4, y: 430.3, nameSize: 8, capitalSize: 7, nameDy: -1.8, capitalDy: 5.8 },
+            aomen: { x: 411.4, y: 433.6, nameSize: 8, capitalSize: 7, nameDy: -1.8, capitalDy: 5.8 },
+            hainan: { nameSize: 10, capitalSize: 8 }
         };
 
         // ============ 初始化 ============
@@ -1030,13 +1030,13 @@
         function createProvinceLabel(key, province) {
             const bbox = province.bbox;
             const info = province.info;
-            const layout = getProvinceLabelLayout(key, bbox);
+            const layout = getProvinceLabelLayout(key, province);
             const nameFontSize = layout.nameSize ?? getProvinceNameFontSize(bbox);
             const capitalFontSize = layout.capitalSize ?? Math.max(2.4, nameFontSize * 0.72);
-            const centerX = layout.x ?? (bbox.x + bbox.width / 2);
-            const centerY = layout.y ?? (bbox.y + bbox.height / 2);
-            const nameY = centerY + (layout.nameDy ?? -(capitalFontSize * 0.4));
-            const capitalY = centerY + (layout.capitalDy ?? (capitalFontSize + 1.5));
+            const centerX = layout.x;
+            const centerY = layout.y;
+            const nameY = centerY + layout.nameDy;
+            const capitalY = centerY + layout.capitalDy;
 
             const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             group.setAttribute('class', 'province-label-group unplaced');
@@ -1068,7 +1068,8 @@
             province.labelElement.classList.toggle('unplaced', !province.placed);
         }
 
-        function getProvinceLabelLayout(key, bbox) {
+        function getProvinceLabelLayout(key, province) {
+            const bbox = province.bbox;
             const compact = bbox.width < 26 || bbox.height < 22;
             const baseNameSize = compact ? 8.5 : getProvinceNameFontSize(bbox);
             const baseCapitalSize = compact ? 7 : Math.max(7, Math.min(12, baseNameSize - 1.5));
@@ -1077,13 +1078,74 @@
                 capitalSize: baseCapitalSize,
                 ...LABEL_LAYOUT_OVERRIDES[key]
             };
+            const nameSize = Math.max(2.8, rawLayout.nameSize * MAP_LABEL_SCALE);
+            const capitalSize = Math.max(2.4, rawLayout.capitalSize * MAP_LABEL_SCALE);
+            const nameDy = rawLayout.nameDy !== undefined
+                ? rawLayout.nameDy * MAP_LABEL_SCALE
+                : -Math.max(0.8, capitalSize * 0.22);
+            const capitalDy = rawLayout.capitalDy !== undefined
+                ? rawLayout.capitalDy * MAP_LABEL_SCALE
+                : Math.max(2.2, capitalSize * 0.82);
+            const anchor = findProvinceLabelAnchor(province, nameDy, capitalDy);
             return {
                 ...rawLayout,
-                nameSize: Math.max(2.8, rawLayout.nameSize * MAP_LABEL_SCALE),
-                capitalSize: Math.max(2.4, rawLayout.capitalSize * MAP_LABEL_SCALE),
-                nameDy: rawLayout.nameDy ? rawLayout.nameDy * MAP_LABEL_SCALE : rawLayout.nameDy,
-                capitalDy: rawLayout.capitalDy ? rawLayout.capitalDy * MAP_LABEL_SCALE : rawLayout.capitalDy
+                x: rawLayout.x ?? anchor.x,
+                y: rawLayout.y ?? anchor.y,
+                nameSize,
+                capitalSize,
+                nameDy,
+                capitalDy
             };
+        }
+
+        function findProvinceLabelAnchor(province, nameDy, capitalDy) {
+            if (province.labelAnchor) return province.labelAnchor;
+
+            const bbox = province.bbox;
+            const fallback = {
+                x: bbox.x + bbox.width / 2,
+                y: bbox.y + bbox.height / 2
+            };
+
+            if (!svgDoc || typeof province.targetElement.isPointInFill !== 'function') {
+                province.labelAnchor = fallback;
+                return province.labelAnchor;
+            }
+
+            const probe = svgDoc.createSVGPoint();
+            const centerX = fallback.x;
+            const centerY = fallback.y;
+            const stepX = Math.max(1.5, bbox.width / 18);
+            const stepY = Math.max(1.5, bbox.height / 18);
+            let best = null;
+
+            for (let x = bbox.x + stepX / 2; x <= bbox.x + bbox.width - stepX / 2; x += stepX) {
+                for (let y = bbox.y + stepY / 2; y <= bbox.y + bbox.height - stepY / 2; y += stepY) {
+                    probe.x = x;
+                    probe.y = y + nameDy;
+
+                    if (!province.targetElement.isPointInFill(probe)) continue;
+
+                    probe.y = y + capitalDy;
+                    if (!province.targetElement.isPointInFill(probe)) continue;
+
+                    const edgeDistance = Math.min(
+                        x - bbox.x,
+                        bbox.x + bbox.width - x,
+                        y - bbox.y,
+                        bbox.y + bbox.height - y
+                    );
+                    const centerDistance = Math.hypot(x - centerX, y - centerY);
+                    const score = edgeDistance * 2 - centerDistance * 0.5;
+
+                    if (!best || score > best.score) {
+                        best = { x, y, score };
+                    }
+                }
+            }
+
+            province.labelAnchor = best ? { x: best.x, y: best.y } : fallback;
+            return province.labelAnchor;
         }
 
         function getProvinceNameFontSize(bbox) {
