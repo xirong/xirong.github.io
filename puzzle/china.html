@@ -155,12 +155,12 @@
         .province-label-name {
             fill: #ffffff;
             font-weight: 900;
-            stroke-width: 2.8px;
+            stroke-width: 0.95px;
         }
         .province-label-capital {
             fill: #c8f7ff;
             font-weight: 700;
-            stroke-width: 2.4px;
+            stroke-width: 0.85px;
         }
         .province-label-group.placed .province-label-name {
             fill: #fff1a8;
@@ -645,6 +645,7 @@
 
         // 拼图块尺寸配置
         const PIECE_MAX_SIZE = 70; // 最大尺寸
+        const MAP_LABEL_SCALE = 0.33;
         const LABEL_LAYOUT_OVERRIDES = {
             beijing: { x: 431, y: 204, nameSize: 10, capitalSize: 8, capitalDy: 11 },
             tianjin: { x: 447, y: 213, nameSize: 9, capitalSize: 7.5, capitalDy: 10 },
@@ -1031,11 +1032,11 @@
             const info = province.info;
             const layout = getProvinceLabelLayout(key, bbox);
             const nameFontSize = layout.nameSize ?? getProvinceNameFontSize(bbox);
-            const capitalFontSize = layout.capitalSize ?? Math.max(7, Math.min(12, nameFontSize - 1.5));
+            const capitalFontSize = layout.capitalSize ?? Math.max(2.4, nameFontSize * 0.72);
             const centerX = layout.x ?? (bbox.x + bbox.width / 2);
             const centerY = layout.y ?? (bbox.y + bbox.height / 2);
-            const nameY = centerY + (layout.nameDy ?? -(capitalFontSize * 0.45));
-            const capitalY = centerY + (layout.capitalDy ?? (capitalFontSize + 4));
+            const nameY = centerY + (layout.nameDy ?? -(capitalFontSize * 0.4));
+            const capitalY = centerY + (layout.capitalDy ?? (capitalFontSize + 1.5));
 
             const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             group.setAttribute('class', 'province-label-group unplaced');
@@ -1069,12 +1070,19 @@
 
         function getProvinceLabelLayout(key, bbox) {
             const compact = bbox.width < 26 || bbox.height < 22;
-            const defaultNameSize = compact ? 8.5 : getProvinceNameFontSize(bbox);
-            const defaultCapitalSize = compact ? 7 : Math.max(7, Math.min(12, defaultNameSize - 1.5));
-            return {
-                nameSize: defaultNameSize,
-                capitalSize: defaultCapitalSize,
+            const baseNameSize = compact ? 8.5 : getProvinceNameFontSize(bbox);
+            const baseCapitalSize = compact ? 7 : Math.max(7, Math.min(12, baseNameSize - 1.5));
+            const rawLayout = {
+                nameSize: baseNameSize,
+                capitalSize: baseCapitalSize,
                 ...LABEL_LAYOUT_OVERRIDES[key]
+            };
+            return {
+                ...rawLayout,
+                nameSize: Math.max(2.8, rawLayout.nameSize * MAP_LABEL_SCALE),
+                capitalSize: Math.max(2.4, rawLayout.capitalSize * MAP_LABEL_SCALE),
+                nameDy: rawLayout.nameDy ? rawLayout.nameDy * MAP_LABEL_SCALE : rawLayout.nameDy,
+                capitalDy: rawLayout.capitalDy ? rawLayout.capitalDy * MAP_LABEL_SCALE : rawLayout.capitalDy
             };
         }
 
