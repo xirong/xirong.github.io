@@ -2952,14 +2952,6 @@ function setupControls() {
         });
     });
 
-    // 奥尔特云按钮
-    const oortBtn = document.getElementById('viewOortCloud');
-    if (oortBtn) {
-        oortBtn.addEventListener('click', function () {
-            flyToOortCloud();
-        });
-    }
-
     // 太阳样式选择器
     const sunStyleOptions = document.querySelectorAll('.sun-style-option');
     console.log('找到太阳样式选项数量:', sunStyleOptions.length);
