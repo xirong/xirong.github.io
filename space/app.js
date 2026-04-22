@@ -533,6 +533,8 @@ let isRealMotion = false; // 是否使用真实自转 / 公转比例
 // 自转：1 秒约等于 0.2 个地球日，地球自转一圈约 5 秒
 const REAL_ORBIT_DAYS_PER_SECOND = 24;
 const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
+const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
+const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -1857,6 +1859,9 @@ function createMoonLabel(moonMesh, name, moonSize) {
     const sprite = new THREE.Sprite(material);
     sprite.scale.set(4, 1, 1);
     sprite.position.y = moonSize + 1;
+    sprite.userData = {
+        offsetY: 1
+    };
     sprite.visible = showLabels;
 
     moonMesh.add(sprite);
@@ -2617,12 +2622,15 @@ function animate() {
             const moonOrbitStep = isRealMotion
                 ? moonData.realOrbitSpeed * delta
                 : moonData.demoOrbitSpeed * 0.01 * frameFactor;
+            const moonOrbitRadius = isRealScale
+                ? moonData.orbitRadius * earth.scale.x
+                : moonData.orbitRadius;
 
             moonData.orbitAngle += moonOrbitStep;
 
             // 月球位置 = 地球位置 + 月球相对于地球的轨道位置
-            moon.position.x = earth.position.x + Math.cos(moonData.orbitAngle) * moonData.orbitRadius;
-            moon.position.z = earth.position.z + Math.sin(moonData.orbitAngle) * moonData.orbitRadius;
+            moon.position.x = earth.position.x + Math.cos(moonData.orbitAngle) * moonOrbitRadius;
+            moon.position.z = earth.position.z + Math.sin(moonData.orbitAngle) * moonOrbitRadius;
             moon.position.y = earth.position.y;
 
             // 月球自转（同步自转，始终一面朝向地球）
@@ -2646,7 +2654,9 @@ function animate() {
                 const data = moonMesh.userData;
                 data.orbitAngle += data.orbitSpeed * 0.01;
 
-                const actualRadius = planet.userData.size + data.orbitRadius;
+                const actualRadius = isRealScale
+                    ? (planet.userData.size + data.orbitRadius) * planet.scale.x
+                    : planet.userData.size + data.orbitRadius;
 
                 // 卫星位置 = 行星位置 + 卫星轨道位置
                 moonMesh.position.x = planet.position.x + Math.cos(data.orbitAngle) * actualRadius;
@@ -3119,13 +3129,27 @@ function updateModeIndicator() {
     scaleValue.textContent = labels.join(' + ');
 }
 
+function getRealDisplaySize(diameter) {
+    return REAL_SCALE_REFERENCE_SIZE * (diameter / REAL_SCALE_REFERENCE_DIAMETER);
+}
+
+function getRealScaleFactor(baseSize, diameter) {
+    if (!baseSize || !diameter) return 1;
+    return getRealDisplaySize(diameter) / baseSize;
+}
+
+function updateAttachedLabelPosition(labelSprite, baseSize, scale) {
+    if (!labelSprite || !baseSize) return;
+
+    const offsetY = labelSprite.userData.offsetY || 3;
+    const safeScale = Math.max(scale, 0.0001);
+    labelSprite.position.y = baseSize + offsetY / safeScale;
+}
+
 // ============ 更新行星大小 ============
 function updatePlanetScales() {
-    // 真实比例模式：以木星为基准，太阳单独处理
-    // 和大小对比面板使用相同的比例逻辑
-    const jupiterDiameter = 139820;
-    const sunScaleFactor = 2.5;  // 太阳相对木星的显示比例（实际是10倍，但为了可视性压缩）
-    const jupiterScaleFactor = 1.0;  // 木星基准
+    // 真实比例模式：以木星为基准，用统一直径基准计算所有天体大小
+    const sunScaleFactor = 2.5;  // 太阳仍保留压缩显示，否则会过大
 
     Object.keys(planets).forEach(name => {
         const planet = planets[name];
@@ -3138,11 +3162,7 @@ function updatePlanetScales() {
                 // 太阳：比木星大，但不是真实的10倍（否则太大）
                 scale = sunScaleFactor;
             } else {
-                // 其他行星：以木星为基准的真实比例
-                const ratio = data.diameter / jupiterDiameter;
-                scale = jupiterScaleFactor * ratio;
-                // 最小比例，确保小天体可见
-                scale = Math.max(0.02, scale);
+                scale = getRealScaleFactor(planet.userData.size, data.diameter);
             }
         } else {
             // 教学比例：所有行星大小相近，便于观察
@@ -3150,12 +3170,18 @@ function updatePlanetScales() {
         }
 
         planet.scale.setScalar(scale);
+        updateAttachedLabelPosition(labels[name], planet.userData.size, scale);
+    });
 
-        // 更新标签位置
-        if (labels[name]) {
-            const offsetY = labels[name].userData.offsetY || 3;
-            labels[name].position.y = planet.userData.size * scale + offsetY;
-        }
+    Object.keys(moons).forEach(planetName => {
+        moons[planetName].forEach(moonMesh => {
+            const moonScale = isRealScale
+                ? getRealScaleFactor(moonMesh.userData.size, moonMesh.userData.diameter)
+                : 1;
+
+            moonMesh.scale.setScalar(moonScale);
+            updateAttachedLabelPosition(labels[moonMesh.name], moonMesh.userData.size, moonScale);
+        });
     });
 }
 
