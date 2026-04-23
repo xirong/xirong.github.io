@@ -3523,7 +3523,10 @@ function generateVolumeComparison(container, subtitle) {
         { key: 'mars',     nameCN: '火星',   count: 8600000,  label: '860 万',   color: '#c1440e' },
         { key: 'mercury',  nameCN: '水星',   count: 23000000, label: '2300 万',  color: '#b5b5b5' },
         { key: 'moon',     nameCN: '月球',   count: 65000000, label: '6500 万',  color: '#aaaaaa' },
-        { key: 'pluto',    nameCN: '冥王星', count: 220000000,label: '2.2 亿',   color: '#c9b59a' }
+        { key: 'pluto',    nameCN: '冥王星', count: 220000000,label: '2.2 亿',   color: '#c9b59a' },
+        { key: 'eris',     nameCN: '阋神星', count: 234790810,label: '2.3 亿',   color: '#d7d7d7' },
+        { key: 'haumea',   nameCN: '妊神星', count: 679750855,label: '6.8 亿',   color: '#dad7cf' },
+        { key: 'makemake', nameCN: '鸟神星', count: 1010420418,label: '10.1 亿', color: '#c67555' }
     ];
 
     const selected = volumeData.find(d => d.key === currentVolumeSelection) || volumeData[4]; // 默认地球
@@ -3630,7 +3633,10 @@ function generateJupiterVolumeComparison(container, subtitle) {
         { key: 'mars',     nameCN: '火星',   count: 8750,     label: '8,750',    color: '#c1440e' },
         { key: 'mercury',  nameCN: '水星',   count: 23600,    label: '23,600',   color: '#b5b5b5' },
         { key: 'moon',     nameCN: '月球',   count: 65000,    label: '65,000',   color: '#aaaaaa' },
-        { key: 'pluto',    nameCN: '冥王星', count: 203000,   label: '203,000',  color: '#c9b59a' }
+        { key: 'pluto',    nameCN: '冥王星', count: 203000,   label: '203,000',  color: '#c9b59a' },
+        { key: 'eris',     nameCN: '阋神星', count: 216648,   label: '216,648',  color: '#d7d7d7' },
+        { key: 'haumea',   nameCN: '妊神星', count: 627225,   label: '627,225',  color: '#dad7cf' },
+        { key: 'makemake', nameCN: '鸟神星', count: 932342,   label: '932,342',  color: '#c67555' }
     ];
 
     const selected = jupiterVolumeData.find(d => d.key === currentJupiterVolumeSelection) || jupiterVolumeData[3]; // 默认地球
@@ -3749,7 +3755,10 @@ function generateSaturnVolumeComparison(container, subtitle) {
         { key: 'mars',     nameCN: '火星',   count: 5477,     label: '5,477',    color: '#c1440e' },
         { key: 'mercury',  nameCN: '水星',   count: 15000,    label: '15,000',   color: '#b5b5b5' },
         { key: 'moon',     nameCN: '月球',   count: 40000,    label: '40,000',   color: '#aaaaaa' },
-        { key: 'pluto',    nameCN: '冥王星', count: 127000,   label: '127,000',  color: '#c9b59a' }
+        { key: 'pluto',    nameCN: '冥王星', count: 127000,   label: '127,000',  color: '#c9b59a' },
+        { key: 'eris',     nameCN: '阋神星', count: 135538,   label: '135,538',  color: '#d7d7d7' },
+        { key: 'haumea',   nameCN: '妊神星', count: 392402,   label: '392,402',  color: '#dad7cf' },
+        { key: 'makemake', nameCN: '鸟神星', count: 583288,   label: '583,288',  color: '#c67555' }
     ];
 
     const selected = saturnVolumeData.find(d => d.key === currentSaturnVolumeSelection) || saturnVolumeData[2]; // 默认地球
@@ -3857,7 +3866,10 @@ function generateUranusVolumeComparison(container, subtitle) {
         { key: 'mars',     nameCN: '火星',   count: 419,      label: '419',      color: '#c1440e' },
         { key: 'mercury',  nameCN: '水星',   count: 1123,     label: '1,123',    color: '#b5b5b5' },
         { key: 'moon',     nameCN: '月球',   count: 3112,     label: '3,112',    color: '#aaaaaa' },
-        { key: 'pluto',    nameCN: '冥王星', count: 9711,     label: '9,711',    color: '#c9b59a' }
+        { key: 'pluto',    nameCN: '冥王星', count: 9711,     label: '9,711',    color: '#c9b59a' },
+        { key: 'eris',     nameCN: '阋神星', count: 10364,    label: '10,364',   color: '#d7d7d7' },
+        { key: 'haumea',   nameCN: '妊神星', count: 30005,    label: '30,005',   color: '#dad7cf' },
+        { key: 'makemake', nameCN: '鸟神星', count: 44601,    label: '44,601',   color: '#c67555' }
     ];
 
     const selected = uranusVolumeData.find(d => d.key === currentUranusVolumeSelection) || uranusVolumeData[0]; // 默认地球
@@ -3965,7 +3977,10 @@ function generateNeptuneVolumeComparison(container, subtitle) {
         { key: 'mars',     nameCN: '火星',   count: 383,      label: '383',      color: '#c1440e' },
         { key: 'mercury',  nameCN: '水星',   count: 1027,     label: '1,027',    color: '#b5b5b5' },
         { key: 'moon',     nameCN: '月球',   count: 2847,     label: '2,847',    color: '#aaaaaa' },
-        { key: 'pluto',    nameCN: '冥王星', count: 8889,     label: '8,889',    color: '#c9b59a' }
+        { key: 'pluto',    nameCN: '冥王星', count: 8889,     label: '8,889',    color: '#c9b59a' },
+        { key: 'eris',     nameCN: '阋神星', count: 9487,     label: '9,487',    color: '#d7d7d7' },
+        { key: 'haumea',   nameCN: '妊神星', count: 27465,    label: '27,465',   color: '#dad7cf' },
+        { key: 'makemake', nameCN: '鸟神星', count: 40826,    label: '40,826',   color: '#c67555' }
     ];
 
     const selected = neptuneVolumeData.find(d => d.key === currentNeptuneVolumeSelection) || neptuneVolumeData[0]; // 默认地球
