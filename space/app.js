@@ -239,6 +239,63 @@ const planetData = {
         moonCount: 5,
         moonInfo: '🌙 卫星(5颗)：冥卫一（卡戎，大小接近冥王星的一半，两者互相潮汐锁定）、冥卫二、冥卫三、冥卫四、冥卫五'
     },
+    haumea: {
+        name: '妊神星',
+        nameCN: '妊神星',
+        nameEN: 'Haumea',
+        type: '矮行星',
+        diameter: 1632,
+        mass: 0.0040, // 10²⁴ kg
+        category: 'dwarf',
+        distance: 6452,
+        orbitPeriod: 104096,
+        rotationPeriod: 0.16,
+        color: 0xdad7cf,
+        emissive: 0x5d5a52,
+        description: '妊神星位于柯伊伯带，是一颗转得飞快的矮行星，快到把自己甩成了橄榄球一样的长椭球形。它表面覆盖着明亮的水冰，还拥有一条细细的环和两颗已知卫星，是太阳系里很特别的冰世界。',
+        relativeSize: 0.13,
+        orbitRadius: 370,
+        moonCount: 2,
+        moonInfo: '🌙 卫星(2颗)：妊卫一 Hiʻiaka（较大的外侧卫星）、妊卫二 Namaka（更靠内的小卫星）'
+    },
+    makemake: {
+        name: '鸟神星',
+        nameCN: '鸟神星',
+        nameEN: 'Makemake',
+        type: '矮行星',
+        diameter: 1430,
+        mass: 0.0031, // 10²⁴ kg
+        category: 'dwarf',
+        distance: 6850,
+        orbitPeriod: 111401,
+        rotationPeriod: 0.94,
+        color: 0xc67555,
+        emissive: 0x5a2d1d,
+        description: '鸟神星位于柯伊伯带深处，表面带着偏红的冰冻甲烷色调，看起来像一颗被冰霜包裹的橘红色小世界。它以复活节岛神话中的创造之神命名，目前已知有一颗小卫星伴随它一起绕太阳运行。',
+        relativeSize: 0.11,
+        orbitRadius: 390,
+        moonCount: 1,
+        moonInfo: '🌙 卫星(1颗)：S/2015 (136472) 1（Makemake 的小卫星，常被称作 MK2）'
+    },
+    eris: {
+        name: '阋神星',
+        nameCN: '阋神星',
+        nameEN: 'Eris',
+        type: '矮行星',
+        diameter: 2326,
+        mass: 0.0165, // 10²⁴ kg
+        category: 'dwarf',
+        distance: 10149,
+        orbitPeriod: 204175,
+        rotationPeriod: 1.08,
+        color: 0xd7d7d7,
+        emissive: 0x4a4a4a,
+        description: '阋神星是太阳系中最著名的外海矮行星之一，它比冥王星更重，轨道也更远、更偏心。正是它的发现推动了天文学家重新定义“行星”，最终让冥王星被归类为矮行星。',
+        relativeSize: 0.18,
+        orbitRadius: 440,
+        moonCount: 1,
+        moonInfo: '🌙 卫星(1颗)：阋卫一 Dysnomia，陪着阋神星一起在太阳系边缘漫游'
+    },
     oortCloud: {
         name: '奥尔特云',
         nameCN: '奥尔特云',
@@ -429,7 +486,10 @@ const solarGuideTextureMap = {
     saturn: 'textures/saturn.jpg',
     uranus: 'textures/uranus.jpg',
     neptune: 'textures/neptune.jpg',
-    pluto: 'textures/pluto.jpg'
+    pluto: 'textures/pluto.jpg',
+    haumea: 'textures/haumea.jpg',
+    makemake: 'textures/makemake.jpg',
+    eris: 'textures/eris.jpg'
 };
 
 // ============ 全局变量 ============
@@ -493,6 +553,9 @@ const planetAudioNarration = {
     uranus: '天王星，Uranus，距离太阳19.2个天文单位。自转转完一整圈，约等于0.72个地球天。绕太阳公转一整圈，约等于84个地球年。',
     neptune: '海王星，Neptune，距离太阳30个天文单位。自转转完一整圈，约等于0.67个地球天。绕太阳公转一整圈，约等于164.8个地球年。',
     pluto: '冥王星，Pluto，距离太阳39.5个天文单位。自转转完一整圈，约等于6.4个地球天。绕太阳公转一整圈，约等于247.94个地球年。',
+    haumea: '妊神星，Haumea，距离太阳43.1个天文单位。自转转完一整圈，约等于0.16个地球天。绕太阳公转一整圈，约等于285个地球年。',
+    makemake: '鸟神星，Makemake，距离太阳45.8个天文单位。自转转完一整圈，约等于0.94个地球天。绕太阳公转一整圈，约等于305个地球年。',
+    eris: '阋神星，Eris，距离太阳67.7个天文单位。自转转完一整圈，约等于1.08个地球天。绕太阳公转一整圈，约等于559个地球年。',
 };
 
 // ============ 人造卫星数据 ============
@@ -1289,7 +1352,7 @@ function switchSunStyle(style) {
 
 // ============ 创建行星 ============
 function createPlanets() {
-    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'haumea', 'makemake', 'eris'];
 
     planetNames.forEach(name => {
         const data = planetData[name];
@@ -1322,7 +1385,10 @@ function createPlanets() {
             saturn: createRealisticSaturn,
             uranus: createRealisticUranus,
             neptune: createRealisticNeptune,
-            pluto: createRealisticPluto
+            pluto: createRealisticPluto,
+            haumea: createRealisticHaumea,
+            makemake: createRealisticMakemake,
+            eris: createRealisticEris
         };
 
         if (realisticCreators[name]) {
@@ -1657,6 +1723,36 @@ function createRealisticPluto(size) {
         fresnelColor: 'vec3(0.7, 0.7, 0.8)',
         fresnelIntensity: 0.05
         // 无大气层
+    });
+}
+
+// ============ 创建真实妊神星 - 纹理贴图版 ============
+function createRealisticHaumea(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/haumea.jpg',
+        brightness: 1.12,
+        fresnelColor: 'vec3(0.86, 0.9, 0.96)',
+        fresnelIntensity: 0.08
+    });
+}
+
+// ============ 创建真实鸟神星 - 纹理贴图版 ============
+function createRealisticMakemake(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/makemake.jpg',
+        brightness: 1.08,
+        fresnelColor: 'vec3(0.92, 0.58, 0.38)',
+        fresnelIntensity: 0.08
+    });
+}
+
+// ============ 创建真实阋神星 - 纹理贴图版 ============
+function createRealisticEris(size) {
+    return createTexturedPlanet(size, {
+        texturePath: 'textures/eris.jpg',
+        brightness: 1.12,
+        fresnelColor: 'vec3(0.88, 0.9, 0.95)',
+        fresnelIntensity: 0.07
     });
 }
 
@@ -2106,6 +2202,9 @@ const auDistances = {
     '天王星': '19.2 AU',
     '海王星': '30 AU',
     '冥王星': '39.5 AU',
+    '妊神星': '43.1 AU',
+    '鸟神星': '45.8 AU',
+    '阋神星': '67.7 AU',
     '奥尔特云': null
 };
 
@@ -2487,7 +2586,7 @@ function flyToOortCloud() {
 
 // ============ 创建轨道 ============
 function createOrbits() {
-    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'haumea', 'makemake', 'eris'];
 
     planetNames.forEach(name => {
         const data = planetData[name];
@@ -3228,6 +3327,9 @@ function generateSizeComparison(mode) {
         moon: 'textures/moon.jpg',
         pluto: 'textures/pluto.jpg',
         ceres: 'textures/ceres.jpg',
+        haumea: 'textures/haumea.jpg',
+        makemake: 'textures/makemake.jpg',
+        eris: 'textures/eris.jpg',
         ganymede: 'textures/ganymede.jpg'
     };
 
