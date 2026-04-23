@@ -3335,7 +3335,7 @@ function generateSizeComparison(mode) {
 
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
-        const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'ceres'];
+        const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
         subtitle.textContent = '以地球为参考（直径 = 12,742 km）';
 
         // 放大版链接（插入到 subtitle 后面、container 前面）
@@ -3419,7 +3419,7 @@ function generateSizeComparison(mode) {
         });
     } else if (mode === 'mass') {
         // 按质量排序（从大到小）
-        const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'ceres'];
+        const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
         const sortedPlanets = allPlanets.sort((a, b) => planetData[b].mass - planetData[a].mass);
         subtitle.textContent = '以地球为参考（质量 = 5.97 × 10²⁴ kg）';
 
