@@ -3283,6 +3283,7 @@ function generateSizeComparison(mode) {
 
     const container = document.getElementById('comparisonRow');
     container.innerHTML = '';
+    container.classList.remove('compact-diameter-mode');
 
     const subtitle = document.getElementById('comparisonSubtitle');
 
@@ -3337,6 +3338,8 @@ function generateSizeComparison(mode) {
         // 按直径排序（从大到小）
         const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
         subtitle.textContent = '以地球为参考（直径 = 12,742 km）';
+        container.classList.add('compact-diameter-mode');
+        container.style.padding = '16px 4px 10px';
 
         // 放大版链接（插入到 subtitle 后面、container 前面）
         let detailLink = document.getElementById('sizeDetailLink');
@@ -3353,8 +3356,8 @@ function generateSizeComparison(mode) {
         }
         detailLink.style.display = 'inline-block';
 
-        const sunDisplaySize = 300;
-        const jupiterDisplaySize = 140;
+        const sunDisplaySize = 210;
+        const jupiterDisplaySize = 90;
         const jupiterDiameter = 139820;
         const earthDiameter = 12742;
 

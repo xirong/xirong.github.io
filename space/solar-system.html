@@ -842,12 +842,13 @@
             background: rgba(10, 10, 15, 0.95);
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(30px);
-            padding: 40px;
+            width: min(96vw, 1880px);
+            padding: 28px 24px 32px;
             border-radius: 25px;
             display: none;
             flex-direction: column;
             align-items: center;
-            max-width: 90vw;
+            max-width: 96vw;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -1644,6 +1645,31 @@
             gap: 15px;
         }
 
+        .planets-row.compact-diameter-mode {
+            width: 100%;
+            gap: 5px;
+            padding: 16px 8px 12px;
+            justify-content: flex-start;
+        }
+
+        .planets-row.compact-diameter-mode .comparison-planet {
+            gap: 8px;
+        }
+
+        .planets-row.compact-diameter-mode .comparison-planet .name {
+            font-size: 0.76rem;
+        }
+
+        .planets-row.compact-diameter-mode .comparison-planet .size {
+            font-size: 0.67rem;
+        }
+
+        .planets-row.compact-diameter-mode .comparison-planet .type-label {
+            font-size: 0.62rem;
+            padding: 2px 6px;
+            margin-top: 2px;
+        }
+
         .comparison-planet .sphere {
             border-radius: 50%;
             box-shadow: 0 0 20px currentColor;
@@ -1670,12 +1696,22 @@
             white-space: nowrap;
         }
 
+        .planets-row.compact-diameter-mode .earth-ratio {
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+
         .earth-ratio.earth-big {
             background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(52, 152, 219, 0.25));
             border: 1px solid rgba(46, 204, 113, 0.5);
             color: #2ecc71;
             font-size: 0.95rem;
             text-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+
+        .planets-row.compact-diameter-mode .earth-ratio.earth-big {
+            font-size: 0.8rem;
         }
 
         .earth-ratio.earth-ref {
@@ -1685,11 +1721,19 @@
             font-size: 0.85rem;
         }
 
+        .planets-row.compact-diameter-mode .earth-ratio.earth-ref {
+            font-size: 0.74rem;
+        }
+
         .earth-ratio.earth-small {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.75rem;
+        }
+
+        .planets-row.compact-diameter-mode .earth-ratio.earth-small {
+            font-size: 0.66rem;
         }
 
         /* 小地球圆点可视化 */
@@ -1702,6 +1746,12 @@
             max-width: 200px;
         }
 
+        .planets-row.compact-diameter-mode .earth-dots {
+            gap: 2px;
+            margin-top: 4px;
+            max-width: 135px;
+        }
+
         .earth-dot {
             width: 14px;
             height: 14px;
@@ -1711,11 +1761,21 @@
             box-shadow: 0 0 4px rgba(100, 200, 255, 0.4);
         }
 
+        .planets-row.compact-diameter-mode .earth-dot {
+            width: 10px;
+            height: 10px;
+        }
+
         .earth-dots-many .earth-dot-ellipsis {
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.8rem;
             line-height: 14px;
             letter-spacing: 1px;
+        }
+
+        .planets-row.compact-diameter-mode .earth-dots-many .earth-dot-ellipsis {
+            font-size: 0.68rem;
+            line-height: 10px;
         }
 
         /* 页签切换 */
