@@ -4099,7 +4099,11 @@ function generateDragVolumeComparison(container, subtitle) {
         { key: 'mars',     nameCN: '火星',   count: 8600000,   label: '860 万',   color: '#c1440e' },
         { key: 'mercury',  nameCN: '水星',   count: 23000000,  label: '2300 万',  color: '#b5b5b5' },
         { key: 'moon',     nameCN: '月球',   count: 65000000,  label: '6500 万',  color: '#aaaaaa' },
-        { key: 'pluto',    nameCN: '冥王星', count: 220000000, label: '2.2 亿',   color: '#c9b59a' }
+        { key: 'pluto',    nameCN: '冥王星', count: 220000000, label: '2.2 亿',   color: '#c9b59a' },
+        { key: 'eris',     nameCN: '阋神星', count: 234790810, label: '2.3 亿',   color: '#d7d7d7' },
+        { key: 'haumea',   nameCN: '妊神星', count: 679750855, label: '6.8 亿',   color: '#dad7cf' },
+        { key: 'makemake', nameCN: '鸟神星', count: 1010420418,label: '10.1 亿',  color: '#c67555' },
+        { key: 'ceres',    nameCN: '谷神星', count: 3557350562,label: '35.6 亿',  color: '#9a9a8a' }
     ];
 
     const wrapper = document.createElement('div');
