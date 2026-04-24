@@ -1781,6 +1781,8 @@
         /* 页签切换 */
         .comparison-tabs {
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -1897,11 +1899,11 @@
         /* 太阳能装多少个 - volume tab */
         .volume-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1280px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 24px;
         }
 
         /* 顶部：太阳大圆 + 选中星球小圆 */
@@ -1965,22 +1967,30 @@
 
         /* 星球选择网格 */
         .volume-planet-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: stretch;
+            gap: 8px;
             width: 100%;
-            max-width: 700px;
+            max-width: 1240px;
+            overflow-x: auto;
+            padding: 2px 4px 8px;
+            scrollbar-width: thin;
         }
 
         .volume-planet-card {
+            flex: 0 0 78px;
+            min-height: 76px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            padding: 12px 8px;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 6px;
             background: rgba(255, 255, 255, 0.03);
             border: 2px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
+            border-radius: 11px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -2002,12 +2012,82 @@
         }
 
         .volume-planet-card .card-name {
-            font-size: 0.8rem;
+            font-size: 0.74rem;
             color: var(--text-secondary);
+            line-height: 1.1;
+            white-space: nowrap;
         }
 
         .volume-planet-card.active .card-name {
             color: var(--text-primary);
+        }
+
+        .black-hole-core {
+            background: url('textures/black-hole-sgr-a.jpg') center/cover;
+            box-shadow:
+                0 0 35px rgba(255, 146, 43, 0.45),
+                0 0 95px rgba(245, 90, 22, 0.28),
+                inset 0 0 45px rgba(0, 0, 0, 0.9);
+            isolation: isolate;
+            overflow: visible;
+        }
+
+        .black-hole-core::before {
+            content: '';
+            position: absolute;
+            width: 270px;
+            height: 88px;
+            border-radius: 50%;
+            background:
+                radial-gradient(ellipse at center, transparent 0 32%, rgba(255, 223, 137, 0.95) 38%, rgba(255, 118, 25, 0.72) 52%, rgba(255, 118, 25, 0.08) 72%, transparent 78%);
+            transform: rotate(-12deg);
+            filter: blur(1px);
+            z-index: 0;
+        }
+
+        .black-hole-core::after {
+            content: '';
+            position: absolute;
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #000 0 58%, rgba(2, 3, 12, 0.95) 70%, rgba(255, 145, 35, 0.16) 100%);
+            box-shadow: 0 0 18px rgba(0, 0, 0, 0.95);
+            z-index: 0;
+        }
+
+        .black-hole-core .volume-sun-label,
+        .black-hole-core .volume-sun-count,
+        .black-hole-core .volume-sun-unit {
+            position: relative;
+            z-index: 1;
+            color: rgba(255, 255, 255, 0.88);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+        }
+
+        .black-hole-core .volume-sun-count {
+            color: #fff3cf;
+        }
+
+        .black-hole-note {
+            max-width: 760px;
+            margin-top: -8px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 166, 77, 0.24);
+            border-radius: 16px;
+            background: rgba(255, 121, 37, 0.08);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            line-height: 1.65;
+            text-align: center;
+        }
+
+        .black-hole-ref {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: url('textures/black-hole-sgr-a.jpg') center/cover;
+            box-shadow: 0 0 26px rgba(255, 145, 35, 0.5);
         }
 
         /* 条形图 */
@@ -2111,7 +2191,7 @@
         /* 拖进太阳 tab */
         .drag-volume-container {
             width: 100%;
-            max-width: 700px;
+            max-width: 860px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -2148,9 +2228,15 @@
 
         .drag-planet-tray {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
             max-width: 240px;
+        }
+
+        .black-hole-drag .drag-instruction {
+            color: #ffbc6b;
+            background: rgba(255, 121, 37, 0.1);
+            border-color: rgba(255, 166, 77, 0.24);
         }
 
         .drag-planet-item {
@@ -2706,6 +2792,8 @@
             <button class="tab-btn" data-tab="uranusVolume">🪐 天王星能装</button>
             <button class="tab-btn" data-tab="neptuneVolume">🪐 海王星能装</button>
             <button class="tab-btn" data-tab="dragVolume">🎯 拖进太阳</button>
+            <button class="tab-btn" data-tab="blackHoleVolume">🕳️ 黑洞能装</button>
+            <button class="tab-btn" data-tab="dragBlackHole">🌀 拖进黑洞</button>
         </div>
 
         <!-- 类型说明 -->

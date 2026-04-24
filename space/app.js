@@ -588,6 +588,7 @@ let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的�
 let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
 let currentUranusVolumeSelection = 'earth'; // uranusVolume tab 中选中的星球
 let currentNeptuneVolumeSelection = 'earth'; // neptuneVolume tab 中选中的星球
+let currentBlackHoleVolumeSelection = 'earth'; // blackHoleVolume tab 中选中的星球
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
 let isRealMotion = false; // 是否使用真实自转 / 公转比例
 
@@ -598,6 +599,26 @@ const REAL_ORBIT_DAYS_PER_SECOND = 24;
 const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
 const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
+const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
+const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
+
+// 银河系中心黑洞 Sgr A*，按事件视界半径约 1200 万公里的球形空间估算
+const blackHoleVolumeData = [
+    { key: 'sun',      nameCN: '太阳',   count: 5132,           label: '5,132',      color: '#ffcc00' },
+    { key: 'mercury',  nameCN: '水星',   count: 119000000000,   label: '1190 亿',    color: '#b5b5b5' },
+    { key: 'venus',    nameCN: '金星',   count: 7800000000,     label: '78 亿',      color: '#e6c87a' },
+    { key: 'earth',    nameCN: '地球',   count: 6700000000,     label: '67 亿',      color: '#6b93d6' },
+    { key: 'mars',     nameCN: '火星',   count: 44400000000,    label: '444 亿',     color: '#c1440e' },
+    { key: 'jupiter',  nameCN: '木星',   count: 5060000,        label: '506 万',     color: '#d8ca9d' },
+    { key: 'saturn',   nameCN: '土星',   count: 8750000,        label: '875 万',     color: '#ead6b8' },
+    { key: 'uranus',   nameCN: '天王星', count: 106000000,      label: '1.06 亿',    color: '#7de8d5' },
+    { key: 'neptune',  nameCN: '海王星', count: 116000000,      label: '1.16 亿',    color: '#5b5ddf' },
+    { key: 'pluto',    nameCN: '冥王星', count: 1030000000000,  label: '1.03 万亿',  color: '#c9b59a' },
+    { key: 'eris',     nameCN: '阋神星', count: 1000000000000,  label: '1.00 万亿',  color: '#d7d7d7' },
+    { key: 'haumea',   nameCN: '妊神星', count: 4730000000000,  label: '4.73 万亿',  color: '#dad7cf' },
+    { key: 'makemake', nameCN: '鸟神星', count: 4750000000000,  label: '4.75 万亿',  color: '#c67555' },
+    { key: 'ceres',    nameCN: '谷神星', count: 16680000000000, label: '16.68 万亿', color: '#9a9a8a' }
+];
 
 // ============ 卫星数据 ============
 const moonsData = {
@@ -3288,7 +3309,7 @@ function generateSizeComparison(mode) {
     const subtitle = document.getElementById('comparisonSubtitle');
 
     // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
-    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume' || mode === 'uranusVolume' || mode === 'neptuneVolume' || mode === 'dragVolume';
+    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume' || mode === 'uranusVolume' || mode === 'neptuneVolume' || mode === 'dragVolume' || mode === 'blackHoleVolume' || mode === 'dragBlackHole';
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
@@ -3505,6 +3526,13 @@ function generateSizeComparison(mode) {
         // 拖进太阳
         cancelDragVolumeAnimation();
         generateDragVolumeComparison(container, subtitle);
+    } else if (mode === 'blackHoleVolume') {
+        // 黑洞能装多少个
+        generateBlackHoleVolumeComparison(container, subtitle);
+    } else if (mode === 'dragBlackHole') {
+        // 拖进黑洞
+        cancelDragVolumeAnimation();
+        generateDragBlackHoleComparison(container, subtitle);
     }
 }
 
@@ -3676,7 +3704,7 @@ function generateJupiterVolumeComparison(container, subtitle) {
     `;
 
     // === 2. 星球选择网格 ===
-    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(5, 1fr);">';
+    let gridHTML = '<div class="volume-planet-grid">';
     jupiterVolumeData.forEach(item => {
         const isActive = item.key === selected.key;
         const pData = planetData[item.key];
@@ -3789,7 +3817,7 @@ function generateSaturnVolumeComparison(container, subtitle) {
     `;
 
     // === 2. 星球选择网格 ===
-    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(4, 1fr);">';
+    let gridHTML = '<div class="volume-planet-grid">';
     saturnVolumeData.forEach(item => {
         const isActive = item.key === selected.key;
         const pData = planetData[item.key];
@@ -3900,7 +3928,7 @@ function generateUranusVolumeComparison(container, subtitle) {
     `;
 
     // === 2. 星球选择网格 ===
-    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(3, 1fr);">';
+    let gridHTML = '<div class="volume-planet-grid">';
     uranusVolumeData.forEach(item => {
         const isActive = item.key === selected.key;
         const pData = planetData[item.key];
@@ -4011,7 +4039,7 @@ function generateNeptuneVolumeComparison(container, subtitle) {
     `;
 
     // === 2. 星球选择网格 ===
-    let gridHTML = '<div class="volume-planet-grid" style="grid-template-columns: repeat(3, 1fr);">';
+    let gridHTML = '<div class="volume-planet-grid">';
     neptuneVolumeData.forEach(item => {
         const isActive = item.key === selected.key;
         const pData = planetData[item.key];
@@ -4074,6 +4102,94 @@ function generateNeptuneVolumeComparison(container, subtitle) {
         el.addEventListener('click', () => {
             currentNeptuneVolumeSelection = el.dataset.neptunePlanet;
             generateSizeComparison('neptuneVolume');
+        });
+    });
+}
+
+// ============ 黑洞能装多少个 ============
+function generateBlackHoleVolumeComparison(container, subtitle) {
+    subtitle.textContent = '按体积测算，银河系中心黑洞 Sgr A* 的事件视界半径约 1200 万公里';
+
+    const selected = blackHoleVolumeData.find(d => d.key === currentBlackHoleVolumeSelection) || blackHoleVolumeData[3]; // 默认地球
+    const maxCount = Math.max(...blackHoleVolumeData.map(item => item.count));
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle black-hole-core">
+                <span class="volume-sun-label">黑洞能装</span>
+                <span class="volume-sun-count">${selected.label}</span>
+                <span class="volume-sun-unit">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${selected.label}</div>
+                <div class="unit">个${selected.nameCN}才能填满黑洞事件视界空间</div>
+            </div>
+        </div>
+        <div class="black-hole-note">
+            按事件视界圈出的球形空间估算：能装数量 ≈ (事件视界半径 / 天体半径)³。
+            如果把太阳、八大行星和五颗矮行星各放一个，这个黑洞大约能装 ${formatNumber(BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT)} 套。
+        </div>
+    `;
+
+    let gridHTML = '<div class="volume-planet-grid">';
+    blackHoleVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const pData = planetData[item.key];
+        const dotSize = Math.max(4, Math.min(30, (pData.diameter / 139820) * 30));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-black-hole-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    let barHTML = '<div class="volume-bar-chart">';
+    blackHoleVolumeData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const logMax = Math.log10(maxCount);
+        const logVal = Math.log10(Math.max(1, item.count));
+        const percent = (logVal / logMax) * 100;
+
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-black-hole-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, (selectedData.diameter / (BLACK_HOLE_EVENT_HORIZON_RADIUS_KM * 2)) * 80);
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="black-hole-ref"></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>Sgr A* 事件视界</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    wrapper.querySelectorAll('[data-black-hole-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            currentBlackHoleVolumeSelection = el.dataset.blackHolePlanet;
+            generateSizeComparison('blackHoleVolume');
         });
     });
 }
@@ -4157,6 +4273,61 @@ function generateDragVolumeComparison(container, subtitle) {
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData);
 }
 
+function generateDragBlackHoleComparison(container, subtitle) {
+    subtitle.textContent = '拖拽天体放入黑洞，按事件视界体积看看能装多少个';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'drag-volume-container black-hole-drag';
+
+    const canvasSize = 280;
+    const dpr = window.devicePixelRatio || 1;
+
+    function getDotSize(key) {
+        const d = planetData[key].diameter;
+        return Math.max(8, Math.min(32, (d / 139820) * 32));
+    }
+
+    let trayHTML = '';
+    blackHoleVolumeData.forEach((item, i) => {
+        const dotSize = getDotSize(item.key);
+        trayHTML += `
+            <div class="drag-planet-item hint-pulse" data-drag-key="${item.key}" data-drag-index="${i}" style="animation-delay: ${i * 0.14}s;">
+                <div class="drag-dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="drag-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+
+    wrapper.innerHTML = `
+        <div class="drag-instruction">👆 拖拽天体放入黑洞事件视界，看它能装多少个！</div>
+        <div class="black-hole-note">
+            按体积测算，事件视界半径约 ${formatNumber(BLACK_HOLE_EVENT_HORIZON_RADIUS_KM)} km，数量 ≈ (事件视界半径 / 天体半径)³。
+        </div>
+        <div class="drag-main-area">
+            <div class="drag-sun-area">
+                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px;"></canvas>
+            </div>
+            <div class="drag-planet-tray">${trayHTML}</div>
+        </div>
+        <div class="drag-result" id="dragResult">
+            <div class="result-number" id="dragResultNumber"></div>
+            <div class="result-text" id="dragResultText"></div>
+        </div>
+    `;
+
+    container.appendChild(wrapper);
+
+    const canvas = wrapper.querySelector('.drag-sun-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    drawIdleBlackHole(ctx, canvasSize);
+
+    setupDragInteraction(wrapper, canvas, canvasSize, dpr, blackHoleVolumeData, {
+        startAnimation: startBlackHoleFillAnimation,
+        ghostMaxSize: 42
+    });
+}
+
 function drawIdleSun(ctx, size) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
     ctx.clearRect(0, 0, size, size);
@@ -4190,11 +4361,61 @@ function drawIdleSun(ctx, size) {
     ctx.fillText('拖到这里', cx, cy);
 }
 
-function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData) {
+function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - 18;
+    ctx.clearRect(0, 0, size, size);
+
+    const bg = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r * 1.25);
+    bg.addColorStop(0, 'rgba(0, 0, 0, 1)');
+    bg.addColorStop(0.42, 'rgba(0, 0, 0, 0.95)');
+    bg.addColorStop(0.62, 'rgba(255, 126, 32, 0.22)');
+    bg.addColorStop(1, 'rgba(255, 126, 32, 0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = bg;
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-0.18);
+    const diskGrad = ctx.createRadialGradient(0, 0, r * 0.28, 0, 0, r * 1.02);
+    diskGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    diskGrad.addColorStop(0.42, 'rgba(255, 231, 173, 0.96)');
+    diskGrad.addColorStop(0.55, 'rgba(255, 132, 31, 0.78)');
+    diskGrad.addColorStop(0.78, 'rgba(168, 53, 19, 0.16)');
+    diskGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.scale(1.28, 0.38);
+    ctx.beginPath();
+    ctx.arc(0, 0, r * (1 + pulse * 0.05), 0, Math.PI * 2);
+    ctx.fillStyle = diskGrad;
+    ctx.fill();
+    ctx.restore();
+
+    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.42);
+    coreGrad.addColorStop(0, '#000');
+    coreGrad.addColorStop(0.74, '#02030a');
+    coreGrad.addColorStop(1, 'rgba(255, 149, 45, 0.28)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
+
+    if (showHint) {
+        ctx.fillStyle = 'rgba(255, 244, 220, 0.86)';
+        ctx.font = '600 14px "Noto Sans SC"';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('拖到事件视界', cx, cy);
+    }
+}
+
+function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, targetConfig = {}) {
     const sizeComparison = document.getElementById('sizeComparison');
     let ghost = null;
     let dragItem = null;
     let offsetX = 0, offsetY = 0;
+    const startAnimation = targetConfig.startAnimation || startFillAnimation;
+    const ghostMaxSize = targetConfig.ghostMaxSize || 40;
 
     wrapper.querySelectorAll('.drag-planet-item').forEach(item => {
         item.addEventListener('pointerdown', (e) => {
@@ -4203,7 +4424,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData) {
             dragItem = dragData[idx];
 
             // 创建 ghost
-            const dotSize = Math.max(20, Math.min(40, (planetData[dragItem.key].diameter / 139820) * 40));
+            const dotSize = Math.max(20, Math.min(ghostMaxSize, (planetData[dragItem.key].diameter / 139820) * 40));
             ghost = document.createElement('div');
             ghost.className = 'drag-ghost';
             ghost.style.width = dotSize + 'px';
@@ -4267,7 +4488,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData) {
                 const ctx2 = canvas.getContext('2d');
                 ctx2.setTransform(1, 0, 0, 1, 0, 0);
                 ctx2.scale(dpr, dpr);
-                startFillAnimation(ctx2, canvasSize, dragItem);
+                startAnimation(ctx2, canvasSize, dragItem);
             } else {
                 // 未命中，回弹消失
                 ghost.classList.add('snap-back');
@@ -4488,15 +4709,118 @@ function startFillAnimation(ctx, size, data) {
     dragVolumeAnimationId = requestAnimationFrame(animate);
 }
 
-function showDragResult(label, nameCN, count) {
+function startBlackHoleFillAnimation(ctx, size, data) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - 18;
+    const targetCount = data.count;
+    const color = data.color;
+    const nameCN = data.nameCN;
+    const label = data.label;
+
+    const MAX_PARTICLES = 240;
+    const particles = [];
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+        particles.push({ alive: false, x: 0, y: 0, angle: 0, radius: 0, speed: 0, dot: 0, alpha: 1 });
+    }
+
+    const duration = 3200;
+    const startTime = performance.now();
+    let displayCount = 0;
+    let lastSpawnTime = 0;
+
+    function spawnParticle() {
+        for (let i = 0; i < MAX_PARTICLES; i++) {
+            if (!particles[i].alive) {
+                const p = particles[i];
+                p.alive = true;
+                p.angle = Math.random() * Math.PI * 2;
+                p.radius = r * (1.05 + Math.random() * 0.18);
+                p.speed = 0.055 + Math.random() * 0.04;
+                p.dot = 2 + Math.random() * 3;
+                p.alpha = 0.82 + Math.random() * 0.18;
+                p.x = cx + Math.cos(p.angle) * p.radius;
+                p.y = cy + Math.sin(p.angle) * p.radius * 0.42;
+                return;
+            }
+        }
+    }
+
+    function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        displayCount = Math.round(targetCount * ease);
+
+        drawIdleBlackHole(ctx, size, Math.sin(now * 0.006) * 0.5 + 0.5, false);
+
+        if (progress < 0.96 && now - lastSpawnTime > 18) {
+            const spawnCount = Math.ceil(5 + progress * 9);
+            for (let s = 0; s < spawnCount; s++) spawnParticle();
+            lastSpawnTime = now;
+        }
+
+        particles.forEach(p => {
+            if (!p.alive) return;
+            p.angle += p.speed;
+            p.radius *= 0.965;
+            p.x = cx + Math.cos(p.angle) * p.radius;
+            p.y = cy + Math.sin(p.angle) * p.radius * 0.42;
+            p.alpha *= 0.987;
+
+            if (p.radius < r * 0.26 || p.alpha < 0.08) {
+                p.alive = false;
+                return;
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.dot, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        });
+
+        const swallowGlow = ctx.createRadialGradient(cx, cy, r * 0.22, cx, cy, r * 0.62);
+        swallowGlow.addColorStop(0, 'rgba(0, 0, 0, 0.96)');
+        swallowGlow.addColorStop(0.55, 'rgba(0, 0, 0, 0.7)');
+        swallowGlow.addColorStop(1, 'rgba(255, 147, 43, 0.08)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
+        ctx.fillStyle = swallowGlow;
+        ctx.fill();
+
+        const countText = formatCompactCount(displayCount);
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.font = '900 25px "Orbitron", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(countText, cx + 1, cy + 1);
+        ctx.fillStyle = '#fff4d2';
+        ctx.fillText(countText, cx, cy);
+
+        ctx.font = '500 13px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.74)';
+        ctx.fillText('个' + nameCN, cx, cy + 26);
+
+        if (progress < 1) {
+            dragVolumeAnimationId = requestAnimationFrame(animate);
+        } else {
+            dragVolumeAnimationId = null;
+            showDragResult(label, nameCN, targetCount, '黑洞事件视界能装');
+        }
+    }
+
+    dragVolumeAnimationId = requestAnimationFrame(animate);
+}
+
+function showDragResult(label, nameCN, count, targetLabel = '太阳能装') {
     const resultNum = document.getElementById('dragResultNumber');
     const resultText = document.getElementById('dragResultText');
     if (resultNum) {
-        resultNum.textContent = formatNumber(count);
+        resultNum.textContent = count >= 100000000 ? label : formatNumber(count);
         setTimeout(() => resultNum.classList.add('visible'), 50);
     }
     if (resultText) {
-        resultText.textContent = `太阳能装 ${label} 个${nameCN}！`;
+        resultText.textContent = `${targetLabel} ${label}个${nameCN}！`;
         setTimeout(() => resultText.classList.add('visible'), 50);
     }
 }
@@ -4516,6 +4840,19 @@ function setupComparisonTabs() {
 // ============ 工具函数 ============
 function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function formatCompactCount(num) {
+    if (num >= 1000000000000) {
+        return (num / 1000000000000).toFixed(num >= 10000000000000 ? 1 : 2) + ' 万亿';
+    }
+    if (num >= 100000000) {
+        return (num / 100000000).toFixed(num >= 1000000000 ? 0 : 1) + ' 亿';
+    }
+    if (num >= 10000) {
+        return (num / 10000).toFixed(num >= 1000000 ? 0 : 1) + ' 万';
+    }
+    return formatNumber(num);
 }
 
 function formatDistance(distance) {
