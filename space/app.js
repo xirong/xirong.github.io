@@ -652,7 +652,8 @@ let selectedPlanet = null;
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
-let currentComparisonTab = 'diameter'; // 'diameter', 'mass' 或 'volume'
+let currentComparisonMetric = 'diameter'; // 'diameter' 或 'mass'
+let currentComparisonTab = 'diameter'; // 'diameter' 或各个“能装”页签
 let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
 let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
 let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
@@ -671,6 +672,7 @@ const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
 const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
+const BLACK_HOLE_MASS_IN_SOLAR_MASSES = 4300000;
 const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
 const blackHoleTextureImage = new Image();
 blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
@@ -3370,6 +3372,327 @@ function updatePlanetScales() {
     });
 }
 
+// ============ 行星对比换算工具 ============
+const CAPACITY_TAB_TO_TARGET = {
+    volume: 'sun',
+    jupiterVolume: 'jupiter',
+    saturnVolume: 'saturn',
+    uranusVolume: 'uranus',
+    neptuneVolume: 'neptune',
+    dragVolume: 'sun',
+    blackHoleVolume: 'blackHole',
+    dragBlackHole: 'blackHole'
+};
+
+const CAPACITY_TARGETS = {
+    sun: {
+        key: 'sun',
+        nameCN: '太阳',
+        texture: 'textures/sun.jpg',
+        color: '#ffcc00',
+        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    jupiter: {
+        key: 'jupiter',
+        nameCN: '木星',
+        texture: 'textures/jupiter.jpg',
+        color: '#d8ca9d',
+        objectKeys: ['saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    saturn: {
+        key: 'saturn',
+        nameCN: '土星',
+        texture: 'textures/saturn.jpg',
+        color: '#ead6b8',
+        objectKeys: ['jupiter', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    uranus: {
+        key: 'uranus',
+        nameCN: '天王星',
+        texture: 'textures/uranus.jpg',
+        color: '#7de8d5',
+        objectKeys: ['jupiter', 'saturn', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    neptune: {
+        key: 'neptune',
+        nameCN: '海王星',
+        texture: 'textures/neptune.jpg',
+        color: '#5b5ddf',
+        objectKeys: ['jupiter', 'saturn', 'uranus', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    blackHole: {
+        key: 'blackHole',
+        nameCN: '黑洞',
+        color: '#fff3cf',
+        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    }
+};
+
+function getCapacityTargetValue(targetKey, metric) {
+    if (targetKey === 'blackHole') {
+        if (metric === 'mass') return planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES;
+        return BLACK_HOLE_EVENT_HORIZON_RADIUS_KM * 2;
+    }
+    const target = planetData[targetKey];
+    return metric === 'mass' ? target.mass : target.diameter;
+}
+
+function getCapacityCount(targetKey, objectKey, metric = currentComparisonMetric) {
+    const targetValue = getCapacityTargetValue(targetKey, metric);
+    const objectValue = metric === 'mass' ? planetData[objectKey].mass : planetData[objectKey].diameter;
+    if (!targetValue || !objectValue) return 0;
+    if (metric === 'mass') return targetValue / objectValue;
+    return Math.pow(targetValue / objectValue, 3);
+}
+
+function getCapacityData(targetKey) {
+    const target = CAPACITY_TARGETS[targetKey];
+    return target.objectKeys
+        .map(key => {
+            const data = planetData[key];
+            const count = getCapacityCount(targetKey, key);
+            return {
+                key,
+                nameCN: data.nameCN,
+                count,
+                label: formatCapacityLabel(count),
+                color: '#' + data.color.toString(16).padStart(6, '0')
+            };
+        })
+        .filter(item => Number.isFinite(item.count) && item.count > 0)
+        .sort((a, b) => a.count - b.count);
+}
+
+function getCurrentCapacitySelection(targetKey) {
+    if (targetKey === 'jupiter') return currentJupiterVolumeSelection;
+    if (targetKey === 'saturn') return currentSaturnVolumeSelection;
+    if (targetKey === 'uranus') return currentUranusVolumeSelection;
+    if (targetKey === 'neptune') return currentNeptuneVolumeSelection;
+    if (targetKey === 'blackHole') return currentBlackHoleVolumeSelection;
+    return currentVolumeSelection;
+}
+
+function setCurrentCapacitySelection(targetKey, value) {
+    if (targetKey === 'jupiter') currentJupiterVolumeSelection = value;
+    else if (targetKey === 'saturn') currentSaturnVolumeSelection = value;
+    else if (targetKey === 'uranus') currentUranusVolumeSelection = value;
+    else if (targetKey === 'neptune') currentNeptuneVolumeSelection = value;
+    else if (targetKey === 'blackHole') currentBlackHoleVolumeSelection = value;
+    else currentVolumeSelection = value;
+}
+
+function getCapacitySubtitle(targetKey) {
+    const target = CAPACITY_TARGETS[targetKey];
+    if (targetKey === 'blackHole') {
+        return currentComparisonMetric === 'mass'
+            ? `按质量测算，银河系中心黑洞 Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍`
+            : '按直径折算体积，银河系中心黑洞 Sgr A* 的事件视界半径约 1200 万公里';
+    }
+
+    const earthCount = getCapacityCount(targetKey, 'earth');
+    const metricText = currentComparisonMetric === 'mass' ? '按质量测算' : '按直径折算体积';
+    return `${metricText}，${target.nameCN}约为地球的${formatCapacityLabel(earthCount)}倍`;
+}
+
+function getCapacityUnitText(targetName, selected) {
+    if (currentComparisonMetric === 'mass') {
+        return `${targetName}质量约等于${selected.label}个${selected.nameCN}`;
+    }
+    return `${selected.label}个${selected.nameCN}才能填满${targetName}`;
+}
+
+function getCapacityNote(targetKey) {
+    if (targetKey === 'blackHole') {
+        if (currentComparisonMetric === 'mass') {
+            return `按质量估算：Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍，数量 = 黑洞质量 / 天体质量。`;
+        }
+        return `按事件视界圈出的球形空间估算：能装数量 ≈ (事件视界半径 / 天体半径)³。如果把太阳、八大行星和五颗矮行星各放一个，这个黑洞大约能装 ${formatNumber(BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT)} 套。`;
+    }
+
+    return currentComparisonMetric === 'mass'
+        ? '当前页签使用质量相除，不再使用直径或体积来换算。'
+        : '当前页签按直径折算体积，数量 ≈ (目标直径 / 天体直径)³。';
+}
+
+function getTargetCircleStyle(targetKey, size = 180) {
+    const target = CAPACITY_TARGETS[targetKey];
+    if (targetKey === 'blackHole' || targetKey === 'sun') {
+        return `width:${size}px; height:${size}px;`;
+    }
+    return `
+        width:${size}px; height:${size}px;
+        background: url('${target.texture}') center/cover;
+        box-shadow: 0 0 50px ${target.color}80, 0 0 100px ${target.color}40;
+    `;
+}
+
+function renderCapacityComparison(container, subtitle, targetKey) {
+    const target = CAPACITY_TARGETS[targetKey];
+    subtitle.textContent = getCapacitySubtitle(targetKey);
+
+    const capacityData = getCapacityData(targetKey);
+    const selectedKey = getCurrentCapacitySelection(targetKey);
+    const selected = capacityData.find(d => d.key === selectedKey) || capacityData.find(d => d.key === 'earth') || capacityData[0];
+    setCurrentCapacitySelection(targetKey, selected.key);
+
+    const logs = capacityData.map(item => Math.log10(Math.max(item.count, 0.000001)));
+    const minLog = Math.min(...logs);
+    const maxLog = Math.max(...logs);
+    const targetDiameter = getCapacityTargetValue(targetKey, 'diameter');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'volume-container';
+
+    const targetClass = targetKey === 'blackHole' ? ' black-hole-core' : '';
+    const labelColorStyle = targetKey === 'sun' || targetKey === 'blackHole' ? '' : 'color:rgba(255,255,255,0.76);';
+
+    const heroHTML = `
+        <div class="volume-hero">
+            <div class="volume-sun-circle${targetClass}" style="${getTargetCircleStyle(targetKey, targetKey === 'sun' ? 200 : 180)}">
+                <span class="volume-sun-label" style="${labelColorStyle}">${target.nameCN}能装</span>
+                <span class="volume-sun-count" style="${labelColorStyle}">${selected.label}</span>
+                <span class="volume-sun-unit" style="${labelColorStyle}">个${selected.nameCN}</span>
+            </div>
+            <div class="volume-big-number">
+                <div class="number">${selected.label}</div>
+                <div class="unit">${getCapacityUnitText(target.nameCN, selected)}</div>
+            </div>
+        </div>
+        <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
+    `;
+
+    let gridHTML = '<div class="volume-planet-grid">';
+    capacityData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const pData = planetData[item.key];
+        const dotBase = targetKey === 'blackHole' ? 139820 : targetDiameter;
+        const dotSize = Math.max(4, Math.min(30, (pData.diameter / dotBase) * 30));
+        gridHTML += `
+            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-capacity-planet="${item.key}">
+                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="card-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+    gridHTML += '</div>';
+
+    let barHTML = '<div class="volume-bar-chart">';
+    capacityData.forEach(item => {
+        const isActive = item.key === selected.key;
+        const logVal = Math.log10(Math.max(item.count, 0.000001));
+        const percent = maxLog === minLog ? 100 : 10 + ((logVal - minLog) / (maxLog - minLog)) * 90;
+        barHTML += `
+            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-capacity-planet="${item.key}">
+                <span class="volume-bar-label">${item.nameCN}</span>
+                <div class="volume-bar-track">
+                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                        ${item.label}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    barHTML += '</div>';
+
+    const selectedData = planetData[selected.key];
+    const planetRefSize = Math.max(3, Math.min(80, (selectedData.diameter / targetDiameter) * 80));
+    const targetRefClass = targetKey === 'blackHole' ? 'black-hole-ref' : 'sun-ref';
+    const refStyle = targetKey === 'blackHole' || targetKey === 'sun'
+        ? ''
+        : `background: url('${target.texture}') center/cover; box-shadow: 0 0 25px ${target.color}66;`;
+    const sizeCompareHTML = `
+        <div style="text-align:center;">
+            <div class="volume-size-compare">
+                <div class="${targetRefClass}" style="${refStyle}"></div>
+                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
+            </div>
+            <div class="volume-compare-labels">
+                <span>${targetKey === 'blackHole' ? 'Sgr A* 事件视界' : target.nameCN}</span>
+                <span>${selected.nameCN}</span>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
+    container.appendChild(wrapper);
+
+    wrapper.querySelectorAll('[data-capacity-planet]').forEach(el => {
+        el.addEventListener('click', () => {
+            setCurrentCapacitySelection(targetKey, el.dataset.capacityPlanet);
+            generateSizeComparison(currentComparisonTab);
+        });
+    });
+}
+
+function renderDragCapacityComparison(container, subtitle, targetKey) {
+    const target = CAPACITY_TARGETS[targetKey];
+    const isBlackHole = targetKey === 'blackHole';
+    const capacityData = getCapacityData(targetKey);
+
+    subtitle.textContent = currentComparisonMetric === 'mass'
+        ? `拖拽天体放入${target.nameCN}，按质量看看相当于多少个`
+        : `拖拽天体放入${target.nameCN}，按直径折算体积看看能装多少个`;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}`;
+
+    const canvasSize = isBlackHole ? 280 : 260;
+    const dpr = window.devicePixelRatio || 1;
+
+    function getDotSize(key) {
+        const d = planetData[key].diameter;
+        return Math.max(8, Math.min(isBlackHole ? 32 : 28, (d / 139820) * (isBlackHole ? 32 : 28)));
+    }
+
+    let trayHTML = '';
+    capacityData.forEach((item, i) => {
+        const dotSize = getDotSize(item.key);
+        trayHTML += `
+            <div class="drag-planet-item hint-pulse" data-drag-key="${item.key}" data-drag-index="${i}" style="animation-delay: ${i * (isBlackHole ? 0.14 : 0.2)}s;">
+                <div class="drag-dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
+                <span class="drag-name">${item.nameCN}</span>
+            </div>
+        `;
+    });
+
+    wrapper.innerHTML = `
+        <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : '能装多少个'}！</div>
+        <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
+        <div class="drag-main-area">
+            <div class="drag-sun-area">
+                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px;"></canvas>
+            </div>
+            <div class="drag-planet-tray">${trayHTML}</div>
+        </div>
+        <div class="drag-result" id="dragResult">
+            <div class="result-number" id="dragResultNumber"></div>
+            <div class="result-text" id="dragResultText"></div>
+        </div>
+    `;
+
+    container.appendChild(wrapper);
+
+    const canvas = wrapper.querySelector('.drag-sun-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    if (isBlackHole) {
+        drawIdleBlackHole(ctx, canvasSize);
+        if (!blackHoleTextureImage.complete) {
+            blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize);
+        }
+    } else {
+        drawIdleSun(ctx, canvasSize);
+    }
+
+    setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
+        startAnimation: isBlackHole ? startBlackHoleFillAnimation : startFillAnimation,
+        ghostMaxSize: isBlackHole ? 42 : 40,
+        resultLabel: currentComparisonMetric === 'mass'
+            ? `${target.nameCN}质量约等于`
+            : `${target.nameCN}能装`
+    });
+}
+
 // ============ 生成大小对比 ============
 function generateSizeComparison(mode) {
     if (!mode) mode = currentComparisonTab;
@@ -3611,6 +3934,8 @@ function generateSizeComparison(mode) {
 
 // ============ 太阳能装多少个 ============
 function generateVolumeComparison(container, subtitle) {
+    return renderCapacityComparison(container, subtitle, 'sun');
+
     subtitle.textContent = '太阳的体积约为地球的 130 万倍';
 
     // 太阳能装多少个的数据（基于体积比）
@@ -3723,6 +4048,8 @@ function generateVolumeComparison(container, subtitle) {
 
 // ============ 木星能装多少个 ============
 function generateJupiterVolumeComparison(container, subtitle) {
+    return renderCapacityComparison(container, subtitle, 'jupiter');
+
     subtitle.textContent = '木星是太阳系最大的行星，体积约为地球的 1321 倍';
 
     const jupiterVolumeData = [
@@ -3846,6 +4173,8 @@ function generateJupiterVolumeComparison(container, subtitle) {
 
 // ============ 土星能装多少个 ============
 function generateSaturnVolumeComparison(container, subtitle) {
+    return renderCapacityComparison(container, subtitle, 'saturn');
+
     subtitle.textContent = '土星是太阳系第二大行星，体积约为地球的 827 倍';
 
     const saturnVolumeData = [
@@ -3959,6 +4288,8 @@ function generateSaturnVolumeComparison(container, subtitle) {
 
 // ============ 天王星能装多少个 ============
 function generateUranusVolumeComparison(container, subtitle) {
+    return renderCapacityComparison(container, subtitle, 'uranus');
+
     subtitle.textContent = '天王星是太阳系第三大行星，体积约为地球的 63 倍';
 
     const uranusVolumeData = [
@@ -4070,6 +4401,8 @@ function generateUranusVolumeComparison(container, subtitle) {
 
 // ============ 海王星能装多少个 ============
 function generateNeptuneVolumeComparison(container, subtitle) {
+    return renderCapacityComparison(container, subtitle, 'neptune');
+
     subtitle.textContent = '海王星是太阳系第四大行星，体积约为地球的 58 倍';
 
     const neptuneVolumeData = [
@@ -4181,6 +4514,8 @@ function generateNeptuneVolumeComparison(container, subtitle) {
 
 // ============ 黑洞能装多少个 ============
 function generateBlackHoleVolumeComparison(container, subtitle) {
+    return renderCapacityComparison(container, subtitle, 'blackHole');
+
     subtitle.textContent = '按体积测算，银河系中心黑洞 Sgr A* 的事件视界半径约 1200 万公里';
 
     const selected = blackHoleVolumeData.find(d => d.key === currentBlackHoleVolumeSelection) || blackHoleVolumeData[3]; // 默认地球
@@ -4276,6 +4611,8 @@ function cancelDragVolumeAnimation() {
 }
 
 function generateDragVolumeComparison(container, subtitle) {
+    return renderDragCapacityComparison(container, subtitle, 'sun');
+
     subtitle.textContent = '拖拽行星放入太阳，看看能装多少个';
 
     const dragData = [
@@ -4347,6 +4684,8 @@ function generateDragVolumeComparison(container, subtitle) {
 }
 
 function generateDragBlackHoleComparison(container, subtitle) {
+    return renderDragCapacityComparison(container, subtitle, 'blackHole');
+
     subtitle.textContent = '拖拽天体放入黑洞，按事件视界体积看看能装多少个';
 
     const wrapper = document.createElement('div');
@@ -4591,7 +4930,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
                 const ctx2 = canvas.getContext('2d');
                 ctx2.setTransform(1, 0, 0, 1, 0, 0);
                 ctx2.scale(dpr, dpr);
-                startAnimation(ctx2, canvasSize, dragItem);
+                startAnimation(ctx2, canvasSize, dragItem, targetConfig);
             } else {
                 // 未命中，回弹消失
                 ghost.classList.add('snap-back');
@@ -4611,7 +4950,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
     });
 }
 
-function startFillAnimation(ctx, size, data) {
+function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
     const targetCount = data.count;
     const color = data.color;
@@ -4806,14 +5145,14 @@ function startFillAnimation(ctx, size, data) {
         } else {
             // 动画完成，显示结果
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, targetCount);
+            showDragResult(label, nameCN, targetCount, animationConfig.resultLabel || '太阳能装');
         }
     }
 
     dragVolumeAnimationId = requestAnimationFrame(animate);
 }
 
-function startBlackHoleFillAnimation(ctx, size, data) {
+function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 18;
     const targetCount = data.count;
     const color = data.color;
@@ -4910,7 +5249,7 @@ function startBlackHoleFillAnimation(ctx, size, data) {
             dragVolumeAnimationId = requestAnimationFrame(animate);
         } else {
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, targetCount, '黑洞事件视界能装');
+            showDragResult(label, nameCN, targetCount, animationConfig.resultLabel || '黑洞事件视界能装');
         }
     }
 
@@ -4921,7 +5260,7 @@ function showDragResult(label, nameCN, count, targetLabel = '太阳能装') {
     const resultNum = document.getElementById('dragResultNumber');
     const resultText = document.getElementById('dragResultText');
     if (resultNum) {
-        resultNum.textContent = count >= 100000000 ? label : formatNumber(count);
+        resultNum.textContent = label;
         setTimeout(() => resultNum.classList.add('visible'), 50);
     }
     if (resultText) {
@@ -4934,17 +5273,50 @@ function setupComparisonTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             cancelDragVolumeAnimation();
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentComparisonTab = btn.dataset.tab;
+            if (btn.dataset.metric) {
+                const nextMetric = btn.dataset.metric;
+                const wasSameMetric = currentComparisonMetric === nextMetric;
+                const wasCapacityTab = Boolean(CAPACITY_TAB_TO_TARGET[currentComparisonTab]);
+                currentComparisonMetric = nextMetric;
+                if (currentComparisonMetric === 'mass' && currentComparisonTab === 'diameter') {
+                    currentComparisonTab = 'volume';
+                } else if (currentComparisonMetric === 'diameter' && btn.dataset.tab && (!wasCapacityTab || wasSameMetric)) {
+                    currentComparisonTab = btn.dataset.tab;
+                }
+            } else {
+                currentComparisonTab = btn.dataset.tab;
+            }
+            updateComparisonTabActiveState();
             generateSizeComparison(currentComparisonTab);
         });
+    });
+}
+
+function updateComparisonTabActiveState() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        const isMetricActive = btn.dataset.metric && btn.dataset.metric === currentComparisonMetric;
+        const isTabActive = btn.dataset.tab && btn.dataset.tab === currentComparisonTab && !btn.dataset.metric;
+        const isDiameterMetricTabActive = btn.dataset.metric === 'diameter' && currentComparisonTab === 'diameter';
+        btn.classList.toggle('active', isMetricActive || isTabActive || isDiameterMetricTabActive);
     });
 }
 
 // ============ 工具函数 ============
 function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function formatCapacityLabel(num) {
+    if (num < 1) {
+        return num.toFixed(2).replace(/\.?0+$/, '');
+    }
+    if (num < 10) {
+        return num.toFixed(1).replace(/\.?0+$/, '');
+    }
+    if (num < 10000) {
+        return formatNumber(Math.round(num));
+    }
+    return formatCompactCount(num);
 }
 
 function formatCompactCount(num) {
