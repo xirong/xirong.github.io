@@ -601,6 +601,9 @@ const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
 const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
+const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
+const blackHoleTextureImage = new Image();
+blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
 
 // 银河系中心黑洞 Sgr A*，按事件视界半径约 1200 万公里的球形空间估算
 const blackHoleVolumeData = [
@@ -4321,6 +4324,9 @@ function generateDragBlackHoleComparison(container, subtitle) {
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     drawIdleBlackHole(ctx, canvasSize);
+    if (!blackHoleTextureImage.complete) {
+        blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize);
+    }
 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, blackHoleVolumeData, {
         startAnimation: startBlackHoleFillAnimation,
@@ -4365,36 +4371,63 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 18;
     ctx.clearRect(0, 0, size, size);
 
-    const bg = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r * 1.25);
-    bg.addColorStop(0, 'rgba(0, 0, 0, 1)');
-    bg.addColorStop(0.42, 'rgba(0, 0, 0, 0.95)');
-    bg.addColorStop(0.62, 'rgba(255, 126, 32, 0.22)');
-    bg.addColorStop(1, 'rgba(255, 126, 32, 0)');
+    const bg = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r * 1.3);
+    bg.addColorStop(0, 'rgba(6, 10, 24, 1)');
+    bg.addColorStop(0.46, 'rgba(10, 16, 34, 0.98)');
+    bg.addColorStop(0.78, 'rgba(42, 70, 118, 0.32)');
+    bg.addColorStop(1, 'rgba(12, 18, 38, 0)');
     ctx.beginPath();
     ctx.arc(cx, cy, r * 1.2, 0, Math.PI * 2);
     ctx.fillStyle = bg;
     ctx.fill();
 
+    if (blackHoleTextureImage.complete && blackHoleTextureImage.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.08, 0, Math.PI * 2);
+        ctx.clip();
+        const srcSize = Math.min(blackHoleTextureImage.naturalWidth, blackHoleTextureImage.naturalHeight);
+        const sx = (blackHoleTextureImage.naturalWidth - srcSize) / 2;
+        const sy = (blackHoleTextureImage.naturalHeight - srcSize) / 2;
+        ctx.drawImage(blackHoleTextureImage, sx, sy, srcSize, srcSize, cx - r * 1.08, cy - r * 1.08, r * 2.16, r * 2.16);
+        ctx.restore();
+    } else {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(-0.02);
+        const diskGrad = ctx.createRadialGradient(0, 0, r * 0.28, 0, 0, r * 1.02);
+        diskGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        diskGrad.addColorStop(0.42, 'rgba(255, 255, 255, 0.92)');
+        diskGrad.addColorStop(0.58, 'rgba(166, 198, 255, 0.45)');
+        diskGrad.addColorStop(0.84, 'rgba(78, 112, 182, 0.12)');
+        diskGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.scale(1.32, 0.42);
+        ctx.beginPath();
+        ctx.arc(0, 0, r * (1 + pulse * 0.05), 0, Math.PI * 2);
+        ctx.fillStyle = diskGrad;
+        ctx.fill();
+        ctx.restore();
+    }
+
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.rotate(-0.18);
-    const diskGrad = ctx.createRadialGradient(0, 0, r * 0.28, 0, 0, r * 1.02);
-    diskGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    diskGrad.addColorStop(0.42, 'rgba(255, 231, 173, 0.96)');
-    diskGrad.addColorStop(0.55, 'rgba(255, 132, 31, 0.78)');
-    diskGrad.addColorStop(0.78, 'rgba(168, 53, 19, 0.16)');
-    diskGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.scale(1.28, 0.38);
+    ctx.rotate(-0.02);
+    const lensGrad = ctx.createRadialGradient(0, 0, r * 0.28, 0, 0, r * 1.02);
+    lensGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    lensGrad.addColorStop(0.44, 'rgba(255, 255, 255, 0.18)');
+    lensGrad.addColorStop(0.7, 'rgba(120, 170, 255, 0.12)');
+    lensGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.scale(1.34, 0.42);
     ctx.beginPath();
     ctx.arc(0, 0, r * (1 + pulse * 0.05), 0, Math.PI * 2);
-    ctx.fillStyle = diskGrad;
+    ctx.fillStyle = lensGrad;
     ctx.fill();
     ctx.restore();
 
     const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.42);
     coreGrad.addColorStop(0, '#000');
-    coreGrad.addColorStop(0.74, '#02030a');
-    coreGrad.addColorStop(1, 'rgba(255, 149, 45, 0.28)');
+    coreGrad.addColorStop(0.68, '#030411');
+    coreGrad.addColorStop(1, 'rgba(180, 210, 255, 0.24)');
     ctx.beginPath();
     ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
     ctx.fillStyle = coreGrad;
