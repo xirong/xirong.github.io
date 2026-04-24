@@ -509,6 +509,7 @@ let oortCloudBoundary; // 边界标识
 
 // ============ 音频播放（Edge-TTS MP3 + Web Speech API 降级） ============
 let currentAudio = null;
+let collisionAudioContext = null;
 
 function playPlanetAudio(planetKey) {
     // 停止上一段音频
@@ -536,6 +537,75 @@ function playPlanetAudio(planetKey) {
             utterance.rate = 0.9;
             window.speechSynthesis.speak(utterance);
         }
+    });
+}
+
+function getCollisionAudioContext() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        if (!collisionAudioContext || collisionAudioContext.state === 'closed') {
+            collisionAudioContext = new AudioCtx();
+        }
+        if (collisionAudioContext.state === 'suspended') {
+            collisionAudioContext.resume();
+        }
+        return collisionAudioContext;
+    } catch (e) {
+        return null;
+    }
+}
+
+function playCollisionTick(ctx, when, options = {}) {
+    try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const baseFrequency = options.baseFrequency || 800;
+        const volume = options.volume || 0.11;
+        const duration = options.duration || 0.055;
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(baseFrequency + (Math.random() - 0.5) * 220, when);
+        osc.type = options.type || 'sine';
+        gain.gain.setValueAtTime(volume, when);
+        gain.gain.exponentialRampToValueAtTime(0.008, when + duration);
+        osc.start(when);
+        osc.stop(when + duration);
+    } catch (e) {
+        // 声音只是增强体验，失败时不影响主动画
+    }
+}
+
+function playCollisionBurst(options = {}) {
+    const ctx = getCollisionAudioContext();
+    if (!ctx) return;
+
+    const count = options.count || 18;
+    const interval = options.interval || 0.085;
+    const baseFrequency = options.baseFrequency || 800;
+    const volume = options.volume || 0.1;
+    const now = ctx.currentTime;
+
+    for (let i = 0; i < count; i++) {
+        const decay = 1 - (i / count) * 0.45;
+        const jitter = Math.random() * 0.025;
+        playCollisionTick(ctx, now + i * interval + jitter, {
+            baseFrequency,
+            volume: volume * decay,
+            duration: 0.045 + Math.random() * 0.025,
+            type: i % 3 === 0 ? 'triangle' : 'sine'
+        });
+    }
+}
+
+function playVolumeFillCollisionSound(targetCount, targetType = 'sun') {
+    const countByScale = targetCount >= 1000000000 ? 24 : targetCount >= 1000000 ? 20 : targetCount >= 10000 ? 16 : 12;
+    playCollisionBurst({
+        count: countByScale,
+        interval: targetType === 'blackHole' ? 0.07 : 0.09,
+        baseFrequency: targetType === 'blackHole' ? 620 : 800,
+        volume: targetType === 'blackHole' ? 0.085 : 0.105
     });
 }
 
@@ -4547,6 +4617,7 @@ function startFillAnimation(ctx, size, data) {
     const color = data.color;
     const nameCN = data.nameCN;
     const label = data.label;
+    playVolumeFillCollisionSound(targetCount, 'sun');
 
     // 粒子池
     const MAX_PARTICLES = 200;
@@ -4748,6 +4819,7 @@ function startBlackHoleFillAnimation(ctx, size, data) {
     const color = data.color;
     const nameCN = data.nameCN;
     const label = data.label;
+    playVolumeFillCollisionSound(targetCount, 'blackHole');
 
     const MAX_PARTICLES = 240;
     const particles = [];
