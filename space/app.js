@@ -5326,14 +5326,10 @@ function setupComparisonTabs() {
         btn.addEventListener('click', () => {
             cancelDragVolumeAnimation();
             if (btn.dataset.metric) {
-                const nextMetric = btn.dataset.metric;
-                const wasSameMetric = currentComparisonMetric === nextMetric;
-                const wasCapacityTab = Boolean(CAPACITY_TAB_TO_TARGET[currentComparisonTab]);
-                currentComparisonMetric = nextMetric;
-                if (currentComparisonMetric === 'mass' && currentComparisonTab === 'diameter') {
-                    currentComparisonTab = 'volume';
-                } else if (currentComparisonMetric === 'diameter' && btn.dataset.tab && (!wasCapacityTab || wasSameMetric)) {
-                    currentComparisonTab = btn.dataset.tab;
+                currentComparisonMetric = btn.dataset.metric;
+                currentComparisonTab = btn.dataset.tab || currentComparisonMetric;
+                if (currentComparisonTab !== 'diameter') {
+                    isDiameterDetailMode = false;
                 }
             } else {
                 currentComparisonTab = btn.dataset.tab;
