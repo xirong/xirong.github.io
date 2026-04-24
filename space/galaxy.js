@@ -32,6 +32,9 @@ const NEIGHBORHOOD_SCALE = 10; // 邻域视图中1光年 = 10单位
 const GALACTIC_CENTER = new THREE.Vector3(0, 0, 0);
 const GALACTIC_ROTATION_SPEED = -0.00012; // 银河整体再慢一点，只保留能被肉眼感知的缓慢旋转
 const GALACTIC_LANDMARK_SPEED_SCALE = 0.58; // 太阳系和著名恒星的公转再额外放慢，便于近距离观察
+const GALACTIC_BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
+const BLACK_HOLE_REVEAL_START_DISTANCE = 5200; // 缩放到银心附近才开始显出黑洞
+const BLACK_HOLE_FULL_REVEAL_DISTANCE = 1700;
 const tempSolarSystemPosition = new THREE.Vector3();
 const tempFocusedWorldPosition = new THREE.Vector3();
 const tempLineEndPosition = new THREE.Vector3();
@@ -1349,9 +1352,8 @@ function createGalacticBlackHoleMaterial() {
     return new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
-            texWarm: { value: getStarTexture('yellow') },
-            texHot: { value: getStarTexture('white') },
-            texCool: { value: getStarTexture('orange') }
+            reveal: { value: 0 },
+            blackHoleMap: { value: textureLoader.load(GALACTIC_BLACK_HOLE_TEXTURE_PATH) }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -1364,90 +1366,26 @@ function createGalacticBlackHoleMaterial() {
             precision highp float;
 
             uniform float time;
-            uniform sampler2D texWarm;
-            uniform sampler2D texHot;
-            uniform sampler2D texCool;
+            uniform float reveal;
+            uniform sampler2D blackHoleMap;
 
             varying vec2 vUv;
 
-            float luma(vec3 c) {
-                return dot(c, vec3(0.299, 0.587, 0.114));
-            }
-
-            float sampleTextureBand(sampler2D tex, vec2 uv) {
-                return luma(texture2D(tex, uv).rgb);
-            }
-
             void main() {
                 vec2 p = vUv * 2.0 - 1.0;
-                p.x *= 1.12;
+                vec4 tex = texture2D(blackHoleMap, vUv);
+                float oval = length(vec2(p.x * 0.68, p.y * 1.02));
+                float edgeFade = 1.0 - smoothstep(0.78, 1.02, oval);
+                float softVignette = 1.0 - smoothstep(0.62, 1.08, length(p));
+                float shimmer = 0.94 + 0.06 * sin(time * 0.7);
 
-                float r = length(vec2(p.x * 0.98, p.y * 1.04));
-                float x = p.x;
-                float y = p.y;
+                vec3 color = tex.rgb * (1.08 + reveal * 0.16) * shimmer;
+                color += vec3(0.18, 0.26, 0.42) * softVignette * 0.16;
 
-                float horizon = 1.0 - smoothstep(0.58, 0.605, r);
-                float photonRing = exp(-pow((r - 0.62) / 0.022, 2.0));
-                float innerHalo = exp(-pow((r - 0.68) / 0.07, 2.0));
+                float alpha = edgeFade * reveal;
+                if (alpha < 0.01) discard;
 
-                float diskBand = exp(-pow(y / 0.07, 2.0));
-                float diskCore = exp(-pow(y / 0.03, 2.0));
-                float diskFalloff = 1.0 - smoothstep(0.7, 1.08, abs(x));
-
-                float topLift = 0.28 + 0.42 * exp(-pow(x / 0.48, 2.0));
-                float topWidth = mix(0.08, 0.17, exp(-pow(x / 0.6, 2.0)));
-                float topArc = exp(-pow((y - topLift) / topWidth, 2.0));
-
-                float bottomLift = -0.25 - 0.3 * exp(-pow(x / 0.42, 2.0));
-                float bottomWidth = mix(0.06, 0.11, exp(-pow(x / 0.58, 2.0)));
-                float bottomArc = exp(-pow((y - bottomLift) / bottomWidth, 2.0));
-
-                float texWarmA = sampleTextureBand(texWarm, vec2(
-                    fract(x * 0.18 + 0.5 - time * 0.01),
-                    fract(abs(y) * 1.8 + time * 0.005)
-                ));
-                float texHotA = sampleTextureBand(texHot, vec2(
-                    fract(x * 0.35 + 0.5 + time * 0.014),
-                    fract(abs(y) * 3.2 - time * 0.004)
-                ));
-                float texCoolA = sampleTextureBand(texCool, vec2(
-                    fract(x * 0.28 + 0.5 - time * 0.012),
-                    fract(abs(y) * 2.4 + time * 0.006)
-                ));
-
-                float diskTexture = clamp(texWarmA * 0.55 + texHotA * 0.4 + texCoolA * 0.25, 0.0, 1.3);
-                float arcTexture = clamp(texHotA * 0.45 + texWarmA * 0.3, 0.0, 1.1);
-                float doppler = 1.0 + clamp(x, -1.0, 1.0) * 0.24;
-
-                vec3 diskColor = mix(vec3(0.38, 0.18, 0.08), vec3(1.0, 0.84, 0.48), smoothstep(0.15, 0.95, diskTexture));
-                vec3 diskHotColor = mix(diskColor, vec3(1.0, 0.98, 0.95), smoothstep(0.45, 1.0, diskCore + diskTexture * 0.45));
-                vec3 arcColor = mix(vec3(0.74, 0.79, 0.92), vec3(0.98, 0.98, 1.0), smoothstep(0.2, 1.0, arcTexture));
-                vec3 outerBlue = vec3(0.26, 0.34, 0.62);
-
-                vec3 color = vec3(0.0);
-                color += diskHotColor * diskBand * diskFalloff * (0.32 + diskTexture * 0.62) * doppler;
-                color += diskHotColor * diskCore * diskFalloff * 0.34;
-                color += arcColor * topArc * (0.22 + arcTexture * 0.22);
-                color += arcColor * bottomArc * (0.08 + arcTexture * 0.1);
-                color += vec3(0.98, 0.97, 1.0) * photonRing * 0.56;
-                color += vec3(1.0, 0.9, 0.72) * innerHalo * 0.1;
-                color += outerBlue * exp(-pow(r / 1.25, 2.0)) * 0.12;
-
-                float alpha = 0.0;
-                alpha += diskBand * diskFalloff * (0.34 + diskTexture * 0.28);
-                alpha += topArc * 0.32;
-                alpha += bottomArc * 0.13;
-                alpha += photonRing * 0.24;
-                alpha += innerHalo * 0.08;
-                alpha = clamp(alpha, 0.0, 0.95);
-
-                vec3 finalColor = color * (1.0 - horizon);
-                finalColor = mix(finalColor, vec3(0.0), horizon);
-
-                float finalAlpha = max(alpha, horizon * 0.98);
-                if (finalAlpha < 0.01) discard;
-
-                gl_FragColor = vec4(finalColor, finalAlpha);
+                gl_FragColor = vec4(color, alpha);
             }
         `,
         transparent: true,
@@ -1461,8 +1399,36 @@ function createGalacticCenter() {
     galacticCenter = new THREE.Group();
     galacticCenter.renderOrder = 20;
 
+    const centralBulge = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: createGlowTexture(512, { r: 1.0, g: 0.88, b: 0.58 }),
+        transparent: true,
+        opacity: 0.5,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false
+    }));
+    centralBulge.name = 'centralBulge';
+    centralBulge.scale.set(2650, 1550, 1);
+    centralBulge.position.set(0, 0, -22);
+    centralBulge.renderOrder = 17;
+    galacticCenter.add(centralBulge);
+
+    const centralBlueBloom = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: createGlowTexture(512, { r: 0.58, g: 0.72, b: 1.0 }),
+        transparent: true,
+        opacity: 0.2,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false
+    }));
+    centralBlueBloom.name = 'centralBlueBloom';
+    centralBlueBloom.scale.set(3900, 2450, 1);
+    centralBlueBloom.position.set(0, 0, -32);
+    centralBlueBloom.renderOrder = 16;
+    galacticCenter.add(centralBlueBloom);
+
     const blackHoleCard = new THREE.Mesh(
-        new THREE.PlaneGeometry(2350, 1600),
+        new THREE.PlaneGeometry(1850, 1235),
         createGalacticBlackHoleMaterial()
     );
     blackHoleCard.name = 'blackHoleCard';
@@ -1478,7 +1444,7 @@ function createGalacticCenter() {
         depthTest: false
     }));
     coolHalo.name = 'coolHalo';
-    coolHalo.scale.set(3000, 2050, 1);
+    coolHalo.scale.set(2500, 1700, 1);
     coolHalo.position.set(0, 0, -10);
     coolHalo.renderOrder = 19;
     galacticCenter.add(coolHalo);
@@ -1492,7 +1458,7 @@ function createGalacticCenter() {
         depthTest: false
     }));
     warmHalo.name = 'warmHalo';
-    warmHalo.scale.set(1680, 1100, 1);
+    warmHalo.scale.set(2200, 1320, 1);
     warmHalo.position.set(0, -10, -5);
     warmHalo.renderOrder = 20;
     galacticCenter.add(warmHalo);
@@ -1502,7 +1468,7 @@ function createGalacticCenter() {
         new THREE.MeshBasicMaterial({
             color: 0x000000,
             transparent: true,
-            opacity: 0.92,
+            opacity: 0,
             depthWrite: false,
             depthTest: false
         })
@@ -1512,6 +1478,60 @@ function createGalacticCenter() {
     galacticCenter.add(coreShadow);
 
     scene.add(galacticCenter);
+}
+
+function updateGalacticCenterAppearance(distance, elapsed) {
+    if (!galacticCenter) return;
+
+    const reveal = THREE.MathUtils.clamp(
+        1 - (distance - BLACK_HOLE_FULL_REVEAL_DISTANCE) / (BLACK_HOLE_REVEAL_START_DISTANCE - BLACK_HOLE_FULL_REVEAL_DISTANCE),
+        0,
+        1
+    );
+    const farCore = 1 - reveal;
+
+    const blackHoleCard = galacticCenter.getObjectByName('blackHoleCard');
+    const centralBulge = galacticCenter.getObjectByName('centralBulge');
+    const centralBlueBloom = galacticCenter.getObjectByName('centralBlueBloom');
+    const coolHalo = galacticCenter.getObjectByName('coolHalo');
+    const warmHalo = galacticCenter.getObjectByName('warmHalo');
+    const coreShadow = galacticCenter.getObjectByName('coreShadow');
+
+    if (blackHoleCard) {
+        blackHoleCard.quaternion.copy(camera.quaternion);
+        const pulse = 1 + Math.sin(elapsed * 0.7) * 0.012;
+        const closeScale = 0.82 + reveal * 0.28;
+        blackHoleCard.scale.set(pulse * closeScale, pulse * closeScale, 1);
+        blackHoleCard.visible = reveal > 0.01;
+        if (blackHoleCard.material.uniforms) {
+            blackHoleCard.material.uniforms.reveal.value = reveal;
+            blackHoleCard.material.uniforms.time.value = elapsed;
+        }
+    }
+
+    if (centralBulge) {
+        centralBulge.material.opacity = 0.34 + farCore * 0.28 + Math.sin(elapsed * 0.28) * 0.025;
+        centralBulge.scale.set(2600 + farCore * 900, 1500 + farCore * 520, 1);
+    }
+
+    if (centralBlueBloom) {
+        centralBlueBloom.material.opacity = 0.08 + farCore * 0.2;
+    }
+
+    if (coolHalo) {
+        coolHalo.material.opacity = (0.05 + farCore * 0.16 + reveal * 0.08) + Math.sin(elapsed * 0.35) * 0.012;
+    }
+
+    if (warmHalo) {
+        warmHalo.material.opacity = (0.18 + farCore * 0.16 - reveal * 0.08) + Math.cos(elapsed * 0.48) * 0.012;
+    }
+
+    if (coreShadow) {
+        coreShadow.visible = reveal > 0.08;
+        coreShadow.material.opacity = reveal * (0.62 + Math.sin(elapsed * 0.5) * 0.02);
+        const shadowScale = 0.55 + reveal * 0.45;
+        coreShadow.scale.setScalar(shadowScale);
+    }
 }
 
 // ============ 创建太阳系标记 ============
@@ -2851,37 +2871,8 @@ function animate() {
         }
     }
 
-    // 更新黑洞吸积盘
-    if (galacticCenter) {
-        const blackHoleCard = galacticCenter.getObjectByName('blackHoleCard');
-        const coolHalo = galacticCenter.getObjectByName('coolHalo');
-        const warmHalo = galacticCenter.getObjectByName('warmHalo');
-        const coreShadow = galacticCenter.getObjectByName('coreShadow');
-
-        if (blackHoleCard) {
-            blackHoleCard.quaternion.copy(camera.quaternion);
-            const pulse = 1 + Math.sin(elapsed * 0.7) * 0.015;
-            blackHoleCard.scale.set(pulse, pulse, 1);
-        }
-
-        if (coolHalo) {
-            coolHalo.material.opacity = 0.11 + Math.sin(elapsed * 0.35) * 0.015;
-        }
-
-        if (warmHalo) {
-            warmHalo.material.opacity = 0.105 + Math.cos(elapsed * 0.48) * 0.015;
-        }
-
-        if (coreShadow) {
-            coreShadow.material.opacity = 0.9 + Math.sin(elapsed * 0.5) * 0.02;
-        }
-
-        galacticCenter.children.forEach(child => {
-            if (child.material && child.material.uniforms && child.material.uniforms.time) {
-                child.material.uniforms.time.value = elapsed;
-            }
-        });
-    }
+    // 远景显示明亮银核，拉近后才逐渐显出中心黑洞
+    updateGalacticCenterAppearance(distance, elapsed);
 
     // 更新日球层
     if (heliopause && heliopause.material.uniforms) {
@@ -3457,8 +3448,9 @@ function onCanvasClick(event) {
         }
     }
 
-    // 检测银河系中心黑洞点击（投影距离检测，跳转到黑洞页面）
-    if (galacticCenter) {
+    // 检测银河系中心黑洞点击：只有放大到银心附近后才允许进入黑洞页面
+    const cameraDistanceToCenter = camera.position.length();
+    if (galacticCenter && cameraDistanceToCenter < BLACK_HOLE_REVEAL_START_DISTANCE) {
         const bhWorld = new THREE.Vector3(0, 0, 0);
         bhWorld.project(camera);
         // 黑洞在相机前方（z < 1）且在屏幕范围内
@@ -3468,8 +3460,12 @@ function onCanvasClick(event) {
             const dx = event.clientX - bhScreenX;
             const dy = event.clientY - bhScreenY;
             const screenDist = Math.sqrt(dx * dx + dy * dy);
-            // 新版银心黑洞更显眼，适当放宽点击命中范围
-            if (screenDist < 110) {
+            const reveal = THREE.MathUtils.clamp(
+                1 - (cameraDistanceToCenter - BLACK_HOLE_FULL_REVEAL_DISTANCE) / (BLACK_HOLE_REVEAL_START_DISTANCE - BLACK_HOLE_FULL_REVEAL_DISTANCE),
+                0,
+                1
+            );
+            if (screenDist < 55 + reveal * 65) {
                 window.location.href = 'blackhole-3d.html';
                 return;
             }
