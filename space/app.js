@@ -654,6 +654,7 @@ let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonMetric = 'diameter'; // 'diameter' 或 'mass'
 let currentComparisonTab = 'diameter'; // 'diameter' 或各个“能装”页签
+let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
 let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
 let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
 let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
@@ -3701,6 +3702,7 @@ function generateSizeComparison(mode) {
     const container = document.getElementById('comparisonRow');
     container.innerHTML = '';
     container.classList.remove('compact-diameter-mode');
+    container.classList.remove('diameter-detail-mode');
 
     const subtitle = document.getElementById('comparisonSubtitle');
 
@@ -3715,6 +3717,7 @@ function generateSizeComparison(mode) {
 
     // volume 模式下 planets-row 不需要 flex 横排，改为 block
     if (isVolumeMode) {
+        isDiameterDetailMode = false;
         container.style.display = 'block';
         container.style.padding = '15px';
     } else {
@@ -3754,24 +3757,73 @@ function generateSizeComparison(mode) {
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
         const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
-        subtitle.textContent = '以地球为参考（直径 = 12,742 km）';
-        container.classList.add('compact-diameter-mode');
-        container.style.padding = '16px 4px 10px';
+        subtitle.textContent = isDiameterDetailMode
+            ? '去掉太阳、木星、土星，以天王星为最大参照，看清小天体真实比例'
+            : '以地球为参考（直径 = 12,742 km）';
 
-        // 放大版链接（插入到 subtitle 后面、container 前面）
+        // 放大版切换按钮（插入到 subtitle 后面、container 前面）
         let detailLink = document.getElementById('sizeDetailLink');
-        if (!detailLink) {
-            detailLink = document.createElement('a');
+        if (!detailLink || detailLink.tagName !== 'BUTTON') {
+            if (detailLink) detailLink.remove();
+            detailLink = document.createElement('button');
             detailLink.id = 'sizeDetailLink';
-            detailLink.href = 'size-detail.html';
-            detailLink.target = '_blank';
-            detailLink.textContent = '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
-            detailLink.style.cssText = 'display:inline-block;margin-bottom:15px;padding:8px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#7de8d5;font-size:0.9rem;text-decoration:none;transition:all 0.3s;cursor:pointer;';
-            detailLink.onmouseover = function() { this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='#7de8d5'; };
-            detailLink.onmouseout = function() { this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.2)'; };
+            detailLink.type = 'button';
+            detailLink.style.cssText = 'display:inline-block;margin-bottom:15px;padding:8px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#7de8d5;font-size:0.9rem;text-decoration:none;transition:all 0.3s;cursor:pointer;font-family:inherit;';
             subtitle.parentNode.insertBefore(detailLink, container);
         }
+        detailLink.textContent = isDiameterDetailMode
+            ? '← 返回完整直径对比'
+            : '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
+        detailLink.onclick = function() {
+            isDiameterDetailMode = !isDiameterDetailMode;
+            generateSizeComparison('diameter');
+        };
+        detailLink.onmouseover = function() { this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='#7de8d5'; };
+        detailLink.onmouseout = function() { this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.2)'; };
         detailLink.style.display = 'inline-block';
+
+        if (isDiameterDetailMode) {
+            container.classList.add('diameter-detail-mode');
+            container.style.padding = '18px 12px 24px';
+
+            const detailPlanets = ['uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
+            const maxDiameter = planetData.uranus.diameter;
+            const maxDisplaySize = 260;
+            const earthDiameter = 12742;
+
+            detailPlanets.forEach(name => {
+                const data = planetData[name];
+                const categoryClass = data.category || '';
+                const displaySize = Math.max(8, maxDisplaySize * (data.diameter / maxDiameter));
+                const earthRatio = data.diameter / earthDiameter;
+                const earthLabel = name === 'earth'
+                    ? '= 1 地球'
+                    : `= ${earthRatio.toFixed(2)} 地球`;
+                const bgStyle = planetTextures[name]
+                    ? `background: url('${planetTextures[name]}') center/cover;`
+                    : `background: #${data.color.toString(16).padStart(6, '0')};`;
+
+                const div = document.createElement('div');
+                div.className = `comparison-planet diameter-detail-planet ${categoryClass}`;
+                div.innerHTML = `
+                    <div class="sphere" style="
+                        width: ${displaySize}px;
+                        height: ${displaySize}px;
+                        ${bgStyle}
+                        color: #${data.color.toString(16).padStart(6, '0')};
+                    "></div>
+                    <div class="name">${data.nameCN}</div>
+                    <div class="size">${formatNumber(data.diameter)} km</div>
+                    <div class="earth-ratio earth-small">${earthLabel}</div>
+                    <span class="type-label ${categoryClass}">${categoryLabels[categoryClass] || data.type}</span>
+                `;
+                container.appendChild(div);
+            });
+            return;
+        }
+
+        container.classList.add('compact-diameter-mode');
+        container.style.padding = '16px 4px 10px';
 
         const sunDisplaySize = 210;
         const jupiterDisplaySize = 90;

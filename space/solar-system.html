@@ -1778,6 +1778,32 @@
             line-height: 10px;
         }
 
+        .planets-row.diameter-detail-mode {
+            width: 100%;
+            min-height: 430px;
+            gap: 28px;
+            align-items: flex-end;
+            justify-content: flex-start;
+            overflow-x: auto;
+        }
+
+        .diameter-detail-planet {
+            flex-shrink: 0;
+            gap: 10px;
+        }
+
+        .diameter-detail-planet .sphere {
+            box-shadow: 0 0 22px currentColor;
+        }
+
+        .diameter-detail-planet .name {
+            font-size: 0.9rem;
+        }
+
+        .diameter-detail-planet .size {
+            font-size: 0.76rem;
+        }
+
         /* 页签切换 */
         .comparison-tabs {
             display: flex;
@@ -2606,6 +2632,20 @@
                 gap: 18px;
                 padding: 8px 4px 20px;
                 overflow-x: auto;
+            }
+
+            .planets-row.diameter-detail-mode {
+                min-height: 360px;
+                gap: 22px;
+                padding: 12px 4px 22px;
+            }
+
+            .diameter-detail-planet .name {
+                font-size: 0.82rem;
+            }
+
+            .diameter-detail-planet .size {
+                font-size: 0.7rem;
             }
         }
     </style>
