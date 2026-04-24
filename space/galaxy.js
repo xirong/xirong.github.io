@@ -1371,6 +1371,10 @@ function createGalacticBlackHoleMaterial() {
 
             varying vec2 vUv;
 
+            float luma(vec3 color) {
+                return dot(color, vec3(0.299, 0.587, 0.114));
+            }
+
             void main() {
                 vec2 p = vUv * 2.0 - 1.0;
                 vec4 tex = texture2D(blackHoleMap, vUv);
@@ -1378,11 +1382,16 @@ function createGalacticBlackHoleMaterial() {
                 float edgeFade = 1.0 - smoothstep(0.78, 1.02, oval);
                 float softVignette = 1.0 - smoothstep(0.62, 1.08, length(p));
                 float shimmer = 0.94 + 0.06 * sin(time * 0.7);
+                float brightness = luma(tex.rgb);
+                float brightStructure = smoothstep(0.24, 0.52, brightness);
+                float softGlow = smoothstep(0.38, 0.72, brightness) * 0.4;
+                float centerHole = 1.0 - smoothstep(0.18, 0.34, length(vec2(p.x * 1.08, p.y * 1.22)));
 
                 vec3 color = tex.rgb * (1.08 + reveal * 0.16) * shimmer;
-                color += vec3(0.18, 0.26, 0.42) * softVignette * 0.16;
+                color += vec3(0.18, 0.26, 0.42) * softVignette * softGlow;
 
-                float alpha = edgeFade * reveal;
+                float textureMask = max(brightStructure, centerHole * 0.9);
+                float alpha = edgeFade * reveal * textureMask;
                 if (alpha < 0.01) discard;
 
                 gl_FragColor = vec4(color, alpha);
