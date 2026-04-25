@@ -2270,6 +2270,8 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
+            width: 240px;
+            flex: 0 0 240px;
             max-width: 240px;
         }
 
@@ -2277,6 +2279,11 @@
             color: #ffbc6b;
             background: rgba(255, 121, 37, 0.1);
             border-color: rgba(255, 166, 77, 0.24);
+        }
+
+        .black-hole-drag .drag-main-area {
+            flex-direction: column;
+            gap: 20px;
         }
 
         .drag-planet-item {
@@ -2634,6 +2641,33 @@
 
             .comparison-subtitle {
                 margin-bottom: 18px;
+                text-align: center;
+            }
+
+            .drag-main-area {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .drag-planet-tray {
+                width: 100%;
+                max-width: 360px;
+                flex-basis: auto;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .drag-planet-item {
+                flex-direction: column;
+                justify-content: center;
+                gap: 6px;
+                min-height: 72px;
+                padding: 8px 6px;
+            }
+
+            .drag-planet-item .drag-name {
+                font-size: 0.72rem;
+                line-height: 1.1;
+                white-space: normal;
                 text-align: center;
             }
 
