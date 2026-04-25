@@ -4285,15 +4285,25 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
     }
 
     function getDropClickTarget(clientX, clientY) {
-        const element = document.elementFromPoint(clientX, clientY);
-        if (!element) return null;
+        const elements = document.elementsFromPoint
+            ? document.elementsFromPoint(clientX, clientY)
+            : [document.elementFromPoint(clientX, clientY)].filter(Boolean);
 
-        const clickable = element.closest('a[href], button, [role="button"]');
-        if (!clickable) return null;
-        if (wrapper.contains(clickable) && !clickable.classList.contains('tab-btn') && clickable.id !== 'closeSizeComparison' && clickable.id !== 'sizeDetailLink') {
-            return null;
+        for (const element of elements) {
+            if (!element || element.id === 'loadingScreen' || element.classList?.contains('drag-ghost')) {
+                continue;
+            }
+
+            const clickable = element.closest('a[href], button, [role="button"]');
+            if (!clickable) {
+                continue;
+            }
+            if (wrapper.contains(clickable) && !clickable.classList.contains('tab-btn') && clickable.id !== 'closeSizeComparison' && clickable.id !== 'sizeDetailLink') {
+                continue;
+            }
+            return clickable;
         }
-        return clickable;
+        return null;
     }
 
     function handleDrop(clientX, clientY) {
