@@ -4927,6 +4927,17 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         window.removeEventListener('pagehide', handlePageHide);
     }
 
+    function resetDragState() {
+        ghost = null;
+        dragItem = null;
+        activePointerId = null;
+        activeItem = null;
+
+        if (activeDragCleanup === cleanupDrag) {
+            activeDragCleanup = null;
+        }
+    }
+
     function cleanupDrag(options = {}) {
         const removeGhost = options.removeGhost !== false;
         const resetOpacity = options.resetOpacity !== false;
@@ -4950,11 +4961,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         if (activeItem && resetOpacity) {
             activeItem.style.opacity = '1';
         }
-        activeItem = null;
-
-        if (activeDragCleanup === cleanupDrag) {
-            activeDragCleanup = null;
-        }
+        resetDragState();
     }
 
     function handleDrop(clientX, clientY) {
@@ -5000,14 +5007,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             setTimeout(() => ghostToRemove.remove(), 300);
         }
 
-        ghost = null;
-        dragItem = null;
-        activePointerId = null;
-        activeItem = null;
-
-        if (activeDragCleanup === cleanupDrag) {
-            activeDragCleanup = null;
-        }
+        resetDragState();
     }
 
     function handleGlobalPointerMove(e) {
