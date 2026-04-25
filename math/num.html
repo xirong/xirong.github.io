@@ -628,6 +628,93 @@
             font-size: 1.3rem;
         }
 
+        .unit-learning-panel {
+            width: min(1100px, calc(100vw - 24px));
+            background: linear-gradient(145deg, #fff, #f4f8ff);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 12px 40px var(--shadow-medium);
+        }
+
+        .unit-panel-title {
+            font-family: 'Fredoka One', 'PingFang SC', sans-serif;
+            font-size: 1.8rem;
+            color: var(--accent-purple);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .unit-panel-subtitle {
+            color: #5d6d7e;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .unit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 10px;
+        }
+
+        .unit-card {
+            background: linear-gradient(145deg, #ffffff, #f8fbff);
+            border: 2px solid #dfe8ff;
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 5px 16px var(--shadow-soft);
+        }
+
+        .unit-formula {
+            display: grid;
+            grid-template-columns: auto 18px 1fr;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .unit-name {
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .unit-equal {
+            color: var(--accent-orange);
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.15rem;
+            text-align: center;
+        }
+
+        .unit-number {
+            color: var(--primary-blue);
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 800;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        .unit-zero-count {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 9px;
+            background: rgba(46, 204, 113, 0.13);
+            border-radius: 999px;
+            color: #1f8f4e;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 4px 10px;
+        }
+
+        .unit-note {
+            margin-top: 7px;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
         .controls {
             display: flex;
             gap: 8px;
@@ -768,6 +855,23 @@
                 flex-direction: column;
                 align-items: center;
             }
+
+            .unit-learning-panel {
+                padding: 14px;
+            }
+
+            .unit-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .unit-formula {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+
+            .unit-equal {
+                text-align: left;
+            }
         }
     </style>
 </head>
@@ -786,6 +890,7 @@
         <button class="mode-btn" data-mode="hundred">认识100</button>
         <button class="mode-btn" data-mode="thousand">认识1000</button>
         <button class="mode-btn" data-mode="tenthousand">认识10000</button>
+        <button class="mode-btn" data-mode="numberunits">大数单位</button>
         <a href="make-ten.html" class="mode-btn"
             style="text-decoration:none;background:linear-gradient(145deg,#11998e,#38ef7d);color:white;">🤝 凑十法</a>
     </div>
@@ -801,6 +906,11 @@
             <div class="big-count-label">已放入</div>
             <div class="big-count-number" id="bigCountNumber">0</div>
             <div class="big-count-target" id="bigCountTarget">目标：100 个</div>
+        </div>
+        <div class="unit-learning-panel hidden" id="unitLearningPanel" aria-label="大数单位表">
+            <div class="unit-panel-title">📚 大数单位</div>
+            <div class="unit-panel-subtitle">中文名字 = 1 后面有几个 0</div>
+            <div class="unit-grid" id="unitGrid"></div>
         </div>
         <div class="content-area" id="contentArea">
             <div class="left-section">
@@ -852,6 +962,24 @@
 
     <script>
         const state = { mode: 'ten', cells: [], maxCells: 10, maxChips: 5, draggedChip: null, filling: false };
+        const numberUnitRows = [
+            { name: '一十', zeros: 1 },
+            { name: '一百', zeros: 2 },
+            { name: '一千', zeros: 3 },
+            { name: '一万', zeros: 4 },
+            { name: '十万', zeros: 5 },
+            { name: '一百万', zeros: 6 },
+            { name: '一千万', zeros: 7 },
+            { name: '一个亿', zeros: 8, note: '一个亿，也就是一万万' },
+            { name: '十个亿', zeros: 9 },
+            { name: '一百亿', zeros: 10 },
+            { name: '一千亿', zeros: 11 },
+            { name: '一万亿', zeros: 12 },
+            { name: '十万亿', zeros: 13, note: '也可以写作 10 万亿' },
+            { name: '一百万亿', zeros: 14, note: '也可以写作 100 万亿' },
+            { name: '一千万亿', zeros: 15, note: '也可以写作 1000 万亿' },
+            { name: '万万亿', zeros: 16, note: '也可以说一万万亿' }
+        ];
         const framesContainer = document.getElementById('framesContainer');
         const redChipsContainer = document.getElementById('redChips');
         const blueChipsContainer = document.getElementById('blueChips');
@@ -880,9 +1008,9 @@
         }
 
         function setupModeToggle() {
-            document.querySelectorAll('.mode-btn').forEach(btn => {
+            document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     switchMode(btn.dataset.mode);
                 });
@@ -900,9 +1028,13 @@
             const mainTitle = document.getElementById('mainTitle');
             const chipStorage = document.getElementById('chipStorage');
             const frameWrapper = document.getElementById('frameWrapper');
+            const contentArea = document.getElementById('contentArea');
+            const unitLearningPanel = document.getElementById('unitLearningPanel');
 
             frameWrapper.classList.remove('compact');
             bigCountDisplay.classList.remove('compact');
+            contentArea.classList.remove('hidden');
+            unitLearningPanel.classList.add('hidden');
 
             if (mode === 'ten') {
                 state.maxCells = 10; state.maxChips = 5;
@@ -938,8 +1070,7 @@
                 equationDisplay.classList.add('hidden'); bigCountDisplay.classList.remove('hidden');
                 countDisplay.classList.add('hidden'); randomBtn.classList.add('hidden');
                 fillBtn.classList.remove('hidden'); chipStorage.classList.add('hidden');
-            } else {
-                // tenthousand
+            } else if (mode === 'tenthousand') {
                 state.maxCells = 10000; state.maxChips = 0;
                 mainTitle.textContent = '🌟 认识10000';
                 document.getElementById('subtitleText').textContent = '感受一万有多么大！';
@@ -950,12 +1081,45 @@
                 frameWrapper.classList.add('compact');
                 countDisplay.classList.add('hidden'); randomBtn.classList.add('hidden');
                 fillBtn.classList.remove('hidden'); chipStorage.classList.add('hidden');
+            } else if (mode === 'numberunits') {
+                state.maxCells = 0; state.maxChips = 0;
+                mainTitle.textContent = '📚 认识大数单位';
+                document.getElementById('subtitleText').textContent = '看清楚 1 后面到底有几个 0！';
+                equationDisplay.classList.add('hidden'); bigCountDisplay.classList.add('hidden');
+                contentArea.classList.add('hidden'); unitLearningPanel.classList.remove('hidden');
+                framesContainer.innerHTML = '';
+                state.cells = [];
+                renderUnitLearning();
+                return;
+            } else {
+                switchMode('ten');
+                return;
             }
 
             state.cells = Array(state.maxCells).fill(null);
             createFrames();
             if (mode !== 'thousand' && mode !== 'tenthousand') createChips();
             updateDisplay();
+        }
+
+        // ============ 渲染大数单位 ============
+        function renderUnitLearning() {
+            const unitGrid = document.getElementById('unitGrid');
+            unitGrid.innerHTML = numberUnitRows.map(row => {
+                const numberText = `1${'0'.repeat(row.zeros)}`;
+                const noteHtml = row.note ? `<div class="unit-note">${row.note}</div>` : '';
+                return `
+                    <div class="unit-card">
+                        <div class="unit-formula">
+                            <div class="unit-name">${row.name}</div>
+                            <div class="unit-equal">=</div>
+                            <div class="unit-number">${numberText}</div>
+                        </div>
+                        <div class="unit-zero-count">1 后面 ${row.zeros} 个 0</div>
+                        ${noteHtml}
+                    </div>
+                `;
+            }).join('');
         }
 
         function createFrames() {
