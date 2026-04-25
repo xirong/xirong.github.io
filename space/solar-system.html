@@ -861,14 +861,31 @@
             display: flex;
         }
 
+        .size-comparison-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
         .size-comparison h2 {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.8rem;
-            margin-bottom: 30px;
+            margin: 0;
             background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .comparison-metric-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .size-comparison-close {
@@ -1839,6 +1856,11 @@
             border-color: transparent;
         }
 
+        .comparison-metric-toggle .tab-btn {
+            padding: 9px 18px;
+            border-radius: 18px;
+        }
+
         /* 类型图例 */
         .planet-types-legend {
             display: flex;
@@ -2618,8 +2640,12 @@
                 border-radius: 20px;
             }
 
+            .size-comparison-title-row {
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+
             .size-comparison h2 {
-                margin-bottom: 18px;
                 font-size: 1.35rem;
             }
 
@@ -2631,6 +2657,10 @@
             .tab-btn {
                 padding: 8px 14px;
                 font-size: 0.8rem;
+            }
+
+            .comparison-metric-toggle .tab-btn {
+                padding: 7px 12px;
             }
 
             .planet-types-legend {
@@ -2886,12 +2916,16 @@
     <!-- 大小对比面板 -->
     <div class="size-comparison" id="sizeComparison">
         <button class="size-comparison-close" id="closeSizeComparison">✕</button>
-        <h2>🌍 行星对比</h2>
+        <div class="size-comparison-title-row">
+            <h2>🌍 行星对比</h2>
+            <div class="comparison-metric-toggle" aria-label="对比方式">
+                <button class="tab-btn metric-btn active" data-metric="diameter" data-tab="diameter">📏 按直径</button>
+                <button class="tab-btn metric-btn" data-metric="mass" data-tab="mass">⚖️ 按质量</button>
+            </div>
+        </div>
 
         <!-- 页签切换 -->
         <div class="comparison-tabs">
-            <button class="tab-btn metric-btn active" data-metric="diameter" data-tab="diameter">📏 按直径</button>
-            <button class="tab-btn metric-btn" data-metric="mass" data-tab="mass">⚖️ 按质量</button>
             <button class="tab-btn" data-tab="sunVolume">☀️ 太阳能装</button>
             <button class="tab-btn" data-tab="jupiterVolume">🪐 木星能装</button>
             <button class="tab-btn" data-tab="saturnVolume">🪐 土星能装</button>
