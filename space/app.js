@@ -675,6 +675,17 @@ const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
 const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
+const DRAG_COMPARISON_TABS = new Set(['dragVolume', 'dragBlackHole']);
+const CAPACITY_COMPARISON_TABS = new Set([
+    'volume',
+    'jupiterVolume',
+    'saturnVolume',
+    'uranusVolume',
+    'neptuneVolume',
+    'dragVolume',
+    'blackHoleVolume',
+    'dragBlackHole'
+]);
 
 function clearPendingDragResultReveal(resetContent = false) {
     pendingDragResultRevealIds.forEach(id => clearTimeout(id));
@@ -716,6 +727,14 @@ function runActiveDragCleanup(skipCleanup) {
     if (activeDragCleanup && activeDragCleanup !== skipCleanup) {
         activeDragCleanup();
     }
+}
+
+function isDragComparisonTab(mode) {
+    return DRAG_COMPARISON_TABS.has(mode);
+}
+
+function isCapacityComparisonMode(mode) {
+    return CAPACITY_COMPARISON_TABS.has(mode);
 }
 const BLACK_HOLE_MASS_IN_SOLAR_MASSES = 4000000;
 const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
@@ -3101,7 +3120,7 @@ function openSizeComparisonPanel() {
     const panel = document.getElementById('sizeComparison');
     if (!panel) return;
     panel.classList.add('visible');
-    if (currentComparisonTab === 'dragVolume' || currentComparisonTab === 'dragBlackHole') {
+    if (isDragComparisonTab(currentComparisonTab)) {
         generateSizeComparison(currentComparisonTab);
     }
     panel.scrollTop = 0;
@@ -3752,7 +3771,7 @@ function generateSizeComparison(mode) {
     const subtitle = document.getElementById('comparisonSubtitle');
 
     // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
-    const isVolumeMode = mode === 'volume' || mode === 'jupiterVolume' || mode === 'saturnVolume' || mode === 'uranusVolume' || mode === 'neptuneVolume' || mode === 'dragVolume' || mode === 'blackHoleVolume' || mode === 'dragBlackHole';
+    const isVolumeMode = isCapacityComparisonMode(mode);
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
