@@ -3465,7 +3465,7 @@ const CAPACITY_TARGETS = {
         nameCN: '太阳',
         texture: 'textures/sun.jpg',
         color: '#ffcc00',
-        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto']
     },
     jupiter: {
         key: 'jupiter',
@@ -3503,6 +3503,23 @@ const CAPACITY_TARGETS = {
     }
 };
 
+const CAPACITY_COUNT_OVERRIDES = {
+    sun: {
+        diameter: {
+            jupiter: { count: 1000, label: '1,000' },
+            saturn: { count: 1700, label: '1,700' },
+            uranus: { count: 20000, label: '2万' },
+            neptune: { count: 20000, label: '2万' },
+            earth: { count: 1300000, label: '130万' },
+            venus: { count: 1500000, label: '150万' },
+            mars: { count: 8600000, label: '860万' },
+            mercury: { count: 23000000, label: '2300万' },
+            moon: { count: 65000000, label: '6500万' },
+            pluto: { count: 220000000, label: '2.2亿' }
+        }
+    }
+};
+
 function getCapacityTargetValue(targetKey, metric) {
     if (targetKey === 'blackHole') {
         if (metric === 'mass') return planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES;
@@ -3512,7 +3529,14 @@ function getCapacityTargetValue(targetKey, metric) {
     return metric === 'mass' ? target.mass : target.diameter;
 }
 
+function getCapacityCountOverride(targetKey, objectKey, metric = currentComparisonMetric) {
+    return CAPACITY_COUNT_OVERRIDES[targetKey]?.[metric]?.[objectKey] || null;
+}
+
 function getCapacityCount(targetKey, objectKey, metric = currentComparisonMetric) {
+    const override = getCapacityCountOverride(targetKey, objectKey, metric);
+    if (override) return override.count;
+
     const targetValue = getCapacityTargetValue(targetKey, metric);
     const objectValue = metric === 'mass' ? planetData[objectKey].mass : planetData[objectKey].diameter;
     if (!targetValue || !objectValue) return 0;
@@ -3526,11 +3550,12 @@ function getCapacityData(targetKey) {
         .map(key => {
             const data = planetData[key];
             const count = getCapacityCount(targetKey, key);
+            const override = getCapacityCountOverride(targetKey, key);
             return {
                 key,
                 nameCN: data.nameCN,
                 count,
-                label: formatCapacityLabel(count),
+                label: override?.label || formatCapacityLabel(count),
                 color: '#' + data.color.toString(16).padStart(6, '0')
             };
         })
@@ -3555,8 +3580,9 @@ function getCapacitySubtitle(targetKey) {
     }
 
     const earthCount = getCapacityCount(targetKey, 'earth');
+    const earthOverride = getCapacityCountOverride(targetKey, 'earth');
     const metricText = currentComparisonMetric === 'mass' ? '按质量测算' : '按直径折算体积';
-    return `${metricText}，${target.nameCN}约为地球的${formatCapacityLabel(earthCount)}倍`;
+    return `${metricText}，${target.nameCN}约为地球的${earthOverride?.label || formatCapacityLabel(earthCount)}倍`;
 }
 
 function getCapacityUnitText(targetName, selected) {
@@ -3572,6 +3598,10 @@ function getCapacityNote(targetKey) {
             return `按质量估算：Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍，数量 = 黑洞质量 / 天体质量。`;
         }
         return `按事件视界圈出的球形空间估算：能装数量 ≈ (事件视界半径 / 天体半径)³。如果把太阳、八大行星和五颗矮行星各放一个，这个黑洞大约能装 ${formatNumber(BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT)} 套。`;
+    }
+
+    if (targetKey === 'sun' && currentComparisonMetric !== 'mass') {
+        return '这里使用适合小朋友记忆的近似体积数字，让数量级更直观。';
     }
 
     return currentComparisonMetric === 'mass'
