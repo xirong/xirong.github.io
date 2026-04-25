@@ -2005,6 +2005,17 @@
             scrollbar-width: thin;
         }
 
+        .volume-planet-grid--wrapped {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(78px, 78px));
+            justify-content: center;
+            align-items: stretch;
+            gap: 8px;
+            max-width: 1040px;
+            overflow-x: visible;
+            padding: 2px 0 8px 0;
+        }
+
         .volume-planet-card {
             flex: 0 0 78px;
             min-height: 76px;

@@ -3617,7 +3617,11 @@ function renderCapacityComparison(container, subtitle, targetKey) {
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
     `;
 
-    let gridHTML = '<div class="volume-planet-grid">';
+    const gridClassName = targetKey === 'blackHole'
+        ? 'volume-planet-grid volume-planet-grid--wrapped'
+        : 'volume-planet-grid';
+
+    let gridHTML = `<div class="${gridClassName}">`;
     capacityData.forEach(item => {
         const isActive = item.key === selected.key;
         const pData = planetData[item.key];
