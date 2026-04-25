@@ -4284,6 +4284,18 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         resetDragState();
     }
 
+    function getDropClickTarget(clientX, clientY) {
+        const element = document.elementFromPoint(clientX, clientY);
+        if (!element) return null;
+
+        const clickable = element.closest('a[href], button, [role="button"]');
+        if (!clickable) return null;
+        if (wrapper.contains(clickable) && !clickable.classList.contains('tab-btn') && clickable.id !== 'closeSizeComparison' && clickable.id !== 'sizeDetailLink') {
+            return null;
+        }
+        return clickable;
+    }
+
     function handleDrop(clientX, clientY) {
         if (!ghost || !dragItem) return;
 
@@ -4299,6 +4311,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         const cy = canvasRect.top + canvasRect.height / 2;
         const dist = Math.sqrt((clientX - cx) ** 2 + (clientY - cy) ** 2);
         const hitRadius = canvasRect.width / 2;
+        const clickTarget = getDropClickTarget(clientX, clientY);
 
         detachGlobalDragListeners();
 
@@ -4320,6 +4333,11 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         } else {
             ghost.classList.add('snap-back');
             scheduleGhostRemoval(ghost, 300);
+            if (clickTarget) {
+                setTimeout(() => {
+                    clickTarget.click();
+                }, 0);
+            }
         }
 
         resetDragState();
