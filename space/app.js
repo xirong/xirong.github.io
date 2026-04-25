@@ -3186,13 +3186,13 @@ function setupControls() {
         const targetPosition = new THREE.Vector3(150, 100, 250);
         const targetLookAt = new THREE.Vector3(0, 0, 0);
         animateCamera(targetPosition, targetLookAt);
-        document.getElementById('planetInfo').classList.remove('visible');
+        document.getElementById('planetInfo').classList.remove('visible', 'expanded');
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
     });
 
     // 关闭行星信息面板
     document.getElementById('closePlanetInfo').addEventListener('click', function () {
-        document.getElementById('planetInfo').classList.remove('visible');
+        document.getElementById('planetInfo').classList.remove('visible', 'expanded');
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
         selectedPlanet = null;
     });
