@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>太阳能装多少个？（体积 vs 质量）</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+body { font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; background: #0B0E17; color: #E8E4DC; min-height: 100vh; display: flex; justify-content: center; padding: 16px; }
+.wrap { max-width: 440px; width: 100%; }
+h1 { text-align: center; font-size: 20px; font-weight: 600; color: #EF9F27; margin-bottom: 6px; letter-spacing: 1px; }
+.subtitle { text-align: center; font-size: 12px; color: #7A7672; margin-bottom: 16px; }
+
+.mode-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 18px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 3px; max-width: 240px; margin-left: auto; margin-right: auto; }
+.mode-btn { flex: 1; padding: 8px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: #7A7672; font-family: inherit; }
+.mode-btn.active { background: #EF9F27; color: #0B0E17; }
+.mode-btn:not(.active):hover { color: #E8E4DC; }
+
+.sun-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 12px; }
+.sun-wrap { position: relative; width: 180px; height: 180px; }
+.sun-circle { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FAD961, #EF9F27 45%, #BA7517 90%); position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(239,159,39,0.25); }
+.sun-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 13px; font-weight: 500; color: #fff; text-align: center; z-index: 2; line-height: 1.5; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+.sfill { position: absolute; bottom: 0; left: 0; width: 100%; transition: height 0.8s cubic-bezier(0.34,1.56,0.64,1); height: 0; opacity: 0.4; z-index: 1; }
+
+.count-area { text-align: center; margin-bottom: 14px; min-height: 80px; }
+.ct-num { font-size: 44px; font-weight: 700; transition: all 0.25s; }
+.ct-unit { font-size: 13px; color: #9A9690; margin-top: 2px; }
+.ct-compare { font-size: 12px; margin-top: 6px; padding: 4px 12px; border-radius: 6px; display: inline-block; }
+
+.section-label { font-size: 11px; color: #5A5650; margin-bottom: 6px; padding-left: 2px; font-weight: 600; letter-spacing: 1px; }
+
+.pgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 6px; }
+.pbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 8px; border: 1.5px solid transparent; background: rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s; }
+.pbtn:hover { background: rgba(255,255,255,0.1); }
+.pbtn.active { border-color: #EF9F27; background: rgba(239,159,39,0.12); }
+.pdot { border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px rgba(255,255,255,0.08); }
+.pnm { font-size: 10px; color: #B0ACA5; font-weight: 500; }
+.pbtn.active .pnm { color: #E8E4DC; }
+
+.divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0 8px; }
+
+.bars { margin-top: 10px; }
+.brow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; cursor: pointer; transition: opacity 0.2s; }
+.brow:hover { opacity: 1 !important; }
+.blbl { font-size: 11px; color: #7A7672; width: 38px; text-align: right; flex-shrink: 0; }
+.bbar-wrap { flex: 1; position: relative; height: 22px; }
+.bbar { height: 22px; border-radius: 5px; transition: width 0.7s cubic-bezier(0.22,1,0.36,1); display: flex; align-items: center; padding-left: 6px; min-width: 3px; position: absolute; top: 0; left: 0; }
+.bbar.ghost { opacity: 0.15; z-index: 0; }
+.bbar.main { z-index: 1; }
+.bval { font-size: 10px; font-weight: 600; white-space: nowrap; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+.legend { display: flex; justify-content: center; gap: 16px; margin-top: 10px; font-size: 11px; color: #7A7672; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+.footer { text-align: center; margin-top: 14px; font-size: 11px; color: #5A5650; }
+.density-badge { font-size: 11px; color: #EF9F27; margin-top: 4px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>太阳能装多少个？</h1>
+  <div class="subtitle">体积 vs 质量，差别超大！</div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btnVol" onclick="setMode('vol')">按体积</button>
+    <button class="mode-btn" id="btnMass" onclick="setMode('mass')">按质量</button>
+  </div>
+
+  <div class="sun-area">
+    <div class="sun-wrap">
+      <div class="sun-circle">
+        <div class="sfill" id="sfill"></div>
+        <div class="sun-label" id="slabel">点一个星球试试</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="count-area">
+    <div class="ct-num" id="ctNum">&nbsp;</div>
+    <div class="ct-unit" id="ctUnit">&nbsp;</div>
+    <div class="ct-compare" id="ctCompare">&nbsp;</div>
+  </div>
+
+  <div class="section-label">八大行星</div>
+  <div class="pgrid" id="pgrid1"></div>
+
+  <div class="divider"></div>
+  <div class="section-label">卫星与矮行星</div>
+  <div class="pgrid" id="pgrid2" style="grid-template-columns: repeat(5, 1fr);"></div>
+
+  <div class="divider"></div>
+  <div class="bars" id="bars"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>当前模式</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.15)"></div>另一模式</div>
+  </div>
+
+  <div class="density-badge" id="densityBadge">&nbsp;</div>
+  <div class="footer">智天的太阳系探索 - 体积与质量</div>
+</div>
+
+<script>
+const bodies = [
+  // 八大行星
+  { name: '木星', vol: 1000, mass: 1048, color: '#D85A30', size: 16, group: 1, density: 1.33 },
+  { name: '土星', vol: 1700, mass: 3500, color: '#EF9F27', size: 14, group: 1, density: 0.687 },
+  { name: '天王星', vol: 20000, mass: 22900, color: '#5DCAA5', size: 11, group: 1, density: 1.27 },
+  { name: '海王星', vol: 22000, mass: 19400, color: '#4A90D9', size: 11, group: 1, density: 1.64 },
+  { name: '地球', vol: 1300000, mass: 333000, color: '#4A90D9', size: 9, group: 1, density: 5.51 },
+  { name: '金星', vol: 1500000, mass: 409000, color: '#EF9F27', size: 9, group: 1, density: 5.24 },
+  { name: '火星', vol: 8600000, mass: 3112000, color: '#E24B4A', size: 7, group: 1, density: 3.93 },
+  { name: '水星', vol: 23000000, mass: 6025000, color: '#A0A0A0', size: 6, group: 1, density: 5.43 },
+  // 卫星与矮行星
+  { name: '木卫三', vol: 43000000, mass: 13420000, color: '#8899AA', size: 6, group: 2, density: 1.94 },
+  { name: '月球', vol: 65000000, mass: 27090000, color: '#C8C4BC', size: 5, group: 2, density: 3.34 },
+  { name: '阋神星', vol: 175000000, mass: 119800000, color: '#9AAFCC', size: 5, group: 2, density: 2.52 },
+  { name: '冥王星', vol: 220000000, mass: 152700000, color: '#C8C4BC', size: 5, group: 2, density: 1.85 },
+  { name: '妊神星', vol: 600000000, mass: 496500000, color: '#BBAACC', size: 4, group: 2, density: 1.89 },
+  { name: '鸟神星', vol: 700000000, mass: 641600000, color: '#E87070', size: 4, group: 2, density: 1.80 },
+  { name: '谷神星', vol: 3100000000, mass: 2118000000, color: '#80CC80', size: 4, group: 2, density: 2.16 },
+];
+
+let mode = 'vol';
+let activeIdx = 0;
+const sunDensity = 1.41;
+
+const pgrid1 = document.getElementById('pgrid1');
+const pgrid2 = document.getElementById('pgrid2');
+
+function getMaxLog() {
+  const vals = bodies.map(b => mode === 'vol' ? b.vol : b.mass);
+  return Math.log10(Math.max(...vals));
+}
+
+bodies.forEach((p, i) => {
+  const btn = document.createElement('div');
+  btn.className = 'pbtn';
+  btn.id = 'pbtn-' + i;
+  btn.innerHTML = `<div class="pdot" style="width:${p.size}px;height:${p.size}px;background:${p.color}"></div><div class="pnm">${p.name}</div>`;
+  btn.onclick = () => pick(i);
+  if (p.group === 1) pgrid1.appendChild(btn);
+  else pgrid2.appendChild(btn);
+});
+
+function fmt(n) {
+  if (n >= 100000000) return (n / 100000000).toFixed(1) + ' 亿';
+  if (n >= 10000) {
+    const w = n / 10000;
+    return (w >= 100 ? Math.round(w) : (w >= 10 ? w.toFixed(0) : w.toFixed(1))) + ' 万';
+  }
+  return Math.round(n).toLocaleString();
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnVol').classList.toggle('active', m === 'vol');
+  document.getElementById('btnMass').classList.toggle('active', m === 'mass');
+  pick(activeIdx);
+}
+
+function pick(idx) {
+  activeIdx = idx;
+  const p = bodies[idx];
+  const val = mode === 'vol' ? p.vol : p.mass;
+  const otherVal = mode === 'vol' ? p.mass : p.vol;
+  const modeLabel = mode === 'vol' ? '体积' : '质量';
+  const otherLabel = mode === 'vol' ? '质量' : '体积';
+  const maxLog = getMaxLog();
+
+  document.querySelectorAll('.pbtn').forEach((b, i) => b.classList.toggle('active', i === idx));
+
+  const sfill = document.getElementById('sfill');
+  const logVal = Math.log10(Math.max(2, val));
+  const pct = Math.min(92, Math.max(6, (logVal / maxLog) * 92));
+  sfill.style.height = pct + '%';
+  sfill.style.background = p.color;
+
+  const slabel = document.getElementById('slabel');
+  slabel.innerHTML = `<span style="font-size:11px">按${modeLabel}能装</span><br><span style="font-size:20px;font-weight:700">${fmt(val)}</span><br><span style="font-size:13px">个${p.name}</span>`;
+
+  const ctNum = document.getElementById('ctNum');
+  ctNum.textContent = fmt(val);
+  ctNum.style.color = p.color;
+
+  document.getElementById('ctUnit').textContent = `个${p.name}（按${modeLabel}）`;
+
+  const ctCompare = document.getElementById('ctCompare');
+  const ratio = val / otherVal;
+  let compareText = '';
+  let compareBg = '';
+  if (ratio > 1.3) {
+    compareText = `按${otherLabel}只需 ${fmt(otherVal)} 个，少了 ${Math.round((1 - otherVal/val) * 100)}%`;
+    compareBg = 'rgba(93,202,165,0.12)';
+    ctCompare.style.color = '#5DCAA5';
+  } else if (ratio < 0.77) {
+    compareText = `按${otherLabel}要 ${fmt(otherVal)} 个，多了 ${Math.round((otherVal/val - 1) * 100)}%`;
+    compareBg = 'rgba(226,75,74,0.12)';
+    ctCompare.style.color = '#E24B4A';
+  } else {
+    compareText = `按${otherLabel}是 ${fmt(otherVal)} 个，差不多`;
+    compareBg = 'rgba(255,255,255,0.06)';
+    ctCompare.style.color = '#9A9690';
+  }
+  ctCompare.textContent = compareText;
+  ctCompare.style.background = compareBg;
+
+  const db = document.getElementById('densityBadge');
+  const dRatio = p.density / sunDensity;
+  if (dRatio > 2) {
+    db.textContent = `${p.name}密度 ${p.density} g/cm³，是太阳的 ${dRatio.toFixed(1)} 倍，又小又重！`;
+  } else if (dRatio < 0.7) {
+    db.textContent = `${p.name}密度只有 ${p.density} g/cm³，比太阳还轻，虚胖！`;
+  } else {
+    db.textContent = `${p.name}密度 ${p.density} g/cm³，跟太阳（1.41）接近`;
+  }
+
+  ctNum.style.transform = 'scale(1.12)';
+  setTimeout(() => { ctNum.style.transform = 'scale(1)'; }, 180);
+
+  renderBars(idx);
+}
+
+function renderBars(ai) {
+  const barsEl = document.getElementById('bars');
+  barsEl.innerHTML = '';
+  const maxLog = getMaxLog();
+  const otherMaxLog = Math.log10(Math.max(...bodies.map(b => mode === 'vol' ? b.mass : b.vol)));
+
+  bodies.forEach((p, i) => {
+    const val = mode === 'vol' ? p.vol : p.mass;
+    const otherVal = mode === 'vol' ? p.mass : p.vol;
+    const row = document.createElement('div');
+    row.className = 'brow';
+    const isA = i === ai;
+    row.style.opacity = isA ? '1' : '0.4';
+
+    const pct = Math.max(2, (Math.log10(Math.max(2, val)) / maxLog) * 100);
+    const otherPct = Math.max(2, (Math.log10(Math.max(2, otherVal)) / maxLog) * 100);
+
+    row.innerHTML = `<div class="blbl" style="color:${isA ? p.color : ''};font-weight:${isA ? 600 : 400}">${p.name}</div>
+      <div class="bbar-wrap">
+        <div class="bbar ghost" style="width:${otherPct}%;background:${p.color}"></div>
+        <div class="bbar main" style="width:${pct}%;background:${p.color}"><span class="bval">${fmt(val)}</span></div>
+      </div>`;
+    row.onclick = () => pick(i);
+    barsEl.appendChild(row);
+  });
+}
+
+pick(0);
+</script>
+</body>
+</html>
