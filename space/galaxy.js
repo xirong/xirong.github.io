@@ -1727,87 +1727,243 @@ function createExternalGalaxies() {
     }
 }
 
-// ============ 创建螺旋星系 ============
-function createSpiralGalaxy(key, config) {
-    const group = new THREE.Group();
-    group.position.copy(config.position);
+// ============ 通用粒子着色器 ============
+const GALAXY_PARTICLE_VERTEX = `
+    attribute float size;
+    attribute vec3 color;
+    varying vec3 vColor;
 
-    // 粒子系统
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(config.particleCount * 3);
-    const colors = new Float32Array(config.particleCount * 3);
-    const sizes = new Float32Array(config.particleCount);
-
-    const arms = config.arms || 2;
-    const radius = config.radius;
-
-    for (let i = 0; i < config.particleCount; i++) {
-        const armIndex = i % arms;
-        const armAngle = (armIndex / arms) * Math.PI * 2;
-
-        const distance = Math.pow(Math.random(), 0.5) * radius;
-        const spiralAngle = distance * 0.0008 + armAngle;
-        const spread = (Math.random() - 0.5) * distance * 0.3;
-
-        const x = Math.cos(spiralAngle) * distance + Math.cos(spiralAngle + Math.PI / 2) * spread;
-        const z = Math.sin(spiralAngle) * distance + Math.sin(spiralAngle + Math.PI / 2) * spread;
-        const diskThickness = radius * 0.02 * (1 - distance / radius * 0.5);
-        const y = (Math.random() - 0.5) * diskThickness;
-
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = z;
-
-        const distRatio = distance / radius;
-        const c = config.color;
-        if (distRatio < 0.2) {
-            colors[i * 3] = c.r;
-            colors[i * 3 + 1] = c.g * 0.9;
-            colors[i * 3 + 2] = c.b * 0.6;
-            sizes[i] = 4 + Math.random() * 3;
-        } else {
-            colors[i * 3] = c.r * 0.8;
-            colors[i * 3 + 1] = c.g * 0.9;
-            colors[i * 3 + 2] = c.b;
-            sizes[i] = 2 + Math.random() * 2;
-        }
+    void main() {
+        vColor = color;
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = size * (5000.0 / -mvPosition.z);
+        gl_PointSize = clamp(gl_PointSize, 1.0, 12.0);
+        gl_Position = projectionMatrix * mvPosition;
     }
+`;
 
+const GALAXY_PARTICLE_FRAGMENT = `
+    varying vec3 vColor;
+
+    void main() {
+        vec2 center = gl_PointCoord - vec2(0.5);
+        float dist = length(center);
+        float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+        gl_FragColor = vec4(vColor, alpha * 0.75);
+    }
+`;
+
+function buildGalaxyParticles(positions, colors, sizes) {
+    const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
     const material = new THREE.ShaderMaterial({
         uniforms: {},
-        vertexShader: `
-            attribute float size;
-            attribute vec3 color;
-            varying vec3 vColor;
-
-            void main() {
-                vColor = color;
-                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = size * (5000.0 / -mvPosition.z);
-                gl_PointSize = clamp(gl_PointSize, 1.0, 10.0);
-                gl_Position = projectionMatrix * mvPosition;
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vColor;
-
-            void main() {
-                vec2 center = gl_PointCoord - vec2(0.5);
-                float dist = length(center);
-                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-                gl_FragColor = vec4(vColor, alpha * 0.7);
-            }
-        `,
+        vertexShader: GALAXY_PARTICLE_VERTEX,
+        fragmentShader: GALAXY_PARTICLE_FRAGMENT,
         transparent: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
 
-    const particles = new THREE.Points(geometry, material);
+    return new THREE.Points(geometry, material);
+}
+
+// HII 区/尘埃带使用的 Sprite 纹理缓存
+const galaxyAccentTextureCache = {};
+function getAccentTexture(kind) {
+    if (galaxyAccentTextureCache[kind]) return galaxyAccentTextureCache[kind];
+
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+
+    if (kind === 'hii') {
+        // 粉红色发射星云（H-α）
+        grad.addColorStop(0, 'rgba(255, 180, 200, 1)');
+        grad.addColorStop(0.25, 'rgba(255, 110, 150, 0.7)');
+        grad.addColorStop(0.6, 'rgba(220, 60, 110, 0.25)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else if (kind === 'blueCluster') {
+        // 蓝白色年轻星团
+        grad.addColorStop(0, 'rgba(220, 235, 255, 1)');
+        grad.addColorStop(0.25, 'rgba(160, 200, 255, 0.7)');
+        grad.addColorStop(0.6, 'rgba(80, 130, 220, 0.2)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else if (kind === 'bulgeCore') {
+        // 暖黄核球辉光
+        grad.addColorStop(0, 'rgba(255, 235, 180, 1)');
+        grad.addColorStop(0.3, 'rgba(255, 200, 130, 0.55)');
+        grad.addColorStop(0.7, 'rgba(220, 150, 80, 0.15)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    }
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+    const tex = new THREE.CanvasTexture(canvas);
+    galaxyAccentTextureCache[kind] = tex;
+    return tex;
+}
+
+function makeAccentSprite(kind, scale, opacity) {
+    const mat = new THREE.SpriteMaterial({
+        map: getAccentTexture(kind),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: opacity,
+        depthWrite: false
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(scale, scale, 1);
+    return sprite;
+}
+
+// ============ 创建螺旋星系（强化结构：核球+棒+对数螺旋臂+HII区+尘埃带）============
+function createSpiralGalaxy(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const arms = config.arms || 2;
+    const radius = config.radius;
+    const totalCount = config.particleCount;
+    const tightness = config.tightness !== undefined ? config.tightness : 0.42; // 旋臂松紧（越大越松）
+    const armWidth = config.armWidth !== undefined ? config.armWidth : 0.55; // 旋臂角度宽度
+    const hasBar = config.hasBar !== false; // 棒旋
+    const barLength = (config.barLength !== undefined ? config.barLength : 0.35) * radius;
+
+    // 三层粒子分布：核球(15%) / 棒(8%) / 旋臂+盘(77%)
+    const bulgeCount = Math.floor(totalCount * 0.15);
+    const barCount = hasBar ? Math.floor(totalCount * 0.08) : 0;
+    const armCount = totalCount - bulgeCount - barCount;
+
+    const positions = new Float32Array(totalCount * 3);
+    const colors = new Float32Array(totalCount * 3);
+    const sizes = new Float32Array(totalCount);
+
+    const c = config.color;
+    let idx = 0;
+
+    // === 核球：高斯椭球，暖色（黄→橙红） ===
+    const bulgeR = radius * 0.18;
+    const bulgeFlat = 0.55; // 略扁
+    for (let i = 0; i < bulgeCount; i++) {
+        const r = Math.abs(gaussianRandom()) * bulgeR;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[idx * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[idx * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * bulgeFlat;
+        positions[idx * 3 + 2] = r * Math.cos(phi);
+
+        const t = r / bulgeR;
+        // 中心更白黄，外围橙红
+        colors[idx * 3] = Math.min(1, c.r + 0.1);
+        colors[idx * 3 + 1] = Math.max(0.5, c.g * (0.95 - t * 0.15));
+        colors[idx * 3 + 2] = Math.max(0.3, c.b * (0.7 - t * 0.25));
+        sizes[idx] = 3 + Math.random() * 3;
+        idx++;
+    }
+
+    // === 棒结构：沿 x 方向延伸的椭球 ===
+    if (hasBar) {
+        for (let i = 0; i < barCount; i++) {
+            const u = (Math.random() - 0.5) * 2; // -1..1
+            const x = u * barLength;
+            const r = Math.abs(gaussianRandom()) * radius * 0.05 * (1 - Math.abs(u) * 0.4);
+            const ang = Math.random() * Math.PI * 2;
+
+            positions[idx * 3] = x + Math.cos(ang) * r * 0.3;
+            positions[idx * 3 + 1] = (Math.random() - 0.5) * radius * 0.025;
+            positions[idx * 3 + 2] = Math.sin(ang) * r;
+
+            colors[idx * 3] = Math.min(1, c.r + 0.05);
+            colors[idx * 3 + 1] = c.g * 0.9;
+            colors[idx * 3 + 2] = c.b * 0.65;
+            sizes[idx] = 2.5 + Math.random() * 2.5;
+            idx++;
+        }
+    }
+
+    // === 旋臂 + 盘 ===
+    // 对数螺旋：r = a*e^(b*theta)；写成 theta = ln(r/r0) / b
+    // 用密度调制：在旋臂角度附近粒子更密
+    const innerR = barLength * 0.95; // 棒末端开始长出旋臂
+    const outerR = radius;
+
+    for (let i = 0; i < armCount; i++) {
+        // 半径偏向中等距离，让盘"满"
+        const rRand = Math.random();
+        // 三段：内盘(短)、旋臂主区(主)、外晕(衰减)
+        let distance;
+        if (rRand < 0.15) {
+            distance = innerR + Math.random() * (outerR - innerR) * 0.2;
+        } else if (rRand < 0.85) {
+            distance = innerR + Math.random() * (outerR - innerR) * 0.95;
+        } else {
+            distance = outerR * (0.85 + Math.random() * 0.18);
+        }
+
+        const armIndex = Math.floor(Math.random() * arms);
+        const armOffset = (armIndex / arms) * Math.PI * 2;
+        const logR = Math.log(Math.max(distance / innerR, 1.001));
+        const armCenterAngle = logR / tightness + armOffset;
+
+        // 用 sin² 调制让粒子靠近旋臂中心；少量(15%)散落到旋臂之间形成盘
+        let angle;
+        const onArm = Math.random() < 0.85;
+        if (onArm) {
+            // 在旋臂中心 ± armWidth/2 范围内偏正态分布
+            angle = armCenterAngle + gaussianRandom() * armWidth * 0.35;
+        } else {
+            angle = Math.random() * Math.PI * 2;
+        }
+
+        // 径向抖动（让旋臂有粗细感）
+        const radialJitter = (Math.random() - 0.5) * radius * 0.02;
+        const r = distance + radialJitter;
+
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
+        const diskThickness = radius * 0.025 * Math.max(0.3, 1 - distance / radius * 0.6);
+        const y = gaussianRandom() * diskThickness;
+
+        positions[idx * 3] = x;
+        positions[idx * 3 + 1] = y;
+        positions[idx * 3 + 2] = z;
+
+        const distRatio = distance / radius;
+        if (onArm) {
+            // 旋臂上：偏蓝白（年轻恒星），略带粉
+            const blueMix = 0.35 + Math.random() * 0.5;
+            colors[idx * 3] = c.r * (0.85 + Math.random() * 0.15);
+            colors[idx * 3 + 1] = c.g * (0.92 + Math.random() * 0.08);
+            colors[idx * 3 + 2] = Math.min(1.0, c.b * (0.95 + Math.random() * 0.1) + blueMix * 0.1);
+            sizes[idx] = 2.2 + Math.random() * 2.2;
+        } else {
+            // 盘弥散：偏暗淡黄
+            colors[idx * 3] = c.r * 0.7;
+            colors[idx * 3 + 1] = c.g * 0.7;
+            colors[idx * 3 + 2] = c.b * 0.75;
+            sizes[idx] = 1.6 + Math.random() * 1.4;
+        }
+
+        // 距离衰减亮度
+        if (distRatio > 0.85) {
+            const fade = 1 - (distRatio - 0.85) / 0.15 * 0.5;
+            colors[idx * 3] *= fade;
+            colors[idx * 3 + 1] *= fade;
+            colors[idx * 3 + 2] *= fade;
+        }
+
+        idx++;
+    }
+
+    const particles = buildGalaxyParticles(positions, colors, sizes);
 
     // 应用倾角
     if (config.tilt) {
@@ -1817,6 +1973,70 @@ function createSpiralGalaxy(key, config) {
 
     group.add(particles);
     group.particles = particles;
+
+    // === 核球辉光 sprite（叠加于核心）===
+    const bulgeGlow = makeAccentSprite('bulgeCore', radius * 0.55, 0.75);
+    if (config.tilt) {
+        // 让 glow 也跟着倾斜（用 group 包一层）
+        const tiltGroup = new THREE.Group();
+        tiltGroup.rotation.x = config.tilt.x || 0;
+        tiltGroup.rotation.z = config.tilt.z || 0;
+        tiltGroup.add(bulgeGlow);
+        group.add(tiltGroup);
+    } else {
+        group.add(bulgeGlow);
+    }
+
+    // === HII 区（旋臂上的粉红发射星云）===
+    const hiiCount = Math.max(6, Math.floor(arms * 5));
+    const hiiContainer = new THREE.Group();
+    if (config.tilt) {
+        hiiContainer.rotation.x = config.tilt.x || 0;
+        hiiContainer.rotation.z = config.tilt.z || 0;
+    }
+    for (let i = 0; i < hiiCount; i++) {
+        const armIndex = i % arms;
+        const armOffset = (armIndex / arms) * Math.PI * 2;
+        const distance = innerR + Math.random() * (outerR - innerR) * 0.85;
+        const logR = Math.log(Math.max(distance / innerR, 1.001));
+        const angle = logR / tightness + armOffset + gaussianRandom() * armWidth * 0.2;
+        const px = Math.cos(angle) * distance;
+        const pz = Math.sin(angle) * distance;
+        const py = (Math.random() - 0.5) * radius * 0.015;
+        const sprite = makeAccentSprite('hii', radius * (0.06 + Math.random() * 0.05), 0.7 + Math.random() * 0.2);
+        sprite.position.set(px, py, pz);
+        hiiContainer.add(sprite);
+
+        // 顺便加一个蓝白年轻星团做配色
+        if (Math.random() < 0.6) {
+            const blueSprite = makeAccentSprite('blueCluster', radius * (0.04 + Math.random() * 0.03), 0.55);
+            blueSprite.position.set(px + (Math.random() - 0.5) * radius * 0.05, py, pz + (Math.random() - 0.5) * radius * 0.05);
+            hiiContainer.add(blueSprite);
+        }
+    }
+    group.add(hiiContainer);
+
+    // === 尘埃带：沿盘平面的暗环（用 RingGeometry 反向减光）===
+    const dustRingGeom = new THREE.RingGeometry(radius * 0.2, radius * 0.95, 96, 1);
+    const dustRingMat = new THREE.MeshBasicMaterial({
+        color: 0x1a0a05,
+        transparent: true,
+        opacity: 0.42,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.NormalBlending
+    });
+    const dustRing = new THREE.Mesh(dustRingGeom, dustRingMat);
+    dustRing.rotation.x = Math.PI / 2; // 平铺到盘面
+    if (config.tilt) {
+        const dustTilt = new THREE.Group();
+        dustTilt.rotation.x = config.tilt.x || 0;
+        dustTilt.rotation.z = config.tilt.z || 0;
+        dustTilt.add(dustRing);
+        group.add(dustTilt);
+    } else {
+        group.add(dustRing);
+    }
 
     // 创建发光 Sprite（LOD远距离使用）
     const spriteMaterial = new THREE.SpriteMaterial({
@@ -1836,89 +2056,127 @@ function createSpiralGalaxy(key, config) {
     group.add(clickTarget);
     group.clickTarget = clickTarget;
 
-    // 创建标签
-    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.6, 0, key);
+    // 创建双语标签
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.7, 0, key);
 
     scene.add(group);
     return group;
 }
 
-// ============ 创建椭圆星系 ============
+// ============ 创建椭圆星系（核心密集+暗淡晕，可选尘埃带）============
 function createEllipticalGalaxy(key, config) {
     const group = new THREE.Group();
     group.position.copy(config.position);
 
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(config.particleCount * 3);
-    const colors = new Float32Array(config.particleCount * 3);
-    const sizes = new Float32Array(config.particleCount);
+    const totalCount = config.particleCount;
+    const flatten = config.flatten !== undefined ? config.flatten : 0.7;
+    const radius = config.radius;
+    const c = config.color;
 
-    for (let i = 0; i < config.particleCount; i++) {
-        // 高斯分布
-        const r = gaussianRandom() * config.radius * 0.4;
+    // 核心(45%)+主体(45%)+晕(10%)
+    const coreCount = Math.floor(totalCount * 0.45);
+    const mainCount = Math.floor(totalCount * 0.45);
+    const haloCount = totalCount - coreCount - mainCount;
+
+    const positions = new Float32Array(totalCount * 3);
+    const colors = new Float32Array(totalCount * 3);
+    const sizes = new Float32Array(totalCount);
+
+    let idx = 0;
+    // 核心
+    for (let i = 0; i < coreCount; i++) {
+        const r = Math.abs(gaussianRandom()) * radius * 0.18;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
-
-        // 椭球形状（y轴压扁）
-        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.6;
-        positions[i * 3 + 2] = r * Math.cos(phi);
-
-        const c = config.color;
-        const distRatio = r / (config.radius * 0.4);
-        colors[i * 3] = c.r;
-        colors[i * 3 + 1] = c.g * (1 - distRatio * 0.2);
-        colors[i * 3 + 2] = c.b * (1 - distRatio * 0.3);
-        sizes[i] = 3 + Math.random() * 2;
+        positions[idx * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[idx * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * flatten;
+        positions[idx * 3 + 2] = r * Math.cos(phi);
+        const t = r / (radius * 0.18);
+        colors[idx * 3] = Math.min(1, c.r + 0.05);
+        colors[idx * 3 + 1] = c.g * (0.95 - t * 0.1);
+        colors[idx * 3 + 2] = c.b * (0.85 - t * 0.2);
+        sizes[idx] = 3 + Math.random() * 2.5;
+        idx++;
+    }
+    // 主体
+    for (let i = 0; i < mainCount; i++) {
+        const r = (0.18 + Math.pow(Math.random(), 1.6) * 0.6) * radius;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        positions[idx * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[idx * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * flatten;
+        positions[idx * 3 + 2] = r * Math.cos(phi);
+        const t = r / radius;
+        colors[idx * 3] = c.r * (0.95 - t * 0.15);
+        colors[idx * 3 + 1] = c.g * (0.9 - t * 0.2);
+        colors[idx * 3 + 2] = c.b * (0.85 - t * 0.25);
+        sizes[idx] = 2 + Math.random() * 2;
+        idx++;
+    }
+    // 晕
+    for (let i = 0; i < haloCount; i++) {
+        const r = (0.7 + Math.random() * 0.5) * radius;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        positions[idx * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[idx * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * flatten;
+        positions[idx * 3 + 2] = r * Math.cos(phi);
+        colors[idx * 3] = c.r * 0.55;
+        colors[idx * 3 + 1] = c.g * 0.5;
+        colors[idx * 3 + 2] = c.b * 0.5;
+        sizes[idx] = 1.4 + Math.random() * 1.0;
+        idx++;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-    const material = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            attribute float size;
-            attribute vec3 color;
-            varying vec3 vColor;
-
-            void main() {
-                vColor = color;
-                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = size * (5000.0 / -mvPosition.z);
-                gl_PointSize = clamp(gl_PointSize, 1.0, 10.0);
-                gl_Position = projectionMatrix * mvPosition;
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vColor;
-
-            void main() {
-                vec2 center = gl_PointCoord - vec2(0.5);
-                float dist = length(center);
-                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-                gl_FragColor = vec4(vColor, alpha * 0.6);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-    });
-
-    const particles = new THREE.Points(geometry, material);
+    const particles = buildGalaxyParticles(positions, colors, sizes);
     group.add(particles);
     group.particles = particles;
+
+    // 核心辉光
+    const coreGlow = makeAccentSprite('bulgeCore', radius * 0.5, 0.85);
+    group.add(coreGlow);
+
+    // 可选：横穿赤道的暗尘带（半人马座 A 经典特征）
+    if (config.dustLane) {
+        const lane = new THREE.Mesh(
+            new THREE.CylinderGeometry(radius * 0.85, radius * 0.85, radius * 0.08, 64, 1, true),
+            new THREE.MeshBasicMaterial({
+                color: 0x070406,
+                transparent: true,
+                opacity: 0.65,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            })
+        );
+        lane.rotation.x = Math.PI / 2;
+        if (config.dustLane.tilt) {
+            lane.rotation.z = config.dustLane.tilt;
+        }
+        group.add(lane);
+
+        // 尘带边缘的粉色 H II 区点缀（恒星形成区）
+        const hiiBand = 8;
+        const dustGroup = new THREE.Group();
+        dustGroup.rotation.x = config.dustLane.tilt || 0;
+        for (let i = 0; i < hiiBand; i++) {
+            const angle = (i / hiiBand) * Math.PI * 2 + Math.random() * 0.3;
+            const r = radius * (0.55 + Math.random() * 0.25);
+            const sprite = makeAccentSprite('hii', radius * 0.07, 0.55);
+            sprite.position.set(Math.cos(angle) * r, (Math.random() - 0.5) * radius * 0.03, Math.sin(angle) * r);
+            dustGroup.add(sprite);
+        }
+        group.add(dustGroup);
+    }
 
     // 发光 Sprite
     const spriteMaterial = new THREE.SpriteMaterial({
         map: createGlowTexture(256, config.color),
         transparent: true,
         blending: THREE.AdditiveBlending,
-        opacity: 0.8
+        opacity: 0.85
     });
     const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(config.radius * 1.2, config.radius * 0.8, 1);
+    sprite.scale.set(config.radius * 1.4, config.radius * 1.0, 1);
     sprite.visible = false;
     group.add(sprite);
     group.sprite = sprite;
@@ -1928,88 +2186,98 @@ function createEllipticalGalaxy(key, config) {
     group.add(clickTarget);
     group.clickTarget = clickTarget;
 
-    // 标签
-    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.5, 0, key);
+    // 双语标签
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.55, 0, key);
 
     scene.add(group);
     return group;
 }
 
-// ============ 创建不规则星系 ============
+// ============ 创建不规则星系（云絮+大量HII区+蓝色年轻星团）============
 function createIrregularGalaxy(key, config) {
     const group = new THREE.Group();
     group.position.copy(config.position);
 
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(config.particleCount * 3);
-    const colors = new Float32Array(config.particleCount * 3);
-    const sizes = new Float32Array(config.particleCount);
+    const totalCount = config.particleCount;
+    const radius = config.radius;
+    const c = config.color;
 
-    // 创建多个随机团块
-    const clumps = 5 + Math.floor(Math.random() * 5);
+    const positions = new Float32Array(totalCount * 3);
+    const colors = new Float32Array(totalCount * 3);
+    const sizes = new Float32Array(totalCount);
+
+    // 多个云团（结构主导）
+    const clumps = 6 + Math.floor(Math.random() * 4);
     const clumpCenters = [];
-    for (let c = 0; c < clumps; c++) {
+    for (let cc = 0; cc < clumps; cc++) {
+        // LMC 偏长条带；用类似的非各向同性偏移
+        const t = (cc / clumps - 0.5) * 1.6;
         clumpCenters.push({
-            x: (Math.random() - 0.5) * config.radius * 0.8,
-            y: (Math.random() - 0.5) * config.radius * 0.3,
-            z: (Math.random() - 0.5) * config.radius * 0.8,
-            size: 0.2 + Math.random() * 0.3
+            x: t * radius * (config.elongation || 0.7) + (Math.random() - 0.5) * radius * 0.3,
+            y: (Math.random() - 0.5) * radius * 0.25,
+            z: (Math.random() - 0.5) * radius * (config.elongation ? 0.4 : 0.7),
+            scale: 0.18 + Math.random() * 0.22,
+            weight: 0.7 + Math.random() * 0.6
         });
     }
 
-    for (let i = 0; i < config.particleCount; i++) {
-        const clump = clumpCenters[Math.floor(Math.random() * clumps)];
-        const r = gaussianRandom() * config.radius * clump.size;
+    let totalWeight = 0;
+    clumpCenters.forEach(cl => totalWeight += cl.weight);
 
-        positions[i * 3] = clump.x + (Math.random() - 0.5) * r;
-        positions[i * 3 + 1] = clump.y + (Math.random() - 0.5) * r * 0.5;
-        positions[i * 3 + 2] = clump.z + (Math.random() - 0.5) * r;
+    for (let i = 0; i < totalCount; i++) {
+        // 按权重选云团
+        let pick = Math.random() * totalWeight;
+        let clump = clumpCenters[0];
+        for (const cl of clumpCenters) {
+            pick -= cl.weight;
+            if (pick <= 0) { clump = cl; break; }
+        }
 
-        const c = config.color;
-        // 蓝白色调（活跃恒星形成）
-        colors[i * 3] = c.r * (0.8 + Math.random() * 0.2);
-        colors[i * 3 + 1] = c.g * (0.9 + Math.random() * 0.1);
-        colors[i * 3 + 2] = c.b;
-        sizes[i] = 2 + Math.random() * 2;
+        const r = Math.abs(gaussianRandom()) * radius * clump.scale;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[i * 3] = clump.x + r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = clump.y + r * Math.sin(phi) * Math.sin(theta) * 0.45;
+        positions[i * 3 + 2] = clump.z + r * Math.cos(phi);
+
+        // 蓝白主导（活跃恒星形成），偶尔粉色调
+        const bluish = Math.random();
+        if (bluish < 0.15) {
+            // H-α 余辉，偏粉
+            colors[i * 3] = Math.min(1, c.r + 0.15);
+            colors[i * 3 + 1] = c.g * 0.7;
+            colors[i * 3 + 2] = c.b * 0.85;
+        } else {
+            colors[i * 3] = c.r * (0.75 + Math.random() * 0.25);
+            colors[i * 3 + 1] = c.g * (0.88 + Math.random() * 0.12);
+            colors[i * 3 + 2] = Math.min(1, c.b * (0.95 + Math.random() * 0.1));
+        }
+        sizes[i] = 1.8 + Math.random() * 2.2;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-    const material = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            attribute float size;
-            attribute vec3 color;
-            varying vec3 vColor;
-
-            void main() {
-                vColor = color;
-                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = size * (5000.0 / -mvPosition.z);
-                gl_PointSize = clamp(gl_PointSize, 1.0, 8.0);
-                gl_Position = projectionMatrix * mvPosition;
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vColor;
-
-            void main() {
-                vec2 center = gl_PointCoord - vec2(0.5);
-                float dist = length(center);
-                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-                gl_FragColor = vec4(vColor, alpha * 0.7);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-    });
-
-    const particles = new THREE.Points(geometry, material);
+    const particles = buildGalaxyParticles(positions, colors, sizes);
     group.add(particles);
     group.particles = particles;
+
+    // HII 区（粉色发射星云，比螺旋更多）
+    const hiiCount = config.hiiCount || (clumps * 2 + 4);
+    for (let i = 0; i < hiiCount; i++) {
+        const clump = clumpCenters[Math.floor(Math.random() * clumps)];
+        const offX = (Math.random() - 0.5) * radius * clump.scale * 1.3;
+        const offY = (Math.random() - 0.5) * radius * 0.06;
+        const offZ = (Math.random() - 0.5) * radius * clump.scale * 1.3;
+        const sprite = makeAccentSprite('hii', radius * (0.05 + Math.random() * 0.06), 0.6 + Math.random() * 0.25);
+        sprite.position.set(clump.x + offX, clump.y + offY, clump.z + offZ);
+        group.add(sprite);
+
+        // 配套蓝色年轻星团
+        if (Math.random() < 0.7) {
+            const blueSprite = makeAccentSprite('blueCluster', radius * (0.04 + Math.random() * 0.04), 0.5);
+            blueSprite.position.set(clump.x + offX * 1.1, clump.y + offY, clump.z + offZ * 1.1);
+            group.add(blueSprite);
+        }
+    }
 
     // 发光 Sprite
     const spriteMaterial = new THREE.SpriteMaterial({
@@ -2029,8 +2297,8 @@ function createIrregularGalaxy(key, config) {
     group.add(clickTarget);
     group.clickTarget = clickTarget;
 
-    // 标签
-    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.4, 0, key);
+    // 双语标签
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.5, 0, key);
 
     scene.add(group);
     return group;
@@ -2165,8 +2433,8 @@ function createInteractingGalaxies(key, config) {
     group.add(clickTarget);
     group.clickTarget = clickTarget;
 
-    // 标签
-    createGalaxyLabel(group, galaxyData[key].name, 0, config.radius * 0.4, 0, key);
+    // 双语标签
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.5, 0, key);
 
     scene.add(group);
     return group;
@@ -2741,37 +3009,74 @@ function createGalaxyClickTarget(pos, radius) {
     return mesh;
 }
 
-// ============ 创建星系名称标签 ============
-function createGalaxyLabel(parent, text, x, y, z, key) {
+// ============ 创建星系名称标签（中英双语，中文大英文小）============
+function createGalaxyLabel(parent, info, x, y, z, key) {
+    // info 可以是字符串（向后兼容）或包含 name/nameEn 的对象
+    const cn = (typeof info === 'string') ? info : info.name;
+    const en = (typeof info === 'string') ? '' : (info.nameEn || '');
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = 512;
-    canvas.height = 128;
+    canvas.height = 160;
 
-    context.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    // 半透明背景圆角条
+    context.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    const padX = 8;
+    const padY = 8;
+    const radius = 16;
+    const w = canvas.width - padX * 2;
+    const h = canvas.height - padY * 2;
+    context.beginPath();
+    context.moveTo(padX + radius, padY);
+    context.lineTo(padX + w - radius, padY);
+    context.quadraticCurveTo(padX + w, padY, padX + w, padY + radius);
+    context.lineTo(padX + w, padY + h - radius);
+    context.quadraticCurveTo(padX + w, padY + h, padX + w - radius, padY + h);
+    context.lineTo(padX + radius, padY + h);
+    context.quadraticCurveTo(padX, padY + h, padX, padY + h - radius);
+    context.lineTo(padX, padY + radius);
+    context.quadraticCurveTo(padX, padY, padX + radius, padY);
+    context.closePath();
+    context.fill();
 
-    context.font = 'bold 36px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+
+    // 中文（大字号）
+    context.font = '700 56px "Noto Sans SC", sans-serif';
     context.fillStyle = '#ffffff';
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
+    context.shadowColor = 'rgba(139, 92, 246, 0.8)';
+    context.shadowBlur = 12;
+    context.fillText(cn, canvas.width / 2, en ? 60 : canvas.height / 2);
+
+    // 英文（小字号、青色、斜体）
+    if (en) {
+        context.shadowBlur = 0;
+        context.font = 'italic 500 26px "Orbitron", "Noto Sans SC", sans-serif';
+        context.fillStyle = '#9bd6ff';
+        context.fillText(en, canvas.width / 2, 115);
+    }
 
     const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
     const material = new THREE.SpriteMaterial({
         map: texture,
-        transparent: true
+        transparent: true,
+        depthWrite: false
     });
 
     const sprite = new THREE.Sprite(material);
     const config = galaxyRenderConfigs[key];
-    sprite.scale.set(config.radius * 0.8, config.radius * 0.2, 1);
+    const labelW = config && config.radius ? config.radius * 0.95 : 4000;
+    sprite.scale.set(labelW, labelW * 0.31, 1);
     sprite.position.set(x, y, z);
     sprite.name = 'galaxyLabel';
     sprite.galaxyKey = key;
 
     parent.add(sprite);
     galaxyLabels.push(sprite);
+    return sprite;
 }
 
 // ============ 创建标签 ============
