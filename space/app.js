@@ -3534,7 +3534,7 @@ function getCapacityData(targetKey) {
                 color: '#' + data.color.toString(16).padStart(6, '0')
             };
         })
-        .filter(item => Number.isFinite(item.count) && item.count > 0)
+        .filter(item => Number.isFinite(item.count) && item.count >= 1)
         .sort((a, b) => a.count - b.count);
 }
 
@@ -3575,8 +3575,8 @@ function getCapacityNote(targetKey) {
     }
 
     return currentComparisonMetric === 'mass'
-        ? '当前页签使用质量相除，不再使用直径或体积来换算。'
-        : '当前页签按直径折算体积，数量 ≈ (目标直径 / 天体直径)³。';
+        ? '当前页签使用质量相除，只展示至少能等于 1 个的天体。'
+        : '当前页签按直径折算体积，数量 ≈ (目标直径 / 天体直径)³，只展示至少能装下 1 个的天体。';
 }
 
 function getTargetCircleStyle(targetKey, size = 180) {
