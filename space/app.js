@@ -3448,18 +3448,6 @@ function updatePlanetScales() {
 }
 
 // ============ 行星对比换算工具 ============
-const CAPACITY_TAB_TO_TARGET = {
-    sunVolume: 'sun',
-    volume: 'sun',
-    jupiterVolume: 'jupiter',
-    saturnVolume: 'saturn',
-    uranusVolume: 'uranus',
-    neptuneVolume: 'neptune',
-    dragVolume: 'sun',
-    blackHoleVolume: 'blackHole',
-    dragBlackHole: 'blackHole'
-};
-
 const CAPACITY_TARGETS = {
     sun: {
         key: 'sun',
@@ -3768,6 +3756,7 @@ function generateSizeComparison(mode) {
     if (!mode) mode = currentComparisonTab;
     mode = normalizeComparisonMode(mode);
     currentComparisonTab = mode;
+    updateComparisonTabActiveState();
 
     const container = document.getElementById('comparisonRow');
     container.innerHTML = '';
@@ -3776,7 +3765,7 @@ function generateSizeComparison(mode) {
 
     const subtitle = document.getElementById('comparisonSubtitle');
 
-    // volume/jupiterVolume 模式下隐藏类型图例，其他模式显示
+    // 所有“能装 / 拖拽”模式下隐藏类型图例，其他模式显示
     const isVolumeMode = isCapacityComparisonMode(mode);
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
@@ -3785,7 +3774,7 @@ function generateSizeComparison(mode) {
     const existingLink = document.getElementById('sizeDetailLink');
     if (existingLink && mode !== 'diameter') existingLink.style.display = 'none';
 
-    // volume 模式下 planets-row 不需要 flex 横排，改为 block
+    // 对比换算模式下 planets-row 不需要 flex 横排，改为 block
     if (isVolumeMode) {
         isDiameterDetailMode = false;
         container.style.display = 'block';
