@@ -662,6 +662,7 @@ let currentUranusVolumeSelection = 'earth'; // uranusVolume tab 中选中的星�
 let currentNeptuneVolumeSelection = 'earth'; // neptuneVolume tab 中选中的星球
 let currentBlackHoleVolumeSelection = 'earth'; // blackHoleVolume tab 中选中的星球
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
+let activeDragCleanup = null; // 当前拖拽态的兜底清理函数
 let isRealMotion = false; // 是否使用真实自转 / 公转比例
 
 // 折合后的“真实运动”速度
@@ -3062,8 +3063,12 @@ function openSizeComparisonPanel() {
 
 function closeSizeComparisonPanel() {
     cancelDragVolumeAnimation();
+    if (activeDragCleanup) {
+        activeDragCleanup();
+    }
     const panel = document.getElementById('sizeComparison');
     if (panel) {
+        panel.style.overflow = 'auto';
         panel.classList.remove('visible');
     }
 }
@@ -4907,15 +4912,139 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
     const sizeComparison = document.getElementById('sizeComparison');
     let ghost = null;
     let dragItem = null;
+    let activeItem = null;
+    let activePointerId = null;
     let offsetX = 0, offsetY = 0;
     const startAnimation = targetConfig.startAnimation || startFillAnimation;
     const ghostMaxSize = targetConfig.ghostMaxSize || 40;
+
+    function detachGlobalDragListeners() {
+        document.removeEventListener('pointermove', handleGlobalPointerMove);
+        document.removeEventListener('pointerup', handleGlobalPointerUp);
+        document.removeEventListener('pointercancel', handleGlobalPointerCancel);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('blur', handleWindowBlur);
+    }
+
+    function cleanupDrag(options = {}) {
+        const removeGhost = options.removeGhost !== false;
+        const resetOpacity = options.resetOpacity !== false;
+
+        detachGlobalDragListeners();
+
+        if (activeItem && activePointerId !== null && activeItem.hasPointerCapture && activeItem.hasPointerCapture(activePointerId)) {
+            activeItem.releasePointerCapture(activePointerId);
+        }
+
+        if (removeGhost && ghost) {
+            ghost.remove();
+        }
+
+        ghost = null;
+        dragItem = null;
+        activePointerId = null;
+        if (sizeComparison) {
+            sizeComparison.style.overflow = 'auto';
+        }
+        if (activeItem && resetOpacity) {
+            activeItem.style.opacity = '1';
+        }
+        activeItem = null;
+
+        if (activeDragCleanup === cleanupDrag) {
+            activeDragCleanup = null;
+        }
+    }
+
+    function handleDrop(clientX, clientY) {
+        if (!ghost || !dragItem) return;
+
+        if (activeItem) {
+            activeItem.style.opacity = '1';
+        }
+        if (sizeComparison) {
+            sizeComparison.style.overflow = 'auto';
+        }
+
+        const canvasRect = canvas.getBoundingClientRect();
+        const cx = canvasRect.left + canvasRect.width / 2;
+        const cy = canvasRect.top + canvasRect.height / 2;
+        const dist = Math.sqrt((clientX - cx) ** 2 + (clientY - cy) ** 2);
+        const hitRadius = canvasRect.width / 2;
+
+        detachGlobalDragListeners();
+
+        if (dist < hitRadius * 1.2) {
+            ghost.style.transition = 'all 0.2s ease';
+            ghost.style.left = (cx - offsetX) + 'px';
+            ghost.style.top = (cy - offsetY) + 'px';
+            ghost.style.transform = 'scale(0)';
+            ghost.style.opacity = '0';
+            const ghostToRemove = ghost;
+            setTimeout(() => ghostToRemove.remove(), 200);
+
+            const resultNum = document.getElementById('dragResultNumber');
+            const resultText = document.getElementById('dragResultText');
+            if (resultNum) { resultNum.classList.remove('visible'); resultNum.textContent = ''; }
+            if (resultText) { resultText.classList.remove('visible'); resultText.textContent = ''; }
+
+            cancelDragVolumeAnimation();
+            const ctx2 = canvas.getContext('2d');
+            ctx2.setTransform(1, 0, 0, 1, 0, 0);
+            ctx2.scale(dpr, dpr);
+            startAnimation(ctx2, canvasSize, dragItem, targetConfig);
+        } else {
+            ghost.classList.add('snap-back');
+            const ghostToRemove = ghost;
+            setTimeout(() => ghostToRemove.remove(), 300);
+        }
+
+        ghost = null;
+        dragItem = null;
+        activePointerId = null;
+        activeItem = null;
+
+        if (activeDragCleanup === cleanupDrag) {
+            activeDragCleanup = null;
+        }
+    }
+
+    function handleGlobalPointerMove(e) {
+        if (!ghost || e.pointerId !== activePointerId) return;
+        ghost.style.left = (e.clientX - offsetX) + 'px';
+        ghost.style.top = (e.clientY - offsetY) + 'px';
+    }
+
+    function handleGlobalPointerUp(e) {
+        if (!ghost || e.pointerId !== activePointerId) return;
+        handleDrop(e.clientX, e.clientY);
+    }
+
+    function handleGlobalPointerCancel(e) {
+        if (!ghost || e.pointerId !== activePointerId) return;
+        cleanupDrag();
+    }
+
+    function handleVisibilityChange() {
+        if (document.hidden && ghost) {
+            cleanupDrag();
+        }
+    }
+
+    function handleWindowBlur() {
+        if (ghost) {
+            cleanupDrag();
+        }
+    }
 
     wrapper.querySelectorAll('.drag-planet-item').forEach(item => {
         item.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             const idx = parseInt(item.dataset.dragIndex);
+            cleanupDrag();
             dragItem = dragData[idx];
+            activeItem = item;
+            activePointerId = e.pointerId;
 
             // 创建 ghost
             const dotSize = Math.max(20, Math.min(ghostMaxSize, (planetData[dragItem.key].diameter / 139820) * 40));
@@ -4933,71 +5062,27 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             offsetY = dotSize / 2;
 
             // 防止滚动
-            sizeComparison.style.overflow = 'hidden';
+            if (sizeComparison) {
+                sizeComparison.style.overflow = 'hidden';
+            }
 
             item.setPointerCapture(e.pointerId);
 
             // 去掉脉冲动画
             item.classList.remove('hint-pulse');
             item.style.opacity = '0.4';
+            document.addEventListener('pointermove', handleGlobalPointerMove);
+            document.addEventListener('pointerup', handleGlobalPointerUp);
+            document.addEventListener('pointercancel', handleGlobalPointerCancel);
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleWindowBlur);
+            activeDragCleanup = cleanupDrag;
         });
 
-        item.addEventListener('pointermove', (e) => {
-            if (!ghost) return;
-            ghost.style.left = (e.clientX - offsetX) + 'px';
-            ghost.style.top = (e.clientY - offsetY) + 'px';
-        });
-
-        item.addEventListener('pointerup', (e) => {
-            if (!ghost || !dragItem) return;
-
-            // 恢复滚动
-            sizeComparison.style.overflow = 'auto';
-            item.style.opacity = '1';
-
-            // 命中检测
-            const canvasRect = canvas.getBoundingClientRect();
-            const cx = canvasRect.left + canvasRect.width / 2;
-            const cy = canvasRect.top + canvasRect.height / 2;
-            const dist = Math.sqrt((e.clientX - cx) ** 2 + (e.clientY - cy) ** 2);
-            const hitRadius = canvasRect.width / 2;
-
-            if (dist < hitRadius * 1.2) {
-                // 命中太阳！
-                ghost.style.transition = 'all 0.2s ease';
-                ghost.style.left = (cx - offsetX) + 'px';
-                ghost.style.top = (cy - offsetY) + 'px';
-                ghost.style.transform = 'scale(0)';
-                ghost.style.opacity = '0';
-                setTimeout(() => ghost && ghost.remove(), 200);
-
-                // 清空结果
-                const resultNum = document.getElementById('dragResultNumber');
-                const resultText = document.getElementById('dragResultText');
-                if (resultNum) { resultNum.classList.remove('visible'); resultNum.textContent = ''; }
-                if (resultText) { resultText.classList.remove('visible'); resultText.textContent = ''; }
-
-                // 启动填充动画
-                cancelDragVolumeAnimation();
-                const ctx2 = canvas.getContext('2d');
-                ctx2.setTransform(1, 0, 0, 1, 0, 0);
-                ctx2.scale(dpr, dpr);
-                startAnimation(ctx2, canvasSize, dragItem, targetConfig);
-            } else {
-                // 未命中，回弹消失
-                ghost.classList.add('snap-back');
-                setTimeout(() => ghost && ghost.remove(), 300);
+        item.addEventListener('lostpointercapture', () => {
+            if (ghost) {
+                cleanupDrag();
             }
-
-            ghost = null;
-            dragItem = null;
-        });
-
-        item.addEventListener('pointercancel', () => {
-            if (ghost) { ghost.remove(); ghost = null; }
-            dragItem = null;
-            sizeComparison.style.overflow = 'auto';
-            item.style.opacity = '1';
         });
     });
 }
