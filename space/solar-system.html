@@ -419,12 +419,14 @@
             max-height: calc(100vh - 180px);
             overflow-y: auto;
             opacity: 0;
+            pointer-events: none;
             transform: translateY(20px);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .planet-info.visible {
             opacity: 1;
+            pointer-events: auto;
             transform: translateY(0);
         }
 
