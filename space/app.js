@@ -4597,7 +4597,7 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
         } else {
             // 动画完成，显示结果
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, targetCount, animationConfig.resultLabel || '太阳能装');
+            showDragResult(label, nameCN, animationConfig.resultLabel || '太阳能装');
         }
     }
 
@@ -4701,14 +4701,14 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
             dragVolumeAnimationId = requestAnimationFrame(animate);
         } else {
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, targetCount, animationConfig.resultLabel || '黑洞事件视界能装');
+            showDragResult(label, nameCN, animationConfig.resultLabel || '黑洞事件视界能装');
         }
     }
 
     dragVolumeAnimationId = requestAnimationFrame(animate);
 }
 
-function showDragResult(label, nameCN, count, targetLabel = '太阳能装') {
+function showDragResult(label, nameCN, targetLabel = '太阳能装') {
     const resultNum = document.getElementById('dragResultNumber');
     const resultText = document.getElementById('dragResultText');
     clearPendingDragResultReveal();
