@@ -172,6 +172,141 @@ body.learning-gate-open {
     line-height: 1.15;
 }
 
+.learning-gate-visual {
+    padding: 14px;
+    border: 1px solid rgba(142, 232, 255, 0.18);
+    border-radius: 16px;
+    background: rgba(1, 8, 22, 0.44);
+}
+
+.learning-gate-visual[hidden] {
+    display: none;
+}
+
+.learning-gate-visual-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+}
+
+.learning-gate-visual-step {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+
+.learning-gate-visual-title {
+    color: #8ee8ff;
+    font-size: 0.94rem;
+    font-weight: 900;
+    line-height: 1.35;
+}
+
+.learning-gate-visual-body {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    min-width: 0;
+}
+
+.learning-gate-planet-group {
+    flex: 1 1 0;
+    display: grid;
+    align-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    min-height: 112px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.learning-gate-planet-group.is-added {
+    border-color: rgba(244, 208, 63, 0.26);
+    background: rgba(244, 208, 63, 0.08);
+}
+
+.learning-gate-planets {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 8px;
+    min-height: 62px;
+}
+
+.learning-gate-planet {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.08) 28%, transparent 30%),
+        radial-gradient(circle at 62% 66%, #47d7ff, #2261d9 72%);
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.28);
+}
+
+.learning-gate-planet-group.is-added .learning-gate-planet {
+    background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.12) 28%, transparent 30%),
+        radial-gradient(circle at 62% 66%, #ffe28c, #ff8c42 72%);
+    box-shadow: 0 0 12px rgba(244, 208, 63, 0.3);
+}
+
+.learning-gate-planet.is-crossed {
+    opacity: 0.48;
+    filter: grayscale(0.75);
+}
+
+.learning-gate-planet.is-crossed::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    right: -4px;
+    top: 50%;
+    height: 4px;
+    border-radius: 999px;
+    background: #ff7070;
+    box-shadow: 0 0 8px rgba(255, 112, 112, 0.52);
+    transform: rotate(-42deg);
+}
+
+.learning-gate-planet-caption {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.learning-gate-visual-operator,
+.learning-gate-take-away {
+    align-self: center;
+    flex: 0 0 auto;
+    color: #f4d03f;
+    font: 900 1.4rem/1 'Orbitron', 'Noto Sans SC', sans-serif;
+}
+
+.learning-gate-take-away {
+    max-width: 72px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 112, 112, 0.32);
+    border-radius: 999px;
+    color: #ffc4c4;
+    background: rgba(255, 112, 112, 0.12);
+    font: 900 0.8rem/1.25 'Noto Sans SC', sans-serif;
+    text-align: center;
+}
+
+.learning-gate-visual-result {
+    color: #f4d03f;
+    font-size: 0.92rem;
+    font-weight: 900;
+    line-height: 1.35;
+    text-align: center;
+}
+
 .learning-gate-answer-pad {
     display: grid;
     grid-template-columns: repeat(7, minmax(48px, 1fr));
@@ -260,6 +395,34 @@ body.learning-gate-open {
 
     .learning-gate-card {
         padding: 16px;
+    }
+
+    .learning-gate-visual {
+        padding: 12px;
+    }
+
+    .learning-gate-visual-steps {
+        grid-template-columns: 1fr;
+    }
+
+    .learning-gate-visual-body {
+        gap: 8px;
+    }
+
+    .learning-gate-planet-group {
+        min-height: 98px;
+        padding: 10px;
+    }
+
+    .learning-gate-planets {
+        gap: 7px;
+        min-height: 54px;
+    }
+
+    .learning-gate-planet {
+        width: 23px;
+        height: 23px;
+        flex-basis: 23px;
     }
 
     .learning-gate-answer-pad {

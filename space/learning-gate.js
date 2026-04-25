@@ -220,6 +220,7 @@
                     </div>
                     <p class="learning-gate-question"></p>
                     <div class="learning-gate-expression" aria-live="polite"></div>
+                    <div class="learning-gate-visual" aria-label="数一数星球" hidden></div>
                     <div class="learning-gate-answer-pad" aria-label="选择答案"></div>
                     <div class="learning-gate-feedback" aria-live="polite"></div>
                 </main>
@@ -281,6 +282,7 @@
         session.root.querySelector('.learning-gate-source').textContent = question.source || '';
         session.root.querySelector('.learning-gate-question').textContent = question.question;
         session.root.querySelector('.learning-gate-expression').textContent = formatExpression(question);
+        renderMathVisual(session.root.querySelector('.learning-gate-visual'), question);
         session.root.querySelector('.learning-gate-feedback').textContent = '选择正确数字，为飞船充能';
         playQuestionAudio(question);
 
@@ -308,6 +310,146 @@
             return `${question.expression} = ?`;
         }
         return '?';
+    }
+
+    function renderMathVisual(container, question) {
+        if (!container) return;
+
+        const model = buildMathVisualModel(question);
+        container.innerHTML = '';
+
+        if (!model) {
+            container.hidden = true;
+            return;
+        }
+
+        container.hidden = false;
+        const steps = document.createElement('div');
+        steps.className = 'learning-gate-visual-steps';
+
+        model.steps.forEach((step, index) => {
+            steps.appendChild(createVisualStep(step, index, model.steps.length));
+        });
+
+        container.appendChild(steps);
+    }
+
+    function buildMathVisualModel(question) {
+        if (!question || question.kind !== 'math' || !question.expression || question.visual === false) {
+            return null;
+        }
+
+        const parts = String(question.expression).match(/\d+|[+-]/g);
+        if (!parts || parts.length < 3) return null;
+
+        let current = Number(parts[0]);
+        if (!Number.isInteger(current) || current < 0 || current > 20) return null;
+
+        const steps = [];
+        for (let i = 1; i < parts.length; i += 2) {
+            const operator = parts[i];
+            const amount = Number(parts[i + 1]);
+
+            if ((operator !== '+' && operator !== '-') || !Number.isInteger(amount) || amount < 0 || amount > 20) {
+                return null;
+            }
+
+            const previous = current;
+            const next = operator === '+' ? previous + amount : previous - amount;
+            if (next < 0 || next > 20) return null;
+
+            steps.push({
+                operator,
+                previous,
+                amount,
+                next
+            });
+            current = next;
+        }
+
+        return steps.length ? { steps } : null;
+    }
+
+    function createVisualStep(step, index, total) {
+        const card = document.createElement('section');
+        card.className = 'learning-gate-visual-step';
+        card.setAttribute('aria-label', buildVisualStepLabel(step, index));
+
+        const title = document.createElement('div');
+        title.className = 'learning-gate-visual-title';
+        title.textContent = buildVisualStepTitle(step, index, total);
+
+        const body = document.createElement('div');
+        body.className = 'learning-gate-visual-body';
+
+        if (step.operator === '+') {
+            body.appendChild(createPlanetGroup(step.previous, '原来', 'base'));
+            body.appendChild(createVisualOperator('+'));
+            body.appendChild(createPlanetGroup(step.amount, '又来', 'added'));
+        } else {
+            body.appendChild(createPlanetGroup(step.previous, '先有', 'base', step.amount));
+            body.appendChild(createTakeAwayMarker(step.amount));
+        }
+
+        const result = document.createElement('div');
+        result.className = 'learning-gate-visual-result';
+        result.textContent = step.operator === '+'
+            ? '把两边星球都数一数'
+            : '只数没有划掉的星球';
+
+        card.append(title, body, result);
+        return card;
+    }
+
+    function buildVisualStepTitle(step, index, total) {
+        const prefix = total > 1 ? `第 ${index + 1} 步：` : '';
+        if (step.operator === '+') {
+            return `${prefix}${step.previous} 个，再来 ${step.amount} 个`;
+        }
+        return `${prefix}${step.previous} 个，拿走 ${step.amount} 个`;
+    }
+
+    function buildVisualStepLabel(step, index) {
+        const action = step.operator === '+' ? '加上' : '拿走';
+        return `第${index + 1}步，${step.previous}个，${action}${step.amount}个`;
+    }
+
+    function createPlanetGroup(count, label, tone, crossedCount, allCrossed) {
+        const group = document.createElement('div');
+        group.className = `learning-gate-planet-group is-${tone}`;
+
+        const planets = document.createElement('div');
+        planets.className = 'learning-gate-planets';
+
+        for (let i = 0; i < count; i++) {
+            const planet = document.createElement('span');
+            planet.className = 'learning-gate-planet';
+            if (allCrossed || (crossedCount && i >= count - crossedCount)) {
+                planet.classList.add('is-crossed');
+            }
+            planets.appendChild(planet);
+        }
+
+        const caption = document.createElement('div');
+        caption.className = 'learning-gate-planet-caption';
+        caption.textContent = `${label} ${count} 个`;
+
+        group.append(planets, caption);
+        return group;
+    }
+
+    function createVisualOperator(operator) {
+        const element = document.createElement('div');
+        element.className = 'learning-gate-visual-operator';
+        element.textContent = operator;
+        return element;
+    }
+
+    function createTakeAwayMarker(amount) {
+        const element = document.createElement('div');
+        element.className = 'learning-gate-take-away';
+        element.textContent = `划掉 ${amount} 个`;
+        return element;
     }
 
     function handleAnswer(session, value, button) {
