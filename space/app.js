@@ -3130,9 +3130,7 @@ function openSizeComparisonPanel() {
     const panel = document.getElementById('sizeComparison');
     if (!panel) return;
     panel.classList.add('visible');
-    if (isDragComparisonTab(currentComparisonTab)) {
-        generateSizeComparison(currentComparisonTab);
-    }
+    generateSizeComparison(currentComparisonTab);
     panel.scrollTop = 0;
 }
 
