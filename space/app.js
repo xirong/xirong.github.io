@@ -4145,9 +4145,25 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
     let dragItem = null;
     let activeItem = null;
     let activePointerId = null;
+    let pendingGhostRemovalId = null;
+    let pendingGhostElement = null;
     let offsetX = 0, offsetY = 0;
     const startAnimation = targetConfig.startAnimation || startFillAnimation;
     const ghostMaxSize = targetConfig.ghostMaxSize || 40;
+
+    function clearPendingGhostRemoval() {
+        if (pendingGhostRemovalId !== null) {
+            clearTimeout(pendingGhostRemovalId);
+            pendingGhostRemovalId = null;
+        }
+        if (pendingGhostElement) {
+            pendingGhostElement.remove();
+            pendingGhostElement = null;
+        }
+        if (activeDragCleanup === clearPendingGhostRemoval) {
+            activeDragCleanup = null;
+        }
+    }
 
     function detachGlobalDragListeners() {
         document.removeEventListener('pointermove', handleGlobalPointerMove);
@@ -4174,6 +4190,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         const resetOpacity = options.resetOpacity !== false;
 
         detachGlobalDragListeners();
+        clearPendingGhostRemoval();
 
         if (activeItem && activePointerId !== null && activeItem.hasPointerCapture && activeItem.hasPointerCapture(activePointerId)) {
             activeItem.releasePointerCapture(activePointerId);
@@ -4220,7 +4237,18 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             ghost.style.transform = 'scale(0)';
             ghost.style.opacity = '0';
             const ghostToRemove = ghost;
-            setTimeout(() => ghostToRemove.remove(), 200);
+            pendingGhostElement = ghostToRemove;
+            activeDragCleanup = clearPendingGhostRemoval;
+            pendingGhostRemovalId = setTimeout(() => {
+                ghostToRemove.remove();
+                if (pendingGhostElement === ghostToRemove) {
+                    pendingGhostElement = null;
+                }
+                if (activeDragCleanup === clearPendingGhostRemoval) {
+                    activeDragCleanup = null;
+                }
+                pendingGhostRemovalId = null;
+            }, 200);
 
             const resultNum = document.getElementById('dragResultNumber');
             const resultText = document.getElementById('dragResultText');
@@ -4235,7 +4263,18 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         } else {
             ghost.classList.add('snap-back');
             const ghostToRemove = ghost;
-            setTimeout(() => ghostToRemove.remove(), 300);
+            pendingGhostElement = ghostToRemove;
+            activeDragCleanup = clearPendingGhostRemoval;
+            pendingGhostRemovalId = setTimeout(() => {
+                ghostToRemove.remove();
+                if (pendingGhostElement === ghostToRemove) {
+                    pendingGhostElement = null;
+                }
+                if (activeDragCleanup === clearPendingGhostRemoval) {
+                    activeDragCleanup = null;
+                }
+                pendingGhostRemovalId = null;
+            }, 300);
         }
 
         resetDragState();
