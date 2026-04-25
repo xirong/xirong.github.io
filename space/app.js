@@ -711,6 +711,12 @@ function scheduleDragResultReveal(fn, delay = 50) {
     }, delay);
     pendingDragResultRevealIds.push(timeoutId);
 }
+
+function runActiveDragCleanup(skipCleanup) {
+    if (activeDragCleanup && activeDragCleanup !== skipCleanup) {
+        activeDragCleanup();
+    }
+}
 const BLACK_HOLE_MASS_IN_SOLAR_MASSES = 4000000;
 const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
 const blackHoleTextureImage = new Image();
@@ -3100,9 +3106,7 @@ function openSizeComparisonPanel() {
 
 function closeSizeComparisonPanel() {
     cancelDragVolumeAnimation();
-    if (activeDragCleanup) {
-        activeDragCleanup();
-    }
+    runActiveDragCleanup();
     const panel = document.getElementById('sizeComparison');
     if (panel) {
         panel.style.overflow = 'auto';
@@ -4241,9 +4245,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         const removeGhost = options.removeGhost !== false;
         const resetOpacity = options.resetOpacity !== false;
 
-        if (activeDragCleanup && activeDragCleanup !== cleanupDrag) {
-            activeDragCleanup();
-        }
+        runActiveDragCleanup(cleanupDrag);
         detachGlobalDragListeners();
         clearPendingGhostRemoval();
 
@@ -4722,9 +4724,7 @@ function setupComparisonTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             cancelDragVolumeAnimation();
-            if (activeDragCleanup) {
-                activeDragCleanup();
-            }
+            runActiveDragCleanup();
             if (btn.dataset.metric) {
                 currentComparisonMetric = btn.dataset.metric;
                 currentComparisonTab = btn.dataset.tab || currentComparisonMetric;
