@@ -5418,6 +5418,9 @@ function setupComparisonTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             cancelDragVolumeAnimation();
+            if (activeDragCleanup) {
+                activeDragCleanup();
+            }
             if (btn.dataset.metric) {
                 currentComparisonMetric = btn.dataset.metric;
                 currentComparisonTab = btn.dataset.tab || currentComparisonMetric;
