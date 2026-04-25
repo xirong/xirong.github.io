@@ -17,8 +17,9 @@
             --accent-purple: #9b59b6;
             --accent-orange: #e67e22;
             --frame-bg: #fefefe;
-            --bg-gradient-start: #667eea;
-            --bg-gradient-end: #764ba2;
+            --bg-gradient-start: #0a0a1a;
+            --bg-gradient-mid: #1a1a3a;
+            --bg-gradient-end: #0a0a2a;
             --shadow-soft: rgba(0, 0, 0, 0.1);
             --shadow-medium: rgba(0, 0, 0, 0.2);
             --text-dark: #2c3e50;
@@ -35,11 +36,16 @@
         body {
             font-family: 'Comic Neue', 'PingFang SC', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            background:
+                radial-gradient(circle at 18% 14%, rgba(0, 217, 255, 0.16), transparent 26%),
+                radial-gradient(circle at 82% 8%, rgba(255, 217, 61, 0.12), transparent 24%),
+                radial-gradient(circle at 58% 88%, rgba(140, 247, 213, 0.1), transparent 28%),
+                linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+            color: var(--text-light);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 8px;
+            padding: 14px 8px 18px;
             overflow-x: hidden;
         }
 
@@ -54,39 +60,43 @@
 
         .star {
             position: absolute;
-            font-size: 18px;
-            animation: float 6s ease-in-out infinite;
-            opacity: 0.5;
+            border-radius: 50%;
+            background: #fff;
+            animation: twinkle 3s infinite alternate;
+            opacity: 0.45;
         }
 
-        @keyframes float {
+        @keyframes twinkle {
 
             0%,
             100% {
-                transform: translateY(0) rotate(0deg);
+                opacity: 0.25;
             }
 
             50% {
-                transform: translateY(-15px) rotate(180deg);
+                opacity: 1;
             }
         }
 
         .title-container {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             z-index: 1;
         }
 
         h1 {
             font-family: 'Fredoka One', cursive;
             font-size: clamp(1.3rem, 3.5vw, 2rem);
-            color: var(--text-light);
-            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #00d9ff, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
         }
 
         .subtitle {
             font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.68);
             margin-top: 2px;
             font-weight: 700;
         }
@@ -94,13 +104,16 @@
         .mode-toggle {
             display: flex;
             gap: 3px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(8, 14, 38, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 4px;
             border-radius: 50px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             z-index: 1;
             flex-wrap: wrap;
             justify-content: center;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(10px);
         }
 
         .mode-btn {
@@ -119,13 +132,25 @@
 
         .mode-btn.active {
             background: white;
-            color: var(--bg-gradient-start);
+            color: #1a1a3a;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }
 
         .mode-btn:hover:not(.active) {
             color: white;
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        .home-link {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .make-ten-link {
+            text-decoration: none;
+            background: rgba(46, 204, 113, 0.18);
+            border: 1px solid rgba(46, 204, 113, 0.35);
+            color: white;
         }
 
         .main-container {
@@ -630,10 +655,12 @@
 
         .unit-learning-panel {
             width: min(1100px, calc(100vw - 24px));
-            background: linear-gradient(145deg, #fff, #f4f8ff);
+            background: rgba(8, 14, 38, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 18px;
             padding: 18px;
-            box-shadow: 0 12px 40px var(--shadow-medium);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(10px);
         }
 
         .cosmic-scale-panel {
@@ -1213,16 +1240,14 @@
         <p class="subtitle" id="subtitleText">拖动圆片，轻松学会10以内加减法！</p>
     </div>
     <div class="mode-toggle">
-        <a href="../index.html" class="mode-btn"
-            style="text-decoration:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);">🏠 首页</a>
+        <a href="../index.html" class="mode-btn home-link">🏠 首页</a>
         <button class="mode-btn active" data-mode="ten">10以内</button>
         <button class="mode-btn" data-mode="twenty">20以内</button>
         <button class="mode-btn" data-mode="hundred">认识100</button>
         <button class="mode-btn" data-mode="thousand">认识1000</button>
         <button class="mode-btn" data-mode="tenthousand">认识10000</button>
         <button class="mode-btn" data-mode="numberunits">大数单位</button>
-        <a href="make-ten.html" class="mode-btn"
-            style="text-decoration:none;background:linear-gradient(145deg,#11998e,#38ef7d);color:white;">🤝 凑十法</a>
+        <a href="make-ten.html" class="mode-btn make-ten-link">🤝 凑十法</a>
     </div>
     <div class="main-container">
         <div class="equation-display" id="equationDisplay">
@@ -1352,15 +1377,16 @@
 
         function createFloatingStars() {
             const container = document.getElementById('floatingStars');
-            const emojis = ['⭐', '✨', '🌟', '💫'];
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 90; i++) {
                 const star = document.createElement('div');
+                const size = Math.random() * 2.2 + 1;
                 star.className = 'star';
-                star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 6 + 's';
-                star.style.animationDuration = (4 + Math.random() * 4) + 's';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2.4 + Math.random() * 2.6) + 's';
                 container.appendChild(star);
             }
         }
