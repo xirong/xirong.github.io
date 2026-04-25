@@ -663,6 +663,7 @@ let currentNeptuneVolumeSelection = 'earth'; // neptuneVolume tab 中选中的�
 let currentBlackHoleVolumeSelection = 'earth'; // blackHoleVolume tab 中选中的星球
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
 let activeDragCleanup = null; // 当前拖拽态的兜底清理函数
+let pendingDragResultRevealIds = []; // 拖拽结果延时显隐定时器
 let isRealMotion = false; // 是否使用真实自转 / 公转比例
 
 // 折合后的“真实运动”速度
@@ -674,6 +675,42 @@ const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
 const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
+
+function clearPendingDragResultReveal(resetContent = false) {
+    pendingDragResultRevealIds.forEach(id => clearTimeout(id));
+    pendingDragResultRevealIds = [];
+
+    const resultNum = document.getElementById('dragResultNumber');
+    const resultText = document.getElementById('dragResultText');
+    if (resultNum) {
+        resultNum.classList.remove('visible');
+        if (resetContent) {
+            resultNum.textContent = '';
+        }
+    }
+    if (resultText) {
+        resultText.classList.remove('visible');
+        if (resetContent) {
+            resultText.textContent = '';
+        }
+    }
+
+    if (activeDragCleanup === clearDragResultState) {
+        activeDragCleanup = null;
+    }
+}
+
+function clearDragResultState() {
+    clearPendingDragResultReveal(true);
+}
+
+function scheduleDragResultReveal(fn, delay = 50) {
+    const timeoutId = setTimeout(() => {
+        pendingDragResultRevealIds = pendingDragResultRevealIds.filter(id => id !== timeoutId);
+        fn();
+    }, delay);
+    pendingDragResultRevealIds.push(timeoutId);
+}
 const BLACK_HOLE_MASS_IN_SOLAR_MASSES = 4000000;
 const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
 const blackHoleTextureImage = new Image();
@@ -4189,6 +4226,9 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         const removeGhost = options.removeGhost !== false;
         const resetOpacity = options.resetOpacity !== false;
 
+        if (activeDragCleanup && activeDragCleanup !== cleanupDrag) {
+            activeDragCleanup();
+        }
         detachGlobalDragListeners();
         clearPendingGhostRemoval();
 
@@ -4250,10 +4290,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
                 pendingGhostRemovalId = null;
             }, 200);
 
-            const resultNum = document.getElementById('dragResultNumber');
-            const resultText = document.getElementById('dragResultText');
-            if (resultNum) { resultNum.classList.remove('visible'); resultNum.textContent = ''; }
-            if (resultText) { resultText.classList.remove('visible'); resultText.textContent = ''; }
+            clearDragResultState();
 
             cancelDragVolumeAnimation();
             const ctx2 = canvas.getContext('2d');
@@ -4674,14 +4711,20 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
 function showDragResult(label, nameCN, count, targetLabel = '太阳能装') {
     const resultNum = document.getElementById('dragResultNumber');
     const resultText = document.getElementById('dragResultText');
+    clearPendingDragResultReveal();
     if (resultNum) {
         resultNum.textContent = label;
-        setTimeout(() => resultNum.classList.add('visible'), 50);
+        scheduleDragResultReveal(() => {
+            resultNum.classList.add('visible');
+        });
     }
     if (resultText) {
         resultText.textContent = `${targetLabel} ${label}个${nameCN}！`;
-        setTimeout(() => resultText.classList.add('visible'), 50);
+        scheduleDragResultReveal(() => {
+            resultText.classList.add('visible');
+        });
     }
+    activeDragCleanup = clearDragResultState;
 }
 
 function setupComparisonTabs() {
