@@ -4924,6 +4924,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         document.removeEventListener('pointercancel', handleGlobalPointerCancel);
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('blur', handleWindowBlur);
+        window.removeEventListener('pagehide', handlePageHide);
     }
 
     function cleanupDrag(options = {}) {
@@ -5037,6 +5038,12 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         }
     }
 
+    function handlePageHide() {
+        if (ghost) {
+            cleanupDrag();
+        }
+    }
+
     wrapper.querySelectorAll('.drag-planet-item').forEach(item => {
         item.addEventListener('pointerdown', (e) => {
             e.preventDefault();
@@ -5076,6 +5083,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             document.addEventListener('pointercancel', handleGlobalPointerCancel);
             document.addEventListener('visibilitychange', handleVisibilityChange);
             window.addEventListener('blur', handleWindowBlur);
+            window.addEventListener('pagehide', handlePageHide);
             activeDragCleanup = cleanupDrag;
         });
 
