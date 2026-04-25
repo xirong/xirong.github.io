@@ -4290,7 +4290,12 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             : [document.elementFromPoint(clientX, clientY)].filter(Boolean);
 
         for (const element of elements) {
-            if (!element || element.id === 'loadingScreen' || element.classList?.contains('drag-ghost')) {
+            if (!element || element.classList?.contains('drag-ghost')) {
+                continue;
+            }
+
+            const style = window.getComputedStyle(element);
+            if (style.visibility === 'hidden' || style.pointerEvents === 'none') {
                 continue;
             }
 
