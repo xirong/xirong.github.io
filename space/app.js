@@ -655,12 +655,14 @@ let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonMetric = 'diameter'; // 'diameter' 或 'mass'
 let currentComparisonTab = 'diameter'; // 'diameter' 或各个“能装”页签
 let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
-let currentVolumeSelection = 'earth'; // volume tab（太阳）中选中的星球
-let currentJupiterVolumeSelection = 'earth'; // jupiterVolume tab 中选中的星球
-let currentSaturnVolumeSelection = 'earth'; // saturnVolume tab 中选中的星球
-let currentUranusVolumeSelection = 'earth'; // uranusVolume tab 中选中的星球
-let currentNeptuneVolumeSelection = 'earth'; // neptuneVolume tab 中选中的星球
-let currentBlackHoleVolumeSelection = 'earth'; // blackHoleVolume tab 中选中的星球
+const currentCapacitySelections = {
+    sun: 'earth',
+    jupiter: 'earth',
+    saturn: 'earth',
+    uranus: 'earth',
+    neptune: 'earth',
+    blackHole: 'earth'
+};
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
 let activeDragCleanup = null; // 当前拖拽态的兜底清理函数
 let pendingDragResultRevealIds = []; // 拖拽结果延时显隐定时器
@@ -3529,21 +3531,11 @@ function getCapacityData(targetKey) {
 }
 
 function getCurrentCapacitySelection(targetKey) {
-    if (targetKey === 'jupiter') return currentJupiterVolumeSelection;
-    if (targetKey === 'saturn') return currentSaturnVolumeSelection;
-    if (targetKey === 'uranus') return currentUranusVolumeSelection;
-    if (targetKey === 'neptune') return currentNeptuneVolumeSelection;
-    if (targetKey === 'blackHole') return currentBlackHoleVolumeSelection;
-    return currentVolumeSelection;
+    return currentCapacitySelections[targetKey] || currentCapacitySelections.sun;
 }
 
 function setCurrentCapacitySelection(targetKey, value) {
-    if (targetKey === 'jupiter') currentJupiterVolumeSelection = value;
-    else if (targetKey === 'saturn') currentSaturnVolumeSelection = value;
-    else if (targetKey === 'uranus') currentUranusVolumeSelection = value;
-    else if (targetKey === 'neptune') currentNeptuneVolumeSelection = value;
-    else if (targetKey === 'blackHole') currentBlackHoleVolumeSelection = value;
-    else currentVolumeSelection = value;
+    currentCapacitySelections[targetKey] = value;
 }
 
 function getCapacitySubtitle(targetKey) {
