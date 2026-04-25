@@ -3465,7 +3465,7 @@ const CAPACITY_TARGETS = {
         nameCN: '太阳',
         texture: 'textures/sun.jpg',
         color: '#ffcc00',
-        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'mercury', 'moon', 'pluto']
+        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     jupiter: {
         key: 'jupiter',
