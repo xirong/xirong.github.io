@@ -4202,6 +4202,21 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         }
     }
 
+    function scheduleGhostRemoval(ghostToRemove, delay) {
+        pendingGhostElement = ghostToRemove;
+        activeDragCleanup = clearPendingGhostRemoval;
+        pendingGhostRemovalId = setTimeout(() => {
+            ghostToRemove.remove();
+            if (pendingGhostElement === ghostToRemove) {
+                pendingGhostElement = null;
+            }
+            if (activeDragCleanup === clearPendingGhostRemoval) {
+                activeDragCleanup = null;
+            }
+            pendingGhostRemovalId = null;
+        }, delay);
+    }
+
     function detachGlobalDragListeners() {
         document.removeEventListener('pointermove', handleGlobalPointerMove);
         document.removeEventListener('pointerup', handleGlobalPointerUp);
@@ -4276,19 +4291,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             ghost.style.top = (cy - offsetY) + 'px';
             ghost.style.transform = 'scale(0)';
             ghost.style.opacity = '0';
-            const ghostToRemove = ghost;
-            pendingGhostElement = ghostToRemove;
-            activeDragCleanup = clearPendingGhostRemoval;
-            pendingGhostRemovalId = setTimeout(() => {
-                ghostToRemove.remove();
-                if (pendingGhostElement === ghostToRemove) {
-                    pendingGhostElement = null;
-                }
-                if (activeDragCleanup === clearPendingGhostRemoval) {
-                    activeDragCleanup = null;
-                }
-                pendingGhostRemovalId = null;
-            }, 200);
+            scheduleGhostRemoval(ghost, 200);
 
             clearDragResultState();
 
@@ -4299,19 +4302,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             startAnimation(ctx2, canvasSize, dragItem, targetConfig);
         } else {
             ghost.classList.add('snap-back');
-            const ghostToRemove = ghost;
-            pendingGhostElement = ghostToRemove;
-            activeDragCleanup = clearPendingGhostRemoval;
-            pendingGhostRemovalId = setTimeout(() => {
-                ghostToRemove.remove();
-                if (pendingGhostElement === ghostToRemove) {
-                    pendingGhostElement = null;
-                }
-                if (activeDragCleanup === clearPendingGhostRemoval) {
-                    activeDragCleanup = null;
-                }
-                pendingGhostRemovalId = null;
-            }, 300);
+            scheduleGhostRemoval(ghost, 300);
         }
 
         resetDragState();
