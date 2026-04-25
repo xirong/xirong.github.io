@@ -653,8 +653,9 @@ let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonMetric = 'diameter'; // 'diameter' 或 'mass'
-let currentComparisonTab = 'diameter'; // 'diameter' 或各个“能装”页签
+let currentComparisonTab = 'diameter'; // 'diameter'、'mass'、'volumeCapacity' 或 'massCapacity'
 let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
+let currentCapacityTarget = 'sun';
 const currentCapacitySelections = {
     sun: 'earth',
     jupiter: 'earth',
@@ -678,10 +679,17 @@ const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
 const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
 const COMPARISON_MODE_ALIASES = {
-    volume: 'sunVolume'
+    volume: 'volumeCapacity',
+    sunVolume: 'volumeCapacity'
 };
 const DRAG_COMPARISON_TABS = new Set(['dragVolume', 'dragBlackHole']);
+const CAPACITY_MODE_METRICS = {
+    volumeCapacity: 'diameter',
+    massCapacity: 'mass'
+};
 const CAPACITY_COMPARISON_TABS = new Set([
+    'volumeCapacity',
+    'massCapacity',
     'sunVolume',
     'volume',
     'jupiterVolume',
@@ -3745,6 +3753,38 @@ function renderCapacityComparison(container, subtitle, targetKey) {
     });
 }
 
+function renderCapacityTargetPicker(container) {
+    const targetOptions = [
+        { key: 'sun', label: '☀️ 太阳能装' },
+        { key: 'jupiter', label: '🪐 木星能装' },
+        { key: 'saturn', label: '🪐 土星能装' },
+        { key: 'uranus', label: '🪐 天王星能装' },
+        { key: 'neptune', label: '🪐 海王星能装' },
+        { key: 'blackHole', label: '🕳️ 黑洞能装' }
+    ];
+
+    const picker = document.createElement('div');
+    picker.className = 'capacity-target-picker';
+    targetOptions.forEach(option => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `capacity-target-btn${option.key === currentCapacityTarget ? ' active' : ''}`;
+        btn.dataset.capacityTarget = option.key;
+        btn.textContent = option.label;
+        btn.addEventListener('click', () => {
+            currentCapacityTarget = option.key;
+            generateSizeComparison(currentComparisonTab);
+        });
+        picker.appendChild(btn);
+    });
+    container.appendChild(picker);
+}
+
+function renderCapacityMode(container, subtitle) {
+    renderCapacityTargetPicker(container);
+    renderCapacityComparison(container, subtitle, currentCapacityTarget);
+}
+
 function renderDragCapacityComparison(container, subtitle, targetKey) {
     const target = CAPACITY_TARGETS[targetKey];
     const isBlackHole = targetKey === 'blackHole';
@@ -3820,6 +3860,11 @@ function generateSizeComparison(mode) {
     if (!mode) mode = currentComparisonTab;
     mode = normalizeComparisonMode(mode);
     currentComparisonTab = mode;
+    if (mode === 'diameter' || mode === 'mass') {
+        currentComparisonMetric = mode;
+    } else if (CAPACITY_MODE_METRICS[mode]) {
+        currentComparisonMetric = CAPACITY_MODE_METRICS[mode];
+    }
     updateComparisonTabActiveState();
 
     const container = document.getElementById('comparisonRow');
@@ -4078,21 +4123,23 @@ function generateSizeComparison(mode) {
             `;
             container.appendChild(div);
         });
+    } else if (mode === 'volumeCapacity' || mode === 'massCapacity') {
+        renderCapacityMode(container, subtitle);
     } else if (mode === 'sunVolume' || mode === 'volume') {
-        // 太阳能装多少个
-        generateVolumeComparison(container, subtitle);
+        currentCapacityTarget = 'sun';
+        renderCapacityMode(container, subtitle);
     } else if (mode === 'jupiterVolume') {
-        // 木星能装多少个
-        generateJupiterVolumeComparison(container, subtitle);
+        currentCapacityTarget = 'jupiter';
+        renderCapacityMode(container, subtitle);
     } else if (mode === 'saturnVolume') {
-        // 土星能装多少个
-        generateSaturnVolumeComparison(container, subtitle);
+        currentCapacityTarget = 'saturn';
+        renderCapacityMode(container, subtitle);
     } else if (mode === 'uranusVolume') {
-        // 天王星能装多少个
-        generateUranusVolumeComparison(container, subtitle);
+        currentCapacityTarget = 'uranus';
+        renderCapacityMode(container, subtitle);
     } else if (mode === 'neptuneVolume') {
-        // 海王星能装多少个
-        generateNeptuneVolumeComparison(container, subtitle);
+        currentCapacityTarget = 'neptune';
+        renderCapacityMode(container, subtitle);
     } else if (mode === 'dragVolume') {
         // 拖进太阳
         cancelDragVolumeAnimation();
@@ -4835,20 +4882,18 @@ function showDragResult(label, nameCN, targetLabel = '太阳能装') {
 }
 
 function setupComparisonTabs() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.comparison-tabs .tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             cancelDragVolumeAnimation();
             runActiveDragCleanup();
-            if (btn.dataset.metric) {
-                currentComparisonMetric = btn.dataset.metric;
-                if (currentComparisonTab === 'diameter' || currentComparisonTab === 'mass') {
-                    currentComparisonTab = normalizeComparisonMode(btn.dataset.tab || currentComparisonMetric);
-                }
-                if (currentComparisonTab !== 'diameter') {
-                    isDiameterDetailMode = false;
-                }
-            } else {
-                currentComparisonTab = normalizeComparisonMode(btn.dataset.tab);
+            currentComparisonTab = normalizeComparisonMode(btn.dataset.tab);
+            if (btn.dataset.capacityMetric) {
+                currentComparisonMetric = btn.dataset.capacityMetric;
+            } else if (currentComparisonTab === 'diameter' || currentComparisonTab === 'mass') {
+                currentComparisonMetric = currentComparisonTab;
+            }
+            if (currentComparisonTab !== 'diameter') {
+                isDiameterDetailMode = false;
             }
             generateSizeComparison(currentComparisonTab);
         });
@@ -4856,11 +4901,9 @@ function setupComparisonTabs() {
 }
 
 function updateComparisonTabActiveState() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        const isMetricActive = btn.dataset.metric && btn.dataset.metric === currentComparisonMetric;
-        const isTabActive = btn.dataset.tab && normalizeComparisonMode(btn.dataset.tab) === currentComparisonTab && !btn.dataset.metric;
-        const isDiameterMetricTabActive = btn.dataset.metric === 'diameter' && currentComparisonTab === 'diameter';
-        btn.classList.toggle('active', isMetricActive || isTabActive || isDiameterMetricTabActive);
+    document.querySelectorAll('.comparison-tabs .tab-btn').forEach(btn => {
+        const isTabActive = btn.dataset.tab && normalizeComparisonMode(btn.dataset.tab) === currentComparisonTab;
+        btn.classList.toggle('active', isTabActive);
     });
 }
 
