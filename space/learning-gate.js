@@ -170,7 +170,7 @@
             }
         });
 
-        return shuffle(selected);
+        return selected;
     }
 
     function isAnswerInRange(answer, range) {
@@ -283,7 +283,9 @@
         session.root.querySelector('.learning-gate-question').textContent = question.question;
         session.root.querySelector('.learning-gate-expression').textContent = formatExpression(question);
         renderMathVisual(session.root.querySelector('.learning-gate-visual'), question);
-        session.root.querySelector('.learning-gate-feedback').textContent = '选择正确数字，为飞船充能';
+        const feedback = session.root.querySelector('.learning-gate-feedback');
+        feedback.classList.remove('is-celebration');
+        feedback.textContent = '选择正确数字，为飞船充能';
         playQuestionAudio(question);
 
         const firstButton = session.answerButtons[0];
@@ -474,8 +476,9 @@
         const percent = Math.round((nextCompleted / total) * 100);
         session.root.querySelector('.learning-gate-energy-text').textContent = `能量 ${percent}%`;
         session.root.querySelector('.learning-gate-meter-fill').style.width = `${percent}%`;
-        session.root.querySelector('.learning-gate-feedback').textContent =
-            nextCompleted === total ? '能量充满，准备出发' : '答对了，能量继续上升';
+        const feedback = session.root.querySelector('.learning-gate-feedback');
+        feedback.textContent = getProgressEncouragement(nextCompleted, total);
+        feedback.classList.add('is-celebration');
 
         window.setTimeout(() => {
             session.index += 1;
@@ -487,6 +490,16 @@
         }, session.plan.correctDelayMs || 620);
     }
 
+    function getProgressEncouragement(completed, total) {
+        const remaining = Math.max(0, total - completed);
+        if (completed >= total) return '能量充满，可以出发探索太阳系了';
+        if (completed === Math.ceil(total / 2)) return `完成一半了，还剩 ${remaining} 题，飞船已经亮起来了`;
+        if (completed === 3) return `已经完成 3 题，还剩 ${remaining} 题，能量核心开始发光`;
+        if (remaining === 2) return '只差 2 题就能出发，坚持住';
+        if (remaining === 1) return '最后 1 题，马上打开宇宙入口';
+        return `答对了，还剩 ${remaining} 题，能量继续上升`;
+    }
+
     function handleWrongAnswer(session, button, question) {
         session.locked = true;
         session.wrongAttempts += 1;
@@ -495,7 +508,9 @@
         setAllButtonsDisabled(session, true);
 
         const hintText = question.hint ? `再想一下：${question.hint}` : '再想一下，能量还差一点';
-        session.root.querySelector('.learning-gate-feedback').textContent = hintText;
+        const feedback = session.root.querySelector('.learning-gate-feedback');
+        feedback.classList.remove('is-celebration');
+        feedback.textContent = hintText;
         playQuestionHint(question);
 
         window.setTimeout(() => {

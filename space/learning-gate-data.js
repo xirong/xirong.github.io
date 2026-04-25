@@ -357,9 +357,9 @@
                 completionScope: 'gate',
                 // 可改成 5 等其他小时数，同一个入口在冷却时间内不会重复弹出。
                 cooldownHours: 24,
-                answerRange: { min: 0, max: 20 },
+                answerRange: { min: 0, max: 10 },
                 wrongLockMs: 650,
-                correctDelayMs: 620,
+                correctDelayMs: 1150,
                 sections: [
                     { kind: 'math', type: 'add', label: '加法能量', count: 4 },
                     { kind: 'math', type: 'sub', label: '减法能量', count: 4 },
