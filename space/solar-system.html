@@ -10,6 +10,7 @@
     <link
         href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="learning-gate.css">
     <style>
         * {
             margin: 0;
@@ -2914,6 +2915,20 @@
             <!-- 动态生成 -->
         </div>
     </div>
+
+    <!-- 宇宙能量补给 -->
+    <script src="learning-gate-data.js"></script>
+    <script src="learning-gate.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.LearningGate) {
+                window.LearningGate.require({
+                    gateId: 'solar-system-entry',
+                    planId: 'space-energy-math-10'
+                });
+            }
+        });
+    </script>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

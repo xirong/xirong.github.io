@@ -10,6 +10,7 @@
     <link
         href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="learning-gate.css">
     <style>
         * {
             margin: 0;
@@ -963,6 +964,20 @@
     <script>
         document.getElementById('infoToggle').addEventListener('click', function () {
             document.getElementById('infoPanel').classList.toggle('expanded');
+        });
+    </script>
+
+    <!-- 宇宙能量补给 -->
+    <script src="learning-gate-data.js"></script>
+    <script src="learning-gate.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.LearningGate) {
+                window.LearningGate.require({
+                    gateId: 'galaxy-entry',
+                    planId: 'space-energy-math-10'
+                });
+            }
         });
     </script>
 

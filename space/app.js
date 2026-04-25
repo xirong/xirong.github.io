@@ -3159,6 +3159,19 @@ function closePlanetGuidePanel() {
     }
 }
 
+function requireSpaceEnergyGate(gateId, onPass) {
+    if (window.LearningGate && typeof window.LearningGate.require === 'function') {
+        window.LearningGate.require({
+            gateId,
+            planId: 'space-energy-math-10',
+            onPass
+        });
+        return;
+    }
+
+    onPass();
+}
+
 // ============ 设置控制按钮 ============
 function setupControls() {
     // 太阳系介绍
@@ -3174,7 +3187,7 @@ function setupControls() {
 
     // 大小对比
     document.getElementById('showComparison').addEventListener('click', function () {
-        openSizeComparisonPanel();
+        requireSpaceEnergyGate('solar-size-comparison', openSizeComparisonPanel);
     });
 
     document.getElementById('closeSizeComparison').addEventListener('click', function () {

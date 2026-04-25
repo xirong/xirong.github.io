@@ -1,0 +1,260 @@
+/* ============ 宇宙能量补给闸门 ============ */
+body.learning-gate-open {
+    overflow: hidden;
+}
+
+.learning-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: #ffffff;
+    background:
+        radial-gradient(circle at 18% 16%, rgba(244, 208, 63, 0.18), transparent 28%),
+        radial-gradient(circle at 82% 20%, rgba(0, 212, 255, 0.16), transparent 26%),
+        linear-gradient(135deg, rgba(5, 5, 16, 0.94), rgba(12, 13, 35, 0.96));
+    backdrop-filter: blur(16px);
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+.learning-gate[hidden] {
+    display: none;
+}
+
+.learning-gate-shell {
+    width: min(760px, 100%);
+    max-height: min(92vh, 760px);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 16px;
+    padding: 24px;
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 24px;
+    background: rgba(6, 8, 24, 0.82);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.learning-gate-header {
+    display: grid;
+    gap: 8px;
+    text-align: center;
+}
+
+.learning-gate-kicker {
+    color: #8ee8ff;
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.learning-gate-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(1.7rem, 5vw, 2.55rem);
+    line-height: 1.12;
+    font-weight: 900;
+}
+
+.learning-gate-subtitle {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.learning-gate-meter {
+    display: grid;
+    gap: 8px;
+}
+
+.learning-gate-meter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+}
+
+.learning-gate-meter-track {
+    height: 12px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.learning-gate-meter-fill {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #00d4ff, #f4d03f);
+    box-shadow: 0 0 22px rgba(244, 208, 63, 0.34);
+    transition: width 0.3s ease;
+}
+
+.learning-gate-card {
+    display: grid;
+    gap: 14px;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.learning-gate-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.86rem;
+}
+
+.learning-gate-type {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    color: #041018;
+    background: #f4d03f;
+    font-weight: 800;
+}
+
+.learning-gate-question {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(1.18rem, 3.8vw, 1.7rem);
+    line-height: 1.45;
+    font-weight: 800;
+}
+
+.learning-gate-expression {
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 16px;
+    color: #f4d03f;
+    background: rgba(0, 0, 0, 0.24);
+    font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+    font-size: clamp(1.75rem, 7vw, 3rem);
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.learning-gate-answer-pad {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(48px, 1fr));
+    gap: 10px;
+}
+
+.learning-gate-answer {
+    min-height: 52px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 14px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    font: 900 1.24rem/1 'Noto Sans SC', sans-serif;
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.learning-gate-answer:hover:not(:disabled),
+.learning-gate-answer:focus-visible {
+    border-color: #00d4ff;
+    background: rgba(0, 212, 255, 0.14);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.learning-gate-answer:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+}
+
+.learning-gate-answer.is-correct {
+    border-color: #80ffb5;
+    color: #062414;
+    background: #80ffb5;
+}
+
+.learning-gate-answer.is-wrong {
+    border-color: rgba(255, 112, 112, 0.75);
+    color: #ffc4c4;
+    background: rgba(255, 112, 112, 0.14);
+}
+
+.learning-gate-answer:disabled {
+    cursor: default;
+}
+
+.learning-gate-feedback {
+    min-height: 28px;
+    color: #f4d03f;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.learning-gate-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.learning-gate-complete {
+    animation: learning-gate-complete 0.42s ease both;
+}
+
+@keyframes learning-gate-complete {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.025); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 640px) {
+    .learning-gate {
+        padding: 14px;
+    }
+
+    .learning-gate-shell {
+        gap: 12px;
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .learning-gate-card {
+        padding: 16px;
+    }
+
+    .learning-gate-answer-pad {
+        grid-template-columns: repeat(4, minmax(52px, 1fr));
+        gap: 8px;
+    }
+
+    .learning-gate-answer {
+        min-height: 48px;
+        border-radius: 12px;
+        font-size: 1.08rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .learning-gate-meter-fill,
+    .learning-gate-answer,
+    .learning-gate-complete {
+        transition: none;
+        animation: none;
+    }
+}
