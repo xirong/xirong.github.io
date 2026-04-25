@@ -655,7 +655,7 @@ let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonMetric = 'diameter'; // 'diameter'、'mass' 或 'width'
 let currentComparisonTab = 'diameter'; // 'diameter'、'mass'、'volumeCapacity'、'massCapacity' 或 'widthCapacity'
 let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
-let currentCapacityTarget = 'sun';
+let currentCapacityView = 'sun';
 const currentCapacitySelections = {
     sun: 'earth',
     jupiter: 'earth',
@@ -3784,7 +3784,9 @@ function renderCapacityTargetPicker(container) {
         { key: 'saturn', icon: '🪐', name: '土星' },
         { key: 'uranus', icon: '🪐', name: '天王星' },
         { key: 'neptune', icon: '🪐', name: '海王星' },
-        { key: 'blackHole', icon: '🕳️', name: '黑洞' }
+        { key: 'blackHole', icon: '🕳️', name: '黑洞' },
+        { key: 'dragVolume', icon: '🎯', name: '拖进太阳', isAction: true },
+        { key: 'dragBlackHole', icon: '🌀', name: '拖进黑洞', isAction: true }
     ];
     const suffix = currentComparisonMetric === 'width'
         ? '宽度'
@@ -3797,11 +3799,13 @@ function renderCapacityTargetPicker(container) {
     targetOptions.forEach(option => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = `capacity-target-btn${option.key === currentCapacityTarget ? ' active' : ''}`;
-        btn.dataset.capacityTarget = option.key;
-        btn.textContent = `${option.icon} ${option.name}${suffix}`;
+        btn.className = `capacity-target-btn${option.key === currentCapacityView ? ' active' : ''}`;
+        btn.dataset.capacityView = option.key;
+        btn.textContent = option.isAction
+            ? `${option.icon} ${option.name}`
+            : `${option.icon} ${option.name}${suffix}`;
         btn.addEventListener('click', () => {
-            currentCapacityTarget = option.key;
+            currentCapacityView = option.key;
             generateSizeComparison(currentComparisonTab);
         });
         picker.appendChild(btn);
@@ -3811,7 +3815,17 @@ function renderCapacityTargetPicker(container) {
 
 function renderCapacityMode(container, subtitle) {
     renderCapacityTargetPicker(container);
-    renderCapacityComparison(container, subtitle, currentCapacityTarget);
+    if (currentCapacityView === 'dragVolume') {
+        cancelDragVolumeAnimation();
+        generateDragVolumeComparison(container, subtitle);
+        return;
+    }
+    if (currentCapacityView === 'dragBlackHole') {
+        cancelDragVolumeAnimation();
+        generateDragBlackHoleComparison(container, subtitle);
+        return;
+    }
+    renderCapacityComparison(container, subtitle, currentCapacityView);
 }
 
 function renderDragCapacityComparison(container, subtitle, targetKey) {
@@ -4159,19 +4173,19 @@ function generateSizeComparison(mode) {
     } else if (mode === 'volumeCapacity' || mode === 'massCapacity' || mode === 'widthCapacity') {
         renderCapacityMode(container, subtitle);
     } else if (mode === 'sunVolume' || mode === 'volume') {
-        currentCapacityTarget = 'sun';
+        currentCapacityView = 'sun';
         renderCapacityMode(container, subtitle);
     } else if (mode === 'jupiterVolume') {
-        currentCapacityTarget = 'jupiter';
+        currentCapacityView = 'jupiter';
         renderCapacityMode(container, subtitle);
     } else if (mode === 'saturnVolume') {
-        currentCapacityTarget = 'saturn';
+        currentCapacityView = 'saturn';
         renderCapacityMode(container, subtitle);
     } else if (mode === 'uranusVolume') {
-        currentCapacityTarget = 'uranus';
+        currentCapacityView = 'uranus';
         renderCapacityMode(container, subtitle);
     } else if (mode === 'neptuneVolume') {
-        currentCapacityTarget = 'neptune';
+        currentCapacityView = 'neptune';
         renderCapacityMode(container, subtitle);
     } else if (mode === 'dragVolume') {
         // 拖进太阳
