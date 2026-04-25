@@ -652,8 +652,8 @@ let selectedPlanet = null;
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
-let currentComparisonMetric = 'diameter'; // 'diameter' 或 'mass'
-let currentComparisonTab = 'diameter'; // 'diameter'、'mass'、'volumeCapacity' 或 'massCapacity'
+let currentComparisonMetric = 'diameter'; // 'diameter'、'mass' 或 'width'
+let currentComparisonTab = 'diameter'; // 'diameter'、'mass'、'volumeCapacity'、'massCapacity' 或 'widthCapacity'
 let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
 let currentCapacityTarget = 'sun';
 const currentCapacitySelections = {
@@ -685,11 +685,13 @@ const COMPARISON_MODE_ALIASES = {
 const DRAG_COMPARISON_TABS = new Set(['dragVolume', 'dragBlackHole']);
 const CAPACITY_MODE_METRICS = {
     volumeCapacity: 'diameter',
-    massCapacity: 'mass'
+    massCapacity: 'mass',
+    widthCapacity: 'width'
 };
 const CAPACITY_COMPARISON_TABS = new Set([
     'volumeCapacity',
     'massCapacity',
+    'widthCapacity',
     'sunVolume',
     'volume',
     'jupiterVolume',
@@ -3572,6 +3574,7 @@ function getCapacityCount(targetKey, objectKey, metric = currentComparisonMetric
     const objectValue = metric === 'mass' ? planetData[objectKey].mass : planetData[objectKey].diameter;
     if (!targetValue || !objectValue) return 0;
     if (metric === 'mass') return targetValue / objectValue;
+    if (metric === 'width') return targetValue / objectValue;
     return Math.pow(targetValue / objectValue, 3);
 }
 
@@ -3607,18 +3610,27 @@ function getCapacitySubtitle(targetKey) {
     if (targetKey === 'blackHole') {
         return currentComparisonMetric === 'mass'
             ? `按质量测算，银河系中心黑洞 Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍`
-            : '按直径折算体积，银河系中心黑洞 Sgr A* 的事件视界半径约 1200 万公里';
+            : currentComparisonMetric === 'width'
+                ? `按宽度测算，银河系中心黑洞 Sgr A* 的事件视界直径约等于太阳直径的${formatCapacityLabel(getCapacityCount('blackHole', 'sun'))}倍`
+                : '按直径折算体积，银河系中心黑洞 Sgr A* 的事件视界半径约 1200 万公里';
     }
 
     const earthCount = getCapacityCount(targetKey, 'earth');
     const earthOverride = getCapacityCountOverride(targetKey, 'earth');
-    const metricText = currentComparisonMetric === 'mass' ? '按质量测算' : '按直径折算体积';
+    const metricText = currentComparisonMetric === 'mass'
+        ? '按质量测算'
+        : currentComparisonMetric === 'width'
+            ? '按宽度测算'
+            : '按直径折算体积';
     return `${metricText}，${target.nameCN}约为地球的${earthOverride?.label || formatCapacityLabel(earthCount)}倍`;
 }
 
 function getCapacityUnitText(targetName, selected) {
     if (currentComparisonMetric === 'mass') {
         return `${targetName}质量约等于${selected.label}个${selected.nameCN}`;
+    }
+    if (currentComparisonMetric === 'width') {
+        return `${targetName}直径约等于${selected.label}个${selected.nameCN}横向排起来`;
     }
     return `${selected.label}个${selected.nameCN}才能填满${targetName}`;
 }
@@ -3628,7 +3640,14 @@ function getCapacityNote(targetKey) {
         if (currentComparisonMetric === 'mass') {
             return `按质量估算：Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍，数量 = 黑洞质量 / 天体质量。`;
         }
+        if (currentComparisonMetric === 'width') {
+            return '按宽度估算：数量 = 事件视界直径 / 天体直径，表示把这些天体横向排起来大约能排多少个。';
+        }
         return `按事件视界圈出的球形空间估算：能装数量 ≈ (事件视界半径 / 天体半径)³。如果把太阳、八大行星和五颗矮行星各放一个，这个黑洞大约能装 ${formatNumber(BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT)} 套。`;
+    }
+
+    if (currentComparisonMetric === 'width') {
+        return '当前页签使用直径相除，数量 = 目标直径 / 天体直径，表示横向排起来大约能排多少个。';
     }
 
     if (targetKey === 'sun' && currentComparisonMetric !== 'mass') {
@@ -3670,11 +3689,16 @@ function renderCapacityComparison(container, subtitle, targetKey) {
 
     const targetClass = targetKey === 'blackHole' ? ' black-hole-core' : '';
     const labelColorStyle = targetKey === 'sun' || targetKey === 'blackHole' ? '' : 'color:rgba(255,255,255,0.76);';
+    const targetActionLabel = currentComparisonMetric === 'width'
+        ? `${target.nameCN}宽度`
+        : currentComparisonMetric === 'mass'
+            ? `${target.nameCN}质量`
+            : `${target.nameCN}能装`;
 
     const heroHTML = `
         <div class="volume-hero">
             <div class="volume-sun-circle${targetClass}" style="${getTargetCircleStyle(targetKey, targetKey === 'sun' ? 200 : 180)}">
-                <span class="volume-sun-label" style="${labelColorStyle}">${target.nameCN}能装</span>
+                <span class="volume-sun-label" style="${labelColorStyle}">${targetActionLabel}</span>
                 <span class="volume-sun-count" style="${labelColorStyle}">${selected.label}</span>
                 <span class="volume-sun-unit" style="${labelColorStyle}">个${selected.nameCN}</span>
             </div>
@@ -3755,13 +3779,18 @@ function renderCapacityComparison(container, subtitle, targetKey) {
 
 function renderCapacityTargetPicker(container) {
     const targetOptions = [
-        { key: 'sun', label: '☀️ 太阳能装' },
-        { key: 'jupiter', label: '🪐 木星能装' },
-        { key: 'saturn', label: '🪐 土星能装' },
-        { key: 'uranus', label: '🪐 天王星能装' },
-        { key: 'neptune', label: '🪐 海王星能装' },
-        { key: 'blackHole', label: '🕳️ 黑洞能装' }
+        { key: 'sun', icon: '☀️', name: '太阳' },
+        { key: 'jupiter', icon: '🪐', name: '木星' },
+        { key: 'saturn', icon: '🪐', name: '土星' },
+        { key: 'uranus', icon: '🪐', name: '天王星' },
+        { key: 'neptune', icon: '🪐', name: '海王星' },
+        { key: 'blackHole', icon: '🕳️', name: '黑洞' }
     ];
+    const suffix = currentComparisonMetric === 'width'
+        ? '宽度'
+        : currentComparisonMetric === 'mass'
+            ? '质量'
+            : '能装';
 
     const picker = document.createElement('div');
     picker.className = 'capacity-target-picker';
@@ -3770,7 +3799,7 @@ function renderCapacityTargetPicker(container) {
         btn.type = 'button';
         btn.className = `capacity-target-btn${option.key === currentCapacityTarget ? ' active' : ''}`;
         btn.dataset.capacityTarget = option.key;
-        btn.textContent = option.label;
+        btn.textContent = `${option.icon} ${option.name}${suffix}`;
         btn.addEventListener('click', () => {
             currentCapacityTarget = option.key;
             generateSizeComparison(currentComparisonTab);
@@ -3792,7 +3821,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
 
     subtitle.textContent = currentComparisonMetric === 'mass'
         ? `拖拽天体放入${target.nameCN}，按质量看看相当于多少个`
-        : `拖拽天体放入${target.nameCN}，按直径折算体积看看能装多少个`;
+        : currentComparisonMetric === 'width'
+            ? `拖拽天体放入${target.nameCN}，按宽度看看横向约等于多少个`
+            : `拖拽天体放入${target.nameCN}，按直径折算体积看看能装多少个`;
 
     const wrapper = document.createElement('div');
     wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}`;
@@ -3817,7 +3848,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
     });
 
     wrapper.innerHTML = `
-        <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : '能装多少个'}！</div>
+        <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '横向约等于多少个' : '能装多少个'}！</div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
         <div class="drag-main-area">
             <div class="drag-sun-area">
@@ -3851,6 +3882,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
         ghostMaxSize: isBlackHole ? 42 : 40,
         resultLabel: currentComparisonMetric === 'mass'
             ? `${target.nameCN}质量约等于`
+            : currentComparisonMetric === 'width'
+                ? `${target.nameCN}宽度约等于`
             : `${target.nameCN}能装`
     });
 }
@@ -4123,7 +4156,7 @@ function generateSizeComparison(mode) {
             `;
             container.appendChild(div);
         });
-    } else if (mode === 'volumeCapacity' || mode === 'massCapacity') {
+    } else if (mode === 'volumeCapacity' || mode === 'massCapacity' || mode === 'widthCapacity') {
         renderCapacityMode(container, subtitle);
     } else if (mode === 'sunVolume' || mode === 'volume') {
         currentCapacityTarget = 'sun';
