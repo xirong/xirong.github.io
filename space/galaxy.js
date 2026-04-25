@@ -13,6 +13,7 @@ let heliopause; // 日球层
 let oortCloud; // 奥尔特云
 let starField; // 背景星空
 let cosmicStarField; // 宇宙深空背景
+let cosmicStructures = {}; // 本星系群/室女座/拉尼亚凯亚/可观测宇宙
 let clock;
 let textureLoader;
 let raycaster, mouse;
@@ -528,6 +529,107 @@ const galaxyData = {
         stars: '数千亿颗',
         description: '两个正在碰撞合并的螺旋星系，呈现独特的"触须"形态。',
         funFact: '触须星系是银河系与仙女座星系未来碰撞的预演，展示了星系合并的壮观过程！'
+    },
+    // ===== 10 个近邻星系扩充 =====
+    sgrDsph: {
+        name: '人马座矮椭球',
+        nameEn: 'Sagittarius Dwarf (Sgr dSph)',
+        type: '矮椭球星系',
+        distance: '约7万光年',
+        diameter: '1万光年',
+        stars: '数亿颗',
+        description: '银河系最近的卫星星系之一，正在被银河系的潮汐力撕裂吞噬。',
+        funFact: '人马座矮椭球的恒星正沿着一条"潮汐流"散落在银河系周围，环绕银河整整一圈！'
+    },
+    sculptorDwarf: {
+        name: '玉夫座矮星系',
+        nameEn: 'Sculptor Dwarf',
+        type: '矮椭球星系',
+        distance: '29万光年',
+        diameter: '约3000光年',
+        stars: '数百万颗',
+        description: '银河系的卫星矮星系之一，几乎只剩老年恒星。',
+        funFact: '玉夫座矮星系含有大量"暗物质"，质量是其可见恒星的几十倍！'
+    },
+    leoI: {
+        name: '狮子座 I 矮星系',
+        nameEn: 'Leo I Dwarf',
+        type: '矮椭球星系',
+        distance: '82万光年',
+        diameter: '约2000光年',
+        stars: '数百万颗',
+        description: '本星系群中距离最远的银河系卫星之一。',
+        funFact: '狮子座 I 是本星系群中最孤立的矮星系之一，可能并不真的属于银河系。'
+    },
+    ngc6822: {
+        name: '巴纳德星系',
+        nameEn: 'Barnard\'s Galaxy (NGC 6822)',
+        type: '不规则矮星系',
+        distance: '160万光年',
+        diameter: '约7000光年',
+        stars: '约10亿颗',
+        description: '由天文学家爱德华·巴纳德于1884年发现，本星系群中较活跃的矮星系。',
+        funFact: '巴纳德星系含有许多明亮的恒星形成区，颇似一个迷你麦哲伦云。'
+    },
+    ic10: {
+        name: 'IC 10 星系',
+        nameEn: 'IC 10',
+        type: '不规则矮星系',
+        distance: '220万光年',
+        diameter: '约5000光年',
+        stars: '约10亿颗',
+        description: '本星系群中唯一已知的星暴矮星系，恒星诞生极其活跃。',
+        funFact: 'IC 10 拥有罕见高密度的沃尔夫–拉叶星，是研究大质量恒星演化的天然实验室！'
+    },
+    ic1613: {
+        name: 'IC 1613 星系',
+        nameEn: 'IC 1613',
+        type: '不规则矮星系',
+        distance: '240万光年',
+        diameter: '约1万光年',
+        stars: '约1亿颗',
+        description: '本星系群边缘的孤立矮星系，几乎不含尘埃，是观测变星的"标准烛光"。',
+        funFact: 'IC 1613 因为没有尘埃遮挡，是天文学家测量宇宙距离的金标准！'
+    },
+    m32: {
+        name: 'M32 矮椭圆星系',
+        nameEn: 'M32 (NGC 221)',
+        type: '致密椭圆星系',
+        distance: '254万光年',
+        diameter: '约6500光年',
+        stars: '约30亿颗',
+        description: '紧邻仙女座星系的一颗致密卫星，曾是被仙女座剥离的星系核。',
+        funFact: 'M32 中心也藏着一颗超大质量黑洞，质量约为太阳的250万倍！'
+    },
+    m110: {
+        name: 'M110 矮椭圆星系',
+        nameEn: 'M110 (NGC 205)',
+        type: '矮椭圆星系',
+        distance: '270万光年',
+        diameter: '约1.7万光年',
+        stars: '约90亿颗',
+        description: '仙女座星系的另一颗著名卫星，比 M32 更松散。',
+        funFact: 'M110 是为数不多含有尘埃带和年轻恒星的椭圆星系！'
+    },
+    ngc253: {
+        name: '玉夫座星系',
+        nameEn: 'Sculptor Galaxy (NGC 253)',
+        type: '中间型螺旋星系',
+        distance: '1100万光年',
+        diameter: '约9万光年',
+        stars: '约3000亿颗',
+        description: '玉夫座星系群最亮的成员，南天最壮观的螺旋星系之一。',
+        funFact: 'NGC 253 是著名的"星暴星系"，中心区域恒星形成速度是银河系的数十倍！'
+    },
+    m81m82: {
+        name: 'M81 & 雪茄星系',
+        nameEn: 'M81 & M82 (Cigar Galaxy)',
+        type: '互动双星系',
+        distance: '1200万光年',
+        diameter: '约15万光年',
+        stars: '数千亿颗',
+        description: 'M81 是宏伟的螺旋星系，M82（雪茄星系）则因受 M81 引力扰动正在剧烈爆发恒星形成。',
+        funFact: 'M81 与 M82 在数亿年前曾近距离相擦，扰动至今未平息！'
     }
 };
 
@@ -552,9 +654,11 @@ const galaxyRenderConfigs = {
     andromeda: {
         position: new THREE.Vector3(-120000, 10000, 80000),
         radius: 22000,
-        particleCount: 8000,
+        particleCount: 16000,
         type: 'spiral',
         arms: 2,
+        tightness: 0.45,
+        armWidth: 0.55,
         color: { r: 1.0, g: 0.9, b: 0.7 },
         tilt: { x: 0.3, z: 0.2 },
         zone: 'A'
@@ -562,9 +666,12 @@ const galaxyRenderConfigs = {
     triangulum: {
         position: new THREE.Vector3(-100000, -5000, 120000),
         radius: 12000,
-        particleCount: 4000,
+        particleCount: 8000,
         type: 'spiral',
         arms: 3,
+        tightness: 0.42,
+        armWidth: 0.6,
+        hasBar: false,
         color: { r: 0.8, g: 0.9, b: 1.0 },
         tilt: { x: -0.2, z: 0.4 },
         zone: 'A'
@@ -572,9 +679,11 @@ const galaxyRenderConfigs = {
     sombrero: {
         position: new THREE.Vector3(200000, 30000, -150000),
         radius: 10000,
-        particleCount: 3000,
+        particleCount: 6000,
         type: 'spiral',
         arms: 2,
+        tightness: 0.5,
+        hasBar: false,
         color: { r: 1.0, g: 0.85, b: 0.6 },
         tilt: { x: 1.4, z: 0.1 }, // 几乎侧面
         zone: 'B'
@@ -582,9 +691,12 @@ const galaxyRenderConfigs = {
     whirlpool: {
         position: new THREE.Vector3(-180000, -20000, -200000),
         radius: 12000,
-        particleCount: 5000,
+        particleCount: 9000,
         type: 'spiral',
         arms: 2,
+        tightness: 0.36,
+        armWidth: 0.5,
+        hasBar: false,
         color: { r: 0.9, g: 0.95, b: 1.0 },
         tilt: { x: 0.1, z: 0.05 }, // 正面
         zone: 'B'
@@ -594,7 +706,9 @@ const galaxyRenderConfigs = {
         radius: 12000,
         particleCount: 3000,
         type: 'elliptical',
+        flatten: 0.78,
         color: { r: 1.0, g: 0.8, b: 0.5 },
+        dustLane: { tilt: 0.5 }, // 半人马座 A 的著名横贯尘埃带
         zone: 'B'
     },
     antennae: {
@@ -603,6 +717,105 @@ const galaxyRenderConfigs = {
         particleCount: 4500,
         type: 'interacting',
         color: { r: 0.85, g: 0.9, b: 1.0 },
+        zone: 'B'
+    },
+    // ===== 银河系卫星矮星系（zone LOCAL，始终可见，方便从任何角度观察）=====
+    sgrDsph: {
+        position: new THREE.Vector3(3500, -3200, 1000),
+        radius: 700,
+        particleCount: 800,
+        type: 'irregular',
+        elongation: 1.0,
+        color: { r: 1.0, g: 0.85, b: 0.7 },
+        hiiCount: 2,
+        zone: 'LOCAL'
+    },
+    sculptorDwarf: {
+        position: new THREE.Vector3(8500, -10000, 4500),
+        radius: 600,
+        particleCount: 700,
+        type: 'elliptical',
+        flatten: 0.85,
+        color: { r: 1.0, g: 0.85, b: 0.65 },
+        zone: 'LOCAL'
+    },
+    leoI: {
+        position: new THREE.Vector3(-22000, 26000, -7000),
+        radius: 800,
+        particleCount: 800,
+        type: 'elliptical',
+        flatten: 0.9,
+        color: { r: 1.0, g: 0.82, b: 0.6 },
+        zone: 'A'
+    },
+    // ===== 本星系群其他成员 =====
+    ngc6822: {
+        position: new THREE.Vector3(46000, -38000, -82000),
+        radius: 1500,
+        particleCount: 1400,
+        type: 'irregular',
+        elongation: 0.9,
+        color: { r: 0.75, g: 0.85, b: 1.0 },
+        zone: 'A'
+    },
+    ic10: {
+        position: new THREE.Vector3(-92000, 18000, 58000),
+        radius: 1400,
+        particleCount: 1300,
+        type: 'irregular',
+        elongation: 0.7,
+        color: { r: 0.75, g: 0.9, b: 1.0 },
+        hiiCount: 14,
+        zone: 'A'
+    },
+    ic1613: {
+        position: new THREE.Vector3(-46000, 52000, -125000),
+        radius: 1500,
+        particleCount: 1200,
+        type: 'irregular',
+        elongation: 1.1,
+        color: { r: 0.8, g: 0.88, b: 1.0 },
+        zone: 'A'
+    },
+    m32: {
+        // 紧邻仙女座（仙女座位置 -120000, 10000, 80000）
+        position: new THREE.Vector3(-118000, 8500, 76000),
+        radius: 1100,
+        particleCount: 900,
+        type: 'elliptical',
+        flatten: 0.7,
+        color: { r: 1.0, g: 0.85, b: 0.6 },
+        zone: 'A'
+    },
+    m110: {
+        position: new THREE.Vector3(-124000, 12000, 84500),
+        radius: 1500,
+        particleCount: 1100,
+        type: 'elliptical',
+        flatten: 0.55,
+        color: { r: 1.0, g: 0.88, b: 0.7 },
+        zone: 'A'
+    },
+    // ===== 本星系群外（zone B，远视角）=====
+    ngc253: {
+        position: new THREE.Vector3(80000, -100000, 30000),
+        radius: 7000,
+        particleCount: 3500,
+        type: 'spiral',
+        arms: 2,
+        tightness: 0.46,
+        armWidth: 0.6,
+        hasBar: false,
+        color: { r: 1.0, g: 0.9, b: 0.7 },
+        tilt: { x: 1.1, z: 0.2 }, // 接近侧视
+        zone: 'B'
+    },
+    m81m82: {
+        position: new THREE.Vector3(-160000, 90000, -110000),
+        radius: 11000,
+        particleCount: 5000,
+        type: 'pair',
+        color: { r: 0.95, g: 0.92, b: 0.85 },
         zone: 'B'
     }
 };
@@ -634,19 +847,35 @@ const infoPanelContent = {
         ]
     },
     localGroup: {
-        title: '🌌 本星系群',
+        title: '🌌 本星系群 Local Group',
         paragraphs: [
-            '银河系属于<span class="highlight">本星系群</span>，这是一个包含50多个星系的星系集团。',
-            '<span class="highlight">仙女座星系（M31）</span>是本群最大的星系，比银河系还大，正以每秒300公里的速度向我们靠近！',
-            '约<span class="highlight">45亿年后</span>，银河系和仙女座星系将发生壮观的碰撞和合并。'
+            '银河系属于<span class="highlight">本星系群</span>，跨度约<span class="highlight">1000万光年</span>，包含 50 多个星系。',
+            '<span class="highlight">仙女座 M31</span>与<span class="highlight">银河系</span>是两位主角，共有约 30 颗矮卫星：<span class="highlight">M32 / M110 / 大小麦哲伦云 / 人马座矮椭球 / 玉夫座矮 / 巴纳德 / IC 10 / IC 1613</span> 等。',
+            '约<span class="highlight">45亿年后</span>，仙女座与银河系将发生壮观的碰撞合并，形成"银仙系"。'
         ]
     },
-    deepSpace: {
-        title: '🌌 宇宙深处',
+    virgo: {
+        title: '🌌 室女座星系团 Virgo Cluster',
         paragraphs: [
-            '在本星系群之外，宇宙中散布着<span class="highlight">数千亿</span>个星系。',
-            '<span class="highlight">草帽星系</span>、<span class="highlight">漩涡星系</span>等都是天文学家最喜爱观测的目标。',
-            '每个星系都是一个包含数十亿到数万亿恒星的"岛宇宙"，可能存在无数行星和生命！'
+            '本星系群属于更大的<span class="highlight">室女座超星系团</span>，距离我们约<span class="highlight">5400万光年</span>。',
+            '室女座星系团包含<span class="highlight">1300+ 个星系</span>，中心是巨型椭圆<span class="highlight">M87</span> —— 它的超大质量黑洞是人类拍到的第一张黑洞照片！',
+            '银河系正以每秒约 600 km 的速度朝它的方向"坠落"。'
+        ]
+    },
+    laniakea: {
+        title: '🌌 拉尼亚凯亚超星系团 Laniakea',
+        paragraphs: [
+            '继续放大，本星系群、室女座星系团都只是<span class="highlight">拉尼亚凯亚超星系团</span>的一根丝。',
+            '拉尼亚凯亚跨越<span class="highlight">5亿光年</span>，由<span class="highlight">10万个星系</span>组成宇宙网，所有成员都向中心的<span class="highlight">巨引源 Great Attractor</span>缓慢流动。',
+            '它的名字在夏威夷语中意为"<span class="highlight">辽阔的天空</span>"——2014 年才被绘制出来，是人类已知最大的家园结构！'
+        ]
+    },
+    universe: {
+        title: '🌌 可观测宇宙 Observable Universe',
+        paragraphs: [
+            '我们能"看到"的整个宇宙是一个直径约<span class="highlight">930亿光年</span>的球形区域。',
+            '其中估计有<span class="highlight">2 万亿个星系</span>、上百万亿亿颗恒星。',
+            '球壳之外的部分因为光速极限，永远无法到达我们的眼睛——但宇宙本身或许还要大得多得多。'
         ]
     }
 };
@@ -822,6 +1051,58 @@ function updateGalacticMotion(elapsed) {
     updateNeighborhoodDistanceLines(solarPosition);
 }
 
+// ============ 宇宙级结构 LOD（淡入淡出）============
+function fadeBetween(distance, fadeIn, fullIn, fullOut, fadeOut) {
+    if (distance < fadeIn || distance > fadeOut) return 0;
+    if (distance < fullIn) return (distance - fadeIn) / (fullIn - fadeIn);
+    if (distance > fullOut) return 1 - (distance - fullOut) / (fadeOut - fullOut);
+    return 1;
+}
+
+function applyOpacityToObject(obj, alpha) {
+    obj.traverse(child => {
+        if (child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            for (const m of mats) {
+                if (m.userData.baseOpacity === undefined) {
+                    m.userData.baseOpacity = m.opacity !== undefined ? m.opacity : 1;
+                }
+                m.opacity = m.userData.baseOpacity * alpha;
+                m.transparent = true;
+            }
+        }
+    });
+}
+
+function updateCosmicStructures(distance, elapsed) {
+    if (!cosmicStructures.localGroup) return;
+
+    // 本星系群边界：80000 起淡入，180000 完整，260000 起淡出，420000 隐
+    const lgAlpha = fadeBetween(distance, 80000, 180000, 260000, 420000);
+    cosmicStructures.localGroup.visible = lgAlpha > 0.01;
+    if (lgAlpha > 0.01) applyOpacityToObject(cosmicStructures.localGroup, lgAlpha);
+
+    // 室女座星系团：250000 起淡入，450000 完整，700000 起淡出，900000 隐
+    const vgAlpha = fadeBetween(distance, 250000, 450000, 700000, 900000);
+    cosmicStructures.virgo.visible = vgAlpha > 0.01;
+    if (vgAlpha > 0.01) applyOpacityToObject(cosmicStructures.virgo, vgAlpha);
+
+    // 拉尼亚凯亚：350000 起淡入，700000 完整，1100000 起淡出，1300000 隐
+    const lkAlpha = fadeBetween(distance, 350000, 700000, 1100000, 1300000);
+    cosmicStructures.laniakea.visible = lkAlpha > 0.01;
+    if (lkAlpha > 0.01) applyOpacityToObject(cosmicStructures.laniakea, lkAlpha);
+
+    // 可观测宇宙球壳：650000 起淡入，1000000 完整，永不淡出
+    const universeAlpha = fadeBetween(distance, 650000, 1000000, 2000000, 2500000);
+    cosmicStructures.universeShell.visible = universeAlpha > 0.01;
+    if (universeAlpha > 0.01) applyOpacityToObject(cosmicStructures.universeShell, universeAlpha);
+
+    // 微旋转，让纤维网有"活的"感觉
+    cosmicStructures.laniakea.rotation.y = elapsed * 0.0005;
+    cosmicStructures.virgo.rotation.y = elapsed * 0.001;
+    cosmicStructures.universeShell.rotation.y = elapsed * 0.0001;
+}
+
 // ============ 初始化 ============
 function init() {
     clock = new THREE.Clock();
@@ -831,12 +1112,12 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020208);
 
-    // 创建相机（扩展远裁面）
+    // 创建相机（扩展远裁面，支持宇宙级缩放）
     camera = new THREE.PerspectiveCamera(
         60,
         window.innerWidth / window.innerHeight,
         1,
-        1000000
+        3000000
     );
     camera.position.set(0, 12000, 8000);
 
@@ -855,7 +1136,7 @@ function init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 100;
-    controls.maxDistance = 500000;
+    controls.maxDistance = 1500000;
     controls.target.copy(GALACTIC_CENTER);
 
     // 创建场景内容
@@ -868,6 +1149,7 @@ function init() {
     createHeliopause();
     createOortCloud();
     createExternalGalaxies();
+    createCosmicStructures(); // 本星系群/室女座/拉尼亚凯亚/可观测宇宙
     createNeighborhoodStarSystems(); // 创建太阳系邻域视图的恒星
     createGalacticStarSystems(); // 创建银河系尺度的著名恒星
     addLights();
@@ -1699,6 +1981,381 @@ function createOortCloud() {
     scene.add(oortCloud);
 }
 
+// ============ 创建宇宙级结构 ============
+// 包含：本星系群边界、室女座星系团、拉尼亚凯亚超星系团（纤维网）、可观测宇宙球壳
+function createCosmicStructures() {
+    cosmicStructures.localGroup = createLocalGroupBoundary();
+    cosmicStructures.virgo = createVirgoCluster();
+    cosmicStructures.laniakea = createLaniakeaSupercluster();
+    cosmicStructures.universeShell = createObservableUniverseShell();
+}
+
+// ===== 本星系群边界（围绕银心的扁球形薄壳）=====
+// 真实直径约 1000 万光年，包含 50+ 星系；按场景比例放在 ~180000 单位
+function createLocalGroupBoundary() {
+    const group = new THREE.Group();
+
+    // 半透明球壳网格（背面渲染，避免遮挡内部）
+    const geom = new THREE.SphereGeometry(180000, 48, 32);
+    const mat = new THREE.MeshBasicMaterial({
+        color: 0x6a4cff,
+        transparent: true,
+        opacity: 0.04,
+        side: THREE.BackSide,
+        depthWrite: false
+    });
+    const shell = new THREE.Mesh(geom, mat);
+    shell.scale.set(1.0, 0.75, 1.1);
+    group.add(shell);
+
+    // 网格线（明显轮廓）
+    const wireGeom = new THREE.SphereGeometry(180000, 28, 18);
+    const wireMat = new THREE.MeshBasicMaterial({
+        color: 0xa78bfa,
+        transparent: true,
+        opacity: 0.45,
+        wireframe: true,
+        depthWrite: false
+    });
+    const wire = new THREE.Mesh(wireGeom, wireMat);
+    wire.scale.set(1.0, 0.75, 1.1);
+    group.add(wire);
+
+    // 边缘高亮粒子（让球壳更"具体"）
+    const beadCount = 800;
+    const beadPositions = new Float32Array(beadCount * 3);
+    const beadColors = new Float32Array(beadCount * 3);
+    const beadSizes = new Float32Array(beadCount);
+    for (let i = 0; i < beadCount; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        beadPositions[i * 3] = 180000 * Math.sin(phi) * Math.cos(theta);
+        beadPositions[i * 3 + 1] = 180000 * 0.75 * Math.sin(phi) * Math.sin(theta);
+        beadPositions[i * 3 + 2] = 180000 * 1.1 * Math.cos(phi);
+        beadColors[i * 3] = 0.72;
+        beadColors[i * 3 + 1] = 0.55;
+        beadColors[i * 3 + 2] = 1.0;
+        beadSizes[i] = 5 + Math.random() * 4;
+    }
+    const beads = buildGalaxyParticles(beadPositions, beadColors, beadSizes);
+    group.add(beads);
+
+    // 居中标签
+    const label = makeStructureLabel('本星系群', 'Local Group', 36000);
+    label.position.set(0, 150000, 0);
+    group.add(label);
+
+    group.visible = false; // 默认隐藏，按 LOD 显
+    scene.add(group);
+    return group;
+}
+
+// ===== 室女座星系团（一团 ~80 个星系点 + 中央 M87 亮核）=====
+// 真实距离约 5400 万光年，按场景非线性压缩到 ~330000 单位
+function createVirgoCluster() {
+    const group = new THREE.Group();
+    // 大致朝向真实银道方向（北银极偏向）
+    const center = new THREE.Vector3(120000, 280000, 90000);
+    group.position.copy(center);
+
+    const memberCount = 90;
+    const positions = new Float32Array(memberCount * 3);
+    const colors = new Float32Array(memberCount * 3);
+    const sizes = new Float32Array(memberCount);
+
+    for (let i = 0; i < memberCount; i++) {
+        // 中央密集球分布
+        const r = Math.abs(gaussianRandom()) * 22000 + Math.random() * 8000;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+
+        // 多数偏黄红（椭圆星系主导），少数偏蓝（旋涡）
+        const isElliptical = Math.random() < 0.65;
+        if (isElliptical) {
+            colors[i * 3] = 1.0;
+            colors[i * 3 + 1] = 0.85;
+            colors[i * 3 + 2] = 0.6;
+        } else {
+            colors[i * 3] = 0.85;
+            colors[i * 3 + 1] = 0.92;
+            colors[i * 3 + 2] = 1.0;
+        }
+        sizes[i] = 14 + Math.random() * 14;
+    }
+
+    const particles = buildGalaxyParticles(positions, colors, sizes);
+    group.add(particles);
+
+    // 中央 M87（巨型椭圆，超大质量黑洞所在）
+    const m87 = makeAccentSprite('bulgeCore', 12000, 1.0);
+    group.add(m87);
+
+    // 大尺度发光（远视角看像一个星系团）
+    const haloMat = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, { r: 1.0, g: 0.85, b: 0.6 }),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.55,
+        depthWrite: false
+    });
+    const halo = new THREE.Sprite(haloMat);
+    halo.scale.set(70000, 70000, 1);
+    group.add(halo);
+
+    // 标签
+    const label = makeStructureLabel('室女座星系团', 'Virgo Cluster', 22000);
+    label.position.set(0, 36000, 0);
+    group.add(label);
+
+    group.visible = false;
+    scene.add(group);
+    return group;
+}
+
+// ===== 拉尼亚凯亚超星系团（纤维网状结构）=====
+// 真实跨度 ~5亿光年，包含 10万个星系；这里压缩到 ~520000 单位
+// 用多条 CatmullRomCurve3 曲线绘制纤维丝，节点处放星系密集团
+function createLaniakeaSupercluster() {
+    const group = new THREE.Group();
+
+    // 大型节点（已知超星系结构）
+    // 1. 本星系群锚点（接近原点）
+    // 2. 室女座星系团锚（靠近 virgo 中心方向）
+    // 3. 巨引源 Great Attractor（拉尼亚凯亚中心，反方向偏 -x -z）
+    // 4. 长蛇-半人马超星系团节点
+    // 5. 孔雀座-印第安超星系团节点
+    // 6. 后发星系团节点（北方）
+    const nodes = [
+        { name: '本星系群', nameEn: 'Local Group', pos: new THREE.Vector3(0, 0, 0), size: 12000, isLocal: true },
+        { name: '室女座星系团', nameEn: 'Virgo Cluster', pos: new THREE.Vector3(120000, 280000, 90000), size: 28000, isLocal: true },
+        { name: '巨引源', nameEn: 'Great Attractor', pos: new THREE.Vector3(-380000, -50000, -260000), size: 56000 },
+        { name: '长蛇-半人马', nameEn: 'Hydra-Cen Supercluster', pos: new THREE.Vector3(-220000, -180000, -80000), size: 36000 },
+        { name: '孔雀-印第安', nameEn: 'Pavo-Indus', pos: new THREE.Vector3(60000, -260000, -340000), size: 30000 },
+        { name: '后发星系团', nameEn: 'Coma Cluster', pos: new THREE.Vector3(-90000, 410000, 200000), size: 36000 },
+        { name: '英仙-双鱼', nameEn: 'Perseus-Pisces', pos: new THREE.Vector3(380000, 120000, -180000), size: 30000 },
+        { name: '玉夫-武仙', nameEn: 'Sculptor Wall', pos: new THREE.Vector3(280000, -240000, 360000), size: 26000 }
+    ];
+
+    // 纤维网连接（哪些节点之间有星系丝）
+    const filaments = [
+        [0, 1], // 本星系群→室女座
+        [1, 5], // 室女座→后发
+        [1, 6], // 室女座→英仙双鱼
+        [0, 3], // 本星系群→长蛇半人马
+        [3, 2], // 长蛇半人马→巨引源（拉尼亚凯亚主轴）
+        [1, 2], // 室女座→巨引源
+        [3, 4], // 长蛇半人马→孔雀印第安
+        [2, 4], // 巨引源→孔雀印第安
+        [5, 6], // 后发→英仙双鱼
+        [6, 7], // 英仙双鱼→玉夫武仙
+        [0, 4], // 本星系群→孔雀印第安（次要丝）
+    ];
+
+    // 画纤维丝（粒子流）
+    for (const [aIdx, bIdx] of filaments) {
+        const a = nodes[aIdx].pos;
+        const b = nodes[bIdx].pos;
+
+        // 曲线略加 wobble 让它弯曲
+        const mid = a.clone().add(b).multiplyScalar(0.5);
+        const perp = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3(0, 1, 0)).normalize();
+        const wobble = perp.multiplyScalar((Math.random() - 0.5) * 80000);
+        mid.add(wobble);
+        mid.y += (Math.random() - 0.5) * 60000;
+
+        const curve = new THREE.CatmullRomCurve3([a, mid, b]);
+        const samples = 220;
+        const positions = new Float32Array(samples * 3);
+        const colors = new Float32Array(samples * 3);
+        const sizes = new Float32Array(samples);
+        for (let i = 0; i < samples; i++) {
+            const t = i / (samples - 1);
+            const p = curve.getPoint(t);
+            // 沿曲线随机扩散，形成丝状云
+            const spread = 4500 + Math.random() * 2500;
+            positions[i * 3] = p.x + gaussianRandom() * spread;
+            positions[i * 3 + 1] = p.y + gaussianRandom() * spread;
+            positions[i * 3 + 2] = p.z + gaussianRandom() * spread;
+            // 中心略亮，端点稍暗
+            const lum = 0.5 + Math.sin(t * Math.PI) * 0.4;
+            colors[i * 3] = 0.85 * lum;
+            colors[i * 3 + 1] = 0.85 * lum;
+            colors[i * 3 + 2] = 1.0 * lum;
+            sizes[i] = 18 + Math.random() * 12;
+        }
+        const filament = buildGalaxyParticles(positions, colors, sizes);
+        group.add(filament);
+    }
+
+    // 节点处的星系密集团 + 标签
+    for (const node of nodes) {
+        if (node.isLocal) continue; // 本群和室女座已单独绘制
+
+        const clumpCount = 60;
+        const positions = new Float32Array(clumpCount * 3);
+        const colors = new Float32Array(clumpCount * 3);
+        const sizes = new Float32Array(clumpCount);
+        for (let i = 0; i < clumpCount; i++) {
+            const r = Math.abs(gaussianRandom()) * node.size;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            positions[i * 3] = node.pos.x + r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = node.pos.y + r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = node.pos.z + r * Math.cos(phi);
+            const isE = Math.random() < 0.6;
+            if (isE) {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.82; colors[i * 3 + 2] = 0.55;
+            } else {
+                colors[i * 3] = 0.85; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0;
+            }
+            sizes[i] = 16 + Math.random() * 14;
+        }
+        const cluster = buildGalaxyParticles(positions, colors, sizes);
+        group.add(cluster);
+
+        // 节点中央光晕
+        const haloMat = new THREE.SpriteMaterial({
+            map: createGlowTexture(256, { r: 1.0, g: 0.85, b: 0.65 }),
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            opacity: 0.45,
+            depthWrite: false
+        });
+        const halo = new THREE.Sprite(haloMat);
+        halo.scale.set(node.size * 2.3, node.size * 2.3, 1);
+        halo.position.copy(node.pos);
+        group.add(halo);
+
+        // 节点标签
+        const label = makeStructureLabel(node.name, node.nameEn, node.size * 0.85);
+        label.position.copy(node.pos);
+        label.position.y += node.size * 1.4;
+        group.add(label);
+    }
+
+    // 拉尼亚凯亚整体名称标签（朝主轴方向放）
+    const mainLabel = makeStructureLabel('拉尼亚凯亚超星系团', 'Laniakea Supercluster', 60000);
+    mainLabel.position.set(-160000, 320000, -110000);
+    group.add(mainLabel);
+
+    group.visible = false;
+    scene.add(group);
+    return group;
+}
+
+// ===== 可观测宇宙球壳（类似奥尔特云）=====
+function createObservableUniverseShell() {
+    const group = new THREE.Group();
+    const innerR = 850000;
+    const outerR = 1000000;
+
+    const particleCount = 8000;
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    const sizes = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+        const r = innerR + Math.random() * (outerR - innerR);
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+
+        // 微红移色调（远处的星系泛红）
+        const tint = Math.random();
+        if (tint < 0.6) {
+            colors[i * 3] = 1.0;
+            colors[i * 3 + 1] = 0.7 + Math.random() * 0.2;
+            colors[i * 3 + 2] = 0.55 + Math.random() * 0.2;
+        } else {
+            colors[i * 3] = 0.85 + Math.random() * 0.15;
+            colors[i * 3 + 1] = 0.85 + Math.random() * 0.15;
+            colors[i * 3 + 2] = 1.0;
+        }
+        sizes[i] = 22 + Math.random() * 18;
+    }
+
+    const shellParticles = buildGalaxyParticles(positions, colors, sizes);
+    group.add(shellParticles);
+
+    // 微薄宇宙微波背景式的弱光球壳（半透 mesh）
+    const fillGeom = new THREE.SphereGeometry(outerR * 0.99, 48, 32);
+    const fillMat = new THREE.MeshBasicMaterial({
+        color: 0x1a0a30,
+        transparent: true,
+        opacity: 0.05,
+        side: THREE.BackSide,
+        depthWrite: false
+    });
+    const fill = new THREE.Mesh(fillGeom, fillMat);
+    group.add(fill);
+
+    // 远处标签
+    const label = makeStructureLabel('可观测宇宙', 'Observable Universe', 130000);
+    label.position.set(0, outerR * 0.95, 0);
+    group.add(label);
+
+    group.visible = false;
+    scene.add(group);
+    return group;
+}
+
+// ===== 通用结构标签（中文大、英文小）=====
+function makeStructureLabel(cn, en, scale) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 768;
+    canvas.height = 220;
+    const ctx = canvas.getContext('2d');
+
+    // 背景
+    ctx.fillStyle = 'rgba(8, 6, 24, 0.6)';
+    const padX = 12, padY = 12, radius = 22;
+    const w = canvas.width - padX * 2, h = canvas.height - padY * 2;
+    ctx.beginPath();
+    ctx.moveTo(padX + radius, padY);
+    ctx.lineTo(padX + w - radius, padY);
+    ctx.quadraticCurveTo(padX + w, padY, padX + w, padY + radius);
+    ctx.lineTo(padX + w, padY + h - radius);
+    ctx.quadraticCurveTo(padX + w, padY + h, padX + w - radius, padY + h);
+    ctx.lineTo(padX + radius, padY + h);
+    ctx.quadraticCurveTo(padX, padY + h, padX, padY + h - radius);
+    ctx.lineTo(padX, padY + radius);
+    ctx.quadraticCurveTo(padX, padY, padX + radius, padY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.font = '700 84px "Noto Sans SC", sans-serif';
+    ctx.shadowColor = 'rgba(155, 110, 255, 0.85)';
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(cn, canvas.width / 2, 84);
+
+    ctx.shadowBlur = 0;
+    ctx.font = 'italic 600 38px "Orbitron", sans-serif';
+    ctx.fillStyle = '#9bd6ff';
+    ctx.fillText(en, canvas.width / 2, 158);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    const mat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        depthWrite: false,
+        depthTest: false
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(scale, scale * (canvas.height / canvas.width), 1);
+    sprite.renderOrder = 999; // 标签盖在粒子之上
+    return sprite;
+}
+
 // ============ 创建所有外部星系 ============
 function createExternalGalaxies() {
     for (const [key, config] of Object.entries(galaxyRenderConfigs)) {
@@ -1717,6 +2374,9 @@ function createExternalGalaxies() {
             case 'interacting':
                 galaxyObj = createInteractingGalaxies(key, config);
                 break;
+            case 'pair':
+                galaxyObj = createPairGalaxies(key, config);
+                break;
         }
 
         if (galaxyObj) {
@@ -1727,7 +2387,195 @@ function createExternalGalaxies() {
     }
 }
 
+// ============ 创建一对靠近的星系（M81 + M82）============
+function createPairGalaxies(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const radius = config.radius;
+
+    // 内部 detail 容器：LOD 切换时隐藏整个细节
+    const detail = new THREE.Group();
+
+    // 主星系 M81：宏伟螺旋
+    const primary = createInlineSpiral({
+        radius: radius * 0.65,
+        particleCount: Math.floor(config.particleCount * 0.6),
+        arms: 2,
+        tightness: 0.4,
+        armWidth: 0.5,
+        color: { r: 1.0, g: 0.92, b: 0.78 },
+        tilt: { x: 0.4, z: 0.15 }
+    });
+    primary.position.set(-radius * 0.3, 0, 0);
+    detail.add(primary);
+
+    // 伴星系 M82：雪茄星系（侧视、剧烈活动）
+    const cigar = createInlineCigar({
+        radius: radius * 0.32,
+        particleCount: Math.floor(config.particleCount * 0.35),
+        elongation: 1.6,
+        color: { r: 1.0, g: 0.78, b: 0.6 },
+        hiiCount: 18,
+        hasOutflow: true
+    });
+    cigar.position.set(radius * 0.6, radius * 0.4, radius * 0.1);
+    cigar.rotation.z = Math.PI / 4;
+    detail.add(cigar);
+
+    group.add(detail);
+    group.particles = detail; // LOD 控制对象
+
+    // 远距离 LOD sprite
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: createGlowTexture(256, config.color),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.8
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(radius * 1.6, radius * 1.0, 1);
+    sprite.visible = false;
+    group.add(sprite);
+    group.sprite = sprite;
+
+    // 点击目标
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), radius * 0.7);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 双语标签
+    createGalaxyLabel(group, galaxyData[key], 0, radius * 1.25, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
+// 内联：构造一个螺旋粒子组（不创建 group/label）
+function createInlineSpiral(cfg) {
+    const wrapper = new THREE.Group();
+    const arms = cfg.arms || 2;
+    const radius = cfg.radius;
+    const tightness = cfg.tightness || 0.4;
+    const armWidth = cfg.armWidth || 0.5;
+    const total = cfg.particleCount;
+    const c = cfg.color;
+
+    const positions = new Float32Array(total * 3);
+    const colors = new Float32Array(total * 3);
+    const sizes = new Float32Array(total);
+
+    const innerR = radius * 0.18;
+    for (let i = 0; i < total; i++) {
+        const isCore = i < total * 0.18;
+        if (isCore) {
+            const r = Math.abs(gaussianRandom()) * radius * 0.18;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.5;
+            positions[i * 3 + 2] = r * Math.cos(phi);
+            colors[i * 3] = Math.min(1, c.r + 0.05);
+            colors[i * 3 + 1] = c.g * 0.95;
+            colors[i * 3 + 2] = c.b * 0.7;
+            sizes[i] = 3 + Math.random() * 2;
+        } else {
+            const distance = innerR + Math.random() * (radius - innerR);
+            const armOffset = (Math.floor(Math.random() * arms) / arms) * Math.PI * 2;
+            const logR = Math.log(Math.max(distance / innerR, 1.001));
+            const angle = logR / tightness + armOffset + gaussianRandom() * armWidth * 0.35;
+            positions[i * 3] = Math.cos(angle) * distance;
+            positions[i * 3 + 1] = gaussianRandom() * radius * 0.022;
+            positions[i * 3 + 2] = Math.sin(angle) * distance;
+            colors[i * 3] = c.r * (0.85 + Math.random() * 0.15);
+            colors[i * 3 + 1] = c.g * (0.92 + Math.random() * 0.08);
+            colors[i * 3 + 2] = Math.min(1, c.b + Math.random() * 0.1);
+            sizes[i] = 2 + Math.random() * 2;
+        }
+    }
+    const particles = buildGalaxyParticles(positions, colors, sizes);
+    if (cfg.tilt) {
+        particles.rotation.x = cfg.tilt.x || 0;
+        particles.rotation.z = cfg.tilt.z || 0;
+    }
+    wrapper.add(particles);
+
+    // 旋臂上的 HII 区
+    for (let i = 0; i < 6; i++) {
+        const distance = innerR + Math.random() * (radius - innerR) * 0.85;
+        const armOffset = (Math.floor(Math.random() * arms) / arms) * Math.PI * 2;
+        const logR = Math.log(Math.max(distance / innerR, 1.001));
+        const angle = logR / tightness + armOffset + gaussianRandom() * armWidth * 0.2;
+        const sprite = makeAccentSprite('hii', radius * 0.07, 0.7);
+        sprite.position.set(Math.cos(angle) * distance, 0, Math.sin(angle) * distance);
+        if (cfg.tilt) {
+            sprite.position.applyEuler(new THREE.Euler(cfg.tilt.x || 0, 0, cfg.tilt.z || 0));
+        }
+        wrapper.add(sprite);
+    }
+
+    // 核球辉光
+    const glow = makeAccentSprite('bulgeCore', radius * 0.5, 0.7);
+    wrapper.add(glow);
+
+    return wrapper;
+}
+
+// 内联：构造一个雪茄星系（M82 风格）
+function createInlineCigar(cfg) {
+    const wrapper = new THREE.Group();
+    const total = cfg.particleCount;
+    const radius = cfg.radius;
+    const elongation = cfg.elongation || 1.6;
+    const c = cfg.color;
+
+    const positions = new Float32Array(total * 3);
+    const colors = new Float32Array(total * 3);
+    const sizes = new Float32Array(total);
+
+    for (let i = 0; i < total; i++) {
+        const x = gaussianRandom() * radius * elongation;
+        const y = gaussianRandom() * radius * 0.35;
+        const z = gaussianRandom() * radius * 0.45;
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = z;
+        colors[i * 3] = c.r * (0.85 + Math.random() * 0.15);
+        colors[i * 3 + 1] = c.g * (0.85 + Math.random() * 0.15);
+        colors[i * 3 + 2] = c.b * (0.85 + Math.random() * 0.15);
+        sizes[i] = 2 + Math.random() * 2;
+    }
+    const particles = buildGalaxyParticles(positions, colors, sizes);
+    wrapper.add(particles);
+
+    // 强烈恒星形成区（粉红色 H-α 喷流）
+    for (let i = 0; i < cfg.hiiCount; i++) {
+        const u = (Math.random() - 0.5) * 1.6;
+        const sprite = makeAccentSprite('hii', radius * (0.18 + Math.random() * 0.1), 0.55 + Math.random() * 0.3);
+        sprite.position.set(u * radius * elongation, gaussianRandom() * radius * 0.15, gaussianRandom() * radius * 0.2);
+        wrapper.add(sprite);
+    }
+
+    // 垂直双向超级风（M82 著名的星暴喷流）
+    if (cfg.hasOutflow) {
+        for (let dir = -1; dir <= 1; dir += 2) {
+            for (let j = 0; j < 6; j++) {
+                const sprite = makeAccentSprite('hii', radius * (0.2 + j * 0.05), 0.4 - j * 0.05);
+                sprite.position.set(0, dir * radius * (0.4 + j * 0.3), 0);
+                wrapper.add(sprite);
+            }
+        }
+    }
+
+    // 核心辉光
+    const glow = makeAccentSprite('bulgeCore', radius * 0.6, 0.7);
+    wrapper.add(glow);
+
+    return wrapper;
+}
+
 // ============ 通用粒子着色器 ============
+// 距离衰减做了下限限制，避免远距离星系（仙女座等）粒子缩成 1 像素几乎不可见
 const GALAXY_PARTICLE_VERTEX = `
     attribute float size;
     attribute vec3 color;
@@ -1736,8 +2584,9 @@ const GALAXY_PARTICLE_VERTEX = `
     void main() {
         vColor = color;
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (5000.0 / -mvPosition.z);
-        gl_PointSize = clamp(gl_PointSize, 1.0, 12.0);
+        float scale = max(1.2, 12000.0 / -mvPosition.z * 1.6);
+        gl_PointSize = size * scale;
+        gl_PointSize = clamp(gl_PointSize, 2.0, 22.0);
         gl_Position = projectionMatrix * mvPosition;
     }
 `;
@@ -1749,7 +2598,7 @@ const GALAXY_PARTICLE_FRAGMENT = `
         vec2 center = gl_PointCoord - vec2(0.5);
         float dist = length(center);
         float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-        gl_FragColor = vec4(vColor, alpha * 0.75);
+        gl_FragColor = vec4(vColor, alpha * 0.95);
     }
 `;
 
@@ -1974,8 +2823,8 @@ function createSpiralGalaxy(key, config) {
     group.add(particles);
     group.particles = particles;
 
-    // === 核球辉光 sprite（叠加于核心）===
-    const bulgeGlow = makeAccentSprite('bulgeCore', radius * 0.55, 0.75);
+    // === 核球辉光 sprite（叠加于核心，做小做暗以免淹没旋臂粒子）===
+    const bulgeGlow = makeAccentSprite('bulgeCore', radius * 0.32, 0.45);
     if (config.tilt) {
         // 让 glow 也跟着倾斜（用 group 包一层）
         const tiltGroup = new THREE.Group();
@@ -2016,26 +2865,28 @@ function createSpiralGalaxy(key, config) {
     }
     group.add(hiiContainer);
 
-    // === 尘埃带：沿盘平面的暗环（用 RingGeometry 反向减光）===
-    const dustRingGeom = new THREE.RingGeometry(radius * 0.2, radius * 0.95, 96, 1);
-    const dustRingMat = new THREE.MeshBasicMaterial({
-        color: 0x1a0a05,
-        transparent: true,
-        opacity: 0.42,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        blending: THREE.NormalBlending
-    });
-    const dustRing = new THREE.Mesh(dustRingGeom, dustRingMat);
-    dustRing.rotation.x = Math.PI / 2; // 平铺到盘面
-    if (config.tilt) {
-        const dustTilt = new THREE.Group();
-        dustTilt.rotation.x = config.tilt.x || 0;
-        dustTilt.rotation.z = config.tilt.z || 0;
-        dustTilt.add(dustRing);
-        group.add(dustTilt);
-    } else {
-        group.add(dustRing);
+    // === 尘埃带：沿盘平面的暗环（细而淡，避免淹没旋臂）===
+    if (config.dustRing !== false) {
+        const dustRingGeom = new THREE.RingGeometry(radius * 0.35, radius * 0.85, 96, 1);
+        const dustRingMat = new THREE.MeshBasicMaterial({
+            color: 0x140804,
+            transparent: true,
+            opacity: 0.18,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            blending: THREE.NormalBlending
+        });
+        const dustRing = new THREE.Mesh(dustRingGeom, dustRingMat);
+        dustRing.rotation.x = Math.PI / 2;
+        if (config.tilt) {
+            const dustTilt = new THREE.Group();
+            dustTilt.rotation.x = config.tilt.x || 0;
+            dustTilt.rotation.z = config.tilt.z || 0;
+            dustTilt.add(dustRing);
+            group.add(dustTilt);
+        } else {
+            group.add(dustRing);
+        }
     }
 
     // 创建发光 Sprite（LOD远距离使用）
@@ -2057,7 +2908,7 @@ function createSpiralGalaxy(key, config) {
     group.clickTarget = clickTarget;
 
     // 创建双语标签
-    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.7, 0, key);
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 1.25, 0, key);
 
     scene.add(group);
     return group;
@@ -2132,8 +2983,8 @@ function createEllipticalGalaxy(key, config) {
     group.add(particles);
     group.particles = particles;
 
-    // 核心辉光
-    const coreGlow = makeAccentSprite('bulgeCore', radius * 0.5, 0.85);
+    // 核心辉光（椭圆星系核心略亮）
+    const coreGlow = makeAccentSprite('bulgeCore', radius * 0.4, 0.55);
     group.add(coreGlow);
 
     // 可选：横穿赤道的暗尘带（半人马座 A 经典特征）
@@ -2187,7 +3038,7 @@ function createEllipticalGalaxy(key, config) {
     group.clickTarget = clickTarget;
 
     // 双语标签
-    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.55, 0, key);
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 1.2, 0, key);
 
     scene.add(group);
     return group;
@@ -2298,7 +3149,7 @@ function createIrregularGalaxy(key, config) {
     group.clickTarget = clickTarget;
 
     // 双语标签
-    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.5, 0, key);
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 1.2, 0, key);
 
     scene.add(group);
     return group;
@@ -2434,7 +3285,7 @@ function createInteractingGalaxies(key, config) {
     group.clickTarget = clickTarget;
 
     // 双语标签
-    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 0.5, 0, key);
+    createGalaxyLabel(group, galaxyData[key], 0, config.radius * 1.2, 0, key);
 
     scene.add(group);
     return group;
@@ -3068,11 +3919,14 @@ function createGalaxyLabel(parent, info, x, y, z, key) {
 
     const sprite = new THREE.Sprite(material);
     const config = galaxyRenderConfigs[key];
-    const labelW = config && config.radius ? config.radius * 0.95 : 4000;
+    const baseW = config && config.radius ? config.radius * 0.6 : 3000;
+    // 标签宽度有上下限，避免极小或极大星系标签失衡
+    const labelW = THREE.MathUtils.clamp(baseW, 1200, 14000);
     sprite.scale.set(labelW, labelW * 0.31, 1);
     sprite.position.set(x, y, z);
     sprite.name = 'galaxyLabel';
     sprite.galaxyKey = key;
+    sprite.userData.baseLabelW = labelW;
 
     parent.add(sprite);
     galaxyLabels.push(sprite);
@@ -3208,6 +4062,9 @@ function animate() {
         oortCloud.rotation.y += 0.0002 * frameStep;
     }
 
+    // 宇宙级结构 LOD（按距离淡入淡出）
+    updateCosmicStructures(distance, elapsed);
+
     // 外部星系更新
     for (const galaxy of externalGalaxies) {
         // 缓慢旋转
@@ -3233,10 +4090,13 @@ function animate() {
 
         // 可见性控制
         const zoneDistance = camera.position.length();
-        if (galaxy.config.zone === 'A') {
-            galaxy.visible = zoneDistance > 20000;
+        if (galaxy.config.zone === 'LOCAL') {
+            // 银河系卫星（如 Sgr dSph）始终可见，但仅近距离显粒子
+            galaxy.visible = true;
+        } else if (galaxy.config.zone === 'A') {
+            galaxy.visible = zoneDistance > 18000;
         } else {
-            galaxy.visible = zoneDistance > 150000;
+            galaxy.visible = zoneDistance > 130000;
         }
     }
 
@@ -3345,8 +4205,17 @@ function updateScaleIndicator() {
             scaleValue.textContent = '太阳系近处';
             level = 1;
         }
+    } else if (distance > 950000) {
+        scaleValue.textContent = '可观测宇宙';
+        level = 12;
+    } else if (distance > 600000) {
+        scaleValue.textContent = '拉尼亚凯亚超星系团';
+        level = 11;
+    } else if (distance > 350000) {
+        scaleValue.textContent = '室女座星系团';
+        level = 10;
     } else if (distance > 200000) {
-        scaleValue.textContent = '宇宙深处';
+        scaleValue.textContent = '本星系群外缘';
         level = 9;
     } else if (distance > 80000) {
         scaleValue.textContent = '本星系群';
@@ -3384,18 +4253,19 @@ function updateInfoPanel(level) {
     if (level <= 2) {
         content = infoPanelContent.solarSystem;
     } else if (level === 3) {
-        // 恒星邻域放大视图
         content = infoPanelContent.solarNeighborhood;
-    } else if (level === 4 || level === 5) {
-        content = infoPanelContent.solarSystem;
-    } else if (level === 6) {
+    } else if (level === 4 || level === 5 || level === 6) {
         content = infoPanelContent.solarSystem;
     } else if (level === 7) {
         content = infoPanelContent.localNeighbors;
-    } else if (level === 8) {
+    } else if (level === 8 || level === 9) {
         content = infoPanelContent.localGroup;
+    } else if (level === 10) {
+        content = infoPanelContent.virgo;
+    } else if (level === 11) {
+        content = infoPanelContent.laniakea;
     } else {
-        content = infoPanelContent.deepSpace;
+        content = infoPanelContent.universe;
     }
 
     // 淡出动画
