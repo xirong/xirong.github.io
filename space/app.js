@@ -3101,6 +3101,9 @@ function openSizeComparisonPanel() {
     const panel = document.getElementById('sizeComparison');
     if (!panel) return;
     panel.classList.add('visible');
+    if (currentComparisonTab === 'dragVolume' || currentComparisonTab === 'dragBlackHole') {
+        generateSizeComparison(currentComparisonTab);
+    }
     panel.scrollTop = 0;
 }
 
