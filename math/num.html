@@ -636,6 +636,306 @@
             box-shadow: 0 12px 40px var(--shadow-medium);
         }
 
+        .cosmic-scale-panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+            color: white;
+            background:
+                linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(55, 48, 163, 0.7)),
+                url('../space/textures/starfield.jpg') center / cover;
+            box-shadow: inset 0 0 70px rgba(255, 255, 255, 0.08);
+        }
+
+        .cosmic-scale-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 10% 35%, rgba(255, 221, 87, 0.24), transparent 18%),
+                radial-gradient(circle at 88% 24%, rgba(120, 160, 255, 0.24), transparent 20%);
+            pointer-events: none;
+        }
+
+        .cosmic-scale-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cosmic-title {
+            font-family: 'Fredoka One', 'PingFang SC', sans-serif;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            text-align: center;
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .cosmic-subtitle {
+            margin-top: 5px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.86);
+        }
+
+        .cosmic-memory-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin: 14px 0 8px;
+        }
+
+        .cosmic-memory-chip {
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            padding: 9px 8px;
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .cosmic-scale-steps {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 6px;
+        }
+
+        .cosmic-scale-steps::before {
+            content: '';
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            top: 41px;
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #facc15, #38bdf8, #a78bfa, #f472b6);
+            box-shadow: 0 0 22px rgba(125, 211, 252, 0.6);
+        }
+
+        .cosmic-step {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .cosmic-object {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .texture-sphere {
+            display: block;
+            border-radius: 50%;
+            background-position: center;
+            background-size: cover;
+            box-shadow: inset -10px -12px 18px rgba(0, 0, 0, 0.35), 0 0 16px rgba(255, 255, 255, 0.3);
+        }
+
+        .texture-sun {
+            width: 54px;
+            height: 54px;
+            background-image: url('../space/textures/sun.jpg');
+            box-shadow: 0 0 24px rgba(250, 204, 21, 0.9), inset -8px -8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .texture-earth {
+            width: 25px;
+            height: 25px;
+            background-image: url('../space/textures/earth_daymap.jpg');
+        }
+
+        .texture-pluto {
+            width: 33px;
+            height: 33px;
+            background-image: url('../space/textures/pluto.jpg');
+        }
+
+        .texture-star {
+            width: 34px;
+            height: 34px;
+            background-image: url('../space/textures/stars/yellow_star_surface.jpg');
+            box-shadow: 0 0 20px rgba(253, 224, 71, 0.7);
+        }
+
+        .texture-red-star {
+            width: 27px;
+            height: 27px;
+            background-image: url('../space/textures/stars/red_dwarf_surface.jpg');
+            box-shadow: 0 0 18px rgba(248, 113, 113, 0.7);
+        }
+
+        .object-sun-earth .texture-earth {
+            position: absolute;
+            right: -2px;
+            bottom: 2px;
+            border: 2px solid rgba(255, 255, 255, 0.78);
+        }
+
+        .object-pluto .texture-sun {
+            position: absolute;
+            left: 0;
+            width: 22px;
+            height: 22px;
+            opacity: 0.9;
+        }
+
+        .object-pluto .texture-pluto {
+            position: absolute;
+            right: 1px;
+        }
+
+        .oort-shell {
+            width: 54px;
+            height: 54px;
+            border: 2px dashed rgba(191, 219, 254, 0.78);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(147, 197, 253, 0.35);
+        }
+
+        .oort-shell::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background-image: url('../space/textures/sun.jpg');
+            background-size: cover;
+            box-shadow: 0 0 14px rgba(250, 204, 21, 0.75);
+        }
+
+        .light-year-ring {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 3px solid rgba(56, 189, 248, 0.78);
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.6), inset 0 0 18px rgba(56, 189, 248, 0.16);
+        }
+
+        .object-near-stars .texture-star {
+            position: absolute;
+            left: 5px;
+            top: 9px;
+        }
+
+        .object-near-stars .texture-red-star {
+            position: absolute;
+            right: 5px;
+            bottom: 8px;
+        }
+
+        .object-star-cluster .texture-star,
+        .object-star-cluster .texture-red-star {
+            position: absolute;
+        }
+
+        .object-star-cluster .texture-star:first-child {
+            left: 2px;
+            top: 2px;
+        }
+
+        .object-star-cluster .texture-star:nth-child(2) {
+            right: 0;
+            top: 18px;
+            width: 25px;
+            height: 25px;
+            background-image: url('../space/textures/stars/blue_white_star_surface.jpg');
+            box-shadow: 0 0 18px rgba(147, 197, 253, 0.85);
+        }
+
+        .object-star-cluster .texture-red-star {
+            left: 20px;
+            bottom: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        .galaxy-disc {
+            width: 64px;
+            height: 42px;
+            border-radius: 50%;
+            background-image: url('../space/textures/milkyway.jpg');
+            background-position: center;
+            background-size: cover;
+            transform: rotate(-15deg);
+            box-shadow: 0 0 24px rgba(196, 181, 253, 0.7);
+        }
+
+        .cosmic-card {
+            width: 100%;
+            min-height: 118px;
+            border: 1px solid rgba(255, 255, 255, 0.52);
+            border-radius: 13px;
+            padding: 10px 8px;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--text-dark);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.25);
+        }
+
+        .cosmic-value {
+            color: #2563eb;
+            font-family: 'Fredoka One', 'PingFang SC', sans-serif;
+            font-size: 1.05rem;
+            white-space: nowrap;
+        }
+
+        .cosmic-scene {
+            margin-top: 4px;
+            color: #1f2937;
+            font-size: 0.92rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .cosmic-detail {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .cosmic-contrast-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .contrast-card {
+            border-radius: 12px;
+            padding: 10px 8px;
+            background: rgba(15, 23, 42, 0.46);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .contrast-number {
+            display: block;
+            margin-top: 4px;
+            color: #fde68a;
+            font-family: 'Fredoka One', 'PingFang SC', sans-serif;
+            font-size: 1.05rem;
+        }
+
         .unit-panel-title {
             font-family: 'Fredoka One', 'PingFang SC', sans-serif;
             font-size: 1.8rem;
@@ -860,6 +1160,36 @@
                 padding: 14px;
             }
 
+            .cosmic-memory-row,
+            .cosmic-contrast-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cosmic-scale-steps {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding-left: 26px;
+            }
+
+            .cosmic-scale-steps::before {
+                left: 51px;
+                right: auto;
+                top: 4px;
+                bottom: 4px;
+                width: 6px;
+                height: auto;
+            }
+
+            .cosmic-step {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .cosmic-card {
+                min-height: auto;
+            }
+
             .unit-grid {
                 grid-template-columns: 1fr;
             }
@@ -908,7 +1238,25 @@
             <div class="big-count-target" id="bigCountTarget">目标：100 个</div>
         </div>
         <div class="unit-learning-panel hidden" id="unitLearningPanel" aria-label="大数单位表">
-            <div class="unit-panel-title">📚 大数单位</div>
+            <div class="cosmic-scale-panel" aria-label="宇宙尺度尺">
+                <div class="cosmic-scale-content">
+                    <div class="cosmic-title">🌌 宇宙尺度尺</div>
+                    <div class="cosmic-subtitle">这是一条尺度楼梯，不是等比例尺，越往右越大</div>
+                    <div class="cosmic-memory-row">
+                        <div class="cosmic-memory-chip">亿，看地日</div>
+                        <div class="cosmic-memory-chip">百亿，看太阳系</div>
+                        <div class="cosmic-memory-chip">万亿，看光年</div>
+                        <div class="cosmic-memory-chip">万万亿，看银河系</div>
+                    </div>
+                    <div class="cosmic-scale-steps" id="cosmicScaleSteps"></div>
+                    <div class="cosmic-contrast-row">
+                        <div class="contrast-card">地球到太阳<span class="contrast-number">约 1.5 亿千米</span></div>
+                        <div class="contrast-card">最近恒星<span class="contrast-number">约 40 万亿千米</span></div>
+                        <div class="contrast-card">银河系直径<span class="contrast-number">约 95 万万亿千米</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="unit-panel-title">🔢 再把 0 数清楚</div>
             <div class="unit-panel-subtitle">中文名字 = 1 后面有几个 0</div>
             <div class="unit-grid" id="unitGrid"></div>
         </div>
@@ -979,6 +1327,16 @@
             { name: '一百万亿', zeros: 14, note: '也可以写作 100 万亿' },
             { name: '一千万亿', zeros: 15, note: '也可以写作 1000 万亿' },
             { name: '万万亿', zeros: 16, note: '也可以说一万万亿' }
+        ];
+        const cosmicScaleRows = [
+            { value: '1亿', scene: '接近地日距离', detail: '地球到太阳约 1.5 亿千米', object: 'sun-earth' },
+            { value: '100亿', scene: '越过冥王星', detail: '比冥王星平均日距还远很多', object: 'pluto' },
+            { value: '1000亿', scene: '行星都在身后', detail: '开始靠近奥尔特云内侧量级', object: 'oort' },
+            { value: '1万亿', scene: '深空 0.1 光年', detail: '还没到恒星，但已经很远了', object: 'deep-space' },
+            { value: '10万亿', scene: '约 1 光年', detail: '可以把光年当成新尺子', object: 'light-year' },
+            { value: '100万亿', scene: '近邻恒星圈', detail: '太阳附近一圈恒星的尺度', object: 'near-stars' },
+            { value: '1000万亿', scene: '银河小片区', detail: '已经是银河系里的局部空间', object: 'star-cluster' },
+            { value: '万万亿', scene: '上千光年', detail: '开始用银河系做尺子', object: 'galaxy' }
         ];
         const framesContainer = document.getElementById('framesContainer');
         const redChipsContainer = document.getElementById('redChips');
@@ -1089,6 +1447,7 @@
                 contentArea.classList.add('hidden'); unitLearningPanel.classList.remove('hidden');
                 framesContainer.innerHTML = '';
                 state.cells = [];
+                renderCosmicScale();
                 renderUnitLearning();
                 return;
             } else {
@@ -1100,6 +1459,38 @@
             createFrames();
             if (mode !== 'thousand' && mode !== 'tenthousand') createChips();
             updateDisplay();
+        }
+
+        // ============ 渲染宇宙尺度 ============
+        function renderCosmicScale() {
+            const scaleSteps = document.getElementById('cosmicScaleSteps');
+            scaleSteps.innerHTML = cosmicScaleRows.map(row => `
+                <div class="cosmic-step">
+                    <div class="cosmic-object object-${row.object}" aria-hidden="true">
+                        ${createCosmicObject(row.object)}
+                    </div>
+                    <div class="cosmic-card">
+                        <div class="cosmic-value">${row.value}</div>
+                        <div class="cosmic-scene">${row.scene}</div>
+                        <div class="cosmic-detail">${row.detail}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============ 创建天体纹理对象 ============
+        function createCosmicObject(type) {
+            const objects = {
+                'sun-earth': '<span class="texture-sphere texture-sun"></span><span class="texture-sphere texture-earth"></span>',
+                pluto: '<span class="texture-sphere texture-sun"></span><span class="texture-sphere texture-pluto"></span>',
+                oort: '<span class="oort-shell"></span>',
+                'deep-space': '<span class="oort-shell"></span>',
+                'light-year': '<span class="light-year-ring"></span>',
+                'near-stars': '<span class="texture-sphere texture-star"></span><span class="texture-sphere texture-red-star"></span>',
+                'star-cluster': '<span class="texture-sphere texture-star"></span><span class="texture-sphere texture-star"></span><span class="texture-sphere texture-red-star"></span>',
+                galaxy: '<span class="galaxy-disc"></span>'
+            };
+            return objects[type] || '';
         }
 
         // ============ 渲染大数单位 ============
