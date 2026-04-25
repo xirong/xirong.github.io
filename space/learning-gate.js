@@ -10,6 +10,7 @@
     const DEFAULT_COOLDOWN_HOURS = Number.isFinite(DATA.defaultCooldownHours) ? DATA.defaultCooldownHours : 24;
 
     let activeSession = null;
+    let currentGateAudio = null;
 
     function requireGate(options) {
         const gateOptions = options || {};
@@ -215,6 +216,7 @@
                     <div class="learning-gate-meta">
                         <span class="learning-gate-type"></span>
                         <span class="learning-gate-source"></span>
+                        <button class="learning-gate-audio-btn" type="button" aria-label="听题目">听题目</button>
                     </div>
                     <p class="learning-gate-question"></p>
                     <div class="learning-gate-expression" aria-live="polite"></div>
@@ -230,6 +232,11 @@
         session.root = root;
         document.body.appendChild(root);
         document.body.classList.add('learning-gate-open');
+
+        root.querySelector('.learning-gate-audio-btn').addEventListener('click', () => {
+            const question = session.questions[session.index];
+            if (question) playQuestionAudio(question);
+        });
 
         createAnswerButtons(session);
         renderCurrentQuestion(session);
@@ -275,6 +282,7 @@
         session.root.querySelector('.learning-gate-question').textContent = question.question;
         session.root.querySelector('.learning-gate-expression').textContent = formatExpression(question);
         session.root.querySelector('.learning-gate-feedback').textContent = '选择正确数字，为飞船充能';
+        playQuestionAudio(question);
 
         const firstButton = session.answerButtons[0];
         if (firstButton) {
@@ -346,6 +354,7 @@
 
         const hintText = question.hint ? `再想一下：${question.hint}` : '再想一下，能量还差一点';
         session.root.querySelector('.learning-gate-feedback').textContent = hintText;
+        playQuestionHint(question);
 
         window.setTimeout(() => {
             session.locked = false;
@@ -362,6 +371,7 @@
     }
 
     function completeSession(session) {
+        stopGateAudio();
         writeProgress(session);
         const root = session.root;
         const options = session.options;
@@ -381,6 +391,79 @@
         if (typeof options.onPass === 'function') {
             options.onPass();
         }
+    }
+
+    function playQuestionAudio(question) {
+        const text = buildQuestionSpeechText(question);
+        playGateAudio(getQuestionAudioPath(question), text);
+    }
+
+    function playQuestionHint(question) {
+        if (!question.hint) return;
+        playGateAudio(getQuestionHintAudioPath(question), question.hint);
+    }
+
+    function getQuestionAudioPath(question) {
+        return question.audio || `audio/learning-gate/${question.id}.mp3`;
+    }
+
+    function getQuestionHintAudioPath(question) {
+        return question.hintAudio || `audio/learning-gate/${question.id}-hint.mp3`;
+    }
+
+    function buildQuestionSpeechText(question) {
+        const parts = [question.question];
+        if (question.expression) {
+            parts.push(toSpeechExpression(question.expression));
+        }
+        return parts.join('。');
+    }
+
+    function toSpeechExpression(expression) {
+        if (!expression) return '';
+        return expression
+            .replace(/\s+/g, '')
+            .replace(/\+/g, '加')
+            .replace(/-/g, '减') + '等于几';
+    }
+
+    function playGateAudio(audioPath, fallbackText) {
+        stopGateAudio();
+
+        const audio = new Audio(audioPath);
+        let fallbackStarted = false;
+        const fallback = () => {
+            if (fallbackStarted) return;
+            fallbackStarted = true;
+            speakFallback(fallbackText);
+        };
+
+        currentGateAudio = audio;
+        audio.onerror = fallback;
+        audio.play().catch(fallback);
+    }
+
+    function stopGateAudio() {
+        if (currentGateAudio) {
+            currentGateAudio.pause();
+            currentGateAudio = null;
+        }
+
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+    }
+
+    function speakFallback(text) {
+        if (!text || !window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        window.setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.86;
+            utterance.pitch = 1.12;
+            window.speechSynthesis.speak(utterance);
+        }, 50);
     }
 
     window.LearningGate = {

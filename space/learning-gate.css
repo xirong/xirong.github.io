@@ -125,6 +125,30 @@ body.learning-gate-open {
     font-weight: 800;
 }
 
+.learning-gate-source {
+    flex: 1;
+}
+
+.learning-gate-audio-btn {
+    min-height: 42px;
+    padding: 8px 14px;
+    border: 1px solid rgba(0, 212, 255, 0.42);
+    border-radius: 999px;
+    color: #ffffff;
+    background: rgba(0, 212, 255, 0.14);
+    font: 800 0.92rem/1 'Noto Sans SC', sans-serif;
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.learning-gate-audio-btn:hover,
+.learning-gate-audio-btn:focus-visible {
+    border-color: #00d4ff;
+    background: rgba(0, 212, 255, 0.24);
+    outline: none;
+    transform: translateY(-1px);
+}
+
 .learning-gate-question {
     margin: 0;
     color: #ffffff;
