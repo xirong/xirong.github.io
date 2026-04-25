@@ -4859,13 +4859,13 @@ function formatCapacityLabel(num) {
 
 function formatCompactCount(num) {
     if (num >= 1000000000000) {
-        return (num / 1000000000000).toFixed(num >= 10000000000000 ? 1 : 2) + ' 万亿';
+        return (num / 1000000000000).toFixed(num >= 10000000000000 ? 1 : 2) + '万亿';
     }
     if (num >= 100000000) {
-        return (num / 100000000).toFixed(num >= 1000000000 ? 0 : 1) + ' 亿';
+        return (num / 100000000).toFixed(num >= 1000000000 ? 0 : 1) + '亿';
     }
     if (num >= 10000) {
-        return (num / 10000).toFixed(num >= 1000000 ? 0 : 1) + ' 万';
+        return (num / 10000).toFixed(num >= 1000000 ? 0 : 1) + '万';
     }
     return formatNumber(num);
 }
