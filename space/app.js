@@ -3504,18 +3504,41 @@ const CAPACITY_TARGETS = {
 };
 
 const CAPACITY_COUNT_OVERRIDES = {
+    // 太阳能装采用 sun_vol_vs_mass.html 中的教学数据；其他目标缺失时继续按公式计算。
     sun: {
         diameter: {
-            jupiter: { count: 1000, label: '1,000' },
-            saturn: { count: 1700, label: '1,700' },
-            uranus: { count: 20000, label: '2万' },
-            neptune: { count: 20000, label: '2万' },
-            earth: { count: 1300000, label: '130万' },
-            venus: { count: 1500000, label: '150万' },
-            mars: { count: 8600000, label: '860万' },
-            mercury: { count: 23000000, label: '2300万' },
-            moon: { count: 65000000, label: '6500万' },
-            pluto: { count: 220000000, label: '2.2亿' }
+            jupiter: { count: 1000 },
+            saturn: { count: 1700 },
+            uranus: { count: 20000 },
+            neptune: { count: 22000 },
+            earth: { count: 1300000 },
+            venus: { count: 1500000 },
+            mars: { count: 8600000 },
+            ganymede: { count: 43000000 },
+            mercury: { count: 23000000 },
+            moon: { count: 65000000 },
+            eris: { count: 175000000 },
+            pluto: { count: 220000000 },
+            haumea: { count: 600000000 },
+            makemake: { count: 700000000 },
+            ceres: { count: 3100000000 }
+        },
+        mass: {
+            jupiter: { count: 1048 },
+            saturn: { count: 3500 },
+            uranus: { count: 22900 },
+            neptune: { count: 19400 },
+            earth: { count: 333000 },
+            venus: { count: 409000 },
+            mars: { count: 3112000 },
+            ganymede: { count: 13420000 },
+            mercury: { count: 6025000 },
+            moon: { count: 27090000 },
+            eris: { count: 119800000 },
+            pluto: { count: 152700000 },
+            haumea: { count: 496500000 },
+            makemake: { count: 641600000 },
+            ceres: { count: 2118000000 }
         }
     }
 };
@@ -4818,7 +4841,9 @@ function setupComparisonTabs() {
             runActiveDragCleanup();
             if (btn.dataset.metric) {
                 currentComparisonMetric = btn.dataset.metric;
-                currentComparisonTab = normalizeComparisonMode(btn.dataset.tab || currentComparisonMetric);
+                if (currentComparisonTab === 'diameter' || currentComparisonTab === 'mass') {
+                    currentComparisonTab = normalizeComparisonMode(btn.dataset.tab || currentComparisonMetric);
+                }
                 if (currentComparisonTab !== 'diameter') {
                     isDiameterDetailMode = false;
                 }
@@ -4859,15 +4884,19 @@ function formatCapacityLabel(num) {
 
 function formatCompactCount(num) {
     if (num >= 1000000000000) {
-        return (num / 1000000000000).toFixed(num >= 10000000000000 ? 1 : 2) + '万亿';
+        return stripTrailingZero((num / 1000000000000).toFixed(num >= 10000000000000 ? 1 : 2)) + '万亿';
     }
     if (num >= 100000000) {
-        return (num / 100000000).toFixed(num >= 1000000000 ? 0 : 1) + '亿';
+        return stripTrailingZero((num / 100000000).toFixed(num >= 1000000000 ? 0 : 1)) + '亿';
     }
     if (num >= 10000) {
-        return (num / 10000).toFixed(num >= 1000000 ? 0 : 1) + '万';
+        return stripTrailingZero((num / 10000).toFixed(num >= 1000000 ? 0 : 1)) + '万';
     }
     return formatNumber(num);
+}
+
+function stripTrailingZero(value) {
+    return String(value).replace(/\.0$/, '');
 }
 
 function formatDistance(distance) {
