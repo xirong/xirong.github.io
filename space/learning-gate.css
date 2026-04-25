@@ -10,7 +10,7 @@ body.learning-gate-open {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 6px 24px;
     overflow: hidden;
     color: #ffffff;
     background:
@@ -62,7 +62,7 @@ body.learning-gate-open {
     position: relative;
     z-index: 1;
     width: min(1120px, 100%);
-    max-height: min(92vh, 820px);
+    max-height: calc(100vh - 12px);
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: 16px;
