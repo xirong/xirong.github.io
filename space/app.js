@@ -2101,9 +2101,10 @@ function createArtificialSatellites() {
     satellitesData.forEach((satData, index) => {
         // 创建卫星几何体
         const geometry = new THREE.SphereGeometry(satData.size, 16, 16);
-        const material = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshPhongMaterial({
             color: satData.color,
-            emissive: satData.color
+            emissive: satData.color,
+            emissiveIntensity: 0.35
         });
 
         const satellite = new THREE.Mesh(geometry, material);
@@ -3155,13 +3156,9 @@ function setupControls() {
 
     // 太阳样式选择器
     const sunStyleOptions = document.querySelectorAll('.sun-style-option');
-    console.log('找到太阳样式选项数量:', sunStyleOptions.length);
 
-    sunStyleOptions.forEach((option, index) => {
-        console.log('绑定事件到选项:', index, option.dataset.style);
-
+    sunStyleOptions.forEach(option => {
         option.onclick = function (e) {
-            console.log('点击了太阳样式选项:', this.dataset.style);
             e.preventDefault();
             e.stopPropagation();
 
