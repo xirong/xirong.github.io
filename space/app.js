@@ -1445,7 +1445,6 @@ function switchSunStyle(style) {
         createSun();
     }
 
-    console.log('太阳样式已切换为:', style === 'simple' ? '简洁模式' : '炙热模式');
 }
 
 // ============ 创建行星 ============
