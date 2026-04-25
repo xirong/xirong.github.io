@@ -4767,7 +4767,6 @@ function setupComparisonTabs() {
             } else {
                 currentComparisonTab = normalizeComparisonMode(btn.dataset.tab);
             }
-            updateComparisonTabActiveState();
             generateSizeComparison(currentComparisonTab);
         });
     });
