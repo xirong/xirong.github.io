@@ -662,6 +662,9 @@ const currentCapacitySelections = {
     saturn: 'earth',
     uranus: 'earth',
     neptune: 'earth',
+    earth: 'venus',
+    venus: 'mars',
+    mars: 'ganymede',
     blackHole: 'earth'
 };
 let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
@@ -3505,6 +3508,27 @@ const CAPACITY_TARGETS = {
         color: '#5b5ddf',
         objectKeys: ['jupiter', 'saturn', 'uranus', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
+    earth: {
+        key: 'earth',
+        nameCN: '地球',
+        texture: 'textures/earth_daymap.jpg',
+        color: '#6b93d6',
+        objectKeys: ['venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    venus: {
+        key: 'venus',
+        nameCN: '金星',
+        texture: 'textures/venus_atmosphere.jpg',
+        color: '#e6c87a',
+        objectKeys: ['mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    mars: {
+        key: 'mars',
+        nameCN: '火星',
+        texture: 'textures/mars.jpg',
+        color: '#c1440e',
+        objectKeys: ['ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
     blackHole: {
         key: 'blackHole',
         nameCN: '黑洞',
@@ -3622,6 +3646,9 @@ function getCapacitySubtitle(targetKey) {
         : currentComparisonMetric === 'width'
             ? '按宽度测算'
             : '按直径折算体积';
+    if (targetKey === 'earth') {
+        return `${metricText}，地球是当前目标，下面只展示比地球更小的天体`;
+    }
     return `${metricText}，${target.nameCN}约为地球的${earthOverride?.label || formatCapacityLabel(earthCount)}倍`;
 }
 
@@ -3784,6 +3811,9 @@ function renderCapacityTargetPicker(container) {
         { key: 'saturn', icon: '🪐', name: '土星' },
         { key: 'uranus', icon: '🪐', name: '天王星' },
         { key: 'neptune', icon: '🪐', name: '海王星' },
+        { key: 'earth', icon: '🌍', name: '地球' },
+        { key: 'venus', icon: '🟡', name: '金星' },
+        { key: 'mars', icon: '🔴', name: '火星' },
         { key: 'blackHole', icon: '🕳️', name: '黑洞' },
         { key: 'dragVolume', icon: '🎯', name: '拖进太阳', isAction: true },
         { key: 'dragBlackHole', icon: '🌀', name: '拖进黑洞', isAction: true }
