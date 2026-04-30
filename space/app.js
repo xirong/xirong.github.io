@@ -671,6 +671,7 @@ let dragVolumeAnimationId = null; // 拖进太阳动画帧 ID
 let activeDragCleanup = null; // 当前拖拽态的兜底清理函数
 let pendingDragResultRevealIds = []; // 拖拽结果延时显隐定时器
 let isRealMotion = false; // 是否使用真实自转 / 公转比例
+let simulationTime = 0; // 暂停期间不增长，恢复时从冻结画面继续
 
 // 折合后的“真实运动”速度
 // 公转：1 秒约等于 24 个地球日，地球绕太阳一圈约 15.2 秒
@@ -2823,7 +2824,10 @@ function animate() {
     animationId = requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
-    const elapsed = clock.elapsedTime;
+    if (isAnimating) {
+        simulationTime += delta;
+    }
+    const elapsed = simulationTime;
     const frameFactor = delta * 60;
 
     // 更新控制器
@@ -2835,7 +2839,7 @@ function animate() {
     }
 
     // 更新太阳
-    if (sun) {
+    if (isAnimating && sun) {
         const sunRotationStep = isRealMotion
             ? getRealRotationSpeed(planetData.sun.rotationPeriod) * delta
             : 0.002 * frameFactor;
@@ -2975,21 +2979,21 @@ function animate() {
     }
 
     // 更新小行星带
-    if (asteroidBelt && asteroidBelt.material.uniforms) {
+    if (isAnimating && asteroidBelt && asteroidBelt.material.uniforms) {
         asteroidBelt.material.uniforms.time.value = elapsed;
     }
 
     // 缓慢旋转柯伊伯带
-    if (kuiperBelt) {
+    if (isAnimating && kuiperBelt) {
         kuiperBelt.rotation.y += 0.0001;
     }
 
     // 更新奥尔特云
     updateOortCloudVisibility();
-    if (oortCloudInner) {
+    if (isAnimating && oortCloudInner) {
         oortCloudInner.rotation.y += 0.00005;
     }
-    if (oortCloudOuter && oortCloudOuter.material.uniforms) {
+    if (isAnimating && oortCloudOuter && oortCloudOuter.material.uniforms) {
         oortCloudOuter.material.uniforms.time.value = elapsed;
     }
 
@@ -3243,6 +3247,17 @@ function setupControls() {
         });
     }
 
+    // 暂停 / 恢复所有天体运动
+    const toggleMotionPauseBtn = document.getElementById('toggleMotionPause');
+    if (toggleMotionPauseBtn) {
+        toggleMotionPauseBtn.addEventListener('click', function () {
+            isAnimating = !isAnimating;
+            updateMotionPauseButton();
+            updateModeIndicator();
+        });
+        updateMotionPauseButton();
+    }
+
     // 行星选择器
     document.querySelectorAll('.planet-dot').forEach(dot => {
         dot.addEventListener('click', function () {
@@ -3411,8 +3426,31 @@ function updateModeIndicator() {
     if (isRealMotion) {
         labels.push('真实运动');
     }
+    if (!isAnimating) {
+        labels.push('暂停中');
+    }
 
     scaleValue.textContent = labels.join(' + ');
+}
+
+function updateMotionPauseButton() {
+    const btn = document.getElementById('toggleMotionPause');
+    if (!btn) return;
+
+    const isPaused = !isAnimating;
+    const icon = btn.querySelector('.icon');
+    const label = btn.querySelector('.label');
+
+    btn.classList.toggle('active', isPaused);
+    btn.setAttribute('aria-pressed', String(isPaused));
+    btn.title = isPaused ? '恢复所有天体转动' : '暂停所有天体转动';
+
+    if (icon) {
+        icon.textContent = isPaused ? '▶' : '⏸';
+    }
+    if (label) {
+        label.textContent = isPaused ? '继续转动' : '暂停转动';
+    }
 }
 
 function getRealDisplaySize(diameter) {
