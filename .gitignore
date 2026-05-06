@@ -5,3 +5,6 @@ CLAUDE.md
 .mcp.json
 agents.md
 .DS_Store
+dist/
+macos/ZhitianSpace/.build/
+macos/ZhitianSpace/.build-web/

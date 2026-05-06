@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智天太空探险</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --text: #f7fbff;
+      --muted: rgba(226, 238, 255, 0.74);
+      --line: rgba(255, 255, 255, 0.16);
+      --panel: rgba(8, 15, 35, 0.58);
+      --panel-strong: rgba(9, 19, 45, 0.82);
+      --gold: #ffd36c;
+      --cyan: #72e4ff;
+      --green: #84f5bd;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+      background: #030817;
+      color: var(--text);
+      letter-spacing: 0;
+    }
+
+    body {
+      background-image:
+        linear-gradient(90deg, rgba(3, 8, 23, 0.98) 0%, rgba(3, 8, 23, 0.64) 46%, rgba(3, 8, 23, 0.92) 100%),
+        url("../space/textures/starfield.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 0.72fr) minmax(600px, 1.28fr);
+      gap: 36px;
+      padding: 44px;
+    }
+
+    .mission {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff7c5, #ffbc42 40%, #e85418 70%, #531004 100%);
+      box-shadow: 0 0 42px rgba(255, 172, 64, 0.58);
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 62px 0 18px;
+      max-width: 720px;
+      font-size: clamp(52px, 7vw, 92px);
+      line-height: 0.96;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 610px;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.75;
+      margin: 0;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 40px;
+      max-width: 620px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 14px;
+      min-height: 86px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .sections {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .section {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .section p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .tile {
+      position: relative;
+      min-height: 128px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      background: var(--panel-strong);
+      isolation: isolate;
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .tile::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--thumb);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.72;
+      z-index: -2;
+      transform: scale(1.04);
+      transition: transform 240ms ease, opacity 160ms ease;
+    }
+
+    .tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(3, 8, 23, 0.05), rgba(3, 8, 23, 0.82));
+      z-index: -1;
+    }
+
+    .tile:hover,
+    .tile:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(114, 228, 255, 0.66);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38);
+      outline: none;
+    }
+
+    .tile:hover::before,
+    .tile:focus-visible::before {
+      transform: scale(1.1);
+      opacity: 0.92;
+    }
+
+    .tile-title {
+      display: block;
+      padding: 16px 16px 4px;
+      font-size: 18px;
+      font-weight: 800;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+    }
+
+    .tile-desc {
+      display: block;
+      min-height: 38px;
+      padding: 0 16px 16px;
+      color: rgba(238, 246, 255, 0.78);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .tile[data-tone="gold"] { box-shadow: inset 0 -3px 0 rgba(255, 211, 108, 0.56); }
+    .tile[data-tone="cyan"] { box-shadow: inset 0 -3px 0 rgba(114, 228, 255, 0.52); }
+    .tile[data-tone="green"] { box-shadow: inset 0 -3px 0 rgba(132, 245, 189, 0.48); }
+
+    @media (max-width: 1180px) {
+      .shell {
+        grid-template-columns: 1fr;
+        padding: 28px;
+      }
+
+      h1 {
+        margin-top: 34px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell { padding: 18px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .status { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="mission" aria-label="太空基地">
+      <div>
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span>智天太空探险</span>
+        </div>
+        <h1>太阳系基地已就绪</h1>
+        <p class="lead">本地资源包已经装入飞船，星球纹理、章节语音、3D 场景都从 Mac 里直接读取，打开更快，离线也能继续探索。</p>
+        <div class="status">
+          <div class="metric"><strong>2</strong><span>保留太空天文与太阳系探险家两条主线</span></div>
+          <div class="metric"><strong>10+</strong><span>星球、月球与深空主题入口</span></div>
+          <div class="metric"><strong>本地</strong><span>纹理、音频、Three.js 依赖随 App 打包</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sections" aria-label="任务入口">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <h2>太空天文</h2>
+            <p>大尺度观察、距离、比例、银河系、黑洞与撞击实验</p>
+          </div>
+        </div>
+        <div class="grid">
+          <a class="tile" data-tone="gold" href="../space/solar-system.html" style="--thumb:url('../space/textures/sun.jpg')">
+            <span class="tile-title">太阳系总览</span>
+            <span class="tile-desc">从中心太阳开始，观察行星轨道与比例</span>
+          </a>
+          <a class="tile" data-tone="cyan" href="../space/sun-distance.html" style="--thumb:url('../space/textures/earth_daymap.jpg')">
+            <span class="tile-title">地日距离</span>
+            <span class="tile-desc">把一亿多公里变成孩子能理解的距离</span>
+          </a>
+          <a class="tile" data-tone="cyan" href="../space/sun-distance-explore.html" style="--thumb:url('../space/textures/milkyway.jpg')">
+            <span class="tile-title">飞向太阳</span>
+            <span class="tile-desc">拖拽、缩放，沿路线探索地球到太阳</span>
+          </a>
+          <a class="tile" data-tone="green" href="../space/galaxy.html" style="--thumb:url('../space/textures/milkyway.jpg')">
+            <span class="tile-title">银河系探索</span>
+            <span class="tile-desc">找到太阳系在银河里的位置</span>
+          </a>
+          <a class="tile" data-tone="gold" href="../space/blackhole.html" style="--thumb:url('../space/textures/stars/eso2109c.jpg')">
+            <span class="tile-title">黑洞探索</span>
+            <span class="tile-desc">用孩子能听懂的方式理解强引力</span>
+          </a>
+          <a class="tile" data-tone="green" href="../space/asteroid-impact.html" style="--thumb:url('../space/textures/earth_daymap.jpg')">
+            <span class="tile-title">陨石撞击</span>
+            <span class="tile-desc">观察撞击、冲击波和地球变化</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <h2>太阳系探险家系列</h2>
+            <p>每颗天体都有章节、识字、问答、数学和徽章进度</p>
+          </div>
+        </div>
+        <div class="grid">
+          <a class="tile" data-tone="gold" href="../space/sun.html" style="--thumb:url('../space/textures/sun.jpg')">
+            <span class="tile-title">太阳探险家</span>
+            <span class="tile-desc">光、热、黑子与太阳的未来</span>
+          </a>
+          <a class="tile" data-tone="cyan" href="../space/mercury.html" style="--thumb:url('../space/textures/mercury.jpg')">
+            <span class="tile-title">水星探险家</span>
+            <span class="tile-desc">离太阳最近的小小行星</span>
+          </a>
+          <a class="tile" data-tone="gold" href="../space/venus.html" style="--thumb:url('../space/textures/venus_surface.jpg')">
+            <span class="tile-title">金星探险家</span>
+            <span class="tile-desc">高温、厚云与倒着转的星球</span>
+          </a>
+          <a class="tile" data-tone="green" href="../space/earth-explorer.html" style="--thumb:url('../space/textures/earth_daymap.jpg')">
+            <span class="tile-title">地球探险家</span>
+            <span class="tile-desc">认识我们的家和蓝色星球</span>
+          </a>
+          <a class="tile" data-tone="cyan" href="../space/moon.html" style="--thumb:url('../space/textures/moon.jpg')">
+            <span class="tile-title">月球探险家</span>
+            <span class="tile-desc">潮汐锁定、引力和月球基地</span>
+          </a>
+          <a class="tile" data-tone="gold" href="../space/mars.html" style="--thumb:url('../space/textures/mars.jpg')">
+            <span class="tile-title">火星探险家</span>
+            <span class="tile-desc">红色星球、火山和未来基地</span>
+          </a>
+          <a class="tile" data-tone="green" href="../space/jupiter.html" style="--thumb:url('../space/textures/jupiter.jpg')">
+            <span class="tile-title">木星探险家</span>
+            <span class="tile-desc">太阳系最大行星和大红斑</span>
+          </a>
+          <a class="tile" data-tone="gold" href="../space/saturn.html" style="--thumb:url('../space/textures/saturn.jpg')">
+            <span class="tile-title">土星探险家</span>
+            <span class="tile-desc">环带、卫星和漂亮的气态巨星</span>
+          </a>
+          <a class="tile" data-tone="cyan" href="../space/uranus.html" style="--thumb:url('../space/textures/uranus.jpg')">
+            <span class="tile-title">天王星探险家</span>
+            <span class="tile-desc">躺着转的冰巨星</span>
+          </a>
+          <a class="tile" data-tone="green" href="../space/neptune.html" style="--thumb:url('../space/textures/neptune.jpg')">
+            <span class="tile-title">海王星探险家</span>
+            <span class="tile-desc">蓝色风暴和最远的行星</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
