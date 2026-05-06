@@ -11,6 +11,7 @@ final class WebViewStore: ObservableObject {
     private weak var webView: WKWebView?
     let contentRootURL: URL
     let homeURL: URL
+    let schemeHandler: LocalContentSchemeHandler
 
     init() {
         guard let resourceURL = Bundle.main.resourceURL else {
@@ -18,9 +19,8 @@ final class WebViewStore: ObservableObject {
         }
 
         contentRootURL = resourceURL.appendingPathComponent("WebContent", isDirectory: true)
-        homeURL = contentRootURL
-            .appendingPathComponent("app", isDirectory: true)
-            .appendingPathComponent("index.html")
+        homeURL = URL(string: "zhitian-space://local/app/index.html")!
+        schemeHandler = LocalContentSchemeHandler(rootURL: contentRootURL)
     }
 
     func attach(_ webView: WKWebView) {
@@ -29,7 +29,7 @@ final class WebViewStore: ObservableObject {
     }
 
     func loadHome() {
-        webView?.loadFileURL(homeURL, allowingReadAccessTo: contentRootURL)
+        webView?.load(URLRequest(url: homeURL))
     }
 
     func goBack() {

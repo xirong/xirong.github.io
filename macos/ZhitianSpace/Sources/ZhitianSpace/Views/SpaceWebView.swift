@@ -14,6 +14,7 @@ struct SpaceWebView: NSViewRepresentable {
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
         configuration.websiteDataStore = .default()
         configuration.allowsAirPlayForMediaPlayback = false
+        configuration.setURLSchemeHandler(store.schemeHandler, forURLScheme: "zhitian-space")
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator

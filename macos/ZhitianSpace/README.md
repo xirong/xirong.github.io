@@ -1,6 +1,7 @@
 # 智天太空探险 macOS App
 
 这是 `space/` 内容的 macOS 本地 App 壳，使用 SwiftUI + WKWebView 承载现有静态页面。
+App 内注册了 `zhitian-space://` 本地资源协议，避免直接使用 `file://` 时 WebKit 对 WebGL 纹理、音频等本地资源读取不稳定的问题。
 
 ## 目标
 
