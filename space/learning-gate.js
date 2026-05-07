@@ -224,7 +224,10 @@
                     <div class="learning-gate-answer-pad" aria-label="选择答案"></div>
                     <div class="learning-gate-feedback" aria-live="polite"></div>
                 </main>
-                <footer class="learning-gate-footer">10 个能量题全部点亮后，就可以继续探索</footer>
+                <footer class="learning-gate-footer">
+                    10 个能量题全部点亮后，就可以继续探索
+                    <button type="button" class="learning-gate-skip" aria-label="直接跳过学习闸门">，或者直接跳过</button>
+                </footer>
             </div>
         `;
 
@@ -237,6 +240,9 @@
         root.querySelector('.learning-gate-audio-btn').addEventListener('click', () => {
             const question = session.questions[session.index];
             if (question) playQuestionAudio(question);
+        });
+        root.querySelector('.learning-gate-skip').addEventListener('click', () => {
+            skipSession(session);
         });
 
         createAnswerButtons(session);
@@ -452,6 +458,22 @@
         element.className = 'learning-gate-take-away';
         element.textContent = `划掉 ${amount} 个`;
         return element;
+    }
+
+    function skipSession(session) {
+        const root = session.root;
+        const options = session.options;
+        const planId = session.planId;
+
+        stopGateAudio();
+        root.querySelector('.learning-gate-shell').classList.add('learning-gate-complete');
+        window.setTimeout(() => {
+            root.remove();
+            document.body.classList.remove('learning-gate-open');
+            activeSession = null;
+            session.resolve({ status: 'skipped', planId, wrongAttempts: session.wrongAttempts });
+            runPassCallback(options);
+        }, 380);
     }
 
     function handleAnswer(session, value, button) {

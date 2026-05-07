@@ -419,6 +419,17 @@ body.learning-gate-open {
     text-align: center;
 }
 
+.learning-gate-skip {
+    margin: 0;
+    padding: 0;
+    border: none;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
 .learning-gate-complete {
     animation: learning-gate-complete 0.42s ease both;
 }
