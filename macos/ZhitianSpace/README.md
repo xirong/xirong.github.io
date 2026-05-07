@@ -6,6 +6,7 @@ App 内注册了 `zhitian-space://` 本地资源协议，避免直接使用 `fil
 ## 目标
 
 - 把 `space/textures/`、`space/audio/` 和 Three.js 依赖打进 App 包
+- 使用 `space/textures/sun.jpg` 生成本地 App 图标
 - 入口只保留“太空天文”和“太阳系探险家系列”
 - 保持现有 HTML/CSS/JavaScript 逻辑，减少重写成本
 - 支持离线打开，降低 GitHub Pages 和网络速度对体验的影响

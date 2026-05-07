@@ -17,6 +17,7 @@ APP_RESOURCES="$APP_CONTENTS/Resources"
 APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
 WEB_CONTENT_DIR="$APP_DIR/.build-web/WebContent"
+APP_ICON_SOURCE="$APP_DIR/Resources/ZhitianSpace.icns"
 CONFIGURATION="${CONFIGURATION:-release}"
 
 prepare_web_content() {
@@ -35,6 +36,7 @@ build_app() {
   cp "$BUILD_BINARY" "$APP_BINARY"
   chmod +x "$APP_BINARY"
   rsync -a --delete "$WEB_CONTENT_DIR/" "$APP_RESOURCES/WebContent/"
+  cp "$APP_ICON_SOURCE" "$APP_RESOURCES/ZhitianSpace.icns"
 
   cat >"$INFO_PLIST" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -49,6 +51,8 @@ build_app() {
   <string>$BUNDLE_DISPLAY_NAME</string>
   <key>CFBundleDisplayName</key>
   <string>$BUNDLE_DISPLAY_NAME</string>
+  <key>CFBundleIconFile</key>
+  <string>ZhitianSpace</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
