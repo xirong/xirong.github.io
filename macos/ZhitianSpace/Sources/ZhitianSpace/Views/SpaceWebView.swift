@@ -71,5 +71,18 @@ struct SpaceWebView: NSViewRepresentable {
             store?.refreshNavigationState(from: webView)
             NSLog("ZhitianSpace provisional navigation failed: %@", error.localizedDescription)
         }
+
+        func webView(
+            _ webView: WKWebView,
+            createWebViewWith configuration: WKWebViewConfiguration,
+            for navigationAction: WKNavigationAction,
+            windowFeatures: WKWindowFeatures
+        ) -> WKWebView? {
+            if navigationAction.targetFrame == nil,
+               let requestURL = navigationAction.request.url {
+                webView.load(URLRequest(url: requestURL))
+            }
+            return nil
+        }
     }
 }

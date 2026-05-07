@@ -19,7 +19,7 @@ final class WebViewStore: ObservableObject {
         }
 
         contentRootURL = resourceURL.appendingPathComponent("WebContent", isDirectory: true)
-        homeURL = URL(string: "zhitian-space://local/app/index.html")!
+        homeURL = URL(string: "zhitian-space://local/index.html")!
         schemeHandler = LocalContentSchemeHandler(rootURL: contentRootURL)
     }
 

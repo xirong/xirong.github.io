@@ -10,20 +10,37 @@ VENDOR_DIR="$APP_DIR/Vendor"
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR"
 
-rsync -a --delete \
-  --exclude '.DS_Store' \
-  --exclude '__pycache__' \
-  "$ROOT_DIR/space" "$OUT_DIR/"
+for file in \
+  index.html \
+  favicon.ico \
+  readme.md \
+  sun_vol_vs_mass.html \
+  1251425375.txt \
+  CNAME.bak \
+  sogousiteverification.txt
+do
+  if [[ -f "$ROOT_DIR/$file" ]]; then
+    rsync -a "$ROOT_DIR/$file" "$OUT_DIR/"
+  fi
+done
 
-mkdir -p "$OUT_DIR/app"
-rsync -a --delete "$APP_DIR/WebContent/app/" "$OUT_DIR/app/"
+for dir in space math puzzle engineering etf; do
+  if [[ -d "$ROOT_DIR/$dir" ]]; then
+    rsync -a --delete \
+      --exclude '.DS_Store' \
+      --exclude '__pycache__' \
+      "$ROOT_DIR/$dir" "$OUT_DIR/"
+  fi
+done
 
 mkdir -p "$OUT_DIR/space/vendor"
 rsync -a --delete "$VENDOR_DIR/" "$OUT_DIR/space/vendor/"
+mkdir -p "$OUT_DIR/engineering/vendor"
+rsync -a --delete "$VENDOR_DIR/" "$OUT_DIR/engineering/vendor/"
 
-find "$OUT_DIR/space" -name '*.html' -print0 | while IFS= read -r -d '' file; do
+find "$OUT_DIR" -name '*.html' -print0 | while IFS= read -r -d '' file; do
   perl -0pi -e '
-    s#\s*<link[^>]*fonts\.loli\.net[^>]*>\n?##gs;
+    s#\s*<link[^>]*(?:fonts\.loli\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>\n?##gs;
     s#https://cdnjs\.cloudflare\.com/ajax/libs/three\.js/r128/three\.min\.js#vendor/three/three.min.js#g;
     s#https://cdn\.jsdelivr\.net/npm/three\@0\.128\.0/examples/js/controls/OrbitControls\.js#vendor/three/examples/js/controls/OrbitControls.js#g;
     s#https://cdn\.jsdelivr\.net/npm/three\@0\.128\.0/examples/js/postprocessing/EffectComposer\.js#vendor/three/examples/js/postprocessing/EffectComposer.js#g;
@@ -35,7 +52,7 @@ find "$OUT_DIR/space" -name '*.html' -print0 | while IFS= read -r -d '' file; do
   ' "$file"
 done
 
-if rg -n "https?://(cdnjs|cdn\.jsdelivr|fonts\.loli)" "$OUT_DIR/space" "$OUT_DIR/app" >/tmp/zhitian-space-network-leftovers.txt; then
+if find "$OUT_DIR" -name '*.html' -print0 | xargs -0 rg -n "https?://(cdnjs|cdn\.jsdelivr|fonts\.loli|fonts\.googleapis|fonts\.gstatic)" >/tmp/zhitian-space-network-leftovers.txt; then
   cat /tmp/zhitian-space-network-leftovers.txt >&2
   echo "External runtime dependency remained in packaged web content." >&2
   exit 1
