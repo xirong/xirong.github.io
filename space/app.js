@@ -703,8 +703,8 @@ const REAL_ORBIT_DAYS_PER_SECOND = 24;
 const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
 const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
-const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
-const BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT = 5123;
+// 简化教学口径：用“引力影响区”展示 Sgr A*，约 1,000,000,000 km（约 6.7 AU）
+const BLACK_HOLE_GRAVITY_RADIUS_KM = 1000000000;
 const COMPARISON_MODE_ALIASES = {
     volume: 'volumeCapacity',
     sunVolume: 'volumeCapacity'
@@ -788,7 +788,7 @@ const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
 const blackHoleTextureImage = new Image();
 blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
 
-// 银河系中心黑洞 Sgr A*，按事件视界半径约 1200 万公里的球形空间估算
+// 银河系中心黑洞 Sgr A*，按引力影响区口径估算
 const blackHoleVolumeData = [
     { key: 'sun',      nameCN: '太阳',   count: 5132,           label: '5,132',      color: '#ffcc00' },
     { key: 'mercury',  nameCN: '水星',   count: 119000000000,   label: '1190 亿',    color: '#b5b5b5' },
@@ -3641,7 +3641,7 @@ const CAPACITY_COUNT_OVERRIDES = {
 function getCapacityTargetValue(targetKey, metric) {
     if (targetKey === 'blackHole') {
         if (metric === 'mass') return planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES;
-        return BLACK_HOLE_EVENT_HORIZON_RADIUS_KM * 2;
+        return BLACK_HOLE_GRAVITY_RADIUS_KM * 2;
     }
     const target = planetData[targetKey];
     return metric === 'mass' ? target.mass : target.diameter;
@@ -3696,8 +3696,8 @@ function getCapacitySubtitle(targetKey) {
         return currentComparisonMetric === 'mass'
             ? `按质量测算，银河系中心黑洞 Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍`
             : currentComparisonMetric === 'width'
-                ? `按宽度测算，银河系中心黑洞 Sgr A* 的事件视界直径约等于太阳直径的${formatCapacityLabel(getCapacityCount('blackHole', 'sun'))}倍`
-                : '按直径折算体积，银河系中心黑洞 Sgr A* 的事件视界半径约 1200 万公里';
+                ? `按宽度测算，银河系中心黑洞 Sgr A* 的引力影响区直径约等于太阳直径的${formatCapacityLabel(getCapacityCount('blackHole', 'sun'))}倍`
+                : `按引力影响区体积估算，银河系中心黑洞 Sgr A* 的引力影响区半径约 ${formatNumber(BLACK_HOLE_GRAVITY_RADIUS_KM)} 公里`;
     }
 
     const earthCount = getCapacityCount(targetKey, 'earth');
@@ -3729,9 +3729,9 @@ function getCapacityNote(targetKey) {
             return `按质量估算：Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍，数量 = 黑洞质量 / 天体质量。`;
         }
         if (currentComparisonMetric === 'width') {
-            return '按宽度估算：数量 = 事件视界直径 / 天体直径，表示把这些天体横向排起来大约能排多少个。';
+            return '按宽度估算：数量 = 引力影响区直径 / 天体直径，表示把这些天体横向排起来大约能排多少个。';
         }
-        return `按事件视界圈出的球形空间估算：能装数量 ≈ (事件视界半径 / 天体半径)³。如果把太阳、八大行星和五颗矮行星各放一个，这个黑洞大约能装 ${formatNumber(BLACK_HOLE_SOLAR_SYSTEM_SET_COUNT)} 套。`;
+        return '按引力影响区估算：能装数量 ≈ (引力影响半径 / 天体半径)³，数值会比较大，仅用于量级理解。';
     }
 
     if (currentComparisonMetric === 'width') {
@@ -3848,7 +3848,7 @@ function renderCapacityComparison(container, subtitle, targetKey) {
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
             </div>
             <div class="volume-compare-labels">
-                <span>${targetKey === 'blackHole' ? 'Sgr A* 事件视界' : target.nameCN}</span>
+                <span>${targetKey === 'blackHole' ? 'Sgr A* 引力影响区' : target.nameCN}</span>
                 <span>${selected.nameCN}</span>
             </div>
         </div>
@@ -4075,7 +4075,7 @@ function generateSizeComparison(mode) {
                 nameCN: '黑洞',
                 nameEN: 'Black Hole',
                 type: '黑洞',
-                diameter: BLACK_HOLE_EVENT_HORIZON_RADIUS_KM * 2,
+                diameter: BLACK_HOLE_GRAVITY_RADIUS_KM * 2,
                 mass: planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES,
                 category: 'blackHole',
                 color: 0xffefd6
@@ -4499,7 +4499,7 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true) {
         ctx.font = '600 14px "Noto Sans SC"';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('拖到事件视界', cx, cy);
+        ctx.fillText('拖到引力影响区', cx, cy);
     }
 }
 
@@ -5053,7 +5053,7 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
             dragVolumeAnimationId = requestAnimationFrame(animate);
         } else {
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, animationConfig.resultLabel || '黑洞事件视界能装');
+            showDragResult(label, nameCN, animationConfig.resultLabel || '黑洞引力影响区能装');
         }
     }
 
