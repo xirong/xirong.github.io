@@ -705,6 +705,8 @@ let activeDragCleanup = null; // 当前拖拽态的兜底清理函数
 let pendingDragResultRevealIds = []; // 拖拽结果延时显隐定时器
 let isRealMotion = false; // 是否使用真实自转 / 公转比例
 let simulationTime = 0; // 暂停期间不增长，恢复时从冻结画面继续
+let currentBlackHoleScope = 'blackHoleEventHorizon'; // 黑洞能装子口径
+let currentDragBlackHoleScope = 'blackHoleEventHorizon'; // 拖进黑洞子口径
 
 // 折合后的“真实运动”速度
 // 公转：1 秒约等于 24 个地球日，地球绕太阳一圈约 15.2 秒
@@ -756,6 +758,10 @@ const BLACK_HOLE_SCOPE_LABELS = {
     blackHoleGravitationalRadius: '引力影响区'
 };
 const BLACK_HOLE_TARGET_KEYS = Object.keys(BLACK_HOLE_SCOPE_LABELS);
+const BLACK_HOLE_SCOPE_OPTIONS = [
+    { key: 'blackHoleEventHorizon', label: '事件视界' },
+    { key: 'blackHoleGravitationalRadius', label: '引力影响区' }
+];
 
 function clearPendingDragResultReveal(resetContent = false) {
     pendingDragResultRevealIds.forEach(id => clearTimeout(id));
@@ -3709,6 +3715,20 @@ function isBlackHoleTargetType(targetKey) {
     return targetKey === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(targetKey);
 }
 
+function isBlackHoleCapacityParent(targetKey) {
+    return targetKey === 'blackHole' || isBlackHoleTargetType(targetKey);
+}
+
+function isDragBlackHoleCapacityParent(targetKey) {
+    return targetKey === 'dragBlackHole' || targetKey === 'dragBlackHoleEventHorizon' || targetKey === 'dragBlackHoleGravitationalRadius';
+}
+
+function getBlackHoleScopeFromView(targetView, fallback = 'blackHoleEventHorizon') {
+    return targetView === 'blackHoleGravitationalRadius' || targetView === 'dragBlackHoleGravitationalRadius'
+        ? 'blackHoleGravitationalRadius'
+        : fallback;
+}
+
 function getBlackHoleScopeLabel(targetKey) {
     if (targetKey === 'blackHoleGravitationalRadius') return BLACK_HOLE_SCOPE_LABELS.blackHoleGravitationalRadius;
     return BLACK_HOLE_SCOPE_LABELS.blackHoleEventHorizon;
@@ -3934,11 +3954,9 @@ function renderCapacityTargetPicker(container) {
         { key: 'earth', icon: '🌍', name: '地球' },
         { key: 'venus', icon: '🟡', name: '金星' },
         { key: 'mars', icon: '🔴', name: '火星' },
-        { key: 'blackHoleEventHorizon', icon: '🕳️', name: '黑洞(事件视界)' },
-        { key: 'blackHoleGravitationalRadius', icon: '🕳️', name: '黑洞(引力影响区)' },
+        { key: 'blackHole', icon: '🕳️', name: '黑洞', isGroup: true },
         { key: 'dragVolume', icon: '🎯', name: '拖进太阳', isAction: true },
-        { key: 'dragBlackHoleEventHorizon', icon: '🌀', name: '拖进黑洞(事件视界)', isAction: true },
-        { key: 'dragBlackHoleGravitationalRadius', icon: '🌀', name: '拖进黑洞(引力影响区)', isAction: true }
+        { key: 'dragBlackHole', icon: '🌀', name: '拖进黑洞', isAction: true }
     ];
     const suffix = currentComparisonMetric === 'width'
         ? '宽度'
@@ -3951,13 +3969,27 @@ function renderCapacityTargetPicker(container) {
     targetOptions.forEach(option => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = `capacity-target-btn${option.key === currentCapacityView ? ' active' : ''}`;
+        const isActive = option.key === 'blackHole'
+            ? isBlackHoleCapacityParent(currentCapacityView)
+            : option.key === 'dragBlackHole'
+                ? isDragBlackHoleCapacityParent(currentCapacityView)
+                : option.key === currentCapacityView;
+        btn.className = `capacity-target-btn${isActive ? ' active' : ''}`;
         btn.dataset.capacityView = option.key;
-        btn.textContent = option.isAction
-            ? `${option.icon} ${option.name}`
-            : `${option.icon} ${option.name}${suffix}`;
+        const targetLabel = option.isAction || option.isGroup
+            ? option.name
+            : `${option.name}${suffix}`;
+        btn.textContent = `${option.icon} ${targetLabel}`;
         btn.addEventListener('click', () => {
-            currentCapacityView = option.key;
+            if (option.key === 'blackHole') {
+                currentCapacityView = 'blackHole';
+                currentBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentBlackHoleScope);
+            } else if (option.key === 'dragBlackHole') {
+                currentCapacityView = 'dragBlackHole';
+                currentDragBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentDragBlackHoleScope);
+            } else {
+                currentCapacityView = option.key;
+            }
             generateSizeComparison(currentComparisonTab);
         });
         picker.appendChild(btn);
@@ -3965,21 +3997,49 @@ function renderCapacityTargetPicker(container) {
     container.appendChild(picker);
 }
 
+function renderBlackHoleScopePicker(container, mode = 'capacity') {
+    const scopePicker = document.createElement('div');
+    scopePicker.className = 'capacity-target-picker';
+    scopePicker.style.margin = '-4px auto 12px';
+
+    const currentScope = mode === 'drag' ? currentDragBlackHoleScope : currentBlackHoleScope;
+    BLACK_HOLE_SCOPE_OPTIONS.forEach(option => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `capacity-target-btn${option.key === currentScope ? ' active' : ''}`;
+        btn.dataset.blackHoleScope = option.key;
+        btn.textContent = option.label;
+        btn.addEventListener('click', () => {
+            if (mode === 'drag') {
+                currentDragBlackHoleScope = option.key;
+            } else {
+                currentBlackHoleScope = option.key;
+            }
+            generateSizeComparison(currentComparisonTab);
+        });
+        scopePicker.appendChild(btn);
+    });
+    container.appendChild(scopePicker);
+}
+
 function renderCapacityMode(container, subtitle) {
     renderCapacityTargetPicker(container);
+    if (isDragBlackHoleCapacityParent(currentCapacityView)) {
+        currentDragBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentDragBlackHoleScope);
+        renderBlackHoleScopePicker(container, 'drag');
+        cancelDragVolumeAnimation();
+        generateDragBlackHoleComparison(container, subtitle, currentDragBlackHoleScope);
+        return;
+    }
     if (currentCapacityView === 'dragVolume') {
         cancelDragVolumeAnimation();
         generateDragVolumeComparison(container, subtitle);
         return;
     }
-    if (currentCapacityView === 'dragBlackHole'
-        || currentCapacityView === 'dragBlackHoleEventHorizon'
-        || currentCapacityView === 'dragBlackHoleGravitationalRadius') {
-        cancelDragVolumeAnimation();
-        const dragTarget = currentCapacityView === 'dragBlackHoleGravitationalRadius'
-            ? 'blackHoleGravitationalRadius'
-            : 'blackHoleEventHorizon';
-        generateDragBlackHoleComparison(container, subtitle, dragTarget);
+    if (isBlackHoleCapacityParent(currentCapacityView)) {
+        currentBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentBlackHoleScope);
+        renderBlackHoleScopePicker(container);
+        renderCapacityComparison(container, subtitle, currentBlackHoleScope);
         return;
     }
     renderCapacityComparison(container, subtitle, currentCapacityView);
@@ -3988,6 +4048,7 @@ function renderCapacityMode(container, subtitle) {
 function renderDragCapacityComparison(container, subtitle, targetKey) {
     const target = CAPACITY_TARGETS[targetKey];
     const isBlackHole = isBlackHoleTargetType(targetKey);
+    const blackHoleScopeLabel = isBlackHole ? getBlackHoleScopeLabel(targetKey) : '';
     const capacityData = getCapacityData(targetKey);
 
     subtitle.textContent = currentComparisonMetric === 'mass'
@@ -4040,9 +4101,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
     ctx.scale(dpr, dpr);
 
     if (isBlackHole) {
-        drawIdleBlackHole(ctx, canvasSize);
+        drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
         if (!blackHoleTextureImage.complete) {
-            blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize);
+            blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
         }
     } else {
         drawIdleSun(ctx, canvasSize);
@@ -4055,7 +4116,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
             ? `${target.nameCN}质量约等于`
             : currentComparisonMetric === 'width'
                 ? `${target.nameCN}宽度约等于`
-            : `${target.nameCN}能装`
+                : `${target.nameCN}能装`,
+        blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : ''
     });
 }
 
@@ -4408,25 +4470,37 @@ function generateSizeComparison(mode) {
         generateDragVolumeComparison(container, subtitle);
     } else if (mode === 'blackHoleVolume') {
         // 黑洞能装多少个
-        generateBlackHoleVolumeComparison(container, subtitle, 'blackHoleEventHorizon');
+        currentCapacityView = 'blackHole';
+        currentBlackHoleScope = 'blackHoleEventHorizon';
+        generateBlackHoleVolumeComparison(container, subtitle, currentBlackHoleScope);
     } else if (mode === 'blackHoleEventHorizonVolume') {
         // 黑洞（事件视界）能装多少个
-        generateBlackHoleVolumeComparison(container, subtitle, 'blackHoleEventHorizon');
+        currentCapacityView = 'blackHole';
+        currentBlackHoleScope = 'blackHoleEventHorizon';
+        generateBlackHoleVolumeComparison(container, subtitle, currentBlackHoleScope);
     } else if (mode === 'blackHoleGravitationalVolume') {
         // 黑洞（引力影响区）能装多少个
-        generateBlackHoleVolumeComparison(container, subtitle, 'blackHoleGravitationalRadius');
+        currentCapacityView = 'blackHole';
+        currentBlackHoleScope = 'blackHoleGravitationalRadius';
+        generateBlackHoleVolumeComparison(container, subtitle, currentBlackHoleScope);
     } else if (mode === 'dragBlackHole') {
         // 拖进黑洞
         cancelDragVolumeAnimation();
-        generateDragBlackHoleComparison(container, subtitle, 'blackHoleEventHorizon');
+        currentCapacityView = 'dragBlackHole';
+        currentDragBlackHoleScope = 'blackHoleEventHorizon';
+        generateDragBlackHoleComparison(container, subtitle, currentDragBlackHoleScope);
     } else if (mode === 'dragBlackHoleEventHorizon') {
-        // 拖进黑洞（事件视界）
+        // 兼容旧入口：拖进黑洞（事件视界）
+        currentCapacityView = 'dragBlackHole';
+        currentDragBlackHoleScope = 'blackHoleEventHorizon';
         cancelDragVolumeAnimation();
-        generateDragBlackHoleComparison(container, subtitle, 'blackHoleEventHorizon');
+        generateDragBlackHoleComparison(container, subtitle, currentDragBlackHoleScope);
     } else if (mode === 'dragBlackHoleGravitationalRadius') {
-        // 拖进黑洞（引力影响区）
+        // 兼容旧入口：拖进黑洞（引力影响区）
+        currentCapacityView = 'dragBlackHole';
+        currentDragBlackHoleScope = 'blackHoleGravitationalRadius';
         cancelDragVolumeAnimation();
-        generateDragBlackHoleComparison(container, subtitle, 'blackHoleGravitationalRadius');
+        generateDragBlackHoleComparison(container, subtitle, currentDragBlackHoleScope);
     }
 }
 
@@ -4509,7 +4583,7 @@ function drawIdleSun(ctx, size) {
     ctx.fillText('拖到这里', cx, cy);
 }
 
-function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true) {
+function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '引力影响区') {
     const cx = size / 2, cy = size / 2, r = size / 2 - 18;
     ctx.clearRect(0, 0, size, size);
 
@@ -4580,7 +4654,8 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true) {
         ctx.font = '600 14px "Noto Sans SC"';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('拖到引力影响区', cx, cy);
+        const hintText = `拖到${scopeLabel}`;
+        ctx.fillText(hintText, cx, cy);
     }
 }
 
@@ -5134,7 +5209,10 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
             dragVolumeAnimationId = requestAnimationFrame(animate);
         } else {
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, animationConfig.resultLabel || '黑洞引力影响区能装');
+            const defaultLabel = animationConfig.blackHoleScopeLabel
+                ? `${animationConfig.blackHoleScopeLabel}能装`
+                : '黑洞能装';
+            showDragResult(label, nameCN, animationConfig.resultLabel || defaultLabel);
         }
     }
 
