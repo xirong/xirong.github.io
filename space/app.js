@@ -655,6 +655,29 @@ let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
 let currentComparisonMetric = 'diameter'; // 'diameter'、'mass' 或 'width'
 let currentComparisonTab = 'diameter'; // 'diameter'、'mass'、'volumeCapacity'、'massCapacity' 或 'widthCapacity'
 let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
+let currentDiameterDetailIndex = -1; // 按直径页签下的当前小天体版本索引
+const DIAMETER_DETAIL_PROFILES = [
+    {
+        label: '去掉太阳/木星/土星',
+        subtitle: '去掉太阳、木星、土星，以天王星为最大参照，看清小天体真实比例',
+        planets: ['uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    {
+        label: '继续去掉天王星/海王星',
+        subtitle: '继续去掉天王星、海王星，地球和金星开始成为这组中的最大天体',
+        planets: ['earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    {
+        label: '继续去掉地球/金星',
+        subtitle: '继续去掉地球、金星，火星、木卫三等天体是这组的主对比对象',
+        planets: ['mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+    },
+    {
+        label: '黑洞 + 奥尔特云 + 太阳/木星/土星',
+        subtitle: '银河系黑洞、奥尔特云与太阳、木星、土星的直径比例',
+        planets: ['blackHole', 'oortCloud', 'sun', 'jupiter', 'saturn']
+    }
+];
 let currentCapacityView = 'sun';
 const currentCapacitySelections = {
     sun: 'earth',
@@ -4014,7 +4037,9 @@ function generateSizeComparison(mode) {
         jovian: '💨 气态',
         star: '⭐ 恒星',
         dwarf: '🧊 矮行星',
-        moon: '🌙 卫星'
+        moon: '🌙 卫星',
+        blackHole: '🕳️ 黑洞',
+        region: '☁️ 天体云团'
     };
 
     // 行星纹理贴图映射
@@ -4034,15 +4059,61 @@ function generateSizeComparison(mode) {
         haumea: 'textures/haumea.jpg',
         makemake: 'textures/makemake.jpg',
         eris: 'textures/eris.jpg',
-        ganymede: 'textures/ganymede.jpg'
+        ganymede: 'textures/ganymede.jpg',
+        oortCloud: 'textures/starfield.jpg'
     };
+
+    const getDiameterPlanetData = (key) => {
+        if (key === 'blackHole') {
+            return {
+                name: '银河系中心黑洞',
+                nameCN: '黑洞',
+                nameEN: 'Black Hole',
+                type: '黑洞',
+                diameter: BLACK_HOLE_EVENT_HORIZON_RADIUS_KM * 2,
+                mass: planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES,
+                category: 'blackHole',
+                color: 0xffefd6
+            };
+        }
+        if (key === 'oortCloud' && planetData[key]) {
+            return {
+                ...planetData[key],
+                category: 'region'
+            };
+        }
+        return planetData[key];
+    };
+
+    const getDiameterSphereStyle = (key, data) => {
+        if (key === 'blackHole') {
+            return `background: url('${BLACK_HOLE_TEXTURE_PATH}') center/cover;`;
+        }
+        if (key === 'oortCloud') {
+            return `background: radial-gradient(circle at 30% 25%, rgba(183, 230, 255, 0.2), rgba(183, 230, 255, 0) 45%), radial-gradient(circle at 75% 75%, rgba(120, 170, 255, 0.22), rgba(120, 170, 255, 0) 50%), url('textures/starfield.jpg') center/cover;`;
+        }
+        return planetTextures[key]
+            ? `background: url('${planetTextures[key]}') center/cover;`
+            : `background: #${data.color.toString(16).padStart(6, '0')};`;
+    };
+
+    const getDiameterDetailText = () => {
+        if (!isDiameterDetailMode) {
+            return '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
+        }
+        const nextIndex = currentDiameterDetailIndex + 1;
+        if (nextIndex >= DIAMETER_DETAIL_PROFILES.length) {
+            return '← 返回完整直径对比';
+        }
+        return `↔️ ${DIAMETER_DETAIL_PROFILES[nextIndex].label}`;
+    };
+
+    const getDiameterDetailProfile = () => DIAMETER_DETAIL_PROFILES[Math.min(Math.max(currentDiameterDetailIndex, 0), DIAMETER_DETAIL_PROFILES.length - 1)];
 
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
         const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
-        subtitle.textContent = isDiameterDetailMode
-            ? '去掉太阳、木星、土星，以天王星为最大参照，看清小天体真实比例'
-            : '以地球为参考（直径 = 12,742 km）';
+        subtitle.textContent = isDiameterDetailMode ? getDiameterDetailProfile().subtitle : '以地球为参考（直径 = 12,742 km）';
 
         // 放大版切换按钮（插入到 subtitle 后面、container 前面）
         let detailLink = document.getElementById('sizeDetailLink');
@@ -4055,10 +4126,18 @@ function generateSizeComparison(mode) {
             subtitle.parentNode.insertBefore(detailLink, container);
         }
         detailLink.textContent = isDiameterDetailMode
-            ? '← 返回完整直径对比'
+            ? getDiameterDetailText()
             : '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
         detailLink.onclick = function() {
-            isDiameterDetailMode = !isDiameterDetailMode;
+            if (!isDiameterDetailMode) {
+                isDiameterDetailMode = true;
+                currentDiameterDetailIndex = 0;
+            } else if (currentDiameterDetailIndex >= DIAMETER_DETAIL_PROFILES.length - 1) {
+                isDiameterDetailMode = false;
+                currentDiameterDetailIndex = -1;
+            } else {
+                currentDiameterDetailIndex += 1;
+            }
             generateSizeComparison('diameter');
         };
         detailLink.onmouseover = function() { this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='#7de8d5'; };
@@ -4069,22 +4148,31 @@ function generateSizeComparison(mode) {
             container.classList.add('diameter-detail-mode');
             container.style.padding = '18px 12px 24px';
 
-            const detailPlanets = ['uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
-            const maxDiameter = planetData.uranus.diameter;
+            const profile = getDiameterDetailProfile();
+            const detailPlanets = profile ? profile.planets : DIAMETER_DETAIL_PROFILES[0].planets;
+            const maxDiameter = Math.max(
+                1,
+                ...detailPlanets.map(name => {
+                    const item = getDiameterPlanetData(name);
+                    return item && item.diameter ? item.diameter : 1;
+                })
+            );
             const maxDisplaySize = 260;
             const earthDiameter = 12742;
 
             detailPlanets.forEach(name => {
-                const data = planetData[name];
+                const data = getDiameterPlanetData(name);
+                if (!data) return;
                 const categoryClass = data.category || '';
                 const displaySize = Math.max(8, maxDisplaySize * (data.diameter / maxDiameter));
                 const earthRatio = data.diameter / earthDiameter;
                 const earthLabel = name === 'earth'
                     ? '= 1 地球'
                     : `= ${earthRatio.toFixed(2)} 地球`;
-                const bgStyle = planetTextures[name]
-                    ? `background: url('${planetTextures[name]}') center/cover;`
-                    : `background: #${data.color.toString(16).padStart(6, '0')};`;
+                const bgStyle = getDiameterSphereStyle(name, data);
+                const extraStyle = name === 'blackHole'
+                    ? 'box-shadow: 0 0 50px rgba(255, 210, 140, 0.5), 0 0 100px rgba(255, 90, 20, 0.25);'
+                    : '';
 
                 const div = document.createElement('div');
                 div.className = `comparison-planet diameter-detail-planet ${categoryClass}`;
@@ -4093,6 +4181,7 @@ function generateSizeComparison(mode) {
                         width: ${displaySize}px;
                         height: ${displaySize}px;
                         ${bgStyle}
+                        ${extraStyle}
                         color: #${data.color.toString(16).padStart(6, '0')};
                     "></div>
                     <div class="name">${data.nameCN}</div>
@@ -5009,6 +5098,7 @@ function setupComparisonTabs() {
             }
             if (currentComparisonTab !== 'diameter') {
                 isDiameterDetailMode = false;
+                currentDiameterDetailIndex = -1;
             }
             generateSizeComparison(currentComparisonTab);
         });
