@@ -3791,7 +3791,12 @@ function getCapacitySubtitle(targetKey) {
     return `${metricText}，${target.nameCN}约为地球的${earthOverride?.label || formatCapacityLabel(earthCount)}倍`;
 }
 
-function getCapacityUnitText(targetName, selected) {
+function getCapacityTargetDisplayName(targetKey) {
+    return isBlackHoleTargetType(targetKey) ? '黑洞' : (CAPACITY_TARGETS[targetKey]?.nameCN || '');
+}
+
+function getCapacityUnitText(targetKey, selected) {
+    const targetName = getCapacityTargetDisplayName(targetKey);
     if (currentComparisonMetric === 'mass') {
         return `${targetName}质量约等于${selected.label}个${selected.nameCN}`;
     }
@@ -3841,6 +3846,7 @@ function getTargetCircleStyle(targetKey, size = 180) {
 function renderCapacityComparison(container, subtitle, targetKey) {
     const target = CAPACITY_TARGETS[targetKey];
     subtitle.textContent = getCapacitySubtitle(targetKey);
+    const targetDisplayName = getCapacityTargetDisplayName(targetKey);
 
     const capacityData = getCapacityData(targetKey);
     const selectedKey = getCurrentCapacitySelection(targetKey);
@@ -3857,10 +3863,10 @@ function renderCapacityComparison(container, subtitle, targetKey) {
     const targetClass = isBlackHoleTargetType(targetKey) ? ' black-hole-core' : '';
     const labelColorStyle = targetKey === 'sun' || isBlackHoleTargetType(targetKey) ? '' : 'color:rgba(255,255,255,0.76);';
     const targetActionLabel = currentComparisonMetric === 'width'
-        ? `${target.nameCN}宽度`
+        ? `${targetDisplayName}宽度`
         : currentComparisonMetric === 'mass'
-            ? `${target.nameCN}质量`
-            : `${target.nameCN}能装`;
+            ? `${targetDisplayName}质量`
+            : `${targetDisplayName}能装`;
 
     const heroHTML = `
         <div class="volume-hero">
@@ -3871,7 +3877,7 @@ function renderCapacityComparison(container, subtitle, targetKey) {
             </div>
             <div class="volume-big-number">
                 <div class="number">${selected.label}</div>
-                <div class="unit">${getCapacityUnitText(target.nameCN, selected)}</div>
+                <div class="unit">${getCapacityUnitText(targetKey, selected)}</div>
             </div>
         </div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
@@ -4050,12 +4056,13 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
     const isBlackHole = isBlackHoleTargetType(targetKey);
     const blackHoleScopeLabel = isBlackHole ? getBlackHoleScopeLabel(targetKey) : '';
     const capacityData = getCapacityData(targetKey);
+    const targetDisplayName = isBlackHole ? '黑洞' : target.nameCN;
 
     subtitle.textContent = currentComparisonMetric === 'mass'
-        ? `拖拽天体放入${target.nameCN}，按质量看看相当于多少个`
+        ? `拖拽天体放入${targetDisplayName}，按质量看看相当于多少个`
         : currentComparisonMetric === 'width'
-            ? `拖拽天体放入${target.nameCN}，按宽度看看横向约等于多少个`
-            : `拖拽天体放入${target.nameCN}，按直径折算体积看看能装多少个`;
+            ? `拖拽天体放入${targetDisplayName}，按宽度看看横向约等于多少个`
+            : `拖拽天体放入${targetDisplayName}，按直径折算体积看看能装多少个`;
 
     const wrapper = document.createElement('div');
     wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}`;
@@ -4113,10 +4120,10 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
         startAnimation: isBlackHole ? startBlackHoleFillAnimation : startFillAnimation,
         ghostMaxSize: isBlackHole ? 42 : 40,
         resultLabel: currentComparisonMetric === 'mass'
-            ? `${target.nameCN}质量约等于`
+            ? `${targetDisplayName}质量约等于`
             : currentComparisonMetric === 'width'
-                ? `${target.nameCN}宽度约等于`
-                : `${target.nameCN}能装`,
+                ? `${targetDisplayName}宽度约等于`
+                : `${targetDisplayName}能装`,
         blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : ''
     });
 }
