@@ -1856,6 +1856,34 @@
             border-color: transparent;
         }
 
+        .diameter-detail-tabs {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto 16px;
+        }
+
+        .diameter-detail-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.78rem;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .diameter-detail-tab:hover,
+        .diameter-detail-tab.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.9), rgba(124, 58, 237, 0.9));
+            border-color: transparent;
+            color: #fff;
+        }
+
         .comparison-metric-toggle .tab-btn {
             padding: 9px 18px;
             border-radius: 18px;
@@ -2686,6 +2714,15 @@
                 font-size: 0.8rem;
             }
 
+            .diameter-detail-tabs {
+                gap: 6px;
+            }
+
+            .diameter-detail-tab {
+                padding: 7px 12px;
+                font-size: 0.72rem;
+            }
+
             .comparison-metric-toggle .tab-btn {
                 padding: 7px 12px;
             }
@@ -2978,6 +3015,7 @@
         </div>
 
         <p class="comparison-subtitle" id="comparisonSubtitle">以地球为参考（直径 = 12,742 km）</p>
+        <div class="diameter-detail-tabs" id="diameterDetailTabs" aria-label="按直径小对比版本"></div>
         <div class="planets-row" id="comparisonRow">
             <!-- 动态生成 -->
         </div>

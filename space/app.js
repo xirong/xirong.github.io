@@ -4017,9 +4017,14 @@ function generateSizeComparison(mode) {
     const legend = document.querySelector('.planet-types-legend');
     if (legend) legend.style.display = isVolumeMode ? 'none' : 'flex';
 
-    // 放大对比链接只在 diameter 模式下显示
-    const existingLink = document.getElementById('sizeDetailLink');
-    if (existingLink && mode !== 'diameter') existingLink.style.display = 'none';
+    // 直径子标签（小行星/遥远天体对比）只在 diameter 模式下显示
+    const detailTabs = document.getElementById('diameterDetailTabs');
+    if (detailTabs) {
+        if (mode !== 'diameter') {
+            detailTabs.style.display = 'none';
+            detailTabs.innerHTML = '';
+        }
+    }
 
     // 对比换算模式下 planets-row 不需要 flex 横排，改为 block
     if (isVolumeMode) {
@@ -4097,59 +4102,45 @@ function generateSizeComparison(mode) {
             : `background: #${data.color.toString(16).padStart(6, '0')};`;
     };
 
-    const getDiameterDetailText = () => {
-        if (!isDiameterDetailMode) {
-            return '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
-        }
-        const nextIndex = currentDiameterDetailIndex + 1;
-        if (nextIndex >= DIAMETER_DETAIL_PROFILES.length) {
-            return '← 返回完整直径对比';
-        }
-        return `↔️ ${DIAMETER_DETAIL_PROFILES[nextIndex].label}`;
-    };
-
-    const getDiameterDetailProfile = () => DIAMETER_DETAIL_PROFILES[Math.min(Math.max(currentDiameterDetailIndex, 0), DIAMETER_DETAIL_PROFILES.length - 1)];
-
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
         const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
-        subtitle.textContent = isDiameterDetailMode ? getDiameterDetailProfile().subtitle : '以地球为参考（直径 = 12,742 km）';
+        const detailProfile = isDiameterDetailMode && currentDiameterDetailIndex >= 0
+            ? DIAMETER_DETAIL_PROFILES[Math.min(currentDiameterDetailIndex, DIAMETER_DETAIL_PROFILES.length - 1)]
+            : null;
+        subtitle.textContent = isDiameterDetailMode && detailProfile ? detailProfile.subtitle : '以地球为参考（直径 = 12,742 km）';
 
-        // 放大版切换按钮（插入到 subtitle 后面、container 前面）
-        let detailLink = document.getElementById('sizeDetailLink');
-        if (!detailLink || detailLink.tagName !== 'BUTTON') {
-            if (detailLink) detailLink.remove();
-            detailLink = document.createElement('button');
-            detailLink.id = 'sizeDetailLink';
-            detailLink.type = 'button';
-            detailLink.style.cssText = 'display:inline-block;margin-bottom:15px;padding:8px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#7de8d5;font-size:0.9rem;text-decoration:none;transition:all 0.3s;cursor:pointer;font-family:inherit;';
-            subtitle.parentNode.insertBefore(detailLink, container);
+        if (detailTabs) {
+            detailTabs.style.display = 'flex';
+            detailTabs.innerHTML = '';
+            DIAMETER_DETAIL_PROFILES.forEach((profile, index) => {
+                const tabBtn = document.createElement('button');
+                tabBtn.className = 'diameter-detail-tab';
+                if (isDiameterDetailMode && currentDiameterDetailIndex === index) {
+                    tabBtn.classList.add('active');
+                }
+                tabBtn.type = 'button';
+                tabBtn.textContent = profile.label;
+                tabBtn.addEventListener('click', () => {
+                    if (isDiameterDetailMode && currentDiameterDetailIndex === index) {
+                        isDiameterDetailMode = false;
+                        currentDiameterDetailIndex = -1;
+                    } else {
+                        isDiameterDetailMode = true;
+                        currentDiameterDetailIndex = index;
+                    }
+                    generateSizeComparison('diameter');
+                });
+                detailTabs.appendChild(tabBtn);
+            });
         }
-        detailLink.textContent = isDiameterDetailMode
-            ? getDiameterDetailText()
-            : '🔍 去掉太阳/木星/土星，查看小天体放大对比 →';
-        detailLink.onclick = function() {
-            if (!isDiameterDetailMode) {
-                isDiameterDetailMode = true;
-                currentDiameterDetailIndex = 0;
-            } else if (currentDiameterDetailIndex >= DIAMETER_DETAIL_PROFILES.length - 1) {
-                isDiameterDetailMode = false;
-                currentDiameterDetailIndex = -1;
-            } else {
-                currentDiameterDetailIndex += 1;
-            }
-            generateSizeComparison('diameter');
-        };
-        detailLink.onmouseover = function() { this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='#7de8d5'; };
-        detailLink.onmouseout = function() { this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.2)'; };
-        detailLink.style.display = 'inline-block';
 
         if (isDiameterDetailMode) {
             container.classList.add('diameter-detail-mode');
             container.style.padding = '18px 12px 24px';
 
-            const profile = getDiameterDetailProfile();
-            const detailPlanets = profile ? profile.planets : DIAMETER_DETAIL_PROFILES[0].planets;
+            const profile = detailProfile || DIAMETER_DETAIL_PROFILES[0];
+            const detailPlanets = profile.planets;
             const maxDiameter = Math.max(
                 1,
                 ...detailPlanets.map(name => {
@@ -4620,7 +4611,10 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             if (!clickable) {
                 continue;
             }
-            if (wrapper.contains(clickable) && !clickable.classList.contains('tab-btn') && clickable.id !== 'closeSizeComparison' && clickable.id !== 'sizeDetailLink') {
+            if (wrapper.contains(clickable)
+                && !clickable.classList.contains('tab-btn')
+                && !clickable.classList.contains('diameter-detail-tab')
+                && clickable.id !== 'closeSizeComparison') {
                 continue;
             }
             return clickable;
