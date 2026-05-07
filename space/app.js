@@ -3933,7 +3933,7 @@ function renderCapacityComparison(container, subtitle, targetKey) {
                 <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
             </div>
             <div class="volume-compare-labels">
-                <span>${target.nameCN}</span>
+                <span>${targetDisplayName}</span>
                 <span>${selected.nameCN}</span>
             </div>
         </div>
@@ -3982,9 +3982,11 @@ function renderCapacityTargetPicker(container) {
                 : option.key === currentCapacityView;
         btn.className = `capacity-target-btn${isActive ? ' active' : ''}`;
         btn.dataset.capacityView = option.key;
-        const targetLabel = option.isAction || option.isGroup
-            ? option.name
-            : `${option.name}${suffix}`;
+        const targetLabel = option.key === 'blackHole'
+            ? `${option.name}${suffix}`
+            : option.isAction || option.isGroup
+                ? option.name
+                : `${option.name}${suffix}`;
         btn.textContent = `${option.icon} ${targetLabel}`;
         btn.addEventListener('click', () => {
             if (option.key === 'blackHole') {
