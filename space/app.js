@@ -673,13 +673,9 @@ const DIAMETER_DETAIL_PROFILES = [
         planets: ['mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     {
-        label: '黑洞(事件视界) + 奥尔特云 + 太阳/木星/土星',
-        subtitle: '银河系黑洞（事件视界口径）、奥尔特云与太阳、木星、土星的直径比例',
-        planets: ['blackHoleEventHorizon', 'oortCloud', 'sun', 'jupiter', 'saturn']
-    },
-    {
-        label: '黑洞(引力影响区) + 奥尔特云 + 太阳/木星/土星',
-        subtitle: '银河系黑洞（引力影响区口径）、奥尔特云与太阳、木星、土星的直径比例',
+        label: '黑洞、奥尔特云、太阳、木星、土星',
+        subtitle: '银河系中心黑洞、奥尔特云与太阳、木星、土星的直径比例',
+        isBlackHoleProfile: true,
         planets: ['blackHoleGravitationalRadius', 'oortCloud', 'sun', 'jupiter', 'saturn']
     }
 ];
@@ -4005,10 +4001,15 @@ function renderCapacityTargetPicker(container) {
     container.appendChild(picker);
 }
 
-function renderBlackHoleScopePicker(container, mode = 'capacity') {
+function renderBlackHoleScopePicker(container, mode = 'capacity', options = {}) {
     const scopePicker = document.createElement('div');
     scopePicker.className = 'capacity-target-picker';
-    scopePicker.style.margin = '-4px auto 12px';
+    const scopeLabelSuffix = options.labelSuffix || '';
+    if (mode === 'diameter') {
+        scopePicker.style.margin = '-2px auto 10px';
+    } else {
+        scopePicker.style.margin = '-4px auto 12px';
+    }
 
     const currentScope = mode === 'drag' ? currentDragBlackHoleScope : currentBlackHoleScope;
     BLACK_HOLE_SCOPE_OPTIONS.forEach(option => {
@@ -4016,7 +4017,7 @@ function renderBlackHoleScopePicker(container, mode = 'capacity') {
         btn.type = 'button';
         btn.className = `capacity-target-btn${option.key === currentScope ? ' active' : ''}`;
         btn.dataset.blackHoleScope = option.key;
-        btn.textContent = option.label;
+        btn.textContent = `${option.label}${scopeLabelSuffix}`;
         btn.addEventListener('click', () => {
             if (mode === 'drag') {
                 currentDragBlackHoleScope = option.key;
@@ -4278,7 +4279,16 @@ function generateSizeComparison(mode) {
             container.style.padding = '18px 12px 24px';
 
             const profile = detailProfile || DIAMETER_DETAIL_PROFILES[0];
-            const detailPlanets = profile.planets;
+            const isBlackHoleDetailProfile = profile && profile.isBlackHoleProfile;
+            const diameterBlackHoleScope = isBlackHoleDetailProfile
+                ? (BLACK_HOLE_TARGET_KEYS.includes(currentBlackHoleScope) ? currentBlackHoleScope : BLACK_HOLE_TARGET_KEYS[0])
+                : null;
+            if (diameterBlackHoleScope) {
+                currentBlackHoleScope = diameterBlackHoleScope;
+            }
+            const detailPlanets = isBlackHoleDetailProfile
+                ? profile.planets.map(name => (BLACK_HOLE_TARGET_KEYS.includes(name) ? diameterBlackHoleScope : name))
+                : profile.planets;
             const maxDiameter = Math.max(
                 1,
                 ...detailPlanets.map(name => {
@@ -4288,6 +4298,10 @@ function generateSizeComparison(mode) {
             );
             const maxDisplaySize = 260;
             const earthDiameter = 12742;
+
+            if (isBlackHoleDetailProfile) {
+                renderBlackHoleScopePicker(container, 'diameter', { labelSuffix: '口径' });
+            }
 
             detailPlanets.forEach(name => {
                 const data = getDiameterPlanetData(name);
