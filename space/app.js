@@ -301,7 +301,7 @@ const planetData = {
         nameCN: '奥尔特云',
         nameEN: 'Oort Cloud',
         type: '彗星云团',
-        diameter: 200000, // AU（约 30 万亿公里直径）
+        diameter: 30000000000000, // km，约 30 万亿公里，约 200,000 AU
         mass: 5, // 约5倍地球质量（估计值）
         category: 'region',
         distance: 50000, // AU（到太阳平均距离）
