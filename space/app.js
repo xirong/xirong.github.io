@@ -175,6 +175,118 @@ const planetData = {
         description: '木卫三是太阳系最大的卫星，比水星还大，它的外面像冰壳，里面可能有一片看不见的大海，木卫三有自己的磁场，像是自己的保护罩。',
         relativeSize: 0.413 // 5268/12742
     },
+    titan: {
+        name: '土卫六',
+        nameCN: '土卫六',
+        nameEN: 'Titan',
+        type: '卫星',
+        diameter: 5150, // km
+        mass: 0.1345, // 10²⁴ kg
+        category: 'moon',
+        distance: 1435, // 百万 km（随土星）
+        orbitPeriod: 15.95, // 天（土星公转周期）
+        rotationPeriod: 15.95, // 天（同步）
+        color: 0xf6d08b,
+        emissive: 0x6d5638,
+        description: '土卫六是土星最大的卫星，拥有浓厚的大气层和液态甲烷湖海，它有自己独特的雾色天象。',
+        relativeSize: 0.404 // 5150/12742
+    },
+    rhea: {
+        name: '土卫五',
+        nameCN: '土卫五',
+        nameEN: 'Rhea',
+        type: '卫星',
+        diameter: 1528, // km
+        mass: 0.002306, // 10²⁴ kg
+        category: 'moon',
+        distance: 1435.8, // 百万 km（随土星）
+        orbitPeriod: 4.52, // 天
+        rotationPeriod: 4.52,
+        color: 0x9fa2b8,
+        emissive: 0x5b6070,
+        description: '土卫五是土星的一颗大型明亮冰质卫星，表面很亮，保存了很多古老的撞击坑。',
+        relativeSize: 0.12 // 1528/12742
+    },
+    enceladus: {
+        name: '土卫二',
+        nameCN: '土卫二',
+        nameEN: 'Enceladus',
+        type: '卫星',
+        diameter: 504, // km
+        mass: 0.000108, // 10²⁴ kg
+        category: 'moon',
+        distance: 1435.2, // 百万 km（随土星）
+        orbitPeriod: 1.37, // 天
+        rotationPeriod: 1.37,
+        color: 0x9fd9ff,
+        emissive: 0x2f4f70,
+        description: '土卫二是土星内部很活跃的冰卫星，南极有“虎纹”冰裂隙，会喷出冰尘和蒸汽。',
+        relativeSize: 0.0396 // 504/12742
+    },
+    phobos: {
+        name: '火卫一',
+        nameCN: '火卫一',
+        nameEN: 'Phobos',
+        type: '卫星',
+        diameter: 22.2, // km
+        mass: 0.0000000107, // 10²⁴ kg
+        category: 'moon',
+        distance: 1.5, // 百万 km（随火星）
+        orbitPeriod: 0.3189, // 天（火星公转周期）
+        rotationPeriod: 0.3189,
+        color: 0x8a7c66,
+        emissive: 0x3b3022,
+        description: '火卫一离火星很近，形状不规则，表面坑坑洼洼，像颗贴着主星慢跑的小卫星。',
+        relativeSize: 0.00174 // 22.2/12742
+    },
+    deimos: {
+        name: '火卫二',
+        nameCN: '火卫二',
+        nameEN: 'Deimos',
+        type: '卫星',
+        diameter: 12.6, // km
+        mass: 0.0000000015, // 10²⁴ kg
+        category: 'moon',
+        distance: 2.3, // 百万 km（随火星）
+        orbitPeriod: 1.26, // 天
+        rotationPeriod: 1.26, // 同步自转
+        color: 0x6e7280,
+        emissive: 0x2a2f3a,
+        description: '火卫二是火星较远更小的卫星，表面更暗更平静，像颗安静的伴星。',
+        relativeSize: 0.00099 // 12.6/12742
+    },
+    triton: {
+        name: '海卫一',
+        nameCN: '海卫一',
+        nameEN: 'Triton',
+        type: '卫星',
+        diameter: 2707, // km
+        mass: 0.0214, // 10²⁴ kg
+        category: 'moon',
+        distance: 4500, // 百万 km（随海王星）
+        orbitPeriod: -5.88, // 天（逆行）
+        rotationPeriod: -5.88,
+        color: 0x7cc8ff,
+        emissive: 0x2f5f8d,
+        description: '海卫一轨道逆行，可能不是原生形成，表面有年轻的地质痕迹。',
+        relativeSize: 0.2124 // 2707/12742
+    },
+    titania: {
+        name: '天卫一',
+        nameCN: '天卫一',
+        nameEN: 'Titania',
+        type: '卫星',
+        diameter: 1578, // km
+        mass: 0.00342, // 10²⁴ kg
+        category: 'moon',
+        distance: 2870, // 百万 km（随天王星）
+        orbitPeriod: 8.71, // 天
+        rotationPeriod: 8.71,
+        color: 0x88b999,
+        emissive: 0x3e5b61,
+        description: '天卫一是天王星系统里较大的卫星，拥有巨大的断裂谷和亮暗相间地形。',
+        relativeSize: 0.1238 // 1578/12742
+    },
     jupiter: {
         name: '木星',
         nameCN: '木星',
@@ -729,21 +841,50 @@ let currentComparisonMetric = 'diameter'; // 'diameter'、'mass' 或 'width'
 let currentComparisonTab = 'diameter'; // 'diameter'、'mass'、'volumeCapacity'、'massCapacity' 或 'widthCapacity'
 let isDiameterDetailMode = false; // 按直径页签内的小天体放大模式
 let currentDiameterDetailIndex = -1; // 按直径页签下的当前小天体版本索引
+const SATELLITE_COMPARISON_KEYS = [
+    'ganymede',
+    'titan',
+    'io',
+    'europa',
+    'triton',
+    'titania',
+    'rhea',
+    'enceladus',
+    'phobos',
+    'deimos'
+];
+const SATELLITE_AND_DWARF_COMPARISON_KEYS = [...SATELLITE_COMPARISON_KEYS, 'moon', 'mercury'];
+const DIAMETER_COMPARISON_PLANETS = [
+    'sun',
+    'jupiter',
+    'saturn',
+    'uranus',
+    'neptune',
+    'earth',
+    'venus',
+    'mars',
+    ...SATELLITE_AND_DWARF_COMPARISON_KEYS,
+    'pluto',
+    'eris',
+    'haumea',
+    'makemake',
+    'ceres'
+];
 const DIAMETER_DETAIL_PROFILES = [
     {
         label: '去掉太阳/木星/土星',
         subtitle: '去掉太阳、木星、土星，以天王星为最大参照，看清小天体真实比例',
-        planets: ['uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        planets: ['uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     {
         label: '继续去掉天王星/海王星',
         subtitle: '继续去掉天王星、海王星，地球和金星开始成为这组中的最大天体',
-        planets: ['earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        planets: ['earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     {
         label: '继续去掉地球/金星',
         subtitle: '继续去掉地球、金星，火星、木卫三等天体是这组的主对比对象',
-        planets: ['mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        planets: ['mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     {
         label: '黑洞、奥尔特云、太阳、木星、土星',
@@ -3805,74 +3946,74 @@ const CAPACITY_TARGETS = {
         nameCN: '太阳',
         texture: 'textures/sun.jpg',
         color: '#ffcc00',
-        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     jupiter: {
         key: 'jupiter',
         nameCN: '木星',
         texture: 'textures/jupiter.jpg',
         color: '#d8ca9d',
-        objectKeys: ['saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     saturn: {
         key: 'saturn',
         nameCN: '土星',
         texture: 'textures/saturn.jpg',
         color: '#ead6b8',
-        objectKeys: ['jupiter', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['jupiter', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     uranus: {
         key: 'uranus',
         nameCN: '天王星',
         texture: 'textures/uranus.jpg',
         color: '#7de8d5',
-        objectKeys: ['jupiter', 'saturn', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['jupiter', 'saturn', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     neptune: {
         key: 'neptune',
         nameCN: '海王星',
         texture: 'textures/neptune.jpg',
         color: '#5b5ddf',
-        objectKeys: ['jupiter', 'saturn', 'uranus', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['jupiter', 'saturn', 'uranus', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     earth: {
         key: 'earth',
         nameCN: '地球',
         texture: 'textures/earth_daymap.jpg',
         color: '#6b93d6',
-        objectKeys: ['venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     venus: {
         key: 'venus',
         nameCN: '金星',
         texture: 'textures/venus_atmosphere.jpg',
         color: '#e6c87a',
-        objectKeys: ['mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     mars: {
         key: 'mars',
         nameCN: '火星',
         texture: 'textures/mars.jpg',
         color: '#c1440e',
-        objectKeys: ['ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: [...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     blackHole: {
         key: 'blackHole',
         nameCN: '黑洞（事件视界）',
         color: '#fff3cf',
-        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     blackHoleEventHorizon: {
         key: 'blackHoleEventHorizon',
         nameCN: '黑洞（事件视界）',
         color: '#fff3cf',
-        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     },
     blackHoleGravitationalRadius: {
         key: 'blackHoleGravitationalRadius',
         nameCN: '黑洞（引力影响区）',
         color: '#ffd59a',
-        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
     }
 };
 
@@ -4444,6 +4585,15 @@ function generateSizeComparison(mode) {
         makemake: 'textures/makemake.jpg',
         eris: 'textures/eris.jpg',
         ganymede: 'textures/ganymede.jpg',
+        io: 'textures/io.jpg',
+        europa: 'textures/europa.jpg',
+        titan: 'textures/titan.jpg',
+        rhea: 'textures/rhea.jpg',
+        enceladus: 'textures/enceladus.jpg',
+        phobos: 'textures/phobos.jpg',
+        deimos: 'textures/deimos.jpg',
+        triton: 'textures/triton.jpg',
+        titania: 'textures/titania.jpg',
         oortCloud: 'textures/starfield.jpg'
     };
 
@@ -4484,7 +4634,7 @@ function generateSizeComparison(mode) {
 
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
-        const sortedPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
+        const sortedPlanets = DIAMETER_COMPARISON_PLANETS;
         const detailProfile = isDiameterDetailMode && currentDiameterDetailIndex >= 0
             ? DIAMETER_DETAIL_PROFILES[Math.min(currentDiameterDetailIndex, DIAMETER_DETAIL_PROFILES.length - 1)]
             : null;
@@ -4666,7 +4816,7 @@ function generateSizeComparison(mode) {
         });
     } else if (mode === 'mass') {
         // 按质量排序（从大到小）
-        const allPlanets = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', 'ganymede', 'mercury', 'moon', 'pluto', 'eris', 'haumea', 'makemake', 'ceres'];
+        const allPlanets = DIAMETER_COMPARISON_PLANETS;
         const sortedPlanets = allPlanets.sort((a, b) => planetData[b].mass - planetData[a].mass);
         subtitle.textContent = '以地球为参考（质量 = 5.97 × 10²⁴ kg）';
 
