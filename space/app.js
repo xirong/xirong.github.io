@@ -552,19 +552,23 @@ function playPlanetAudio(planetKey) {
     window.speechSynthesis && window.speechSynthesis.cancel();
 
     const data = planetData[planetKey];
-    if (!data || !data.nameEN) return;
+    const fallbackText = data?.nameCN
+        ? `${data.nameCN}，${data.nameEN}`
+        : planetAudioNarration[planetKey];
+    if (!data && !fallbackText) return;
 
     // 构造降级文本
-    const fallbackText = planetAudioNarration[planetKey] || `${data.nameCN}，${data.nameEN}`;
+    const audioFallbackText = planetAudioNarration[planetKey] || fallbackText;
 
     const audioPath = `audio/solar/${planetKey}.mp3`;
+    const fallbackTextFinal = audioFallbackText;
     const audio = new Audio(audioPath);
     currentAudio = audio;
 
     audio.play().catch(() => {
         // MP3 加载失败，降级到 Web Speech API
         if (window.speechSynthesis) {
-            const utterance = new SpeechSynthesisUtterance(fallbackText);
+            const utterance = new SpeechSynthesisUtterance(fallbackTextFinal);
             utterance.lang = 'zh-CN';
             utterance.rate = 0.9;
             window.speechSynthesis.speak(utterance);
@@ -652,6 +656,13 @@ const planetAudioNarration = {
     io: '木卫一，Io，太阳系里火山活动最活跃的卫星。它的表面有很多活火山，经常会喷出岩浆和硫磺，所以看起来是黄色、橙色、红色。它不是一颗安静的月亮，而像一个一直在冒火的小火球。',
     europa: '木卫二，Europa，木星的一颗冰壳卫星，表面覆盖着厚厚的冰，冰下面可能有一片很深的地下海洋，那里可能有适合生命存在的环境，所以木卫二是太阳系里最值得探索的卫星之一。',
     ganymede: '木卫三，Ganymede，太阳系最大的卫星，比水星还大，它的外面像冰壳，里面可能有一片看不见的大海，木卫三有自己的磁场，像是自己的保护罩。',
+    titan: '土卫六，Titan，土星最大的卫星之一，常有厚厚的氮气大气层，地表有甲烷湖海和有机物染色的色带，是一个独特的“多雾天体”。',
+    enceladus: '土卫二，Enceladus，土星内部热活动很活跃，南极有冰裂隙“虎纹”，会把冰尘和蒸汽喷出到外太空。现在很多任务把它当成‘最有希望发现生命迹象’的目标之一。',
+    rhea: '土卫五，Rhea，土星的一颗大型冰质卫星，表面很亮、布满陨石坑和断裂带，和木星土星系内卫星相比表面保存得相对完整。',
+    phobos: '火卫一，Phobos，火星离它最近的小卫星，形状不规则，表面坑坑洼洼，靠得很近、绕行也很快，像个“贴着火星跑”的小月球。',
+    deimos: '火卫二，Deimos，火星的外侧卫星，体积更小更暗，轨道离得更远、更平稳，像颗安静、细小的伴星。',
+    triton: '海卫一，Triton，海王星的最大卫星，轨道是逆行的，说明它很可能不是原生形成，而是后来被俘获，表面有年轻的地质痕迹。',
+    titania: '天卫一，Titania，天王星系统里体积较大的卫星之一，表面有巨型断谷和亮暗相间地形，内部可能藏有历史上复杂的构造痕迹。',
     ceres: '谷神星，Ceres，距离太阳2.8个天文单位。自转转完一整圈，约等于0.38个地球天。绕太阳公转一整圈，约等于4.6个地球年。',
     jupiter: '木星，Jupiter，距离太阳5.2个天文单位。自转转完一整圈，约等于0.41个地球天。绕太阳公转一整圈，约等于11.86个地球年。',
     saturn: '土星，Saturn，距离太阳9.5个天文单位。自转转完一整圈，约等于0.45个地球天。绕太阳公转一整圈，约等于29.46个地球年。',
@@ -666,13 +677,27 @@ const planetAudioNarration = {
 const satelliteDockItems = [
     { key: 'io', nameCN: '木卫一', nameShort: '木卫一', accent: 0xffdd44, texture: 'textures/io.jpg' },
     { key: 'ganymede', nameCN: '木卫三', nameShort: '木卫三', accent: 0xaabbcc, texture: 'textures/ganymede.jpg' },
-    { key: 'europa', nameCN: '木卫二', nameShort: '木卫二', accent: 0xccddee, texture: 'textures/europa.jpg' }
+    { key: 'europa', nameCN: '木卫二', nameShort: '木卫二', accent: 0xccddee, texture: 'textures/europa.jpg' },
+    { key: 'titan', nameCN: '土卫六', nameShort: '土卫六', accent: 0xf6d08b, texture: 'textures/titan.jpg' },
+    { key: 'rhea', nameCN: '土卫五', nameShort: '土卫五', accent: 0x9fa2b8, texture: 'textures/rhea.jpg' },
+    { key: 'enceladus', nameCN: '土卫二', nameShort: '土卫二', accent: 0x9fd9ff, texture: 'textures/enceladus.jpg' },
+    { key: 'phobos', nameCN: '火卫一', nameShort: '火卫一', accent: 0x8a7c66, texture: 'textures/phobos.jpg' },
+    { key: 'deimos', nameCN: '火卫二', nameShort: '火卫二', accent: 0x6e7280, texture: 'textures/deimos.jpg' },
+    { key: 'triton', nameCN: '海卫一', nameShort: '海卫一', accent: 0x7cc8ff, texture: 'textures/triton.jpg' },
+    { key: 'titania', nameCN: '天卫一', nameShort: '天卫一', accent: 0x88b999, texture: 'textures/titania.jpg' }
 ];
 
 const moonKeyToName = {
     io: '木卫一',
     europa: '木卫二',
-    ganymede: '木卫三'
+    ganymede: '木卫三',
+    titan: '土卫六',
+    rhea: '土卫五',
+    enceladus: '土卫二',
+    phobos: '火卫一',
+    deimos: '火卫二',
+    triton: '海卫一',
+    titania: '天卫一'
 };
 
 // ============ 人造卫星数据 ============
@@ -893,8 +918,8 @@ const blackHoleVolumeData = [
 const moonsData = {
     // 火星的卫星
     mars: [
-        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '福波斯，贴近火星的不规则小卫星', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, segments: 48 },
-        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '戴摩斯，更小更暗的外侧卫星', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, segments: 48 }
+        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '火卫二（Deimos）是火星的外侧卫星，体积更小更暗，轨道更远，运行更慢，适合理解“卫星也有“多层”轨道”的差别。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, segments: 48 }
     ],
     // 木星的伽利略卫星
     jupiter: [
@@ -905,18 +930,18 @@ const moonsData = {
     ],
     // 土星的卫星
     saturn: [
-        { name: '土卫六', nameCN: '土卫六', diameter: 5150, orbitRadius: 14, orbitSpeed: 0.035, color: 0xddaa55, desc: '泰坦，有浓厚大气层', texturePath: 'textures/titan.jpg', brightness: 1.1, fresnelColor: 'vec3(0.94, 0.74, 0.36)', fresnelIntensity: 0.12, atmosphereColor: [0.95, 0.7, 0.3], atmosphereSize: 1.07, atmosphereIntensity: 0.18, segments: 48 },
-        { name: '土卫二', nameCN: '土卫二', diameter: 504, orbitRadius: 10, orbitSpeed: 0.06, color: 0xffffff, desc: '恩克拉多斯，喷射冰泉', texturePath: 'textures/enceladus.jpg', brightness: 1.24, fresnelColor: 'vec3(0.86, 0.94, 1.0)', fresnelIntensity: 0.18, segments: 48 },
-        { name: '土卫五', nameCN: '土卫五', diameter: 1527, orbitRadius: 12, orbitSpeed: 0.045, color: 0xcccccc, desc: '瑞亚，冰质卫星', texturePath: 'textures/rhea.jpg', brightness: 1.12, fresnelColor: 'vec3(0.82, 0.84, 0.88)', fresnelIntensity: 0.1, segments: 48 }
+        { name: '土卫六', nameCN: '土卫六', diameter: 5150, orbitRadius: 14, orbitSpeed: 0.035, color: 0xddaa55, desc: '土卫六（Titan）是土星最大的卫星之一，拥有浓厚氮气大气，地表有甲烷湖海和迷雾状天象，被称为“另一个早期地球”。', texturePath: 'textures/titan.jpg', brightness: 1.1, fresnelColor: 'vec3(0.94, 0.74, 0.36)', fresnelIntensity: 0.12, atmosphereColor: [0.95, 0.7, 0.3], atmosphereSize: 1.07, atmosphereIntensity: 0.18, segments: 48 },
+        { name: '土卫二', nameCN: '土卫二', diameter: 504, orbitRadius: 10, orbitSpeed: 0.06, color: 0xffffff, desc: '土卫二（Enceladus）在南极有“虎纹”冰裂隙，正在向太空喷射含冰颗粒和蒸汽，常被拿来讨论是否存在地下海洋。', texturePath: 'textures/enceladus.jpg', brightness: 1.24, fresnelColor: 'vec3(0.86, 0.94, 1.0)', fresnelIntensity: 0.18, segments: 48 },
+        { name: '土卫五', nameCN: '土卫五', diameter: 1527, orbitRadius: 12, orbitSpeed: 0.045, color: 0xcccccc, desc: '土卫五（Rhea）是土星较亮的一颗大卫星，表面主要是冰和岩石，保存了很多陨石坑与地形裂隙，对撞击史很友好。', texturePath: 'textures/rhea.jpg', brightness: 1.12, fresnelColor: 'vec3(0.82, 0.84, 0.88)', fresnelIntensity: 0.1, segments: 48 }
     ],
     // 天王星的卫星
     uranus: [
-        { name: '天卫三', nameCN: '天卫三', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '泰坦尼亚', texturePath: 'textures/titania.jpg', brightness: 1.14, fresnelColor: 'vec3(0.82, 0.88, 0.94)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '天卫一', nameCN: '天卫一', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '天卫一（Titania）是天王星系统中较大的卫星，拥有巨大的断裂谷和古老平原，显示它有复杂的内部演化历史。', texturePath: 'textures/titania.jpg', brightness: 1.14, fresnelColor: 'vec3(0.82, 0.88, 0.94)', fresnelIntensity: 0.08, segments: 48 },
         { name: '天卫四', nameCN: '天卫四', diameter: 1523, orbitRadius: 9, orbitSpeed: 0.04, color: 0x99aaaa, desc: '奥伯龙', texturePath: 'textures/oberon.jpg', brightness: 1.14, fresnelColor: 'vec3(0.8, 0.84, 0.9)', fresnelIntensity: 0.08, segments: 48 }
     ],
     // 海王星的卫星
     neptune: [
-        { name: '海卫一', nameCN: '海卫一', diameter: 2707, orbitRadius: 7, orbitSpeed: -0.04, color: 0xddccbb, desc: '特里同，逆行卫星', texturePath: 'textures/triton.jpg', brightness: 1.12, fresnelColor: 'vec3(0.9, 0.86, 0.8)', fresnelIntensity: 0.08, segments: 48 }
+        { name: '海卫一', nameCN: '海卫一', diameter: 2707, orbitRadius: 7, orbitSpeed: -0.04, color: 0xddccbb, desc: '海卫一（Triton）围绕海王星逆行，疑似被俘获，南北两半球地貌差异明显，带有年轻地质活动的痕迹。', texturePath: 'textures/triton.jpg', brightness: 1.12, fresnelColor: 'vec3(0.9, 0.86, 0.8)', fresnelIntensity: 0.08, segments: 48 }
     ]
 };
 
@@ -3149,17 +3174,74 @@ function onMouseMove(event) {
 
 // ============ 选择行星 ============
 function selectPlanet(name) {
-    if (!planetData[name]) return;
+    const data = planetData[name];
+    const isMoon = !data;
+
+    const targetMesh = getTargetMesh(name);
+    if (isMoon && !targetMesh) return;
+
     selectedPlanet = name;
     hideSatelliteStrip();
+
+    if (!data && targetMesh) {
+        const moonData = targetMesh.userData || {};
+        const parentPlanet = moonData.parentPlanet && planetData[moonData.parentPlanet]
+            ? planetData[moonData.parentPlanet].nameCN
+            : '';
+
+        document.getElementById('planetName').textContent = moonData.nameCN || name;
+        document.getElementById('planetType').textContent = parentPlanet ? `${parentPlanet}卫星` : '天然卫星';
+        document.getElementById('planetDiameter').textContent = moonData.diameter ? formatNumber(moonData.diameter) + ' km' : '-';
+        document.getElementById('planetDistance').textContent = parentPlanet ? `围绕${parentPlanet}轨道运行` : '-';
+        document.getElementById('planetOrbitPeriod').textContent = moonData.orbitPeriod ? formatOrbitPeriod(moonData.orbitPeriod) : '-';
+        document.getElementById('planetRelativeSize').textContent = moonData.diameter ? `${(moonData.diameter / 12742).toFixed(3)} 倍地球直径` : '-';
+        document.getElementById('planetDescription').textContent = moonData.desc || '-';
+
+        const moonsDiv = document.getElementById('planetMoons');
+        moonsDiv.style.display = 'none';
+
+        const exploreBtn = document.getElementById('exploreBtn');
+        exploreBtn.classList.remove('visible');
+
+        const color = moonData.color || 0x99ccff;
+        const colorHex = `#${color.toString(16).padStart(6, '0')}`;
+        const colorDot = document.getElementById('planetColorDot');
+        colorDot.style.background = colorHex;
+        colorDot.style.boxShadow = `0 0 20px ${colorHex}`;
+
+        document.getElementById('planetInfo').classList.add('visible');
+
+        // 播放中英文语音介绍
+        playPlanetAudio(name);
+
+        // 更新行星选择器
+        document.querySelectorAll('.planet-dot').forEach(dot => {
+            dot.classList.remove('active');
+            if (dot.dataset.planet === name) {
+                dot.classList.add('active');
+            }
+        });
+
+        const targetPosition = new THREE.Vector3();
+        targetMesh.getWorldPosition(targetPosition);
+
+        const targetSize = targetMesh.userData?.size || 1;
+        const distance = name === 'sun' ? 80 : targetSize * 8;
+        const cameraTarget = new THREE.Vector3(
+            targetPosition.x + distance,
+            targetPosition.y + distance * 0.5,
+            targetPosition.z + distance
+        );
+
+        animateCamera(cameraTarget, targetPosition);
+        return;
+    }
 
     // 奥尔特云特殊处理
     if (name === 'oortCloud') {
         flyToOortCloud();
         return;
     }
-
-    const data = planetData[name];
 
     // 更新UI
     document.getElementById('planetName').textContent = data.nameCN;
@@ -3207,7 +3289,6 @@ function selectPlanet(name) {
     });
 
     // 移动相机到目标天体
-    const targetMesh = getTargetMesh(name);
     if (targetMesh) {
         const targetPosition = new THREE.Vector3();
         targetMesh.getWorldPosition(targetPosition);
