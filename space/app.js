@@ -127,6 +127,38 @@ const planetData = {
         relativeSize: 0.074, // 940/12742
         orbitRadius: 110 // 在小行星带内（innerRadius=100, outerRadius=120）
     },
+    io: {
+        name: '木卫一',
+        nameCN: '木卫一',
+        nameEN: 'Io',
+        type: '卫星',
+        diameter: 3643, // km
+        mass: 0.0089, // 10²⁴ kg
+        category: 'moon',
+        distance: 778.5, // 百万 km（随木星）
+        orbitPeriod: 1.77, // 天（木星公转周期）
+        rotationPeriod: 1.77, // 同步自转
+        color: 0xffdd44,
+        emissive: 0x4a2f19,
+        description: '木卫一是太阳系里火山活动最剧烈的天体。它的表面有很多活火山，经常会喷出岩浆和硫磺，所以看起来是黄色、橙色、红色的。它不是一颗安静的月亮，而像一个一直在冒火的“小火球”。',
+        relativeSize: 0.286 // 3643/12742
+    },
+    europa: {
+        name: '木卫二',
+        nameCN: '木卫二',
+        nameEN: 'Europa',
+        type: '卫星',
+        diameter: 3122, // km
+        mass: 0.0048, // 10²⁴ kg
+        category: 'moon',
+        distance: 778.5, // 百万 km（随木星）
+        orbitPeriod: 3.55, // 天（木星公转周期）
+        rotationPeriod: 3.55, // 同步自转
+        color: 0xccddee,
+        emissive: 0x2f4f70,
+        description: '木卫二是木星的一颗冰壳卫星，表面覆盖着厚厚的冰，冰下面可能有一片很深的地下海洋。科学家认为，那里可能有适合生命存在的环境，所以木卫二是太阳系里最值得探索的卫星之一。',
+        relativeSize: 0.245 // 3122/12742
+    },
     ganymede: {
         name: '木卫三',
         nameCN: '木卫三',
@@ -136,11 +168,11 @@ const planetData = {
         mass: 0.1482, // 10²⁴ kg
         category: 'moon',
         distance: 778.5, // 百万 km（随木星绕日）
-        orbitPeriod: 4333, // 天（木星公转周期）
+        orbitPeriod: 7.15, // 天（木星公转周期）
         rotationPeriod: 7.15, // 天（同步自转，绕木星一圈）
         color: 0xaabbcc,
         emissive: 0x334455,
-        description: '木卫三（盖尼米德）是太阳系中最大的卫星，比水星还大！它是唯一拥有自身磁场的卫星。表面有两种地形：古老的暗色区域布满陨石坑，年轻的亮色区域有很多沟槽和山脊。科学家认为它的冰壳下面可能有一片比地球所有海洋加起来还大的咸水海洋！',
+        description: '木卫三是太阳系最大的卫星，比水星还大，它的外面像冰壳，里面可能有一片看不见的大海，木卫三有自己的磁场，像是自己的保护罩。',
         relativeSize: 0.413 // 5268/12742
     },
     jupiter: {
@@ -617,6 +649,9 @@ const planetAudioNarration = {
     earth: '地球，Earth，距离太阳1个天文单位。自转转完一整圈，约等于1个地球天。绕太阳公转一整圈，约等于1个地球年。',
     moon: '月球，Moon，地球的天然卫星。自转转完一整圈，约等于27.3个地球天。绕地球公转一整圈，约等于27.3个地球天。',
     mars: '火星，Mars，距离太阳1.5个天文单位。自转转完一整圈，约等于1.03个地球天。绕太阳公转一整圈，约等于1.88个地球年。',
+    io: '木卫一，Io，太阳系里火山活动最活跃的卫星。它的表面有很多活火山，经常会喷出岩浆和硫磺，所以看起来是黄色、橙色、红色。它不是一颗安静的月亮，而像一个一直在冒火的小火球。',
+    europa: '木卫二，Europa，木星的一颗冰壳卫星，表面覆盖着厚厚的冰，冰下面可能有一片很深的地下海洋，那里可能有适合生命存在的环境，所以木卫二是太阳系里最值得探索的卫星之一。',
+    ganymede: '木卫三，Ganymede，太阳系最大的卫星，比水星还大，它的外面像冰壳，里面可能有一片看不见的大海，木卫三有自己的磁场，像是自己的保护罩。',
     ceres: '谷神星，Ceres，距离太阳2.8个天文单位。自转转完一整圈，约等于0.38个地球天。绕太阳公转一整圈，约等于4.6个地球年。',
     jupiter: '木星，Jupiter，距离太阳5.2个天文单位。自转转完一整圈，约等于0.41个地球天。绕太阳公转一整圈，约等于11.86个地球年。',
     saturn: '土星，Saturn，距离太阳9.5个天文单位。自转转完一整圈，约等于0.45个地球天。绕太阳公转一整圈，约等于29.46个地球年。',
@@ -626,6 +661,18 @@ const planetAudioNarration = {
     haumea: '妊神星，Haumea，距离太阳43.1个天文单位。自转转完一整圈，约等于0.16个地球天。绕太阳公转一整圈，约等于285个地球年。',
     makemake: '鸟神星，Makemake，距离太阳45.8个天文单位。自转转完一整圈，约等于0.94个地球天。绕太阳公转一整圈，约等于305个地球年。',
     eris: '阋神星，Eris，距离太阳67.7个天文单位。自转转完一整圈，约等于1.08个地球天。绕太阳公转一整圈，约等于559个地球年。',
+};
+
+const satelliteDockItems = [
+    { key: 'io', nameCN: '木卫一', nameShort: '木卫一', accent: 0xffdd44, texture: 'textures/io.jpg' },
+    { key: 'ganymede', nameCN: '木卫三', nameShort: '木卫三', accent: 0xaabbcc, texture: 'textures/ganymede.jpg' },
+    { key: 'europa', nameCN: '木卫二', nameShort: '木卫二', accent: 0xccddee, texture: 'textures/europa.jpg' }
+];
+
+const moonKeyToName = {
+    io: '木卫一',
+    europa: '木卫二',
+    ganymede: '木卫三'
 };
 
 // ============ 人造卫星数据 ============
@@ -649,6 +696,7 @@ let showOrbits = true;
 let showLabels = true;
 let isRealScale = false;
 let selectedPlanet = null;
+let isSatelliteStripOpen = false;
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
@@ -3101,7 +3149,9 @@ function onMouseMove(event) {
 
 // ============ 选择行星 ============
 function selectPlanet(name) {
+    if (!planetData[name]) return;
     selectedPlanet = name;
+    hideSatelliteStrip();
 
     // 奥尔特云特殊处理
     if (name === 'oortCloud') {
@@ -3156,13 +3206,14 @@ function selectPlanet(name) {
         }
     });
 
-    // 移动相机到行星
-    const planet = planets[name];
-    if (planet) {
+    // 移动相机到目标天体
+    const targetMesh = getTargetMesh(name);
+    if (targetMesh) {
         const targetPosition = new THREE.Vector3();
-        planet.getWorldPosition(targetPosition);
+        targetMesh.getWorldPosition(targetPosition);
 
-        const distance = name === 'sun' ? 80 : planet.userData.size * 8;
+        const targetSize = targetMesh.userData?.size || 1;
+        const distance = name === 'sun' ? 80 : targetSize * 8;
         const cameraTarget = new THREE.Vector3(
             targetPosition.x + distance,
             targetPosition.y + distance * 0.5,
@@ -3171,6 +3222,92 @@ function selectPlanet(name) {
 
         animateCamera(cameraTarget, targetPosition);
     }
+}
+
+function renderSatelliteDock() {
+    const track = document.getElementById('satelliteStripTrack');
+    if (!track) return;
+
+    track.innerHTML = satelliteDockItems.map(item => {
+        const baseColor = toRgba(item.accent, 0.34);
+        const softGlow = toRgba(item.accent, 0.16);
+        const rimGlow = toRgba(item.accent, 0.7);
+        const texture = item.texture ? `url('${item.texture}')` : 'none';
+
+        return `
+            <div class="planet-dot satellite-dot" data-planet="${item.key}" data-name="${item.nameCN}" style="--satellite-base:${baseColor}; --satellite-soft:${softGlow}; --satellite-rim:${rimGlow}; --satellite-texture:${texture};">
+                <span class="satellite-dot-label">${item.nameShort}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function getTargetMesh(planetOrMoonKey) {
+    const planetMesh = planets[planetOrMoonKey];
+    if (planetMesh) return planetMesh;
+
+    const targetMoonName = moonKeyToName[planetOrMoonKey];
+    if (!targetMoonName) return null;
+
+    for (const moonList of Object.values(moons)) {
+        for (const moonMesh of moonList) {
+            if (moonMesh && moonMesh.name === targetMoonName) {
+                return moonMesh;
+            }
+        }
+    }
+    return null;
+}
+
+function toRgba(hexColor, alpha = 1) {
+    let value = hexColor;
+
+    if (typeof hexColor === 'string') {
+        value = parseInt(hexColor.replace('#', ''), 16);
+    }
+
+    if (!Number.isFinite(value)) {
+        value = 0x8fbcff;
+    }
+
+    const safeValue = value & 0xffffff;
+    const r = (safeValue >> 16) & 0xff;
+    const g = (safeValue >> 8) & 0xff;
+    const b = safeValue & 0xff;
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function showSatelliteStrip() {
+    const strip = document.getElementById('satelliteStrip');
+    const hub = document.querySelector('.planet-dot[data-planet="satelliteHub"]');
+
+    if (!strip) return;
+    strip.classList.add('visible');
+    isSatelliteStripOpen = true;
+    if (hub) {
+        hub.classList.add('active');
+    }
+}
+
+function hideSatelliteStrip() {
+    const strip = document.getElementById('satelliteStrip');
+    const hub = document.querySelector('.planet-dot[data-planet="satelliteHub"]');
+
+    if (!strip) return;
+    strip.classList.remove('visible');
+    isSatelliteStripOpen = false;
+    if (hub) {
+        hub.classList.remove('active');
+    }
+}
+
+function toggleSatelliteStrip() {
+    if (isSatelliteStripOpen) {
+        hideSatelliteStrip();
+        return;
+    }
+    showSatelliteStrip();
 }
 
 // ============ 相机动画 ============
@@ -3275,12 +3412,14 @@ function setupControls() {
         const targetLookAt = new THREE.Vector3(0, 0, 0);
         animateCamera(targetPosition, targetLookAt);
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
+        hideSatelliteStrip();
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
     });
 
     // 关闭行星信息面板
     document.getElementById('closePlanetInfo').addEventListener('click', function () {
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
+        hideSatelliteStrip();
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
         selectedPlanet = null;
     });
@@ -3316,10 +3455,20 @@ function setupControls() {
         updateMotionPauseButton();
     }
 
+    // 卫星分组行
+    renderSatelliteDock();
+
     // 行星选择器
     document.querySelectorAll('.planet-dot').forEach(dot => {
         dot.addEventListener('click', function () {
-            selectPlanet(this.dataset.planet);
+            const target = this.dataset.planet;
+            if (target === 'satelliteHub') {
+                toggleSatelliteStrip();
+                return;
+            }
+            if (!target) return;
+            hideSatelliteStrip();
+            selectPlanet(target);
         });
     });
 
@@ -3348,6 +3497,7 @@ function setupControls() {
         if (e.key === 'Escape') {
             closePlanetGuidePanel();
             closeSizeComparisonPanel();
+            hideSatelliteStrip();
         }
     });
 }
