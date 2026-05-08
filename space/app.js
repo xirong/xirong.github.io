@@ -853,8 +853,7 @@ const SATELLITE_COMPARISON_KEYS = [
     'phobos',
     'deimos'
 ];
-const SATELLITE_AND_DWARF_COMPARISON_KEYS = [...SATELLITE_COMPARISON_KEYS, 'moon', 'mercury'];
-const DIAMETER_COMPARISON_PLANETS = [
+const COMPARISON_BODY_KEYS = [
     'sun',
     'jupiter',
     'saturn',
@@ -863,28 +862,53 @@ const DIAMETER_COMPARISON_PLANETS = [
     'earth',
     'venus',
     'mars',
-    ...SATELLITE_AND_DWARF_COMPARISON_KEYS,
+    'mercury',
+    ...SATELLITE_COMPARISON_KEYS,
+    'moon',
     'pluto',
     'eris',
     'haumea',
     'makemake',
     'ceres'
 ];
+
+function uniqueComparisonKeys(keys) {
+    return [...new Set(keys)].filter(key => planetData[key]);
+}
+
+function sortComparisonKeys(keys, metric = 'diameter') {
+    return uniqueComparisonKeys(keys)
+        .sort((a, b) => {
+            const aValue = planetData[a]?.[metric] || 0;
+            const bValue = planetData[b]?.[metric] || 0;
+            return bValue - aValue;
+        });
+}
+
+function getComparisonKeysWithout(excludedKeys) {
+    const excluded = new Set(excludedKeys);
+    return COMPARISON_BODY_KEYS.filter(key => !excluded.has(key));
+}
+
+function getCapacityObjectKeys(targetKey) {
+    return COMPARISON_BODY_KEYS.filter(key => key !== targetKey);
+}
+
 const DIAMETER_DETAIL_PROFILES = [
     {
         label: '去掉太阳/木星/土星',
         subtitle: '去掉太阳、木星、土星，以天王星为最大参照，看清小天体真实比例',
-        planets: ['uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        planets: getComparisonKeysWithout(['sun', 'jupiter', 'saturn'])
     },
     {
         label: '继续去掉天王星/海王星',
         subtitle: '继续去掉天王星、海王星，地球和金星开始成为这组中的最大天体',
-        planets: ['earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        planets: getComparisonKeysWithout(['sun', 'jupiter', 'saturn', 'uranus', 'neptune'])
     },
     {
         label: '继续去掉地球/金星',
         subtitle: '继续去掉地球、金星，火星、木卫三等天体是这组的主对比对象',
-        planets: ['mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        planets: getComparisonKeysWithout(['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus'])
     },
     {
         label: '黑洞、奥尔特云、太阳、木星、土星',
@@ -3946,74 +3970,74 @@ const CAPACITY_TARGETS = {
         nameCN: '太阳',
         texture: 'textures/sun.jpg',
         color: '#ffcc00',
-        objectKeys: ['jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('sun')
     },
     jupiter: {
         key: 'jupiter',
         nameCN: '木星',
         texture: 'textures/jupiter.jpg',
         color: '#d8ca9d',
-        objectKeys: ['saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('jupiter')
     },
     saturn: {
         key: 'saturn',
         nameCN: '土星',
         texture: 'textures/saturn.jpg',
         color: '#ead6b8',
-        objectKeys: ['jupiter', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('saturn')
     },
     uranus: {
         key: 'uranus',
         nameCN: '天王星',
         texture: 'textures/uranus.jpg',
         color: '#7de8d5',
-        objectKeys: ['jupiter', 'saturn', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('uranus')
     },
     neptune: {
         key: 'neptune',
         nameCN: '海王星',
         texture: 'textures/neptune.jpg',
         color: '#5b5ddf',
-        objectKeys: ['jupiter', 'saturn', 'uranus', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('neptune')
     },
     earth: {
         key: 'earth',
         nameCN: '地球',
         texture: 'textures/earth_daymap.jpg',
         color: '#6b93d6',
-        objectKeys: ['venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('earth')
     },
     venus: {
         key: 'venus',
         nameCN: '金星',
         texture: 'textures/venus_atmosphere.jpg',
         color: '#e6c87a',
-        objectKeys: ['mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('venus')
     },
     mars: {
         key: 'mars',
         nameCN: '火星',
         texture: 'textures/mars.jpg',
         color: '#c1440e',
-        objectKeys: [...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('mars')
     },
     blackHole: {
         key: 'blackHole',
         nameCN: '黑洞（事件视界）',
         color: '#fff3cf',
-        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('blackHole')
     },
     blackHoleEventHorizon: {
         key: 'blackHoleEventHorizon',
         nameCN: '黑洞（事件视界）',
         color: '#fff3cf',
-        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('blackHoleEventHorizon')
     },
     blackHoleGravitationalRadius: {
         key: 'blackHoleGravitationalRadius',
         nameCN: '黑洞（引力影响区）',
         color: '#ffd59a',
-        objectKeys: ['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus', 'mars', ...SATELLITE_AND_DWARF_COMPARISON_KEYS, 'pluto', 'eris', 'haumea', 'makemake', 'ceres']
+        objectKeys: getCapacityObjectKeys('blackHoleGravitationalRadius')
     }
 };
 
@@ -4027,15 +4051,7 @@ const CAPACITY_COUNT_OVERRIDES = {
             neptune: { count: 22000 },
             earth: { count: 1300000 },
             venus: { count: 1500000 },
-            mars: { count: 8600000 },
-            ganymede: { count: 43000000 },
-            mercury: { count: 23000000 },
-            moon: { count: 65000000 },
-            eris: { count: 175000000 },
-            pluto: { count: 220000000 },
-            haumea: { count: 600000000 },
-            makemake: { count: 700000000 },
-            ceres: { count: 3100000000 }
+            mars: { count: 8600000 }
         },
         mass: {
             jupiter: { count: 1048 },
@@ -4634,7 +4650,7 @@ function generateSizeComparison(mode) {
 
     if (mode === 'diameter') {
         // 按直径排序（从大到小）
-        const sortedPlanets = DIAMETER_COMPARISON_PLANETS;
+        const sortedPlanets = sortComparisonKeys(COMPARISON_BODY_KEYS, 'diameter');
         const detailProfile = isDiameterDetailMode && currentDiameterDetailIndex >= 0
             ? DIAMETER_DETAIL_PROFILES[Math.min(currentDiameterDetailIndex, DIAMETER_DETAIL_PROFILES.length - 1)]
             : null;
@@ -4702,7 +4718,14 @@ function generateSizeComparison(mode) {
             }
             const detailPlanets = isBlackHoleDetailProfile
                 ? profile.planets.map(name => (BLACK_HOLE_TARGET_KEYS.includes(name) ? diameterBlackHoleScope : name))
-                : profile.planets;
+                : sortComparisonKeys(profile.planets, 'diameter');
+            if (isBlackHoleDetailProfile) {
+                detailPlanets.sort((a, b) => {
+                    const aData = getDiameterPlanetData(a);
+                    const bData = getDiameterPlanetData(b);
+                    return (bData?.diameter || 0) - (aData?.diameter || 0);
+                });
+            }
             const maxDiameter = Math.max(
                 1,
                 ...detailPlanets.map(name => {
@@ -4816,8 +4839,7 @@ function generateSizeComparison(mode) {
         });
     } else if (mode === 'mass') {
         // 按质量排序（从大到小）
-        const allPlanets = DIAMETER_COMPARISON_PLANETS;
-        const sortedPlanets = allPlanets.sort((a, b) => planetData[b].mass - planetData[a].mass);
+        const sortedPlanets = sortComparisonKeys(COMPARISON_BODY_KEYS, 'mass');
         subtitle.textContent = '以地球为参考（质量 = 5.97 × 10²⁴ kg）';
 
         const sunDisplaySize = 300;
