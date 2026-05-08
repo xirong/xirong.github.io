@@ -677,6 +677,12 @@ const DIAMETER_DETAIL_PROFILES = [
         subtitle: '银河系中心黑洞、奥尔特云与太阳、木星、土星的直径比例',
         isBlackHoleProfile: true,
         planets: ['blackHoleGravitationalRadius', 'oortCloud', 'sun', 'jupiter', 'saturn']
+    },
+    {
+        label: '黑洞、太阳、木星、土星',
+        subtitle: '银河系中心黑洞、太阳、木星、土星的直径比例',
+        isBlackHoleProfile: true,
+        planets: ['blackHoleGravitationalRadius', 'sun', 'jupiter', 'saturn']
     }
 ];
 let currentCapacityView = 'sun';
@@ -4003,12 +4009,16 @@ function renderCapacityTargetPicker(container) {
 
 function renderBlackHoleScopePicker(container, mode = 'capacity', options = {}) {
     const scopePicker = document.createElement('div');
-    scopePicker.className = 'capacity-target-picker';
+    scopePicker.className = options.pickerClass || 'capacity-target-picker';
     const scopeLabelSuffix = options.labelSuffix || '';
     if (mode === 'diameter') {
-        scopePicker.style.margin = '-2px auto 10px';
+        scopePicker.style.margin = options.noNegativeMargin ? '0 auto 10px' : '-2px auto 10px';
     } else {
         scopePicker.style.margin = '-4px auto 12px';
+    }
+    if (options.scopesWidthFull) {
+        scopePicker.style.width = '100%';
+        scopePicker.style.justifyContent = 'center';
     }
 
     const currentScope = mode === 'drag' ? currentDragBlackHoleScope : currentBlackHoleScope;
@@ -4250,8 +4260,14 @@ function generateSizeComparison(mode) {
         subtitle.textContent = isDiameterDetailMode && detailProfile ? detailProfile.subtitle : '以地球为参考（直径 = 12,742 km）';
 
         if (detailTabs) {
-            detailTabs.style.display = 'flex';
+            detailTabs.style.display = 'block';
             detailTabs.innerHTML = '';
+            const mainTabRow = document.createElement('div');
+            mainTabRow.style.display = 'flex';
+            mainTabRow.style.flexWrap = 'wrap';
+            mainTabRow.style.justifyContent = 'center';
+            mainTabRow.style.gap = '8px';
+            mainTabRow.style.width = '100%';
             DIAMETER_DETAIL_PROFILES.forEach((profile, index) => {
                 const tabBtn = document.createElement('button');
                 tabBtn.className = 'diameter-detail-tab';
@@ -4270,8 +4286,25 @@ function generateSizeComparison(mode) {
                     }
                     generateSizeComparison('diameter');
                 });
-                detailTabs.appendChild(tabBtn);
+                mainTabRow.appendChild(tabBtn);
             });
+            detailTabs.appendChild(mainTabRow);
+
+            if (isDiameterDetailMode && detailProfile && detailProfile.isBlackHoleProfile) {
+                const scopeRow = document.createElement('div');
+                scopeRow.style.display = 'flex';
+                scopeRow.style.flexWrap = 'wrap';
+                scopeRow.style.justifyContent = 'center';
+                scopeRow.style.gap = '8px';
+                scopeRow.style.width = '100%';
+                scopeRow.style.margin = '10px auto 0';
+                renderBlackHoleScopePicker(scopeRow, 'diameter', {
+                    labelSuffix: '口径',
+                    pickerClass: 'capacity-target-picker',
+                    noNegativeMargin: true
+                });
+                detailTabs.appendChild(scopeRow);
+            }
         }
 
         if (isDiameterDetailMode) {
@@ -4298,10 +4331,6 @@ function generateSizeComparison(mode) {
             );
             const maxDisplaySize = 260;
             const earthDiameter = 12742;
-
-            if (isBlackHoleDetailProfile) {
-                renderBlackHoleScopePicker(container, 'diameter', { labelSuffix: '口径' });
-            }
 
             detailPlanets.forEach(name => {
                 const data = getDiameterPlanetData(name);
