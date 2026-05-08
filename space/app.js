@@ -4273,9 +4273,7 @@ function renderCapacityComparison(container, subtitle, targetKey) {
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
     `;
 
-    const gridClassName = isBlackHoleTargetType(targetKey) || targetKey === 'sun'
-        ? 'volume-planet-grid volume-planet-grid--wrapped'
-        : 'volume-planet-grid';
+    const gridClassName = 'volume-planet-grid volume-planet-grid--wrapped';
 
     let gridHTML = `<div class="${gridClassName}">`;
     capacityData.forEach(item => {
