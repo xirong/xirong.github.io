@@ -625,6 +625,7 @@ const solarGuideTextureMap = {
     mercury: 'textures/mercury.jpg',
     venus: 'textures/venus_atmosphere.jpg',
     earth: 'textures/earth_daymap.jpg',
+    moon: 'textures/moon.jpg',
     mars: 'textures/mars.jpg',
     jupiter: 'textures/jupiter.jpg',
     saturn: 'textures/saturn.jpg',
@@ -3049,9 +3050,7 @@ function flyToOortCloud() {
 
     document.getElementById('exploreBtn').classList.remove('visible');
 
-    const colorDot = document.getElementById('planetColorDot');
-    colorDot.style.background = '#aaddff';
-    colorDot.style.boxShadow = '0 0 20px #aaddff';
+    setPlanetInfoDot('oortCloud', { ...data, color: 0xaaddff, texturePath: 'textures/starfield.jpg' });
 
     document.getElementById('planetInfo').classList.add('visible');
 
@@ -3368,11 +3367,7 @@ function selectPlanet(name) {
         const exploreBtn = document.getElementById('exploreBtn');
         exploreBtn.classList.remove('visible');
 
-        const color = moonData.color || 0x99ccff;
-        const colorHex = `#${color.toString(16).padStart(6, '0')}`;
-        const colorDot = document.getElementById('planetColorDot');
-        colorDot.style.background = colorHex;
-        colorDot.style.boxShadow = `0 0 20px ${colorHex}`;
+        setPlanetInfoDot(name, moonData);
 
         document.getElementById('planetInfo').classList.add('visible');
 
@@ -3434,10 +3429,8 @@ function selectPlanet(name) {
         exploreBtn.classList.remove('visible');
     }
 
-    // 设置颜色
-    const colorDot = document.getElementById('planetColorDot');
-    colorDot.style.background = `#${data.color.toString(16).padStart(6, '0')}`;
-    colorDot.style.boxShadow = `0 0 20px #${data.color.toString(16).padStart(6, '0')}`;
+    // 设置纹理图标
+    setPlanetInfoDot(name, data);
 
     // 显示面板
     document.getElementById('planetInfo').classList.add('visible');
@@ -3522,6 +3515,40 @@ function toRgba(hexColor, alpha = 1) {
     const b = safeValue & 0xff;
 
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function getBodyTexturePath(key, bodyData = {}) {
+    if (bodyData.texturePath) return bodyData.texturePath;
+
+    const satelliteItem = satelliteDockItems.find(item => item.key === key);
+    return satelliteItem?.texture || solarGuideTextureMap[key] || null;
+}
+
+function setPlanetInfoDot(key, bodyData = {}) {
+    const colorDot = document.getElementById('planetColorDot');
+    if (!colorDot) return;
+
+    const color = bodyData.color || 0x99ccff;
+    const colorHex = `#${color.toString(16).padStart(6, '0')}`;
+    const texturePath = getBodyTexturePath(key, bodyData);
+
+    colorDot.style.color = colorHex;
+    colorDot.style.boxShadow = `0 0 20px ${colorHex}`;
+    colorDot.style.backgroundColor = colorHex;
+
+    if (texturePath) {
+        colorDot.style.backgroundImage = `radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.03) 24%, rgba(0, 0, 0, 0.2) 72%), url('${texturePath}')`;
+        colorDot.style.backgroundSize = '100% 100%, cover';
+        colorDot.style.backgroundPosition = 'center, center';
+        colorDot.style.backgroundRepeat = 'no-repeat, no-repeat';
+        colorDot.style.filter = 'saturate(1.18) contrast(1.08) brightness(1.02)';
+    } else {
+        colorDot.style.backgroundImage = '';
+        colorDot.style.backgroundSize = '';
+        colorDot.style.backgroundPosition = '';
+        colorDot.style.backgroundRepeat = '';
+        colorDot.style.filter = '';
+    }
 }
 
 function showSatelliteStrip() {
