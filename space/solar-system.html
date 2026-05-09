@@ -1354,6 +1354,132 @@
             gap: 14px;
         }
 
+        .planet-guide-video-card {
+            position: relative;
+            min-height: 210px;
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 24% 18%, rgba(255, 215, 107, 0.12), transparent 36%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.025));
+            border: 1px solid rgba(255, 215, 107, 0.2);
+            outline: 1px solid rgba(255, 215, 107, 0.1);
+            outline-offset: -1px;
+            box-shadow: 0 16px 46px rgba(0, 0, 0, 0.22);
+            overflow: hidden;
+        }
+
+        .planet-guide-video-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.65) 0 1px, transparent 1.4px),
+                radial-gradient(circle at 42% 42%, rgba(255, 255, 255, 0.4) 0 1px, transparent 1.3px),
+                radial-gradient(circle at 76% 28%, rgba(255, 255, 255, 0.48) 0 1px, transparent 1.3px),
+                radial-gradient(circle at 70% 78%, rgba(255, 255, 255, 0.36) 0 1px, transparent 1.3px);
+            background-size: 42px 42px, 54px 54px, 48px 48px, 58px 58px;
+            opacity: 0.55;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .planet-guide-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.32);
+        }
+
+        .planet-guide-video-shade {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(5, 8, 16, 0.08), rgba(5, 8, 16, 0.62)),
+                radial-gradient(circle at 50% 42%, transparent 20%, rgba(0, 0, 0, 0.42) 82%);
+            pointer-events: none;
+            z-index: 2;
+            transition: opacity 0.25s ease;
+        }
+
+        .planet-guide-video-card.is-playing .planet-guide-video-shade {
+            opacity: 0;
+        }
+
+        .planet-guide-video-play {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 3;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 118px;
+            justify-content: center;
+            transform: translate(-50%, -50%);
+            padding: 11px 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 215, 107, 0.36);
+            background: rgba(5, 8, 16, 0.76);
+            color: #ffe39a;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 0 28px rgba(255, 215, 107, 0.16);
+            transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+        }
+
+        .planet-guide-video-play:hover {
+            transform: translate(-50%, -50%) scale(1.04);
+            background: rgba(25, 18, 8, 0.86);
+        }
+
+        .planet-guide-video-play .play-icon {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #ffd76b;
+            color: #11131d;
+            font-size: 0.78rem;
+            line-height: 1;
+        }
+
+        .planet-guide-video-card.is-playing .planet-guide-video-play {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .planet-guide-video-caption {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 14px;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 0.78rem;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .planet-guide-video-caption strong {
+            color: #fff4c8;
+            font-size: 0.9rem;
+        }
+
+        .planet-guide-video-card.is-playing .planet-guide-video-caption {
+            opacity: 0;
+        }
+
         .planet-guide-card {
             position: relative;
             padding: 15px 18px;
@@ -1663,6 +1789,32 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 10px;
                 align-content: start;
+            }
+
+            .planet-guide-video-card {
+                min-height: 204px;
+                border-radius: 18px;
+            }
+
+            .planet-guide-video-caption {
+                left: 14px;
+                right: 14px;
+                bottom: 12px;
+                font-size: 0.7rem;
+            }
+
+            .planet-guide-video-caption strong {
+                font-size: 0.82rem;
+            }
+
+            .planet-guide-video-play {
+                padding: 9px 14px;
+                font-size: 0.78rem;
+            }
+
+            .planet-guide-video-play .play-icon {
+                width: 24px;
+                height: 24px;
             }
 
             .planet-guide-card {
@@ -2725,6 +2877,23 @@
             .planet-guide-card {
                 padding: 14px;
                 border-radius: 18px;
+            }
+
+            .planet-guide-video-card {
+                min-height: 190px;
+                border-radius: 18px;
+            }
+
+            .planet-guide-video-play {
+                padding: 9px 14px;
+                font-size: 0.78rem;
+            }
+
+            .planet-guide-video-caption {
+                left: 14px;
+                right: 14px;
+                bottom: 12px;
+                font-size: 0.7rem;
             }
 
             .planet-guide-card-main {

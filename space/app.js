@@ -459,6 +459,8 @@ const planetData = {
 };
 
 // ============ 太阳系介绍浮层数据 ============
+const SOLAR_GUIDE_VIDEO_PATH = 'videos/9solor-planents.mp4';
+
 const solarGuideTravelItems = [
     { type: 'planet', key: 'mercury', nameCN: '水星', nameEN: 'Mercury', time: '3分13秒' },
     { type: 'planet', key: 'venus', nameCN: '金星', nameEN: 'Venus', time: '6分05秒' },
@@ -3640,6 +3642,7 @@ function openPlanetGuidePanel() {
 function closePlanetGuidePanel() {
     const panel = document.getElementById('planetGuidePanel');
     if (panel) {
+        pauseSolarGuideVideo();
         panel.classList.remove('visible');
     }
 }
@@ -3879,10 +3882,77 @@ function renderPlanetGuide() {
                 </div>
             </section>
             <section class="planet-guide-right">
+                <article class="planet-guide-video-card" id="solarGuideVideoCard">
+                    <video class="planet-guide-video" id="solarGuideVideo" src="${SOLAR_GUIDE_VIDEO_PATH}" preload="metadata" playsinline></video>
+                    <div class="planet-guide-video-shade" aria-hidden="true"></div>
+                    <button class="planet-guide-video-play" id="solarGuideVideoPlay" type="button" aria-label="播放太阳系全景视频">
+                        <span class="play-icon">▶</span>
+                        <span>播放</span>
+                    </button>
+                    <div class="planet-guide-video-caption">
+                        <strong>太阳系全景</strong>
+                        <span>Solar System</span>
+                    </div>
+                </article>
                 ${cardsHTML}
             </section>
         </div>
     `;
+
+    setupSolarGuideVideo();
+}
+
+function setupSolarGuideVideo() {
+    const card = document.getElementById('solarGuideVideoCard');
+    const video = document.getElementById('solarGuideVideo');
+    const playButton = document.getElementById('solarGuideVideoPlay');
+    if (!card || !video || !playButton) return;
+
+    const markPlaying = () => {
+        card.classList.add('is-playing');
+        video.controls = true;
+    };
+    const markPaused = () => {
+        if (video.paused || video.ended) {
+            card.classList.remove('is-playing');
+        }
+    };
+
+    playButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        markPlaying();
+        video.play().catch(() => {
+            card.classList.remove('is-playing');
+            video.controls = true;
+        });
+    });
+
+    card.addEventListener('click', event => {
+        if (event.target === playButton || playButton.contains(event.target) || event.target === video) return;
+        if (video.paused) {
+            markPlaying();
+            video.play().catch(() => {
+                card.classList.remove('is-playing');
+                video.controls = true;
+            });
+        }
+    });
+
+    video.addEventListener('play', markPlaying);
+    video.addEventListener('pause', markPaused);
+    video.addEventListener('ended', markPaused);
+}
+
+function pauseSolarGuideVideo() {
+    const card = document.getElementById('solarGuideVideoCard');
+    const video = document.getElementById('solarGuideVideo');
+    if (!video) return;
+
+    video.pause();
+    if (card) {
+        card.classList.remove('is-playing');
+    }
 }
 
 function createGuideStat(icon, label, value) {
