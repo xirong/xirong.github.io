@@ -463,9 +463,13 @@ const planetVideos = {
     sun: 'videos/sun.mov',
     mercury: 'videos/Mercury.mp4',
     venus: 'videos/venus.mp4',
+    earth: 'videos/Earth.mp4',
     moon: 'videos/moon.mp4',
     mars: 'videos/mars.mp4',
+    jupiter: 'videos/Jupiter.mp4',
+    uranus: 'videos/Uranus.mp4',
     neptune: 'videos/Neptune.mp4',
+    enceladus: 'videos/Enceladus.mp4',
 };
 
 // ============ 太阳系介绍浮层数据 ============
