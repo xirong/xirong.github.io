@@ -3318,18 +3318,7 @@ function onWindowResize() {
 
 // ============ 鼠标点击 ============
 function onMouseClick(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-
-    const planetMeshes = Object.values(planets);
-    const intersects = raycaster.intersectObjects(planetMeshes);
-
-    if (intersects.length > 0) {
-        const clickedPlanet = intersects[0].object;
-        selectPlanet(clickedPlanet.name);
-    }
+    // 点击星球体不再触发聚焦，改用底部 dock 栏选择行星
 }
 
 // ============ 鼠标移动 ============
