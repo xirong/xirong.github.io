@@ -458,6 +458,16 @@ const planetData = {
     }
 };
 
+// ============ 行星视频映射 ============
+const planetVideos = {
+    sun: 'videos/sun.mov',
+    mercury: 'videos/Mercury.mp4',
+    venus: 'videos/venus.mp4',
+    moon: 'videos/moon.mp4',
+    mars: 'videos/mars.mp4',
+    neptune: 'videos/Neptune.mp4',
+};
+
 // ============ 太阳系介绍浮层数据 ============
 const SOLAR_GUIDE_VIDEO_PATH = 'videos/9solor-planents.mp4';
 
@@ -1146,7 +1156,7 @@ function init() {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 30;
+    controls.minDistance = 0.5;
     controls.maxDistance = 2500;
     controls.enablePan = true;
 
@@ -3370,6 +3380,7 @@ function selectPlanet(name) {
         const exploreBtn = document.getElementById('exploreBtn');
         exploreBtn.classList.remove('visible');
 
+        updatePlanetVideoCard(name);
         setPlanetInfoDot(name, moonData);
 
         document.getElementById('planetInfo').classList.add('visible');
@@ -3434,6 +3445,9 @@ function selectPlanet(name) {
 
     // 设置纹理图标
     setPlanetInfoDot(name, data);
+
+    // 更新视频卡片
+    updatePlanetVideoCard(name);
 
     // 显示面板
     document.getElementById('planetInfo').classList.add('visible');
@@ -5892,5 +5906,101 @@ function formatOrbitPeriod(days) {
     return orbitDays + ' 地球日，约等于 ' + years + ' 年';
 }
 
+// ============ 行星视频 · 信息面板卡片 + 影院模式 ============
+
+function updatePlanetVideoCard(planetKey) {
+    const card = document.getElementById('planetVideoCard');
+    const preview = document.getElementById('planetVideoPreview');
+    if (!card || !preview) return;
+
+    const videoSrc = planetVideos[planetKey];
+    if (!videoSrc) {
+        card.style.display = 'none';
+        preview.removeAttribute('src');
+        preview.load();
+        return;
+    }
+
+    preview.src = videoSrc;
+    card.style.display = 'block';
+}
+
+function openPlanetTheater() {
+    const preview = document.getElementById('planetVideoPreview');
+    const theater = document.getElementById('planetTheater');
+    const theaterVideo = document.getElementById('planetTheaterVideo');
+    const titleEl = document.getElementById('planetTheaterTitle');
+    if (!preview || !theater || !theaterVideo || !preview.src) return;
+
+    if (currentAudio) {
+        currentAudio.pause();
+    }
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+
+    const data = planetData[selectedPlanet];
+    const label = data ? data.nameCN : selectedPlanet;
+    titleEl.textContent = label + ' · 真实影像';
+
+    theaterVideo.src = preview.src;
+    theater.classList.add('visible');
+    theaterVideo.play().catch(() => {});
+
+    const canvasContainer = document.getElementById('canvas-container');
+    if (canvasContainer) canvasContainer.style.pointerEvents = 'none';
+}
+
+function closePlanetTheater() {
+    const theater = document.getElementById('planetTheater');
+    const theaterVideo = document.getElementById('planetTheaterVideo');
+    if (!theater) return;
+
+    theater.classList.remove('visible');
+    if (theaterVideo) {
+        theaterVideo.pause();
+        theaterVideo.removeAttribute('src');
+        theaterVideo.load();
+    }
+
+    const canvasContainer = document.getElementById('canvas-container');
+    if (canvasContainer) canvasContainer.style.pointerEvents = '';
+}
+
+function setupPlanetVideoListeners() {
+    const card = document.getElementById('planetVideoCard');
+    const playBtn = document.getElementById('planetVideoPlayBtn');
+    const closeBtn = document.getElementById('planetTheaterClose');
+    const backdrop = document.querySelector('.planet-theater-backdrop');
+
+    if (playBtn) {
+        playBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            openPlanetTheater();
+        });
+    }
+    if (card) {
+        card.addEventListener('click', () => openPlanetTheater());
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => closePlanetTheater());
+    }
+    if (backdrop) {
+        backdrop.addEventListener('click', () => closePlanetTheater());
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            const theater = document.getElementById('planetTheater');
+            if (theater && theater.classList.contains('visible')) {
+                closePlanetTheater();
+            }
+        }
+    });
+}
+
 // ============ 启动 ============
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('DOMContentLoaded', () => {
+    init();
+    setupPlanetVideoListeners();
+});

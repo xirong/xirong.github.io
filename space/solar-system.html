@@ -646,6 +646,179 @@
             font-size: 1.2rem;
         }
 
+        /* ============ 行星视频卡片（信息面板内） ============ */
+        .planet-video-card {
+            position: relative;
+            margin-top: 14px;
+            height: 120px;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(255, 215, 107, 0.18);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .planet-video-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+        }
+
+        .planet-video-shade {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(5, 8, 16, 0.1), rgba(5, 8, 16, 0.55));
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .planet-video-play-btn {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 215, 107, 0.32);
+            background: rgba(5, 8, 16, 0.72);
+            color: #ffe39a;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 20px rgba(255, 215, 107, 0.12);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .planet-video-play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.06);
+            background: rgba(25, 18, 8, 0.85);
+        }
+
+        .planet-video-play-btn .play-icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #ffd76b;
+            color: #11131d;
+            font-size: 0.68rem;
+            line-height: 1;
+        }
+
+        /* ============ 全屏影院模式 ============ */
+        .planet-theater {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .planet-theater.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .planet-theater-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(8px);
+        }
+
+        .planet-theater-content {
+            position: relative;
+            width: 90vw;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .planet-theater.visible .planet-theater-content {
+            transform: scale(1);
+        }
+
+        .planet-theater-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .planet-theater-title {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff4c8;
+            letter-spacing: 0.5px;
+        }
+
+        .planet-theater-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .planet-theater-close:hover {
+            background: rgba(255, 100, 100, 0.3);
+            border-color: rgba(255, 100, 100, 0.5);
+            color: #ff6b6b;
+            transform: rotate(90deg);
+        }
+
+        .planet-theater-video-wrap {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            aspect-ratio: 16 / 9;
+        }
+
+        .planet-theater-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        /* 移动端影院适配 */
+        body.is-mobile .planet-theater-content {
+            width: 96vw;
+        }
+
+        body.is-mobile .planet-video-card {
+            height: 100px;
+        }
+
         /* 比例尺展示 */
         .scale-indicator {
             position: fixed;
@@ -3262,10 +3435,31 @@
             </div>
             <div class="planet-moons" id="planetMoons" style="display: none;">
             </div>
+            <article class="planet-video-card" id="planetVideoCard" style="display: none;">
+                <video class="planet-video-preview" id="planetVideoPreview" preload="metadata" playsinline></video>
+                <div class="planet-video-shade" aria-hidden="true"></div>
+                <button class="planet-video-play-btn" id="planetVideoPlayBtn" type="button">
+                    <span class="play-icon">▶</span>
+                    <span>观看真实影像</span>
+                </button>
+            </article>
             <a href="earth.html" class="explore-btn" id="exploreBtn">
                 <span class="icon">🚀</span>
                 <span>探索地球的奥秘</span>
             </a>
+        </div>
+    </div>
+
+    <div class="planet-theater" id="planetTheater">
+        <div class="planet-theater-backdrop"></div>
+        <div class="planet-theater-content">
+            <div class="planet-theater-header">
+                <span class="planet-theater-title" id="planetTheaterTitle"></span>
+                <button class="planet-theater-close" id="planetTheaterClose" type="button">✕</button>
+            </div>
+            <div class="planet-theater-video-wrap">
+                <video class="planet-theater-video" id="planetTheaterVideo" controls playsinline></video>
+            </div>
         </div>
     </div>
 
