@@ -1005,6 +1005,7 @@ const BLACK_HOLE_SCOPE_OPTIONS = [
     { key: 'blackHoleEventHorizon', label: '事件视界' },
     { key: 'blackHoleGravitationalRadius', label: '引力影响区' }
 ];
+const TEACHING_NUMBER_FONT = '"Noto Sans SC", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif';
 
 function clearPendingDragResultReveal(resetContent = false) {
     pendingDragResultRevealIds.forEach(id => clearTimeout(id));
@@ -5638,7 +5639,7 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
         }
 
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.font = '900 28px "Orbitron", sans-serif';
+        ctx.font = `900 28px ${TEACHING_NUMBER_FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(countText, cx + 1, cy - 5 + 1);
@@ -5744,7 +5745,7 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
 
         const countText = formatCompactCount(displayCount);
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.font = '900 25px "Orbitron", sans-serif';
+        ctx.font = `900 25px ${TEACHING_NUMBER_FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(countText, cx + 1, cy + 1);

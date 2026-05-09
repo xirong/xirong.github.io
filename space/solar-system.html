@@ -29,6 +29,7 @@
             --text-secondary: rgba(255, 255, 255, 0.7);
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --teaching-number-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
         }
 
         body {
@@ -582,11 +583,12 @@
         }
 
         .stat-value {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 0.95rem;
             color: var(--accent-cyan);
             line-height: 1.4;
             word-break: break-word;
+            font-weight: 700;
         }
 
         .planet-description {
@@ -667,9 +669,10 @@
         }
 
         .scale-value {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 1.2rem;
             color: var(--accent-gold);
+            font-weight: 700;
         }
 
         /* 行星选择器 */
@@ -1237,10 +1240,11 @@
         }
 
         .planet-guide-track-time {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 1rem;
             color: #ffe39a;
             white-space: nowrap;
+            font-weight: 700;
         }
 
         .planet-guide-belt-item {
@@ -1950,9 +1954,10 @@
         }
 
         .comparison-planet .size {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 0.75rem;
             color: var(--accent-cyan);
+            font-weight: 700;
         }
 
         /* 地球直径倍数标签 */
@@ -2289,7 +2294,7 @@
         }
 
         .volume-sun-count {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 1.6rem;
             font-weight: 700;
             color: rgba(0, 0, 0, 0.8);
@@ -2307,7 +2312,7 @@
         }
 
         .volume-big-number .number {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 3.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -2520,7 +2525,7 @@
             display: flex;
             align-items: center;
             padding-left: 10px;
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 0.7rem;
             font-weight: 600;
             color: rgba(0, 0, 0, 0.7);
@@ -2680,7 +2685,7 @@
         }
 
         .drag-result .result-number {
-            font-family: 'Orbitron', sans-serif;
+            font-family: var(--teaching-number-font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--accent-gold);
