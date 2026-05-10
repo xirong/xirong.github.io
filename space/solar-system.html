@@ -2779,6 +2779,34 @@
             cursor: default;
         }
 
+        .drag-style-toggle {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            z-index: 5;
+            font-size: 0.78rem;
+            font-family: inherit;
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(220, 240, 255, 0.35);
+            background: rgba(20, 30, 60, 0.55);
+            color: rgba(230, 240, 255, 0.92);
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+        .drag-style-toggle:hover {
+            background: rgba(40, 60, 100, 0.7);
+            transform: translateY(-1px);
+        }
+        .drag-style-toggle[aria-pressed="true"] {
+            border-color: rgba(135, 206, 250, 0.75);
+            color: #cce8ff;
+            box-shadow: 0 0 10px rgba(135, 206, 250, 0.4);
+        }
+
         .drag-planet-tray {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));

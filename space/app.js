@@ -1127,6 +1127,90 @@ function getDragVolumeTexture(key) {
 // 预加载（提高首次拖入时的命中率）
 Object.keys(DRAG_VOLUME_TEXTURE_PATHS).forEach(getDragVolumeTexture);
 
+// 拖入容器样式：'realistic'（默认太阳/黑洞）或 'glass'（透明玻璃球）
+let dragContainerStyle = 'realistic';
+function isGlassDragMode() { return dragContainerStyle === 'glass'; }
+
+// 玻璃球容器分上下两层：先画 back 作底，再画装入的小球，最后画 front 高光描边
+function drawGlassContainerBack(ctx, size, margin = 10) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - margin;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    const inner = ctx.createRadialGradient(cx, cy, r * 0.05, cx, cy, r);
+    inner.addColorStop(0, 'rgba(220, 240, 255, 0.06)');
+    inner.addColorStop(0.6, 'rgba(160, 200, 255, 0.08)');
+    inner.addColorStop(1, 'rgba(110, 150, 220, 0.18)');
+    ctx.fillStyle = inner;
+    ctx.fillRect(0, 0, size, size);
+    ctx.restore();
+}
+function drawGlassContainerFront(ctx, size, margin = 10) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - margin;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    // 左上反光
+    const hilite = ctx.createRadialGradient(cx - r * 0.45, cy - r * 0.55, 0, cx - r * 0.45, cy - r * 0.55, r * 0.7);
+    hilite.addColorStop(0, 'rgba(255, 255, 255, 0.28)');
+    hilite.addColorStop(0.5, 'rgba(255, 255, 255, 0.06)');
+    hilite.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = hilite;
+    ctx.fillRect(0, 0, size, size);
+    // 底部反射弧
+    const refl = ctx.createLinearGradient(0, cy + r * 0.45, 0, cy + r);
+    refl.addColorStop(0, 'rgba(255, 255, 255, 0)');
+    refl.addColorStop(1, 'rgba(170, 200, 240, 0.16)');
+    ctx.fillStyle = refl;
+    ctx.fillRect(cx - r, cy + r * 0.45, r * 2, r);
+    ctx.restore();
+    // 玻璃边缘双层描边
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(220, 240, 255, 0.62)';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 3, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+}
+
+// 计算大球（半径 R）内可以六边形密铺的小球（半径 r0）槽位
+// 返回相对球心的 [{x,y}] 列表，按从下到上、左右居中的顺序排好
+function computeHexSlots(R, r0, options = {}) {
+    const padding = options.padding ?? r0 * 0.05;
+    const outerR = R - r0 - padding;
+    if (outerR <= 0) return [];
+    const innerR = options.innerR ?? 0; // 用于黑洞：挖掉中心黑核
+    const innerR2 = innerR * innerR;
+    const rowH = Math.sqrt(3) * r0 * (options.rowScale ?? 1);
+    const colW = 2 * r0 * (options.colScale ?? 1);
+    const halfRows = Math.ceil(outerR / rowH) + 1;
+    const halfCols = Math.ceil(outerR / colW) + 1;
+    const slots = [];
+    for (let j = -halfRows; j <= halfRows; j++) {
+        const y = j * rowH;
+        const offset = (j & 1) ? r0 : 0;
+        for (let i = -halfCols; i <= halfCols; i++) {
+            const x = i * colW + offset;
+            const d2 = x * x + y * y;
+            if (d2 <= outerR * outerR && d2 >= innerR2) {
+                slots.push({ x, y });
+            }
+        }
+    }
+    // 从底部往顶部依次"长高"，同一行从中央向两侧扩散
+    slots.sort((a, b) => {
+        if (b.y !== a.y) return b.y - a.y;
+        return Math.abs(a.x) - Math.abs(b.x);
+    });
+    return slots;
+}
+
 // 在 canvas 上绘制一个带光照的纹理小行星
 function drawTexturedMiniPlanet(ctx, x, y, radius, key, fallbackColor) {
     if (radius < 0.5) return;
@@ -4674,11 +4758,15 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
         `;
     });
 
+    const realisticLabel = isBlackHole ? '🌑 还原黑洞' : '☀️ 还原太阳';
+    const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
+
     wrapper.innerHTML = `
         <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '横向约等于多少个' : '能装多少个'}！</div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
         <div class="drag-main-area">
             <div class="drag-sun-area">
+                <button class="drag-style-toggle" type="button" aria-pressed="${isGlassDragMode()}">${initialToggleLabel}</button>
                 <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px;"></canvas>
             </div>
             <div class="drag-planet-tray">${trayHTML}</div>
@@ -4695,13 +4783,30 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    if (isBlackHole) {
-        drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
-        if (!blackHoleTextureImage.complete) {
-            blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
+    function drawIdle() {
+        if (isBlackHole) {
+            drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
+            if (!blackHoleTextureImage.complete) {
+                blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
+            }
+        } else {
+            drawIdleSun(ctx, canvasSize);
         }
-    } else {
-        drawIdleSun(ctx, canvasSize);
+    }
+    wrapper._dragRedraw = drawIdle;
+    drawIdle();
+
+    // 玻璃/原版切换按钮
+    const toggleBtn = wrapper.querySelector('.drag-style-toggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            dragContainerStyle = isGlassDragMode() ? 'realistic' : 'glass';
+            toggleBtn.textContent = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
+            toggleBtn.setAttribute('aria-pressed', isGlassDragMode());
+            if (typeof wrapper._dragRedraw === 'function') {
+                wrapper._dragRedraw();
+            }
+        });
     }
 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
@@ -4712,7 +4817,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
             : currentComparisonMetric === 'width'
                 ? `${targetDisplayName}宽度约等于`
                 : `${targetDisplayName}能装`,
-        blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : ''
+        blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
+        wrapper
     });
 }
 
@@ -5196,6 +5302,17 @@ function drawIdleSun(ctx, size) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
     ctx.clearRect(0, 0, size, size);
 
+    if (isGlassDragMode()) {
+        drawGlassContainerBack(ctx, size, 10);
+        drawGlassContainerFront(ctx, size, 10);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = '600 14px "Noto Sans SC"';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('拖到这里', cx, cy);
+        return;
+    }
+
     // 太阳渐变
     const grad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
     grad.addColorStop(0, '#ffffff');
@@ -5228,6 +5345,19 @@ function drawIdleSun(ctx, size) {
 function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '引力影响区') {
     const cx = size / 2, cy = size / 2, r = size / 2 - 18;
     ctx.clearRect(0, 0, size, size);
+
+    if (isGlassDragMode()) {
+        drawGlassContainerBack(ctx, size, 18);
+        drawGlassContainerFront(ctx, size, 18);
+        if (showHint) {
+            ctx.fillStyle = 'rgba(255, 244, 220, 0.86)';
+            ctx.font = '600 14px "Noto Sans SC"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`拖到${scopeLabel}`, cx, cy);
+        }
+        return;
+    }
 
     const bg = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r * 1.3);
     bg.addColorStop(0, 'rgba(6, 10, 24, 1)');
@@ -5559,161 +5689,128 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const nameCN = data.nameCN;
     const label = data.label;
     const dragKey = data.key;
-    // 动画参数
-    const duration = 3000; // ms
+    const duration = 3000;
     playVolumeFillCollisionSound(targetCount, 'sun', duration);
 
-    // 粒子池
-    const MAX_PARTICLES = 120;
-    const particles = [];
-    for (let i = 0; i < MAX_PARTICLES; i++) {
-        particles.push({ alive: false, x: 0, y: 0, vx: 0, vy: 0, r: 0, alpha: 1, spin: 0, spinSpeed: 0 });
-    }
+    // 粒子半径按数量级决定（数量越多每颗越小，整体仍然是密铺）
+    let particleRadius;
+    if (targetCount <= 200) particleRadius = 16;
+    else if (targetCount <= 2000) particleRadius = 12;
+    else if (targetCount <= 30000) particleRadius = 9;
+    else if (targetCount <= 2000000) particleRadius = 7;
+    else particleRadius = 5;
 
-    let fillLevel = 0; // 0~1
+    // 六边形密铺槽位：动画过程中按从底向上的顺序逐渐"显形"
+    const slots = computeHexSlots(r, particleRadius);
+    const totalSlots = slots.length;
+    const finalShown = Math.min(totalSlots, Math.max(1, targetCount));
+
+    // 高亮飞入粒子（少量装饰，从顶部落入下一个待显形槽位）
+    const FLYING_MAX = 6;
+    const flying = [];
+    for (let i = 0; i < FLYING_MAX; i++) flying.push({ alive: false });
+
     let displayCount = 0;
     const startTime = performance.now();
-    let lastSpawnTime = 0;
 
-    // 根据数量级决定粒子大小和生成速率（粒子大才看得清纹理）
-    let particleRadius, spawnInterval;
-    if (targetCount <= 2000) {
-        particleRadius = 12; spawnInterval = 32;
-    } else if (targetCount <= 30000) {
-        particleRadius = 9; spawnInterval = 22;
-    } else if (targetCount <= 2000000) {
-        particleRadius = 7; spawnInterval = 18;
-    } else {
-        particleRadius = 5; spawnInterval = 14;
-    }
-
-    function spawnParticle() {
-        for (let i = 0; i < MAX_PARTICLES; i++) {
-            if (!particles[i].alive) {
-                const p = particles[i];
+    function spawnFlying(slot) {
+        for (let i = 0; i < FLYING_MAX; i++) {
+            const p = flying[i];
+            if (!p.alive) {
                 p.alive = true;
-                // 从太阳顶部随机位置生成
-                const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.8;
-                const spawnR = r * 0.85;
-                p.x = cx + Math.cos(angle) * spawnR * (0.3 + Math.random() * 0.7);
-                p.y = cy - r * 0.7 - Math.random() * 10;
-                p.vx = (Math.random() - 0.5) * 2;
-                p.vy = Math.random() * 1 + 0.5;
-                p.r = particleRadius + Math.random() * particleRadius * 0.4;
-                p.alpha = 0.92 + Math.random() * 0.08;
-                p.spin = Math.random() * Math.PI * 2;
-                p.spinSpeed = (Math.random() - 0.5) * 0.04;
+                p.targetX = cx + slot.x;
+                p.targetY = cy + slot.y;
+                p.x = cx + (Math.random() - 0.5) * r * 1.2;
+                p.y = cy - r - particleRadius - 6;
+                p.life = 0; // 0~1, 1=到达目标
+                p.lifeSpeed = 0.06 + Math.random() * 0.04;
                 return;
             }
         }
     }
 
+    let resultShown = false;
+    let lastFrameTime = 0;
     function animate(now) {
+        lastFrameTime = now;
         const elapsed = now - startTime;
         const progress = Math.min(1, elapsed / duration);
-
-        // easeInOutCubic for fill
-        fillLevel = progress < 0.5
+        const fillLevel = progress < 0.5
             ? 4 * progress * progress * progress
             : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-        // 计数器：指数加速
         displayCount = Math.round(targetCount * fillLevel);
-
-        // 填充线的 Y 位置（从底部往上）
-        const fillY = cy + r - fillLevel * r * 2;
+        const visibleCount = Math.min(finalShown, Math.ceil(fillLevel * finalShown));
+        const isGlass = isGlassDragMode();
 
         ctx.clearRect(0, 0, size, size);
 
-        // 1. 太阳底色
-        const sunGrad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
-        sunGrad.addColorStop(0, '#ffffff');
-        sunGrad.addColorStop(0.2, '#fff9c4');
-        sunGrad.addColorStop(0.5, '#ffeb3b');
-        sunGrad.addColorStop(0.8, '#ff9800');
-        sunGrad.addColorStop(1, '#e65100');
+        if (isGlass) {
+            drawGlassContainerBack(ctx, size, 10);
+        }
 
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.clip();
 
-        ctx.fillStyle = sunGrad;
-        ctx.fillRect(0, 0, size, size);
-
-        // 2. 填充层（行星颜色半透明从底部上升）
-        if (fillLevel > 0) {
-            ctx.fillStyle = color + '55'; // 30% opacity
-            ctx.fillRect(cx - r, fillY, r * 2, cy + r - fillY);
-
-            // 填充层顶部渐变过渡
-            const fadeGrad = ctx.createLinearGradient(0, fillY - 15, 0, fillY + 5);
-            fadeGrad.addColorStop(0, color + '00');
-            fadeGrad.addColorStop(1, color + '44');
-            ctx.fillStyle = fadeGrad;
-            ctx.fillRect(cx - r, fillY - 15, r * 2, 20);
+        if (!isGlass) {
+            // 太阳底色
+            const sunGrad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
+            sunGrad.addColorStop(0, '#ffffff');
+            sunGrad.addColorStop(0.2, '#fff9c4');
+            sunGrad.addColorStop(0.5, '#ffeb3b');
+            sunGrad.addColorStop(0.8, '#ff9800');
+            sunGrad.addColorStop(1, '#e65100');
+            ctx.fillStyle = sunGrad;
+            ctx.fillRect(0, 0, size, size);
         }
 
-        // 3. 粒子
-        if (progress < 0.95) {
-            // 生成粒子
-            if (now - lastSpawnTime > spawnInterval) {
-                const spawnCount = Math.ceil(3 + progress * 5);
-                for (let s = 0; s < spawnCount; s++) spawnParticle();
-                lastSpawnTime = now;
+        // 2. 已显形的密铺小球（六边形铺满）
+        for (let i = 0; i < visibleCount; i++) {
+            const s = slots[i];
+            drawTexturedMiniPlanet(ctx, cx + s.x, cy + s.y, particleRadius, dragKey, color);
+        }
+
+        // 3. 顶部"飞入"粒子（少量装饰，朝下一个待显形槽位飞入）
+        if (progress < 0.97 && visibleCount < finalShown) {
+            // 让飞入粒子数量与显形速率挂钩
+            const aliveCount = flying.reduce((acc, p) => acc + (p.alive ? 1 : 0), 0);
+            if (aliveCount < 3 && Math.random() < 0.5) {
+                const idx = Math.min(finalShown - 1, visibleCount + Math.floor(Math.random() * 6));
+                spawnFlying(slots[idx]);
             }
-        }
-
-        // 更新和绘制粒子
-        for (let i = 0; i < MAX_PARTICLES; i++) {
-            const p = particles[i];
-            if (!p.alive) continue;
-
-            p.vy += 0.15; // 重力
-            p.x += p.vx;
-            p.y += p.vy;
-
-            // 碰到填充线反弹
-            if (p.y + p.r > Math.max(fillY, cy - r + 5)) {
-                p.y = Math.max(fillY, cy - r + 5) - p.r;
-                p.vy *= -0.3;
-                p.vx *= 0.8;
-                if (Math.abs(p.vy) < 0.5) {
+            for (let i = 0; i < FLYING_MAX; i++) {
+                const p = flying[i];
+                if (!p.alive) continue;
+                p.life += p.lifeSpeed;
+                if (p.life >= 1) {
                     p.alive = false;
                     continue;
                 }
+                // 抛物线轨迹：x 线性、y 二次加速（重力感）
+                const t = p.life;
+                const px = p.x + (p.targetX - p.x) * t;
+                const py = p.y + (p.targetY - p.y) * (t * t);
+                drawTexturedMiniPlanet(ctx, px, py, particleRadius, dragKey, color);
             }
-
-            // 超出太阳范围检测
-            const dx = p.x - cx, dy = p.y - cy;
-            if (dx * dx + dy * dy > (r - p.r) * (r - p.r)) {
-                // 推回太阳内
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const nx = dx / dist, ny = dy / dist;
-                p.x = cx + nx * (r - p.r - 1);
-                p.y = cy + ny * (r - p.r - 1);
-                // 反射速度
-                const dot = p.vx * nx + p.vy * ny;
-                p.vx -= 1.5 * dot * nx;
-                p.vy -= 1.5 * dot * ny;
-            }
-
-            p.spin += p.spinSpeed;
-            ctx.globalAlpha = p.alpha;
-            drawTexturedMiniPlanet(ctx, p.x, p.y, p.r, dragKey, color);
-            ctx.globalAlpha = 1;
         }
 
         ctx.restore();
 
-        // 4. 光晕
-        const glow = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.15);
-        glow.addColorStop(0, 'rgba(255, 152, 0, 0.2)');
-        glow.addColorStop(1, 'rgba(255, 152, 0, 0)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
+        // 4. 光晕（玻璃模式不画外圈太阳光晕，让玻璃描边代替）
+        if (!isGlass) {
+            const glow = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.15);
+            glow.addColorStop(0, 'rgba(255, 152, 0, 0.2)');
+            glow.addColorStop(1, 'rgba(255, 152, 0, 0)');
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
+            ctx.fillStyle = glow;
+            ctx.fill();
+        } else {
+            // 玻璃模式：边缘高光与描边
+            drawGlassContainerFront(ctx, size, 10);
+        }
 
         // 5. 计数器文字
         ctx.save();
@@ -5746,12 +5843,19 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
         if (progress < 1) {
             dragVolumeAnimationId = requestAnimationFrame(animate);
         } else {
-            // 动画完成，显示结果
+            // 动画完成，显示结果（仅一次），画面定格在最后状态
             dragVolumeAnimationId = null;
-            showDragResult(label, nameCN, animationConfig.resultLabel || '太阳能装');
+            if (!resultShown) {
+                showDragResult(label, nameCN, animationConfig.resultLabel || '太阳能装');
+                resultShown = true;
+            }
         }
     }
 
+    if (animationConfig.wrapper) {
+        // 切换玻璃/原版时调用，重画当前帧（动画结束后画面定格也能立即应用样式）
+        animationConfig.wrapper._dragRedraw = () => animate(lastFrameTime || performance.now());
+    }
     dragVolumeAnimationId = requestAnimationFrame(animate);
 }
 
@@ -5765,73 +5869,104 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
     const duration = 3200;
     playVolumeFillCollisionSound(targetCount, 'blackHole', duration);
 
-    const MAX_PARTICLES = 140;
-    const particles = [];
-    for (let i = 0; i < MAX_PARTICLES; i++) {
-        particles.push({ alive: false, x: 0, y: 0, angle: 0, radius: 0, speed: 0, dot: 0, alpha: 1 });
-    }
+    // 粒子半径按数量级决定
+    let particleRadius;
+    if (targetCount <= 200) particleRadius = 14;
+    else if (targetCount <= 2000) particleRadius = 11;
+    else if (targetCount <= 30000) particleRadius = 8;
+    else if (targetCount <= 2000000) particleRadius = 6;
+    else particleRadius = 5;
+
+    // 黑洞密铺：留出中心 r*0.32 作为黑核吞噬区
+    const slots = computeHexSlots(r, particleRadius, { innerR: r * 0.32 });
+    const totalSlots = slots.length;
+    const finalShown = Math.min(totalSlots, Math.max(1, targetCount));
+
+    // 飞入装饰粒子：从外围螺旋飞向下一个待显形槽位
+    const FLYING_MAX = 6;
+    const flying = [];
+    for (let i = 0; i < FLYING_MAX; i++) flying.push({ alive: false });
 
     const startTime = performance.now();
     let displayCount = 0;
-    let lastSpawnTime = 0;
 
-    function spawnParticle() {
-        for (let i = 0; i < MAX_PARTICLES; i++) {
-            if (!particles[i].alive) {
-                const p = particles[i];
+    function spawnFlying(slot) {
+        for (let i = 0; i < FLYING_MAX; i++) {
+            const p = flying[i];
+            if (!p.alive) {
                 p.alive = true;
-                p.angle = Math.random() * Math.PI * 2;
-                p.radius = r * (1.05 + Math.random() * 0.18);
-                p.speed = 0.055 + Math.random() * 0.04;
-                p.dot = 6 + Math.random() * 4;
-                p.alpha = 0.92 + Math.random() * 0.08;
-                p.x = cx + Math.cos(p.angle) * p.radius;
-                p.y = cy + Math.sin(p.angle) * p.radius * 0.42;
+                p.targetX = cx + slot.x;
+                p.targetY = cy + slot.y;
+                const ang = Math.random() * Math.PI * 2;
+                const orbR = r * (1.05 + Math.random() * 0.15);
+                p.x = cx + Math.cos(ang) * orbR;
+                p.y = cy + Math.sin(ang) * orbR * 0.45;
+                p.life = 0;
+                p.lifeSpeed = 0.05 + Math.random() * 0.04;
                 return;
             }
         }
     }
 
+    let resultShown = false;
+    let lastFrameTime = 0;
     function animate(now) {
+        lastFrameTime = now;
         const elapsed = now - startTime;
         const progress = Math.min(1, elapsed / duration);
         const ease = 1 - Math.pow(1 - progress, 3);
         displayCount = Math.round(targetCount * ease);
+        const visibleCount = Math.min(finalShown, Math.ceil(ease * finalShown));
+        const isGlass = isGlassDragMode();
 
-        drawIdleBlackHole(ctx, size, Math.sin(now * 0.006) * 0.5 + 0.5, false);
+        ctx.clearRect(0, 0, size, size);
 
-        if (progress < 0.96 && now - lastSpawnTime > 18) {
-            const spawnCount = Math.ceil(5 + progress * 9);
-            for (let s = 0; s < spawnCount; s++) spawnParticle();
-            lastSpawnTime = now;
+        if (isGlass) {
+            drawGlassContainerBack(ctx, size, 18);
+        } else {
+            drawIdleBlackHole(ctx, size, Math.sin(now * 0.006) * 0.5 + 0.5, false);
+            // 中心黑核 + 暖光圈，覆盖在黑洞背景上
+            const swallowGlow = ctx.createRadialGradient(cx, cy, r * 0.18, cx, cy, r * 0.42);
+            swallowGlow.addColorStop(0, 'rgba(0, 0, 0, 0.96)');
+            swallowGlow.addColorStop(0.6, 'rgba(0, 0, 0, 0.78)');
+            swallowGlow.addColorStop(1, 'rgba(255, 147, 43, 0.06)');
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
+            ctx.fillStyle = swallowGlow;
+            ctx.fill();
         }
 
-        particles.forEach(p => {
-            if (!p.alive) return;
-            p.angle += p.speed;
-            p.radius *= 0.965;
-            p.x = cx + Math.cos(p.angle) * p.radius;
-            p.y = cy + Math.sin(p.angle) * p.radius * 0.42;
-            p.alpha *= 0.987;
+        // 已显形的密铺小球（环形铺满）
+        for (let i = 0; i < visibleCount; i++) {
+            const s = slots[i];
+            drawTexturedMiniPlanet(ctx, cx + s.x, cy + s.y, particleRadius, dragKey, color);
+        }
 
-            if (p.radius < r * 0.26 || p.alpha < 0.08) {
-                p.alive = false;
-                return;
+        // 飞入装饰粒子
+        if (progress < 0.96 && visibleCount < finalShown) {
+            const aliveCount = flying.reduce((acc, p) => acc + (p.alive ? 1 : 0), 0);
+            if (aliveCount < 4 && Math.random() < 0.6) {
+                const idx = Math.min(finalShown - 1, visibleCount + Math.floor(Math.random() * 8));
+                spawnFlying(slots[idx]);
             }
+            for (let i = 0; i < FLYING_MAX; i++) {
+                const p = flying[i];
+                if (!p.alive) continue;
+                p.life += p.lifeSpeed;
+                if (p.life >= 1) {
+                    p.alive = false;
+                    continue;
+                }
+                const t = p.life;
+                const px = p.x + (p.targetX - p.x) * t;
+                const py = p.y + (p.targetY - p.y) * t;
+                drawTexturedMiniPlanet(ctx, px, py, particleRadius, dragKey, color);
+            }
+        }
 
-            ctx.globalAlpha = p.alpha;
-            drawTexturedMiniPlanet(ctx, p.x, p.y, p.dot, dragKey, color);
-            ctx.globalAlpha = 1;
-        });
-
-        const swallowGlow = ctx.createRadialGradient(cx, cy, r * 0.22, cx, cy, r * 0.62);
-        swallowGlow.addColorStop(0, 'rgba(0, 0, 0, 0.96)');
-        swallowGlow.addColorStop(0.55, 'rgba(0, 0, 0, 0.7)');
-        swallowGlow.addColorStop(1, 'rgba(255, 147, 43, 0.08)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
-        ctx.fillStyle = swallowGlow;
-        ctx.fill();
+        if (isGlass) {
+            drawGlassContainerFront(ctx, size, 18);
+        }
 
         const countText = formatCompactCount(displayCount);
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
@@ -5850,11 +5985,17 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
             dragVolumeAnimationId = requestAnimationFrame(animate);
         } else {
             dragVolumeAnimationId = null;
-            const defaultLabel = animationConfig.blackHoleScopeLabel
-                ? `${animationConfig.blackHoleScopeLabel}能装`
-                : '黑洞能装';
-            showDragResult(label, nameCN, animationConfig.resultLabel || defaultLabel);
+            if (!resultShown) {
+                const defaultLabel = animationConfig.blackHoleScopeLabel
+                    ? `${animationConfig.blackHoleScopeLabel}能装`
+                    : '黑洞能装';
+                showDragResult(label, nameCN, animationConfig.resultLabel || defaultLabel);
+                resultShown = true;
+            }
         }
+    }
+    if (animationConfig.wrapper) {
+        animationConfig.wrapper._dragRedraw = () => animate(lastFrameTime || performance.now());
     }
 
     dragVolumeAnimationId = requestAnimationFrame(animate);
