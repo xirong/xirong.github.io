@@ -2769,6 +2769,33 @@
             width: 100%;
         }
 
+        /* "按体积装"页签下：左拖入 + 中 tray + 右 bar 三栏布局 */
+        .drag-main-area--with-bars {
+            display: grid;
+            grid-template-columns: minmax(260px, max-content) minmax(200px, max-content) 1fr;
+            gap: 24px;
+            align-items: start;
+            justify-content: center;
+            width: 100%;
+            max-width: 1700px;
+        }
+        .drag-main-area--with-bars .drag-bar-chart-side {
+            min-width: 0;
+            width: 100%;
+            align-self: stretch;
+            display: flex;
+        }
+        .drag-main-area--with-bars .drag-bar-chart-side .volume-bar-chart {
+            width: 100%;
+            max-width: 100%;
+        }
+        @media (max-width: 1100px) {
+            .drag-main-area--with-bars {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+        }
+
         .drag-sun-area {
             position: relative;
             flex-shrink: 0;

@@ -4507,6 +4507,12 @@ function getTargetCircleStyle(targetKey, size = 180) {
 }
 
 function renderCapacityComparison(container, subtitle, targetKey) {
+    // 太阳的"按体积装"页签合并到拖入式布局：左拖入 + 中 tray + 右 bar chart
+    if (targetKey === 'sun' && !isBlackHoleTargetType(targetKey)) {
+        cancelDragVolumeAnimation();
+        return renderDragCapacityComparison(container, subtitle, 'sun', { includeBarChart: true });
+    }
+
     const target = CAPACITY_TARGETS[targetKey];
     subtitle.textContent = getCapacitySubtitle(targetKey);
     const targetDisplayName = getCapacityTargetDisplayName(targetKey);
@@ -4723,12 +4729,13 @@ function renderCapacityMode(container, subtitle) {
     renderCapacityComparison(container, subtitle, currentCapacityView);
 }
 
-function renderDragCapacityComparison(container, subtitle, targetKey) {
+function renderDragCapacityComparison(container, subtitle, targetKey, options = {}) {
     const target = CAPACITY_TARGETS[targetKey];
     const isBlackHole = isBlackHoleTargetType(targetKey);
     const blackHoleScopeLabel = isBlackHole ? getBlackHoleScopeLabel(targetKey) : '';
     const capacityData = getCapacityData(targetKey);
     const targetDisplayName = isBlackHole ? '黑洞' : target.nameCN;
+    const includeBarChart = !!options.includeBarChart;
 
     subtitle.textContent = currentComparisonMetric === 'mass'
         ? `拖拽天体放入${targetDisplayName}，按质量看看相当于多少个`
@@ -4758,18 +4765,44 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
         `;
     });
 
+    let barChartHTML = '';
+    if (includeBarChart) {
+        const logs = capacityData.map(item => Math.log10(Math.max(item.count, 0.000001)));
+        const minLog = Math.min(...logs);
+        const maxLog = Math.max(...logs);
+        let barInnerHTML = '<div class="volume-bar-chart">';
+        capacityData.forEach(item => {
+            const logVal = Math.log10(Math.max(item.count, 0.000001));
+            const percent = maxLog === minLog ? 100 : 10 + ((logVal - minLog) / (maxLog - minLog)) * 90;
+            barInnerHTML += `
+                <div class="volume-bar-row" data-capacity-planet="${item.key}">
+                    <span class="volume-bar-label">${item.nameCN}</span>
+                    <div class="volume-bar-track">
+                        <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
+                            ${item.label}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        barInnerHTML += '</div>';
+        barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}</div>`;
+    }
+
     const realisticLabel = isBlackHole ? '🌑 还原黑洞' : '☀️ 还原太阳';
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
+    const mainAreaClass = `drag-main-area${includeBarChart ? ' drag-main-area--with-bars' : ''}`;
 
     wrapper.innerHTML = `
         <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '横向约等于多少个' : '能装多少个'}！</div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
-        <div class="drag-main-area">
+        <div class="${mainAreaClass}">
             <div class="drag-sun-area">
                 <button class="drag-style-toggle" type="button" aria-pressed="${isGlassDragMode()}">${initialToggleLabel}</button>
                 <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px;"></canvas>
             </div>
             <div class="drag-planet-tray">${trayHTML}</div>
+            ${barChartHTML}
         </div>
         <div class="drag-result" id="dragResult">
             <div class="result-number" id="dragResultNumber"></div>
@@ -4778,6 +4811,35 @@ function renderDragCapacityComparison(container, subtitle, targetKey) {
     `;
 
     container.appendChild(wrapper);
+
+    // 让 bar chart 上的某一行也能直接触发"装入"动画（无需拖动）
+    if (includeBarChart) {
+        wrapper.querySelectorAll('.drag-bar-chart-side .volume-bar-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const key = row.dataset.capacityPlanet;
+                const item = capacityData.find(d => d.key === key);
+                if (!item) return;
+                wrapper.querySelectorAll('.drag-bar-chart-side .volume-bar-row.active').forEach(el => el.classList.remove('active'));
+                row.classList.add('active');
+                cancelDragVolumeAnimation();
+                const ctx2 = canvas.getContext('2d');
+                ctx2.setTransform(1, 0, 0, 1, 0, 0);
+                ctx2.scale(dpr, dpr);
+                clearDragResultState();
+                const startAnim = isBlackHole ? startBlackHoleFillAnimation : startFillAnimation;
+                const animConfig = {
+                    resultLabel: currentComparisonMetric === 'mass'
+                        ? `${targetDisplayName}质量约等于`
+                        : currentComparisonMetric === 'width'
+                            ? `${targetDisplayName}宽度约等于`
+                            : `${targetDisplayName}能装`,
+                    blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
+                    wrapper
+                };
+                startAnim(ctx2, canvasSize, item, animConfig);
+            });
+        });
+    }
 
     const canvas = wrapper.querySelector('.drag-sun-canvas');
     const ctx = canvas.getContext('2d');
