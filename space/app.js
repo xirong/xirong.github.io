@@ -764,11 +764,14 @@ function playCollisionBurst(options = {}) {
     }
 }
 
-function playVolumeFillCollisionSound(targetCount, targetType = 'sun') {
-    const countByScale = targetCount >= 1000000000 ? 24 : targetCount >= 1000000 ? 20 : targetCount >= 10000 ? 16 : 12;
+function playVolumeFillCollisionSound(targetCount, targetType = 'sun', durationMs = 3000) {
+    const interval = targetType === 'blackHole' ? 0.07 : 0.09;
+    const minByScale = targetCount >= 1000000000 ? 24 : targetCount >= 1000000 ? 20 : targetCount >= 10000 ? 16 : 12;
+    // 让"咔哒"声一直延续到动画结束（多铺 2 个尾音让收尾自然）
+    const durationCount = Math.ceil((durationMs / 1000) / interval) + 2;
     playCollisionBurst({
-        count: countByScale,
-        interval: targetType === 'blackHole' ? 0.07 : 0.09,
+        count: Math.max(minByScale, durationCount),
+        interval,
         baseFrequency: targetType === 'blackHole' ? 620 : 800,
         volume: targetType === 'blackHole' ? 0.085 : 0.105
     });
@@ -1078,6 +1081,87 @@ const BLACK_HOLE_MASS_IN_SOLAR_MASSES = 4000000;
 const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
 const blackHoleTextureImage = new Image();
 blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
+
+// ============ 拖入填充动画 - 行星纹理缓存 ============
+// 在 canvas 粒子里贴对应天体的真实纹理（用 Solar System Scope 资源）
+const DRAG_VOLUME_TEXTURE_PATHS = {
+    sun: 'textures/sun.jpg',
+    mercury: 'textures/mercury.jpg',
+    venus: 'textures/venus_atmosphere.jpg',
+    earth: 'textures/earth_daymap.jpg',
+    moon: 'textures/moon.jpg',
+    mars: 'textures/mars.jpg',
+    ceres: 'textures/ceres.jpg',
+    jupiter: 'textures/jupiter.jpg',
+    saturn: 'textures/saturn.jpg',
+    uranus: 'textures/uranus.jpg',
+    neptune: 'textures/neptune.jpg',
+    pluto: 'textures/pluto.jpg',
+    eris: 'textures/eris.jpg',
+    haumea: 'textures/haumea.jpg',
+    makemake: 'textures/makemake.jpg',
+    io: 'textures/io.jpg',
+    europa: 'textures/europa.jpg',
+    ganymede: 'textures/ganymede.jpg',
+    callisto: 'textures/callisto.jpg',
+    titan: 'textures/titan.jpg',
+    rhea: 'textures/rhea.jpg',
+    enceladus: 'textures/enceladus.jpg',
+    phobos: 'textures/phobos.jpg',
+    deimos: 'textures/deimos.jpg',
+    triton: 'textures/triton.jpg',
+    titania: 'textures/titania.jpg',
+    oberon: 'textures/oberon.jpg'
+};
+const dragVolumeTextureCache = {};
+function getDragVolumeTexture(key) {
+    const path = DRAG_VOLUME_TEXTURE_PATHS[key];
+    if (!path) return null;
+    if (!dragVolumeTextureCache[path]) {
+        const img = new Image();
+        img.src = path;
+        dragVolumeTextureCache[path] = img;
+    }
+    return dragVolumeTextureCache[path];
+}
+// 预加载（提高首次拖入时的命中率）
+Object.keys(DRAG_VOLUME_TEXTURE_PATHS).forEach(getDragVolumeTexture);
+
+// 在 canvas 上绘制一个带光照的纹理小行星
+function drawTexturedMiniPlanet(ctx, x, y, radius, key, fallbackColor) {
+    if (radius < 0.5) return;
+    const img = getDragVolumeTexture(key);
+    const ready = img && img.complete && img.naturalWidth > 0;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.clip();
+
+    if (ready) {
+        const srcSize = Math.min(img.naturalWidth, img.naturalHeight);
+        const sx = (img.naturalWidth - srcSize) / 2;
+        const sy = (img.naturalHeight - srcSize) / 2;
+        ctx.drawImage(img, sx, sy, srcSize, srcSize, x - radius, y - radius, radius * 2, radius * 2);
+    } else {
+        ctx.fillStyle = fallbackColor || '#888';
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    }
+
+    // 球体光照：左上方光源 + 右下方阴影，让平面纹理看起来像 3D
+    const lightGrad = ctx.createRadialGradient(
+        x - radius * 0.4, y - radius * 0.45, radius * 0.05,
+        x, y, radius * 1.05
+    );
+    lightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.32)');
+    lightGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0)');
+    lightGrad.addColorStop(0.85, 'rgba(0, 0, 0, 0.28)');
+    lightGrad.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+    ctx.fillStyle = lightGrad;
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+
+    ctx.restore();
+}
 
 // 银河系中心黑洞 Sgr A*，按引力影响区口径估算
 const blackHoleVolumeData = [
@@ -5474,32 +5558,33 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const color = data.color;
     const nameCN = data.nameCN;
     const label = data.label;
-    playVolumeFillCollisionSound(targetCount, 'sun');
-
-    // 粒子池
-    const MAX_PARTICLES = 200;
-    const particles = [];
-    for (let i = 0; i < MAX_PARTICLES; i++) {
-        particles.push({ alive: false, x: 0, y: 0, vx: 0, vy: 0, r: 0, alpha: 1 });
-    }
-
+    const dragKey = data.key;
     // 动画参数
     const duration = 3000; // ms
+    playVolumeFillCollisionSound(targetCount, 'sun', duration);
+
+    // 粒子池
+    const MAX_PARTICLES = 120;
+    const particles = [];
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+        particles.push({ alive: false, x: 0, y: 0, vx: 0, vy: 0, r: 0, alpha: 1, spin: 0, spinSpeed: 0 });
+    }
+
     let fillLevel = 0; // 0~1
     let displayCount = 0;
     const startTime = performance.now();
     let lastSpawnTime = 0;
 
-    // 根据数量级决定粒子大小和生成速率
+    // 根据数量级决定粒子大小和生成速率（粒子大才看得清纹理）
     let particleRadius, spawnInterval;
     if (targetCount <= 2000) {
-        particleRadius = 5; spawnInterval = 15;
+        particleRadius = 12; spawnInterval = 32;
     } else if (targetCount <= 30000) {
-        particleRadius = 4; spawnInterval = 10;
+        particleRadius = 9; spawnInterval = 22;
     } else if (targetCount <= 2000000) {
-        particleRadius = 3; spawnInterval = 8;
+        particleRadius = 7; spawnInterval = 18;
     } else {
-        particleRadius = 2; spawnInterval = 5;
+        particleRadius = 5; spawnInterval = 14;
     }
 
     function spawnParticle() {
@@ -5514,8 +5599,10 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
                 p.y = cy - r * 0.7 - Math.random() * 10;
                 p.vx = (Math.random() - 0.5) * 2;
                 p.vy = Math.random() * 1 + 0.5;
-                p.r = particleRadius + Math.random() * 1.5;
-                p.alpha = 0.8 + Math.random() * 0.2;
+                p.r = particleRadius + Math.random() * particleRadius * 0.4;
+                p.alpha = 0.92 + Math.random() * 0.08;
+                p.spin = Math.random() * Math.PI * 2;
+                p.spinSpeed = (Math.random() - 0.5) * 0.04;
                 return;
             }
         }
@@ -5611,11 +5698,9 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
                 p.vy -= 1.5 * dot * ny;
             }
 
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = color;
+            p.spin += p.spinSpeed;
             ctx.globalAlpha = p.alpha;
-            ctx.fill();
+            drawTexturedMiniPlanet(ctx, p.x, p.y, p.r, dragKey, color);
             ctx.globalAlpha = 1;
         }
 
@@ -5676,15 +5761,16 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
     const color = data.color;
     const nameCN = data.nameCN;
     const label = data.label;
-    playVolumeFillCollisionSound(targetCount, 'blackHole');
+    const dragKey = data.key;
+    const duration = 3200;
+    playVolumeFillCollisionSound(targetCount, 'blackHole', duration);
 
-    const MAX_PARTICLES = 240;
+    const MAX_PARTICLES = 140;
     const particles = [];
     for (let i = 0; i < MAX_PARTICLES; i++) {
         particles.push({ alive: false, x: 0, y: 0, angle: 0, radius: 0, speed: 0, dot: 0, alpha: 1 });
     }
 
-    const duration = 3200;
     const startTime = performance.now();
     let displayCount = 0;
     let lastSpawnTime = 0;
@@ -5697,8 +5783,8 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
                 p.angle = Math.random() * Math.PI * 2;
                 p.radius = r * (1.05 + Math.random() * 0.18);
                 p.speed = 0.055 + Math.random() * 0.04;
-                p.dot = 2 + Math.random() * 3;
-                p.alpha = 0.82 + Math.random() * 0.18;
+                p.dot = 6 + Math.random() * 4;
+                p.alpha = 0.92 + Math.random() * 0.08;
                 p.x = cx + Math.cos(p.angle) * p.radius;
                 p.y = cy + Math.sin(p.angle) * p.radius * 0.42;
                 return;
@@ -5733,11 +5819,8 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
                 return;
             }
 
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.dot, 0, Math.PI * 2);
-            ctx.fillStyle = color;
             ctx.globalAlpha = p.alpha;
-            ctx.fill();
+            drawTexturedMiniPlanet(ctx, p.x, p.y, p.dot, dragKey, color);
             ctx.globalAlpha = 1;
         });
 
