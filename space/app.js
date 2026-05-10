@@ -4765,6 +4765,20 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         `;
     });
 
+    // 初始选中天体（沿用 currentCapacitySelections，方便切换 tab 时记忆）
+    const selectedKey = getCurrentCapacitySelection(targetKey);
+    let initialSelected = capacityData.find(d => d.key === selectedKey)
+        || capacityData.find(d => d.key === 'jupiter')
+        || capacityData.find(d => d.key === 'earth')
+        || capacityData[0];
+    if (initialSelected) setCurrentCapacitySelection(targetKey, initialSelected.key);
+
+    const targetDiameter = getCapacityTargetValue(targetKey, 'diameter');
+    function computePlanetRefSize(item) {
+        const pData = planetData[item.key];
+        return Math.max(3, Math.min(80, (pData.diameter / targetDiameter) * 80));
+    }
+
     let barChartHTML = '';
     if (includeBarChart) {
         const logs = capacityData.map(item => Math.log10(Math.max(item.count, 0.000001)));
@@ -4772,10 +4786,11 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         const maxLog = Math.max(...logs);
         let barInnerHTML = '<div class="volume-bar-chart">';
         capacityData.forEach(item => {
+            const isActive = initialSelected && item.key === initialSelected.key;
             const logVal = Math.log10(Math.max(item.count, 0.000001));
             const percent = maxLog === minLog ? 100 : 10 + ((logVal - minLog) / (maxLog - minLog)) * 90;
             barInnerHTML += `
-                <div class="volume-bar-row" data-capacity-planet="${item.key}">
+                <div class="volume-bar-row ${isActive ? 'active' : ''}" data-capacity-planet="${item.key}">
                     <span class="volume-bar-label">${item.nameCN}</span>
                     <div class="volume-bar-track">
                         <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
@@ -4786,7 +4801,28 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             `;
         });
         barInnerHTML += '</div>';
-        barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}</div>`;
+
+        // 底部"目标 vs 选中天体"按真实直径比例的对比小图
+        const targetRefClass = isBlackHole ? 'black-hole-ref' : 'sun-ref';
+        const refStyle = isBlackHole || targetKey === 'sun'
+            ? ''
+            : `background: url('${target.texture}') center/cover; box-shadow: 0 0 25px ${target.color}66;`;
+        const initialPlanetSize = initialSelected ? computePlanetRefSize(initialSelected) : 4;
+        const initialPlanetColor = initialSelected ? initialSelected.color : '#888';
+        const initialPlanetName = initialSelected ? initialSelected.nameCN : '';
+        const sizeCompareHTML = `
+            <div class="drag-size-compare">
+                <div class="volume-size-compare">
+                    <div class="${targetRefClass}" style="${refStyle}"></div>
+                    <div class="planet-ref" data-planet-ref style="width:${initialPlanetSize}px; height:${initialPlanetSize}px; background:${initialPlanetColor}; box-shadow: 0 0 6px ${initialPlanetColor};"></div>
+                </div>
+                <div class="volume-compare-labels">
+                    <span>${targetDisplayName}</span>
+                    <span data-planet-ref-label>${initialPlanetName}</span>
+                </div>
+            </div>
+        `;
+        barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}${sizeCompareHTML}</div>`;
     }
 
     const realisticLabel = isBlackHole ? '🌑 还原黑洞' : '☀️ 还原太阳';
@@ -4812,6 +4848,38 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
 
     container.appendChild(wrapper);
 
+    const canvas = wrapper.querySelector('.drag-sun-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // 切换选中天体：高亮 bar 行 + tray 卡片 + 更新底部 vs 对比小图
+    function applySelected(itemKey) {
+        const item = capacityData.find(d => d.key === itemKey);
+        if (!item) return;
+        setCurrentCapacitySelection(targetKey, itemKey);
+        wrapper.querySelectorAll('.drag-bar-chart-side .volume-bar-row.active').forEach(el => el.classList.remove('active'));
+        const row = wrapper.querySelector(`.drag-bar-chart-side .volume-bar-row[data-capacity-planet="${itemKey}"]`);
+        if (row) row.classList.add('active');
+        wrapper.querySelectorAll('.drag-planet-item.active').forEach(el => el.classList.remove('active'));
+        const trayItem = wrapper.querySelector(`.drag-planet-item[data-drag-key="${itemKey}"]`);
+        if (trayItem) trayItem.classList.add('active');
+        const planetRef = wrapper.querySelector('[data-planet-ref]');
+        const planetRefLabel = wrapper.querySelector('[data-planet-ref-label]');
+        if (planetRef) {
+            const sz = computePlanetRefSize(item);
+            planetRef.style.width = sz + 'px';
+            planetRef.style.height = sz + 'px';
+            planetRef.style.background = item.color;
+            planetRef.style.boxShadow = `0 0 6px ${item.color}`;
+        }
+        if (planetRefLabel) planetRefLabel.textContent = item.nameCN;
+    }
+
+    if (initialSelected) {
+        const trayItem = wrapper.querySelector(`.drag-planet-item[data-drag-key="${initialSelected.key}"]`);
+        if (trayItem) trayItem.classList.add('active');
+    }
+
     // 让 bar chart 上的某一行也能直接触发"装入"动画（无需拖动）
     if (includeBarChart) {
         wrapper.querySelectorAll('.drag-bar-chart-side .volume-bar-row').forEach(row => {
@@ -4819,8 +4887,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 const key = row.dataset.capacityPlanet;
                 const item = capacityData.find(d => d.key === key);
                 if (!item) return;
-                wrapper.querySelectorAll('.drag-bar-chart-side .volume-bar-row.active').forEach(el => el.classList.remove('active'));
-                row.classList.add('active');
+                applySelected(key);
                 cancelDragVolumeAnimation();
                 const ctx2 = canvas.getContext('2d');
                 ctx2.setTransform(1, 0, 0, 1, 0, 0);
@@ -4840,10 +4907,6 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             });
         });
     }
-
-    const canvas = wrapper.querySelector('.drag-sun-canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
 
     function drawIdle() {
         if (isBlackHole) {
@@ -4880,7 +4943,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 ? `${targetDisplayName}宽度约等于`
                 : `${targetDisplayName}能装`,
         blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
-        wrapper
+        wrapper,
+        onSelect: includeBarChart ? applySelected : undefined
     });
 }
 
@@ -5645,6 +5709,9 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             const ctx2 = canvas.getContext('2d');
             ctx2.setTransform(1, 0, 0, 1, 0, 0);
             ctx2.scale(dpr, dpr);
+            if (typeof targetConfig.onSelect === 'function') {
+                targetConfig.onSelect(dragItem.key);
+            }
             startAnimation(ctx2, canvasSize, dragItem, targetConfig);
         } else {
             ghost.classList.add('snap-back');

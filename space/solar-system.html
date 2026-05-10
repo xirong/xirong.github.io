@@ -2877,6 +2877,22 @@
             cursor: grabbing;
         }
 
+        .drag-planet-item.active {
+            background: rgba(255, 152, 0, 0.16);
+            border-color: rgba(255, 152, 0, 0.55);
+            box-shadow: 0 0 8px rgba(255, 152, 0, 0.18);
+        }
+        .drag-planet-item.active .drag-name {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .drag-size-compare {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+
         .drag-planet-item .drag-dot {
             border-radius: 50%;
             flex-shrink: 0;
