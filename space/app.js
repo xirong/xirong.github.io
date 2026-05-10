@@ -4744,9 +4744,10 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             : `拖拽天体放入${targetDisplayName}，按直径折算体积看看能装多少个`;
 
     const wrapper = document.createElement('div');
-    wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}`;
+    wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}${includeBarChart ? ' drag-volume-container--with-bars' : ''}`;
 
-    const canvasSize = isBlackHole ? 280 : 260;
+    // 装入球放大让纹理细节更清晰；ghost 也按比例放大
+    const canvasSize = isBlackHole ? 480 : 460;
     const dpr = window.devicePixelRatio || 1;
 
     function getDotSize(key) {
@@ -4936,7 +4937,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
         startAnimation: isBlackHole ? startBlackHoleFillAnimation : startFillAnimation,
-        ghostMaxSize: isBlackHole ? 42 : 40,
+        ghostMaxSize: isBlackHole ? 70 : 64,
         resultLabel: currentComparisonMetric === 'mass'
             ? `${targetDisplayName}质量约等于`
             : currentComparisonMetric === 'width'
@@ -5426,13 +5427,15 @@ function generateDragBlackHoleComparison(container, subtitle, targetKey = 'black
 
 function drawIdleSun(ctx, size) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
+    const sizeScale = size / 260;
+    const hintFontPx = Math.max(14, Math.round(14 * sizeScale));
     ctx.clearRect(0, 0, size, size);
 
     if (isGlassDragMode()) {
         drawGlassContainerBack(ctx, size, 10);
         drawGlassContainerFront(ctx, size, 10);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.font = '600 14px "Noto Sans SC"';
+        ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('拖到这里', cx, cy);
@@ -5463,13 +5466,15 @@ function drawIdleSun(ctx, size) {
 
     // 提示文字
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.font = '600 14px "Noto Sans SC"';
+    ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
     ctx.textAlign = 'center';
     ctx.fillText('拖到这里', cx, cy);
 }
 
 function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '引力影响区') {
     const cx = size / 2, cy = size / 2, r = size / 2 - 18;
+    const sizeScale = size / 280;
+    const hintFontPx = Math.max(14, Math.round(14 * sizeScale));
     ctx.clearRect(0, 0, size, size);
 
     if (isGlassDragMode()) {
@@ -5477,7 +5482,7 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '
         drawGlassContainerFront(ctx, size, 18);
         if (showHint) {
             ctx.fillStyle = 'rgba(255, 244, 220, 0.86)';
-            ctx.font = '600 14px "Noto Sans SC"';
+            ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(`拖到${scopeLabel}`, cx, cy);
@@ -5549,7 +5554,7 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '
 
     if (showHint) {
         ctx.fillStyle = 'rgba(255, 244, 220, 0.86)';
-        ctx.font = '600 14px "Noto Sans SC"';
+        ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const hintText = `拖到${scopeLabel}`;
@@ -5821,13 +5826,15 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const duration = 3000;
     playVolumeFillCollisionSound(targetCount, 'sun', duration);
 
-    // 粒子半径按数量级决定（数量越多每颗越小，整体仍然是密铺）
+    // 粒子半径按数量级决定，再按 canvas 大小同比放大让纹理更清晰
+    const sizeScale = size / 260; // 260 是历史基线
     let particleRadius;
     if (targetCount <= 200) particleRadius = 16;
     else if (targetCount <= 2000) particleRadius = 12;
     else if (targetCount <= 30000) particleRadius = 9;
     else if (targetCount <= 2000000) particleRadius = 7;
     else particleRadius = 5;
+    particleRadius *= sizeScale;
 
     // 六边形密铺槽位：动画过程中按从底向上的顺序逐渐"显形"
     const slots = computeHexSlots(r, particleRadius);
@@ -5956,17 +5963,19 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
             countText = formatNumber(displayCount);
         }
 
+        const numFontPx = Math.round(28 * sizeScale);
+        const subFontPx = Math.round(13 * sizeScale);
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.font = `900 28px ${TEACHING_NUMBER_FONT}`;
+        ctx.font = `900 ${numFontPx}px ${TEACHING_NUMBER_FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(countText, cx + 1, cy - 5 + 1);
+        ctx.fillText(countText, cx + 1, cy - 5 * sizeScale + 1);
         ctx.fillStyle = '#fff';
-        ctx.fillText(countText, cx, cy - 5);
+        ctx.fillText(countText, cx, cy - 5 * sizeScale);
 
-        ctx.font = '500 13px "Noto Sans SC", sans-serif';
+        ctx.font = `500 ${subFontPx}px "Noto Sans SC", sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.fillText('个' + nameCN, cx, cy + 20);
+        ctx.fillText('个' + nameCN, cx, cy + 20 * sizeScale);
         ctx.restore();
 
         if (progress < 1) {
@@ -5998,13 +6007,15 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
     const duration = 3200;
     playVolumeFillCollisionSound(targetCount, 'blackHole', duration);
 
-    // 粒子半径按数量级决定
+    // 粒子半径按数量级决定，再按 canvas 大小同比放大
+    const sizeScale = size / 280; // 280 是黑洞历史基线
     let particleRadius;
     if (targetCount <= 200) particleRadius = 14;
     else if (targetCount <= 2000) particleRadius = 11;
     else if (targetCount <= 30000) particleRadius = 8;
     else if (targetCount <= 2000000) particleRadius = 6;
     else particleRadius = 5;
+    particleRadius *= sizeScale;
 
     // 黑洞密铺：留出中心 r*0.32 作为黑核吞噬区
     const slots = computeHexSlots(r, particleRadius, { innerR: r * 0.32 });
@@ -6098,17 +6109,19 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
         }
 
         const countText = formatCompactCount(displayCount);
+        const numFontPx = Math.round(25 * sizeScale);
+        const subFontPx = Math.round(13 * sizeScale);
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.font = `900 25px ${TEACHING_NUMBER_FONT}`;
+        ctx.font = `900 ${numFontPx}px ${TEACHING_NUMBER_FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(countText, cx + 1, cy + 1);
         ctx.fillStyle = '#fff4d2';
         ctx.fillText(countText, cx, cy);
 
-        ctx.font = '500 13px "Noto Sans SC", sans-serif';
+        ctx.font = `500 ${subFontPx}px "Noto Sans SC", sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.74)';
-        ctx.fillText('个' + nameCN, cx, cy + 26);
+        ctx.fillText('个' + nameCN, cx, cy + 26 * sizeScale);
 
         if (progress < 1) {
             dragVolumeAnimationId = requestAnimationFrame(animate);

@@ -2750,6 +2750,10 @@
             align-items: center;
             gap: 20px;
         }
+        /* 合并版（左拖入 + 中 tray + 右 bar chart）需要更宽的容器，避免 bar 被挤窄 */
+        .drag-volume-container--with-bars {
+            max-width: 1900px;
+        }
 
         .drag-instruction {
             font-size: 0.95rem;
@@ -2772,18 +2776,19 @@
         /* "按体积装"页签下：左拖入 + 中 tray + 右 bar 三栏布局 */
         .drag-main-area--with-bars {
             display: grid;
-            grid-template-columns: minmax(260px, max-content) minmax(200px, max-content) 1fr;
-            gap: 24px;
+            grid-template-columns: minmax(460px, max-content) minmax(200px, max-content) 1fr;
+            gap: 28px;
             align-items: start;
             justify-content: center;
             width: 100%;
-            max-width: 1700px;
+            max-width: 1900px;
         }
         .drag-main-area--with-bars .drag-bar-chart-side {
             min-width: 0;
             width: 100%;
             align-self: stretch;
             display: flex;
+            flex-direction: column;
         }
         .drag-main-area--with-bars .drag-bar-chart-side .volume-bar-chart {
             width: 100%;
