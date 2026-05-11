@@ -1255,7 +1255,7 @@ function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '
     const slots = computeSphereSlots3D(R, r0);
     const finalShown = Math.min(slots.length, Math.max(1, targetCount));
     Drag3DScene.setData(data.key, r0, R, slots.slice(0, finalShown), {
-        glass: isGlassDragMode(),
+        glass: true, // 3D 永远是玻璃外壳
         fallbackColor: data.color
     });
     Drag3DScene.setVisibleCount(0);
@@ -1327,9 +1327,9 @@ function computeSphereSlots3D(R, r0, options = {}) {
             }
         }
     }
-    // 从底向上显形，同高度从中心向外
+    // 从底向上显形（Three.js +y 朝上，y 越小越靠下），同高度从中心向外
     slots.sort((a2, b2) => {
-        if (b2.y !== a2.y) return b2.y - a2.y;
+        if (a2.y !== b2.y) return a2.y - b2.y;
         return (a2.x * a2.x + a2.z * a2.z) - (b2.x * b2.x + b2.z * b2.z);
     });
     return slots;
@@ -1340,12 +1340,16 @@ const Drag3DScene = (function () {
     let renderer = null, scene = null, camera = null, controls = null;
     let glassMesh = null;
     let instanceMesh = null;
-    let slotsCache = [];
+    let slotsCache = [];          // 每个 slot：{x,y,z, spinX, spinY, birthTime, settled}
     let particleScale = 0;
+    let visibleCount = 0;
+    let spawnHeight = 0;          // 球生成时的初始 y（球外顶部）
+    const FALL_DURATION = 650;    // ms
     let rafId = null;
     const textureCache = {};
     let baseGeo = null;
     let currentCanvas = null;
+    const dummy = (typeof THREE !== 'undefined') ? new THREE.Object3D() : null;
 
     function ensureBaseGeo() {
         if (!baseGeo) baseGeo = new THREE.SphereGeometry(1, 28, 22);
@@ -1410,8 +1414,17 @@ const Drag3DScene = (function () {
     function setData(textureKey, particleRadius, R, slots, options = {}) {
         if (!renderer) return;
         disposeMeshes();
-        slotsCache = slots;
         particleScale = particleRadius;
+        spawnHeight = R + particleRadius * 6;
+        visibleCount = 0;
+        // slot 内部状态：每颗球 spawn 时记录 birthTime，掉落到目标位置后 settled
+        slotsCache = slots.map(s => ({
+            x: s.x, y: s.y, z: s.z,
+            spinX: Math.random() * Math.PI * 2,
+            spinY: Math.random() * Math.PI * 2,
+            birthTime: -1,
+            settled: false
+        }));
 
         // 玻璃球外壳
         const glassMat = new THREE.MeshPhongMaterial({
@@ -1435,17 +1448,15 @@ const Drag3DScene = (function () {
             metalness: 0.05,
             color: tex ? 0xffffff : (options.fallbackColor || 0x888888)
         });
-        const dummy = new THREE.Object3D();
         instanceMesh = new THREE.InstancedMesh(baseGeo, mat, slots.length);
         instanceMesh.castShadow = false;
         instanceMesh.receiveShadow = false;
-        for (let i = 0; i < slots.length; i++) {
-            const s = slots[i];
-            dummy.position.set(s.x, s.y, s.z);
+        // 初始全部置于 spawn 位置（visibleCount=0 不渲染，但 matrix 先备好）
+        for (let i = 0; i < slotsCache.length; i++) {
+            const s = slotsCache[i];
+            dummy.position.set(s.x, spawnHeight, s.z);
             dummy.scale.setScalar(particleRadius);
-            const spinX = Math.random() * Math.PI * 2;
-            const spinY = Math.random() * Math.PI * 2;
-            dummy.rotation.set(spinX, spinY, 0);
+            dummy.rotation.set(s.spinX, s.spinY, 0);
             dummy.updateMatrix();
             instanceMesh.setMatrixAt(i, dummy.matrix);
         }
@@ -1455,9 +1466,43 @@ const Drag3DScene = (function () {
     }
 
     function setVisibleCount(n) {
-        if (instanceMesh) {
-            instanceMesh.count = Math.max(0, Math.min(slotsCache.length, n | 0));
+        if (!instanceMesh) return;
+        const newCount = Math.max(0, Math.min(slotsCache.length, n | 0));
+        const now = performance.now();
+        // 新加入的 slot 给 birthTime，让 tick 内 lerp 出掉落动画
+        for (let i = visibleCount; i < newCount; i++) {
+            const s = slotsCache[i];
+            if (s.birthTime < 0) s.birthTime = now;
         }
+        // 倒退（重置）也清掉 settled 状态
+        for (let i = newCount; i < visibleCount; i++) {
+            const s = slotsCache[i];
+            s.birthTime = -1;
+            s.settled = false;
+        }
+        visibleCount = newCount;
+        instanceMesh.count = visibleCount;
+    }
+
+    function tickFalling(now) {
+        if (!instanceMesh || visibleCount === 0) return;
+        let needs = false;
+        for (let i = 0; i < visibleCount; i++) {
+            const s = slotsCache[i];
+            if (s.settled) continue;
+            const elapsed = now - s.birthTime;
+            const t = Math.min(1, Math.max(0, elapsed / FALL_DURATION));
+            const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic（落地慢）
+            const cy = spawnHeight + (s.y - spawnHeight) * ease;
+            dummy.position.set(s.x, cy, s.z);
+            dummy.scale.setScalar(particleScale);
+            dummy.rotation.set(s.spinX, s.spinY, 0);
+            dummy.updateMatrix();
+            instanceMesh.setMatrixAt(i, dummy.matrix);
+            needs = true;
+            if (t >= 1) s.settled = true;
+        }
+        if (needs) instanceMesh.instanceMatrix.needsUpdate = true;
     }
 
     function setGlassVisible(v) {
@@ -1467,12 +1512,13 @@ const Drag3DScene = (function () {
     function start() {
         if (!renderer) return;
         if (rafId) cancelAnimationFrame(rafId);
-        const loop = () => {
+        const loop = (now) => {
+            tickFalling(now || performance.now());
             controls?.update();
             renderer.render(scene, camera);
             rafId = requestAnimationFrame(loop);
         };
-        loop();
+        loop(performance.now());
     }
 
     function stop() {
@@ -5188,18 +5234,15 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     wrapper._dragRedraw = drawIdle;
     drawIdle();
 
-    // 玻璃/原版切换按钮
+    // 玻璃/原版切换按钮（仅 2D 模式生效；3D 永远是玻璃）
     const toggleBtn = wrapper.querySelector('.drag-style-toggle');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
+            if (isDrag3DMode()) return; // 3D 模式锁定玻璃
             dragContainerStyle = isGlassDragMode() ? 'realistic' : 'glass';
             toggleBtn.textContent = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
             toggleBtn.setAttribute('aria-pressed', isGlassDragMode());
-            // 3D 模式下玻璃外壳显隐
-            if (isDrag3DMode() && Drag3DScene.isReady) {
-                Drag3DScene.setGlassVisible(isGlassDragMode());
-            }
-            if (!isDrag3DMode() && typeof wrapper._dragRedraw === 'function') {
+            if (typeof wrapper._dragRedraw === 'function') {
                 wrapper._dragRedraw();
             }
         });
@@ -5208,6 +5251,10 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     // 3D 立体切换按钮
     const canvas3D = wrapper.querySelector('.drag-sun-canvas-3d');
     const toggle3DBtn = wrapper.querySelector('.drag-3d-toggle');
+
+    function syncGlassToggleVisibility() {
+        if (toggleBtn) toggleBtn.style.display = isDrag3DMode() ? 'none' : '';
+    }
 
     function activate3DScene(initialItem) {
         if (!canvas3D) return;
@@ -5223,7 +5270,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             Drag3DScene.init(canvas3D, canvasSize, dpr);
         }
         Drag3DScene.start();
-        // 初始 idle：空玻璃球
+        // 初始 idle：空玻璃球（3D 永远玻璃外壳）
         const item = initialItem || initialSelected;
         if (item) {
             const R = 2.4;
@@ -5231,20 +5278,23 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             const slots = computeSphereSlots3D(R, r0);
             const finalShown = Math.min(slots.length, Math.max(1, item.count));
             Drag3DScene.setData(item.key, r0, R, slots.slice(0, finalShown), {
-                glass: isGlassDragMode(),
+                glass: true,
                 fallbackColor: item.color
             });
             Drag3DScene.setVisibleCount(0);
         }
+        syncGlassToggleVisibility();
     }
     function deactivate3DScene() {
         Drag3DScene.stop();
         Drag3DScene.destroy();
         if (canvas3D) canvas3D.style.display = 'none';
         canvas.style.display = 'block';
+        syncGlassToggleVisibility();
         if (typeof wrapper._dragRedraw === 'function') wrapper._dragRedraw();
     }
 
+    syncGlassToggleVisibility();
     if (isDrag3DMode()) {
         // 进入页面时已是 3D 模式（用户上次开启）
         activate3DScene(initialSelected);
