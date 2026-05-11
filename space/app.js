@@ -1211,6 +1211,82 @@ function computeHexSlots(R, r0, options = {}) {
     return slots;
 }
 
+const LOW_COUNT_VISUAL_LIMIT = 100;
+const MAX_VISUAL_PARTICLE_COUNT = 5000;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+function getVisualParticleCount(targetCount) {
+    if (!Number.isFinite(targetCount) || targetCount <= 0) return 1;
+    return Math.max(1, Math.min(MAX_VISUAL_PARTICLE_COUNT, Math.round(targetCount)));
+}
+
+function shouldUseCountedLayout(targetCount) {
+    return getVisualParticleCount(targetCount) <= LOW_COUNT_VISUAL_LIMIT;
+}
+
+function sort2DFillSlots(slots) {
+    return slots.sort((a, b) => {
+        if (b.y !== a.y) return b.y - a.y;
+        return Math.abs(a.x) - Math.abs(b.x);
+    });
+}
+
+function computeCountedCircleSlots(R, r0, count, options = {}) {
+    const innerR = options.innerR ?? 0;
+    const padding = options.padding ?? r0 * 0.04;
+    const outerLimit = Math.max(0, R - padding - r0 * 0.78);
+    const innerLimit = innerR > 0 ? Math.min(outerLimit, innerR + r0 * 0.32) : 0;
+    const radialSpan = Math.max(0, outerLimit - innerLimit);
+
+    if (count <= 1) {
+        return [{ x: 0, y: innerR > 0 ? innerLimit : 0 }];
+    }
+
+    if (innerR <= 0 && count <= 12) {
+        if (count === 2) {
+            const dx = outerLimit * 0.42;
+            return sort2DFillSlots([{ x: -dx, y: 0 }, { x: dx, y: 0 }]);
+        }
+        if (count <= 4) {
+            const ringR = outerLimit * 0.62;
+            const startAngle = count === 3 ? -Math.PI / 2 : Math.PI / 4;
+            const slots = Array.from({ length: count }, (_, i) => {
+                const angle = startAngle + i * Math.PI * 2 / count;
+                return { x: Math.cos(angle) * ringR, y: Math.sin(angle) * ringR };
+            });
+            return sort2DFillSlots(slots);
+        }
+
+        const slots = [{ x: 0, y: 0 }];
+        const ringCount = count - 1;
+        const ringR = outerLimit * (count <= 7 ? 0.62 : 0.72);
+        for (let i = 0; i < ringCount; i++) {
+            const angle = -Math.PI / 2 + i * Math.PI * 2 / ringCount;
+            slots.push({ x: Math.cos(angle) * ringR, y: Math.sin(angle) * ringR });
+        }
+        return sort2DFillSlots(slots);
+    }
+
+    const slots = [];
+    for (let i = 0; i < count; i++) {
+        const t = (i + 0.5) / count;
+        const radial = innerLimit + radialSpan * Math.sqrt(t);
+        const angle = -Math.PI / 2 + i * GOLDEN_ANGLE;
+        slots.push({
+            x: Math.cos(angle) * radial,
+            y: Math.sin(angle) * radial
+        });
+    }
+    return sort2DFillSlots(slots);
+}
+
+function compute2DParticleSlots(R, r0, visualCount, targetCount, options = {}) {
+    if (shouldUseCountedLayout(targetCount)) {
+        return computeCountedCircleSlots(R, r0, visualCount, options);
+    }
+    return computeHexSlots(R, r0, options);
+}
+
 // 在 canvas 上绘制一个带光照的纹理小行星
 function drawTexturedMiniPlanet(ctx, x, y, radius, key, fallbackColor) {
     if (radius < 0.5) return;
@@ -1250,10 +1326,11 @@ function drawTexturedMiniPlanet(ctx, x, y, radius, key, fallbackColor) {
 // 在已激活的 Three.js 场景里跑装入动画：按时间从下到上显形小球
 function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '能装', soundType = 'sun') {
     const targetCount = data.count;
+    const visualCount = getVisualParticleCount(targetCount);
     const R = 2.4;
     const r0 = compute3DParticleRadius(R, targetCount);
-    const slots = computeSphereSlots3D(R, r0);
-    const finalShown = Math.min(slots.length, Math.max(1, targetCount));
+    const slots = compute3DParticleSlots(R, r0, visualCount, targetCount);
+    const finalShown = Math.min(slots.length, visualCount);
     Drag3DScene.setData(data.key, r0, R, slots.slice(0, finalShown), {
         glass: true, // 3D 永远是玻璃外壳
         fallbackColor: data.color
@@ -1288,15 +1365,24 @@ function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '
 // 按目标数量反推：少量天体时让球占大，多时密铺到很小
 // 2D 圆内 hex packing 容量 ≈ 0.907 * (R/r)²  →  r = R * sqrt(0.907 / N)
 function compute2DParticleRadius(R, targetCount) {
-    const N = Math.min(Math.max(1, targetCount), 5000);
+    const visualCount = getVisualParticleCount(targetCount);
+    if (visualCount <= LOW_COUNT_VISUAL_LIMIT) {
+        const fillDensity = visualCount <= 2 ? 0.9 : visualCount <= 6 ? 0.86 : 0.82;
+        return Math.max(5, Math.min(R * 0.88, R * Math.sqrt(fillDensity / visualCount)));
+    }
+    const N = Math.min(Math.max(1, targetCount), MAX_VISUAL_PARTICLE_COUNT);
     const r = R * Math.sqrt(0.907 / N);
-    // 上限：单颗最大占容器 70% 直径（让 1~2 个球也能撑满视觉）
     // 下限：5px 防止粒子过小看不见纹理
     return Math.max(5, Math.min(R * 0.7, r));
 }
 // 3D 球内 FCC packing 容量 ≈ 0.74 * (R/r)³  →  r = R * cbrt(0.74 / N)
 function compute3DParticleRadius(R, targetCount) {
-    const N = Math.min(Math.max(1, targetCount), 5000);
+    const visualCount = getVisualParticleCount(targetCount);
+    if (visualCount <= LOW_COUNT_VISUAL_LIMIT) {
+        const fillDensity = visualCount <= 2 ? 0.82 : 0.74;
+        return Math.max(0.06, Math.min(R * 0.86, R * Math.cbrt(fillDensity / visualCount)));
+    }
+    const N = Math.min(Math.max(1, targetCount), MAX_VISUAL_PARTICLE_COUNT);
     const r = R * Math.cbrt(0.74 / N);
     return Math.max(0.06, Math.min(R * 0.7, r));
 }
@@ -1342,6 +1428,41 @@ function computeSphereSlots3D(R, r0, options = {}) {
         return (a2.x * a2.x + a2.z * a2.z) - (b2.x * b2.x + b2.z * b2.z);
     });
     return slots;
+}
+
+function computeCountedSphereSlots3D(R, r0, count) {
+    const outerLimit = Math.max(0, R - r0 * 0.9);
+    if (count <= 1) return [{ x: 0, y: 0, z: 0 }];
+    if (count === 2) {
+        const dx = outerLimit * 0.42;
+        return [{ x: -dx, y: 0, z: 0 }, { x: dx, y: 0, z: 0 }];
+    }
+
+    const slots = [];
+    for (let i = 0; i < count; i++) {
+        const t = (i + 0.5) / count;
+        const radius = outerLimit * Math.cbrt(t);
+        const yUnit = 1 - 2 * t;
+        const ring = Math.sqrt(Math.max(0, 1 - yUnit * yUnit));
+        const angle = i * GOLDEN_ANGLE;
+        slots.push({
+            x: Math.cos(angle) * ring * radius,
+            y: yUnit * radius,
+            z: Math.sin(angle) * ring * radius
+        });
+    }
+    slots.sort((a2, b2) => {
+        if (a2.y !== b2.y) return a2.y - b2.y;
+        return (a2.x * a2.x + a2.z * a2.z) - (b2.x * b2.x + b2.z * b2.z);
+    });
+    return slots;
+}
+
+function compute3DParticleSlots(R, r0, visualCount, targetCount) {
+    if (shouldUseCountedLayout(targetCount)) {
+        return computeCountedSphereSlots3D(R, r0, visualCount);
+    }
+    return computeSphereSlots3D(R, r0);
 }
 
 // Three.js 3D 装入场景（单例：同时只有一个浮层使用）
@@ -5216,10 +5337,11 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         // 初始 idle：空玻璃球（3D 永远玻璃外壳）
         const item = initialItem || initialSelected;
         if (item) {
+            const visualCount = getVisualParticleCount(item.count);
             const R = 2.4;
             const r0 = compute3DParticleRadius(R, item.count);
-            const slots = computeSphereSlots3D(R, r0);
-            const finalShown = Math.min(slots.length, Math.max(1, item.count));
+            const slots = compute3DParticleSlots(R, r0, visualCount, item.count);
+            const finalShown = Math.min(slots.length, visualCount);
             Drag3DScene.setData(item.key, r0, R, slots.slice(0, finalShown), {
                 glass: true,
                 fallbackColor: item.color
@@ -6270,11 +6392,12 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     // 粒子半径按目标数量反推（数量越少球越大，少量也能撑满容器）
     const sizeScale = size / 260; // 历史基线，文字字号继续按它缩放
     const particleRadius = compute2DParticleRadius(r, targetCount);
+    const visualCount = getVisualParticleCount(targetCount);
 
     // 六边形密铺槽位：动画过程中按从底向上的顺序逐渐"显形"
-    const slots = computeHexSlots(r, particleRadius);
+    const slots = compute2DParticleSlots(r, particleRadius, visualCount, targetCount);
     const totalSlots = slots.length;
-    const finalShown = Math.min(totalSlots, Math.max(1, targetCount));
+    const finalShown = Math.min(totalSlots, visualCount);
 
     // 高亮飞入粒子（少量装饰，从顶部落入下一个待显形槽位）
     const FLYING_MAX = 6;
@@ -6475,11 +6598,12 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
     // 黑洞容器留出中心黑核区域，可用半径稍小
     const usableR = r * 0.92;
     const particleRadius = compute2DParticleRadius(usableR, targetCount);
+    const visualCount = getVisualParticleCount(targetCount);
 
     // 黑洞密铺：留出中心 r*0.32 作为黑核吞噬区
-    const slots = computeHexSlots(r, particleRadius, { innerR: r * 0.32 });
+    const slots = compute2DParticleSlots(r, particleRadius, visualCount, targetCount, { innerR: r * 0.32 });
     const totalSlots = slots.length;
-    const finalShown = Math.min(totalSlots, Math.max(1, targetCount));
+    const finalShown = Math.min(totalSlots, visualCount);
 
     // 飞入装饰粒子：从外围螺旋飞向下一个待显形槽位
     const FLYING_MAX = 6;
