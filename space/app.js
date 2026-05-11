@@ -1534,6 +1534,18 @@ const Drag3DScene = (function () {
             renderer.dispose();
             renderer.forceContextLoss?.();
         }
+        // 必须清纹理与几何缓存：旧 GL context 已销毁，下次 init 用新 renderer
+        // 时复用旧 Texture/BufferGeometry 会读不到 GPU 资源 → 显示白球
+        Object.keys(textureCache).forEach(k => {
+            textureCache[k].dispose?.();
+            delete textureCache[k];
+        });
+        if (baseGeo) {
+            baseGeo.dispose?.();
+            baseGeo = null;
+        }
+        slotsCache = [];
+        visibleCount = 0;
         renderer = null; controls = null; scene = null; camera = null;
         currentCanvas = null;
     }
@@ -5144,10 +5156,10 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '横向约等于多少个' : '能装多少个'}！</div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
         <div class="${mainAreaClass}">
-            <div class="drag-sun-area">
+            <div class="drag-sun-area" style="width:${canvasSize}px; height:${canvasSize}px;">
                 <button class="drag-style-toggle" type="button" aria-pressed="${isGlassDragMode()}">${initialToggleLabel}</button>
                 <button class="drag-3d-toggle" type="button" aria-pressed="${isDrag3DMode()}">${initial3DLabel}</button>
-                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; ${isDrag3DMode() ? 'display:none;' : ''}"></canvas>
+                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; position:absolute; top:0; left:0; ${isDrag3DMode() ? 'display:none;' : ''}"></canvas>
                 <canvas class="drag-sun-canvas-3d" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; ${isDrag3DMode() ? '' : 'display:none;'}"></canvas>
             </div>
             <div class="drag-planet-tray">${trayHTML}</div>
@@ -5330,7 +5342,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 : `${targetDisplayName}能装`,
         blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
         wrapper,
-        onSelect: includeBarChart ? applySelected : undefined
+        onSelect: includeBarChart ? applySelected : undefined,
+        // 用 .drag-sun-area 元素做拖拽 hit 判定，覆盖 2D/3D 两个 canvas
+        getHitElement: () => wrapper.querySelector('.drag-sun-area')
     });
 }
 
@@ -6081,7 +6095,12 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             sizeComparison.style.overflow = 'auto';
         }
 
-        const canvasRect = canvas.getBoundingClientRect();
+        // 用容器（drag-sun-area 等）做 hit 判定，避免 2D canvas 在 3D 模式被
+        // display:none 后 rect 全为 0 导致拖拽永远落不进去
+        const hitElement = (typeof targetConfig.getHitElement === 'function')
+            ? targetConfig.getHitElement()
+            : (targetConfig.hitElement || canvas);
+        const canvasRect = (hitElement || canvas).getBoundingClientRect();
         const cx = canvasRect.left + canvasRect.width / 2;
         const cy = canvasRect.top + canvasRect.height / 2;
         const dist = Math.sqrt((clientX - cx) ** 2 + (clientY - cy) ** 2);
