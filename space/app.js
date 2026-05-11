@@ -1248,7 +1248,7 @@ function drawTexturedMiniPlanet(ctx, x, y, radius, key, fallbackColor) {
 }
 
 // 在已激活的 Three.js 场景里跑装入动画：按时间从下到上显形小球
-function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '太阳能装', soundType = 'sun') {
+function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '能装', soundType = 'sun') {
     const targetCount = data.count;
     const R = 2.4;
     const r0 = compute3DParticleRadius(R, targetCount);
@@ -4828,114 +4828,9 @@ function getTargetCircleStyle(targetKey, size = 180) {
 }
 
 function renderCapacityComparison(container, subtitle, targetKey) {
-    // 太阳的"按体积装"页签合并到拖入式布局：左拖入 + 中 tray + 右 bar chart
-    if (targetKey === 'sun' && !isBlackHoleTargetType(targetKey)) {
-        cancelDragVolumeAnimation();
-        return renderDragCapacityComparison(container, subtitle, 'sun', { includeBarChart: true });
-    }
-
-    const target = CAPACITY_TARGETS[targetKey];
-    subtitle.textContent = getCapacitySubtitle(targetKey);
-    const targetDisplayName = getCapacityTargetDisplayName(targetKey);
-
-    const capacityData = getCapacityData(targetKey);
-    const selectedKey = getCurrentCapacitySelection(targetKey);
-    const selected = capacityData.find(d => d.key === selectedKey) || capacityData.find(d => d.key === 'earth') || capacityData[0];
-    setCurrentCapacitySelection(targetKey, selected.key);
-
-    const logs = capacityData.map(item => Math.log10(Math.max(item.count, 0.000001)));
-    const minLog = Math.min(...logs);
-    const maxLog = Math.max(...logs);
-    const targetDiameter = getCapacityTargetValue(targetKey, 'diameter');
-    const wrapper = document.createElement('div');
-    wrapper.className = 'volume-container';
-
-    const targetClass = isBlackHoleTargetType(targetKey) ? ' black-hole-core' : '';
-    const labelColorStyle = targetKey === 'sun' || isBlackHoleTargetType(targetKey) ? '' : 'color:rgba(255,255,255,0.76);';
-    const targetActionLabel = currentComparisonMetric === 'width'
-        ? `${targetDisplayName}宽度`
-        : currentComparisonMetric === 'mass'
-            ? `${targetDisplayName}质量`
-            : `${targetDisplayName}能装`;
-
-    const heroHTML = `
-        <div class="volume-hero">
-            <div class="volume-sun-circle${targetClass}" style="${getTargetCircleStyle(targetKey, targetKey === 'sun' ? 200 : 180)}">
-                <span class="volume-sun-label" style="${labelColorStyle}">${targetActionLabel}</span>
-                <span class="volume-sun-count" style="${labelColorStyle}">${selected.label}</span>
-                <span class="volume-sun-unit" style="${labelColorStyle}">个${selected.nameCN}</span>
-            </div>
-            <div class="volume-big-number">
-                <div class="number">${selected.label}</div>
-                <div class="unit">${getCapacityUnitText(targetKey, selected)}</div>
-            </div>
-        </div>
-        <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
-    `;
-
-    const gridClassName = 'volume-planet-grid volume-planet-grid--wrapped';
-
-    let gridHTML = `<div class="${gridClassName}">`;
-    capacityData.forEach(item => {
-        const isActive = item.key === selected.key;
-        const pData = planetData[item.key];
-        const dotBase = isBlackHoleTargetType(targetKey) ? 139820 : targetDiameter;
-        const dotSize = Math.max(4, Math.min(30, (pData.diameter / dotBase) * 30));
-        gridHTML += `
-            <div class="volume-planet-card ${isActive ? 'active' : ''}" data-capacity-planet="${item.key}">
-                <div class="dot" style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 8px ${item.color};"></div>
-                <span class="card-name">${item.nameCN}</span>
-            </div>
-        `;
-    });
-    gridHTML += '</div>';
-
-    let barHTML = '<div class="volume-bar-chart">';
-    capacityData.forEach(item => {
-        const isActive = item.key === selected.key;
-        const logVal = Math.log10(Math.max(item.count, 0.000001));
-        const percent = maxLog === minLog ? 100 : 10 + ((logVal - minLog) / (maxLog - minLog)) * 90;
-        barHTML += `
-            <div class="volume-bar-row ${isActive ? 'active' : ''}" data-capacity-planet="${item.key}">
-                <span class="volume-bar-label">${item.nameCN}</span>
-                <div class="volume-bar-track">
-                    <div class="volume-bar-fill" style="width:${percent}%; background: linear-gradient(90deg, ${item.color}, ${item.color}aa);">
-                        ${item.label}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    barHTML += '</div>';
-
-    const selectedData = planetData[selected.key];
-    const planetRefSize = Math.max(3, Math.min(80, (selectedData.diameter / targetDiameter) * 80));
-    const targetRefClass = isBlackHoleTargetType(targetKey) ? 'black-hole-ref' : 'sun-ref';
-    const refStyle = isBlackHoleTargetType(targetKey) || targetKey === 'sun'
-        ? ''
-        : `background: url('${target.texture}') center/cover; box-shadow: 0 0 25px ${target.color}66;`;
-    const sizeCompareHTML = `
-        <div style="text-align:center;">
-            <div class="volume-size-compare">
-                <div class="${targetRefClass}" style="${refStyle}"></div>
-                <div class="planet-ref" style="width:${planetRefSize}px; height:${planetRefSize}px; background:${selected.color}; box-shadow: 0 0 6px ${selected.color};"></div>
-            </div>
-            <div class="volume-compare-labels">
-                <span>${targetDisplayName}</span>
-                <span>${selected.nameCN}</span>
-            </div>
-        </div>
-    `;
-
-    wrapper.innerHTML = heroHTML + gridHTML + barHTML + sizeCompareHTML;
-    container.appendChild(wrapper);
-
-    wrapper.querySelectorAll('[data-capacity-planet]').forEach(el => {
-        el.addEventListener('click', () => {
-            setCurrentCapacitySelection(targetKey, el.dataset.capacityPlanet);
-            generateSizeComparison(currentComparisonTab);
-        });
-    });
+    // 所有 target（含黑洞）都走二合一拖入式布局：左拖入容器 + 中 tray + 右 bar chart
+    cancelDragVolumeAnimation();
+    return renderDragCapacityComparison(container, subtitle, targetKey, { includeBarChart: true });
 }
 
 function renderCapacityTargetPicker(container) {
@@ -5226,7 +5121,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                             ? `${targetDisplayName}宽度约等于`
                             : `${targetDisplayName}能装`,
                     blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
-                    wrapper
+                    wrapper,
+                    targetKey
                 };
                 startAnim(ctx2, canvasSize, item, animConfig);
             });
@@ -5240,7 +5136,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
             }
         } else {
-            drawIdleSun(ctx, canvasSize);
+            drawIdleContainer(ctx, canvasSize, targetKey, { blackHoleScopeLabel });
         }
     }
     wrapper._dragRedraw = drawIdle;
@@ -5343,6 +5239,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
         wrapper,
         onSelect: includeBarChart ? applySelected : undefined,
+        targetKey,
         // 用 .drag-sun-area 元素做拖拽 hit 判定，覆盖 2D/3D 两个 canvas
         getHitElement: () => wrapper.querySelector('.drag-sun-area')
     });
@@ -5829,6 +5726,97 @@ function generateDragBlackHoleComparison(container, subtitle, targetKey = 'black
     return renderDragCapacityComparison(container, subtitle, targetKey);
 }
 
+// 把 #rrggbb 转 'r, g, b'，用于做 rgba 渐变
+function hexToRgbStr(hex) {
+    const m = /^#([0-9a-fA-F]{6})$/.exec(hex || '');
+    if (!m) return '255, 255, 255';
+    const v = parseInt(m[1], 16);
+    return `${(v >> 16) & 255}, ${(v >> 8) & 255}, ${v & 255}`;
+}
+
+// 把行星纹理画进圆形容器（带球体光照与外围微弱光晕）
+function drawPlanetTextureContainer(ctx, size, targetKey, opts = {}) {
+    const cx = size / 2, cy = size / 2, r = size / 2 - (opts.margin ?? 10);
+    const target = (typeof CAPACITY_TARGETS !== 'undefined') ? CAPACITY_TARGETS[targetKey] : null;
+    const fallbackColor = (target && target.color) || '#888888';
+    const img = getDragVolumeTexture(targetKey);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    if (img && img.complete && img.naturalWidth > 0) {
+        const srcSize = Math.min(img.naturalWidth, img.naturalHeight);
+        const sx = (img.naturalWidth - srcSize) / 2;
+        const sy = (img.naturalHeight - srcSize) / 2;
+        ctx.drawImage(img, sx, sy, srcSize, srcSize, cx - r, cy - r, r * 2, r * 2);
+    } else {
+        ctx.fillStyle = fallbackColor;
+        ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    }
+    // 球面光照：左上高光 + 右下阴影
+    const lightGrad = ctx.createRadialGradient(
+        cx - r * 0.4, cy - r * 0.45, r * 0.05,
+        cx, cy, r * 1.05
+    );
+    lightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.18)');
+    lightGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0)');
+    lightGrad.addColorStop(0.85, 'rgba(0, 0, 0, 0.34)');
+    lightGrad.addColorStop(1, 'rgba(0, 0, 0, 0.62)');
+    ctx.fillStyle = lightGrad;
+    ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    ctx.restore();
+
+    if (opts.glow !== false) {
+        const rgb = hexToRgbStr(fallbackColor);
+        const glow = ctx.createRadialGradient(cx, cy, r * 0.92, cx, cy, r * 1.18);
+        glow.addColorStop(0, `rgba(${rgb}, 0.22)`);
+        glow.addColorStop(1, `rgba(${rgb}, 0)`);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.18, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+    }
+}
+
+// 通用 idle 渲染：根据 targetKey 自动选择太阳渐变 / 黑洞 / 行星纹理 / 玻璃球
+function drawIdleContainer(ctx, size, targetKey, options = {}) {
+    if (isBlackHoleTargetType(targetKey)) {
+        drawIdleBlackHole(ctx, size, 0, true, options.blackHoleScopeLabel || getBlackHoleScopeLabel(targetKey));
+        return;
+    }
+    if (targetKey === 'sun') {
+        drawIdleSun(ctx, size);
+        return;
+    }
+    const cx = size / 2, cy = size / 2;
+    const sizeScale = size / 260;
+    const hintFontPx = Math.max(14, Math.round(14 * sizeScale));
+    ctx.clearRect(0, 0, size, size);
+    if (isGlassDragMode()) {
+        drawGlassContainerBack(ctx, size, 10);
+        drawGlassContainerFront(ctx, size, 10);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('拖到这里', cx, cy);
+        return;
+    }
+    drawPlanetTextureContainer(ctx, size, targetKey);
+    // 提示文字
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('拖到这里', cx, cy);
+    // 纹理还在加载时延迟重绘
+    const img = getDragVolumeTexture(targetKey);
+    if (img && !img.complete) {
+        img.onload = () => drawIdleContainer(ctx, size, targetKey, options);
+    }
+}
+
 function drawIdleSun(ctx, size) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
     const sizeScale = size / 260;
@@ -6227,7 +6215,7 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
 
 function startFillAnimation(ctx, size, data, animationConfig = {}) {
     if (isDrag3DMode() && Drag3DScene.isReady) {
-        return start3DFillAnimation(data, animationConfig, '太阳能装');
+        return start3DFillAnimation(data, animationConfig, animationConfig.resultLabel || '能装');
     }
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
     const targetCount = data.count;
@@ -6237,6 +6225,12 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const dragKey = data.key;
     const duration = 3000;
     playVolumeFillCollisionSound(targetCount, 'sun', duration);
+    // 容器目标（决定底色与外圈光晕颜色）；缺失时按太阳处理
+    const containerKey = animationConfig.targetKey || 'sun';
+    const containerTarget = (typeof CAPACITY_TARGETS !== 'undefined') ? CAPACITY_TARGETS[containerKey] : null;
+    const containerIsSun = containerKey === 'sun';
+    const containerTexture = !containerIsSun ? getDragVolumeTexture(containerKey) : null;
+    const containerGlowRgb = hexToRgbStr((containerTarget && containerTarget.color) || (containerIsSun ? '#ff9800' : '#888888'));
 
     // 粒子半径按数量级决定，再按 canvas 大小同比放大让纹理更清晰
     const sizeScale = size / 260; // 260 是历史基线
@@ -6303,15 +6297,38 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
         ctx.clip();
 
         if (!isGlass) {
-            // 太阳底色
-            const sunGrad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
-            sunGrad.addColorStop(0, '#ffffff');
-            sunGrad.addColorStop(0.2, '#fff9c4');
-            sunGrad.addColorStop(0.5, '#ffeb3b');
-            sunGrad.addColorStop(0.8, '#ff9800');
-            sunGrad.addColorStop(1, '#e65100');
-            ctx.fillStyle = sunGrad;
-            ctx.fillRect(0, 0, size, size);
+            if (containerIsSun) {
+                // 太阳底色
+                const sunGrad = ctx.createRadialGradient(cx * 0.8, cy * 0.8, r * 0.1, cx, cy, r);
+                sunGrad.addColorStop(0, '#ffffff');
+                sunGrad.addColorStop(0.2, '#fff9c4');
+                sunGrad.addColorStop(0.5, '#ffeb3b');
+                sunGrad.addColorStop(0.8, '#ff9800');
+                sunGrad.addColorStop(1, '#e65100');
+                ctx.fillStyle = sunGrad;
+                ctx.fillRect(0, 0, size, size);
+            } else if (containerTexture && containerTexture.complete && containerTexture.naturalWidth > 0) {
+                // 行星纹理底色
+                const srcSize = Math.min(containerTexture.naturalWidth, containerTexture.naturalHeight);
+                const sx = (containerTexture.naturalWidth - srcSize) / 2;
+                const sy = (containerTexture.naturalHeight - srcSize) / 2;
+                ctx.drawImage(containerTexture, sx, sy, srcSize, srcSize, cx - r, cy - r, r * 2, r * 2);
+                // 球面光照
+                const lightGrad = ctx.createRadialGradient(
+                    cx - r * 0.4, cy - r * 0.45, r * 0.05,
+                    cx, cy, r * 1.05
+                );
+                lightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.18)');
+                lightGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0)');
+                lightGrad.addColorStop(0.85, 'rgba(0, 0, 0, 0.34)');
+                lightGrad.addColorStop(1, 'rgba(0, 0, 0, 0.62)');
+                ctx.fillStyle = lightGrad;
+                ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+            } else {
+                // 纹理未加载时用纯色 fallback
+                ctx.fillStyle = (containerTarget && containerTarget.color) || '#444';
+                ctx.fillRect(0, 0, size, size);
+            }
         }
 
         // 2. 已显形的密铺小球（六边形铺满）
@@ -6326,7 +6343,7 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
             const aliveCount = flying.reduce((acc, p) => acc + (p.alive ? 1 : 0), 0);
             if (aliveCount < 3 && Math.random() < 0.5) {
                 const idx = Math.min(finalShown - 1, visibleCount + Math.floor(Math.random() * 6));
-                spawnFlying(slots[idx]);
+                if (slots[idx]) spawnFlying(slots[idx]);
             }
             for (let i = 0; i < FLYING_MAX; i++) {
                 const p = flying[i];
@@ -6346,11 +6363,11 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
 
         ctx.restore();
 
-        // 4. 光晕（玻璃模式不画外圈太阳光晕，让玻璃描边代替）
+        // 4. 光晕（玻璃模式不画外圈光晕，让玻璃描边代替）
         if (!isGlass) {
             const glow = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.15);
-            glow.addColorStop(0, 'rgba(255, 152, 0, 0.2)');
-            glow.addColorStop(1, 'rgba(255, 152, 0, 0)');
+            glow.addColorStop(0, `rgba(${containerGlowRgb}, 0.22)`);
+            glow.addColorStop(1, `rgba(${containerGlowRgb}, 0)`);
             ctx.beginPath();
             ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
             ctx.fillStyle = glow;
@@ -6396,7 +6413,7 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
             // 动画完成，显示结果（仅一次），画面定格在最后状态
             dragVolumeAnimationId = null;
             if (!resultShown) {
-                showDragResult(label, nameCN, animationConfig.resultLabel || '太阳能装');
+                showDragResult(label, nameCN, animationConfig.resultLabel || '能装');
                 resultShown = true;
             }
         }
@@ -6504,7 +6521,7 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
             const aliveCount = flying.reduce((acc, p) => acc + (p.alive ? 1 : 0), 0);
             if (aliveCount < 4 && Math.random() < 0.6) {
                 const idx = Math.min(finalShown - 1, visibleCount + Math.floor(Math.random() * 8));
-                spawnFlying(slots[idx]);
+                if (slots[idx]) spawnFlying(slots[idx]);
             }
             for (let i = 0; i < FLYING_MAX; i++) {
                 const p = flying[i];
