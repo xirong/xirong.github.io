@@ -2811,6 +2811,43 @@
             cursor: default;
         }
 
+        .drag-sun-canvas-3d {
+            border-radius: 50%;
+            cursor: grab;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .drag-sun-canvas-3d:active { cursor: grabbing; }
+
+        .drag-3d-toggle {
+            position: absolute;
+            top: -8px;
+            right: 130px;
+            z-index: 5;
+            font-size: 0.78rem;
+            font-family: inherit;
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(160, 220, 200, 0.4);
+            background: rgba(20, 40, 60, 0.55);
+            color: rgba(220, 245, 235, 0.92);
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+        .drag-3d-toggle:hover {
+            background: rgba(40, 80, 100, 0.7);
+            transform: translateY(-1px);
+        }
+        .drag-3d-toggle[aria-pressed="true"] {
+            border-color: rgba(120, 230, 180, 0.85);
+            color: #d2ffe8;
+            box-shadow: 0 0 10px rgba(120, 230, 180, 0.4);
+        }
+
         .drag-style-toggle {
             position: absolute;
             top: -8px;

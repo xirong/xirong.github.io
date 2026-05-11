@@ -1247,6 +1247,265 @@ function drawTexturedMiniPlanet(ctx, x, y, radius, key, fallbackColor) {
     ctx.restore();
 }
 
+// 在已激活的 Three.js 场景里跑装入动画：按时间从下到上显形小球
+function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '太阳能装', soundType = 'sun') {
+    const targetCount = data.count;
+    const R = 2.4;
+    const r0 = compute3DParticleRadius(R, targetCount);
+    const slots = computeSphereSlots3D(R, r0);
+    const finalShown = Math.min(slots.length, Math.max(1, targetCount));
+    Drag3DScene.setData(data.key, r0, R, slots.slice(0, finalShown), {
+        glass: isGlassDragMode(),
+        fallbackColor: data.color
+    });
+    Drag3DScene.setVisibleCount(0);
+
+    const duration = soundType === 'blackHole' ? 3200 : 3000;
+    playVolumeFillCollisionSound(targetCount, soundType, duration);
+    const startTime = performance.now();
+    let resultShown = false;
+
+    function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const fillLevel = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        Drag3DScene.setVisibleCount(Math.ceil(fillLevel * finalShown));
+        if (progress < 1) {
+            dragVolumeAnimationId = requestAnimationFrame(step);
+        } else {
+            dragVolumeAnimationId = null;
+            if (!resultShown) {
+                showDragResult(data.label, data.nameCN, animationConfig.resultLabel || defaultResultLabel);
+                resultShown = true;
+            }
+        }
+    }
+    dragVolumeAnimationId = requestAnimationFrame(step);
+}
+
+// 按目标数量级在 3D 球内决定每颗小球的世界尺寸（FCC 上限约 ~74% 体积）
+function compute3DParticleRadius(R, targetCount) {
+    const capped = Math.min(Math.max(1, targetCount), 5000);
+    const r = R / Math.cbrt(capped / 0.74) * 0.92;
+    return Math.max(0.06, Math.min(0.42, r));
+}
+
+// ============ 3D 装入容器（Three.js）============
+// 当用户切到"3D 立体"模式时启用：用透明玻璃球外壳 + 球内 FCC 紧密堆积纹理小球，
+// 鼠标可拖动旋转，自动慢转。原 2D 装入完全不动。
+let dragRender3D = false;
+function isDrag3DMode() { return dragRender3D; }
+
+// 球内 FCC（面心立方）紧密堆积槽位：覆盖率约 74%，比简单立方更密
+function computeSphereSlots3D(R, r0, options = {}) {
+    const padding = options.padding ?? r0 * 0.08;
+    const innerR = R - r0 - padding;
+    if (innerR <= 0) return [];
+    const innerR2 = innerR * innerR;
+    // FCC 三向间距
+    const a = 2 * r0;                  // 列间距
+    const b = Math.sqrt(3) * r0;       // 同层行间距
+    const c = Math.sqrt(2 / 3) * 2 * r0; // 层间距
+    const halfL = Math.ceil(innerR / c) + 1;
+    const halfR = Math.ceil(innerR / b) + 1;
+    const halfC = Math.ceil(innerR / a) + 1;
+    const slots = [];
+    for (let l = -halfL; l <= halfL; l++) {
+        const z = l * c;
+        // 相邻层错位
+        const layerOff = Math.abs(l) % 2;
+        for (let j = -halfR; j <= halfR; j++) {
+            const y = j * b + (layerOff ? b / 2 : 0);
+            const rowOff = (j & 1) ^ layerOff;
+            for (let i = -halfC; i <= halfC; i++) {
+                const x = i * a + (rowOff ? r0 : 0);
+                if (x * x + y * y + z * z <= innerR2) {
+                    slots.push({ x, y, z });
+                }
+            }
+        }
+    }
+    // 从底向上显形，同高度从中心向外
+    slots.sort((a2, b2) => {
+        if (b2.y !== a2.y) return b2.y - a2.y;
+        return (a2.x * a2.x + a2.z * a2.z) - (b2.x * b2.x + b2.z * b2.z);
+    });
+    return slots;
+}
+
+// Three.js 3D 装入场景（单例：同时只有一个浮层使用）
+const Drag3DScene = (function () {
+    let renderer = null, scene = null, camera = null, controls = null;
+    let glassMesh = null;
+    let instanceMesh = null;
+    let slotsCache = [];
+    let particleScale = 0;
+    let rafId = null;
+    const textureCache = {};
+    let baseGeo = null;
+    let currentCanvas = null;
+
+    function ensureBaseGeo() {
+        if (!baseGeo) baseGeo = new THREE.SphereGeometry(1, 28, 22);
+    }
+
+    function loadTexture(key) {
+        if (textureCache[key]) return textureCache[key];
+        const path = DRAG_VOLUME_TEXTURE_PATHS[key];
+        if (!path) return null;
+        const tex = new THREE.TextureLoader().load(path);
+        if ('SRGBColorSpace' in THREE) tex.colorSpace = THREE.SRGBColorSpace;
+        else tex.encoding = THREE.sRGBEncoding;
+        textureCache[key] = tex;
+        return tex;
+    }
+
+    function init(canvas, size, dpr) {
+        ensureBaseGeo();
+        currentCanvas = canvas;
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(dpr || window.devicePixelRatio || 1);
+        renderer.setSize(size, size, false);
+        if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
+        else if ('outputEncoding' in renderer) renderer.outputEncoding = THREE.sRGBEncoding;
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+        camera.position.set(0, 0.6, 7.6);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        const key = new THREE.DirectionalLight(0xffffff, 1.0);
+        key.position.set(4, 6, 5);
+        scene.add(key);
+        const rim = new THREE.DirectionalLight(0x9fc0ff, 0.45);
+        rim.position.set(-5, -2, -4);
+        scene.add(rim);
+
+        controls = new THREE.OrbitControls(camera, canvas);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6;
+    }
+
+    function disposeMeshes() {
+        if (instanceMesh) {
+            scene.remove(instanceMesh);
+            instanceMesh.geometry.dispose?.();
+            instanceMesh.material.dispose?.();
+            instanceMesh = null;
+        }
+        if (glassMesh) {
+            scene.remove(glassMesh);
+            glassMesh.geometry.dispose?.();
+            glassMesh.material.dispose?.();
+            glassMesh = null;
+        }
+    }
+
+    function setData(textureKey, particleRadius, R, slots, options = {}) {
+        if (!renderer) return;
+        disposeMeshes();
+        slotsCache = slots;
+        particleScale = particleRadius;
+
+        // 玻璃球外壳
+        const glassMat = new THREE.MeshPhongMaterial({
+            color: 0xc8e0ff,
+            transparent: true,
+            opacity: 0.16,
+            shininess: 90,
+            specular: 0xffffff,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        glassMesh = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 48), glassMat);
+        scene.add(glassMesh);
+        glassMesh.visible = options.glass !== false;
+
+        // 内部小球
+        const tex = loadTexture(textureKey);
+        const mat = new THREE.MeshStandardMaterial({
+            map: tex || null,
+            roughness: 0.75,
+            metalness: 0.05,
+            color: tex ? 0xffffff : (options.fallbackColor || 0x888888)
+        });
+        const dummy = new THREE.Object3D();
+        instanceMesh = new THREE.InstancedMesh(baseGeo, mat, slots.length);
+        instanceMesh.castShadow = false;
+        instanceMesh.receiveShadow = false;
+        for (let i = 0; i < slots.length; i++) {
+            const s = slots[i];
+            dummy.position.set(s.x, s.y, s.z);
+            dummy.scale.setScalar(particleRadius);
+            const spinX = Math.random() * Math.PI * 2;
+            const spinY = Math.random() * Math.PI * 2;
+            dummy.rotation.set(spinX, spinY, 0);
+            dummy.updateMatrix();
+            instanceMesh.setMatrixAt(i, dummy.matrix);
+        }
+        instanceMesh.count = 0;
+        instanceMesh.instanceMatrix.needsUpdate = true;
+        scene.add(instanceMesh);
+    }
+
+    function setVisibleCount(n) {
+        if (instanceMesh) {
+            instanceMesh.count = Math.max(0, Math.min(slotsCache.length, n | 0));
+        }
+    }
+
+    function setGlassVisible(v) {
+        if (glassMesh) glassMesh.visible = !!v;
+    }
+
+    function start() {
+        if (!renderer) return;
+        if (rafId) cancelAnimationFrame(rafId);
+        const loop = () => {
+            controls?.update();
+            renderer.render(scene, camera);
+            rafId = requestAnimationFrame(loop);
+        };
+        loop();
+    }
+
+    function stop() {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+
+    function destroy() {
+        stop();
+        disposeMeshes();
+        if (controls) controls.dispose();
+        if (renderer) {
+            renderer.dispose();
+            renderer.forceContextLoss?.();
+        }
+        renderer = null; controls = null; scene = null; camera = null;
+        currentCanvas = null;
+    }
+
+    function resize(size, dpr) {
+        if (renderer) renderer.setSize(size, size, false);
+        if (renderer && (dpr || 1) !== renderer.getPixelRatio()) renderer.setPixelRatio(dpr || 1);
+    }
+
+    return {
+        init, setData, setVisibleCount, setGlassVisible,
+        start, stop, destroy, resize,
+        get isReady() { return !!renderer; },
+        get canvas() { return currentCanvas; },
+        get slotCount() { return slotsCache.length; }
+    };
+})();
+
 // 银河系中心黑洞 Sgr A*，按引力影响区口径估算
 const blackHoleVolumeData = [
     { key: 'sun',      nameCN: '太阳',   count: 5132,           label: '5,132',      color: '#ffcc00' },
@@ -3800,6 +4059,10 @@ function openSizeComparisonPanel() {
 function closeSizeComparisonPanel() {
     cancelDragVolumeAnimation();
     runActiveDragCleanup();
+    if (Drag3DScene && Drag3DScene.isReady) {
+        Drag3DScene.stop();
+        Drag3DScene.destroy();
+    }
     const panel = document.getElementById('sizeComparison');
     if (panel) {
         panel.style.overflow = 'auto';
@@ -4828,6 +5091,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
 
     const realisticLabel = isBlackHole ? '🌑 还原黑洞' : '☀️ 还原太阳';
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
+    const initial3DLabel = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
     const mainAreaClass = `drag-main-area${includeBarChart ? ' drag-main-area--with-bars' : ''}`;
 
     wrapper.innerHTML = `
@@ -4836,7 +5100,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         <div class="${mainAreaClass}">
             <div class="drag-sun-area">
                 <button class="drag-style-toggle" type="button" aria-pressed="${isGlassDragMode()}">${initialToggleLabel}</button>
-                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px;"></canvas>
+                <button class="drag-3d-toggle" type="button" aria-pressed="${isDrag3DMode()}">${initial3DLabel}</button>
+                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; ${isDrag3DMode() ? 'display:none;' : ''}"></canvas>
+                <canvas class="drag-sun-canvas-3d" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; ${isDrag3DMode() ? '' : 'display:none;'}"></canvas>
             </div>
             <div class="drag-planet-tray">${trayHTML}</div>
             ${barChartHTML}
@@ -4929,11 +5195,80 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             dragContainerStyle = isGlassDragMode() ? 'realistic' : 'glass';
             toggleBtn.textContent = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
             toggleBtn.setAttribute('aria-pressed', isGlassDragMode());
-            if (typeof wrapper._dragRedraw === 'function') {
+            // 3D 模式下玻璃外壳显隐
+            if (isDrag3DMode() && Drag3DScene.isReady) {
+                Drag3DScene.setGlassVisible(isGlassDragMode());
+            }
+            if (!isDrag3DMode() && typeof wrapper._dragRedraw === 'function') {
                 wrapper._dragRedraw();
             }
         });
     }
+
+    // 3D 立体切换按钮
+    const canvas3D = wrapper.querySelector('.drag-sun-canvas-3d');
+    const toggle3DBtn = wrapper.querySelector('.drag-3d-toggle');
+
+    function activate3DScene(initialItem) {
+        if (!canvas3D) return;
+        canvas.style.display = 'none';
+        canvas3D.style.display = 'block';
+        cancelDragVolumeAnimation();
+        // 旧 wrapper 上的 3D scene 也得换到当前 canvas
+        if (Drag3DScene.isReady && Drag3DScene.canvas !== canvas3D) {
+            Drag3DScene.stop();
+            Drag3DScene.destroy();
+        }
+        if (!Drag3DScene.isReady) {
+            Drag3DScene.init(canvas3D, canvasSize, dpr);
+        }
+        Drag3DScene.start();
+        // 初始 idle：空玻璃球
+        const item = initialItem || initialSelected;
+        if (item) {
+            const R = 2.4;
+            const r0 = compute3DParticleRadius(R, item.count);
+            const slots = computeSphereSlots3D(R, r0);
+            const finalShown = Math.min(slots.length, Math.max(1, item.count));
+            Drag3DScene.setData(item.key, r0, R, slots.slice(0, finalShown), {
+                glass: isGlassDragMode(),
+                fallbackColor: item.color
+            });
+            Drag3DScene.setVisibleCount(0);
+        }
+    }
+    function deactivate3DScene() {
+        Drag3DScene.stop();
+        Drag3DScene.destroy();
+        if (canvas3D) canvas3D.style.display = 'none';
+        canvas.style.display = 'block';
+        if (typeof wrapper._dragRedraw === 'function') wrapper._dragRedraw();
+    }
+
+    if (isDrag3DMode()) {
+        // 进入页面时已是 3D 模式（用户上次开启）
+        activate3DScene(initialSelected);
+    }
+
+    if (toggle3DBtn) {
+        toggle3DBtn.addEventListener('click', () => {
+            dragRender3D = !dragRender3D;
+            toggle3DBtn.textContent = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
+            toggle3DBtn.setAttribute('aria-pressed', isDrag3DMode());
+            if (isDrag3DMode()) {
+                activate3DScene(initialSelected);
+            } else {
+                deactivate3DScene();
+            }
+        });
+    }
+    // 关闭浮层时也销毁 3D，避免泄漏
+    wrapper._destroy3D = () => {
+        if (Drag3DScene.isReady) {
+            Drag3DScene.stop();
+            Drag3DScene.destroy();
+        }
+    };
 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
         startAnimation: isBlackHole ? startBlackHoleFillAnimation : startFillAnimation,
@@ -4951,6 +5286,11 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
 
 // ============ 生成大小对比 ============
 function generateSizeComparison(mode) {
+    // 切换 tab 时旧 wrapper 会被替换；销毁旧 3D scene 防止持有失效 canvas
+    if (Drag3DScene && Drag3DScene.isReady) {
+        Drag3DScene.stop();
+        Drag3DScene.destroy();
+    }
     if (!mode) mode = currentComparisonTab;
     mode = normalizeComparisonMode(mode);
     currentComparisonTab = mode;
@@ -5817,6 +6157,9 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
 }
 
 function startFillAnimation(ctx, size, data, animationConfig = {}) {
+    if (isDrag3DMode() && Drag3DScene.isReady) {
+        return start3DFillAnimation(data, animationConfig, '太阳能装');
+    }
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
     const targetCount = data.count;
     const color = data.color;
@@ -5998,6 +6341,11 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
 }
 
 function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
+    if (isDrag3DMode() && Drag3DScene.isReady) {
+        return start3DFillAnimation(data, animationConfig,
+            (animationConfig.blackHoleScopeLabel ? `${animationConfig.blackHoleScopeLabel}能装` : '黑洞能装'),
+            'blackHole');
+    }
     const cx = size / 2, cy = size / 2, r = size / 2 - 18;
     const targetCount = data.count;
     const color = data.color;
