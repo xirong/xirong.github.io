@@ -1368,7 +1368,21 @@ const Drag3DScene = (function () {
         if (textureCache[key]) return textureCache[key];
         const path = DRAG_VOLUME_TEXTURE_PATHS[key];
         if (!path) return null;
-        const tex = new THREE.TextureLoader().load(path);
+        // 复用 2D 已经预加载好的 HTMLImageElement，绕过 TextureLoader 的异步竞态
+        const cachedImg = getDragVolumeTexture(key);
+        let tex;
+        if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
+            tex = new THREE.Texture(cachedImg);
+            tex.needsUpdate = true;
+        } else {
+            tex = new THREE.TextureLoader().load(path);
+            // image 加载完后强制 trigger 上传
+            if (cachedImg) {
+                const trigger = () => { tex.image = cachedImg; tex.needsUpdate = true; };
+                if (cachedImg.complete) trigger();
+                else cachedImg.addEventListener('load', trigger, { once: true });
+            }
+        }
         if ('SRGBColorSpace' in THREE) tex.colorSpace = THREE.SRGBColorSpace;
         else tex.encoding = THREE.sRGBEncoding;
         textureCache[key] = tex;
@@ -1378,7 +1392,19 @@ const Drag3DScene = (function () {
     function init(canvas, size, dpr) {
         ensureBaseGeo();
         currentCanvas = canvas;
-        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        try {
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        } catch (e) {
+            console.warn('Drag3DScene: WebGLRenderer init failed', e);
+            renderer = null;
+            currentCanvas = null;
+            return;
+        }
+        if (!renderer || !renderer.getContext()) {
+            renderer = null;
+            currentCanvas = null;
+            return;
+        }
         renderer.setPixelRatio(dpr || window.devicePixelRatio || 1);
         renderer.setSize(size, size, false);
         if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
