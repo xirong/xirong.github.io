@@ -1285,11 +1285,20 @@ function start3DFillAnimation(data, animationConfig = {}, defaultResultLabel = '
     dragVolumeAnimationId = requestAnimationFrame(step);
 }
 
-// 按目标数量级在 3D 球内决定每颗小球的世界尺寸（FCC 上限约 ~74% 体积）
+// 按目标数量反推：少量天体时让球占大，多时密铺到很小
+// 2D 圆内 hex packing 容量 ≈ 0.907 * (R/r)²  →  r = R * sqrt(0.907 / N)
+function compute2DParticleRadius(R, targetCount) {
+    const N = Math.min(Math.max(1, targetCount), 5000);
+    const r = R * Math.sqrt(0.907 / N);
+    // 上限：单颗最大占容器 70% 直径（让 1~2 个球也能撑满视觉）
+    // 下限：5px 防止粒子过小看不见纹理
+    return Math.max(5, Math.min(R * 0.7, r));
+}
+// 3D 球内 FCC packing 容量 ≈ 0.74 * (R/r)³  →  r = R * cbrt(0.74 / N)
 function compute3DParticleRadius(R, targetCount) {
-    const capped = Math.min(Math.max(1, targetCount), 5000);
-    const r = R / Math.cbrt(capped / 0.74) * 0.92;
-    return Math.max(0.06, Math.min(0.42, r));
+    const N = Math.min(Math.max(1, targetCount), 5000);
+    const r = R * Math.cbrt(0.74 / N);
+    return Math.max(0.06, Math.min(R * 0.7, r));
 }
 
 // ============ 3D 装入容器（Three.js）============
@@ -6232,15 +6241,9 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const containerTexture = !containerIsSun ? getDragVolumeTexture(containerKey) : null;
     const containerGlowRgb = hexToRgbStr((containerTarget && containerTarget.color) || (containerIsSun ? '#ff9800' : '#888888'));
 
-    // 粒子半径按数量级决定，再按 canvas 大小同比放大让纹理更清晰
-    const sizeScale = size / 260; // 260 是历史基线
-    let particleRadius;
-    if (targetCount <= 200) particleRadius = 16;
-    else if (targetCount <= 2000) particleRadius = 12;
-    else if (targetCount <= 30000) particleRadius = 9;
-    else if (targetCount <= 2000000) particleRadius = 7;
-    else particleRadius = 5;
-    particleRadius *= sizeScale;
+    // 粒子半径按目标数量反推（数量越少球越大，少量也能撑满容器）
+    const sizeScale = size / 260; // 历史基线，文字字号继续按它缩放
+    const particleRadius = compute2DParticleRadius(r, targetCount);
 
     // 六边形密铺槽位：动画过程中按从底向上的顺序逐渐"显形"
     const slots = computeHexSlots(r, particleRadius);
@@ -6441,15 +6444,11 @@ function startBlackHoleFillAnimation(ctx, size, data, animationConfig = {}) {
     const duration = 3200;
     playVolumeFillCollisionSound(targetCount, 'blackHole', duration);
 
-    // 粒子半径按数量级决定，再按 canvas 大小同比放大
-    const sizeScale = size / 280; // 280 是黑洞历史基线
-    let particleRadius;
-    if (targetCount <= 200) particleRadius = 14;
-    else if (targetCount <= 2000) particleRadius = 11;
-    else if (targetCount <= 30000) particleRadius = 8;
-    else if (targetCount <= 2000000) particleRadius = 6;
-    else particleRadius = 5;
-    particleRadius *= sizeScale;
+    // 粒子半径按目标数量反推
+    const sizeScale = size / 280; // 历史基线，文字字号继续按它缩放
+    // 黑洞容器留出中心黑核区域，可用半径稍小
+    const usableR = r * 0.92;
+    const particleRadius = compute2DParticleRadius(usableR, targetCount);
 
     // 黑洞密铺：留出中心 r*0.32 作为黑核吞噬区
     const slots = computeHexSlots(r, particleRadius, { innerR: r * 0.32 });
