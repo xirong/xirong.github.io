@@ -5475,6 +5475,7 @@ function generateSizeComparison(mode) {
     const container = document.getElementById('comparisonRow');
     container.innerHTML = '';
     container.classList.remove('compact-diameter-mode');
+    container.classList.remove('compact-mass-mode');
     container.classList.remove('diameter-detail-mode');
 
     const subtitle = document.getElementById('comparisonSubtitle');
@@ -5772,11 +5773,14 @@ function generateSizeComparison(mode) {
     } else if (mode === 'mass') {
         // 按质量排序（从大到小）
         const sortedPlanets = sortComparisonKeys(COMPARISON_BODY_KEYS, 'mass');
-        subtitle.textContent = '以地球为参考（质量 = 5.97 × 10²⁴ kg）';
+        subtitle.textContent = '以地球质量为数字参考；恒星按太阳比例压缩显示，行星按木星比例压缩显示';
+        container.classList.add('compact-mass-mode');
+        container.style.padding = '18px 8px 12px';
 
         const sunDisplaySize = 300;
         const jupiterDisplaySize = 140;
         const jupiterMass = 1898;
+        const sunMass = planetData.sun.mass;
 
         sortedPlanets.forEach(name => {
             const data = planetData[name];
@@ -5785,6 +5789,10 @@ function generateSizeComparison(mode) {
             let displaySize;
             if (name === 'sun') {
                 displaySize = sunDisplaySize;
+            } else if (data.category === 'star') {
+                const ratio = data.mass / sunMass;
+                displaySize = sunDisplaySize * Math.cbrt(ratio);
+                displaySize = Math.max(48, Math.min(sunDisplaySize * 0.82, displaySize));
             } else {
                 // 按质量比例计算球体大小（用立方根，因为质量与体积的关系）
                 const ratio = data.mass / jupiterMass;
@@ -5805,7 +5813,11 @@ function generateSizeComparison(mode) {
 
             // 地球质量单位
             let earthMassLabel;
-            if (name === 'earth') {
+            if (name === 'sun') {
+                earthMassLabel = '= 1 太阳质量';
+            } else if (data.category === 'star') {
+                earthMassLabel = `≈ ${(data.mass / sunMass).toFixed(3)} 太阳质量`;
+            } else if (name === 'earth') {
                 earthMassLabel = '= 1 地球质量';
             } else if (earthMasses >= 1) {
                 earthMassLabel = `= ${earthMasses.toFixed(1)} 地球质量`;
