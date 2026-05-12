@@ -11,6 +11,7 @@ usage() {
   2. 只 git add 你指定的文件
   3. 如果你明确指定了被 .gitignore 忽略的文件，会自动用 -f 加入
   4. commit 后推送到当前分支对应的 origin
+  5. push 成功后执行仓库对应的本地 post-push 动作
 
 示例：
   ./scripts/codex-verified-push.sh -m "Update galaxy page" \
@@ -81,6 +82,11 @@ fi
 
 repo_root="$(git rev-parse --show-toplevel)"
 branch="$(git -C "$repo_root" branch --show-current)"
+post_push_hooks=()
+
+if [[ "$repo_root" == "/Users/liuxirong/Downloads/xirong.github.io" ]]; then
+    post_push_hooks+=("/Users/liuxirong/.codex/scripts/zhitian-space-post-push-dmg.sh")
+fi
 
 if [[ -z "$branch" ]]; then
     echo "当前不在可推送的分支上" >&2
@@ -93,6 +99,19 @@ for path in "${paths[@]}"; do
         exit 1
     fi
 done
+
+run_post_push_hooks() {
+    local hook
+
+    for hook in "${post_push_hooks[@]}"; do
+        if [[ ! -x "$hook" ]]; then
+            echo "post-push hook 不存在或不可执行，跳过: $hook" >&2
+            continue
+        fi
+        echo "+ $hook $repo_root"
+        "$hook" "$repo_root"
+    done
+}
 
 echo "仓库: $repo_root"
 echo "分支: $branch"
@@ -133,3 +152,4 @@ fi
 
 git -C "$repo_root" commit -m "$commit_message"
 git -C "$repo_root" push origin "$branch"
+run_post_push_hooks
