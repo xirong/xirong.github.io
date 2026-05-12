@@ -892,6 +892,7 @@ const SATELLITE_COMPARISON_KEYS = [
 ];
 const COMPARISON_BODY_KEYS = [
     'sun',
+    'proximaCentauri',
     'jupiter',
     'saturn',
     'uranus',
@@ -933,31 +934,31 @@ function getCapacityObjectKeys(targetKey) {
 
 const DIAMETER_DETAIL_PROFILES = [
     {
-        label: '去掉太阳/木星/土星',
-        subtitle: '去掉太阳、木星、土星，以天王星为最大参照，看清小天体真实比例',
-        planets: getComparisonKeysWithout(['sun', 'jupiter', 'saturn'])
+        label: '去掉太阳/比邻星/木星/土星',
+        subtitle: '去掉太阳、比邻星、木星、土星，以天王星为最大参照，看清小天体真实比例',
+        planets: getComparisonKeysWithout(['sun', 'proximaCentauri', 'jupiter', 'saturn'])
     },
     {
         label: '继续去掉天王星/海王星',
         subtitle: '继续去掉天王星、海王星，地球和金星开始成为这组中的最大天体',
-        planets: getComparisonKeysWithout(['sun', 'jupiter', 'saturn', 'uranus', 'neptune'])
+        planets: getComparisonKeysWithout(['sun', 'proximaCentauri', 'jupiter', 'saturn', 'uranus', 'neptune'])
     },
     {
         label: '继续去掉地球/金星',
         subtitle: '继续去掉地球、金星，火星、木卫三等天体是这组的主对比对象',
-        planets: getComparisonKeysWithout(['sun', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus'])
+        planets: getComparisonKeysWithout(['sun', 'proximaCentauri', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus'])
     },
     {
-        label: '黑洞、奥尔特云、太阳、木星、土星',
-        subtitle: '银河系中心黑洞、奥尔特云与太阳、木星、土星的直径比例',
+        label: '黑洞、奥尔特云、太阳、比邻星、木星、土星',
+        subtitle: '银河系中心黑洞、奥尔特云与太阳、比邻星、木星、土星的直径比例',
         isBlackHoleProfile: true,
-        planets: ['blackHoleGravitationalRadius', 'oortCloud', 'sun', 'jupiter', 'saturn']
+        planets: ['blackHoleGravitationalRadius', 'oortCloud', 'sun', 'proximaCentauri', 'jupiter', 'saturn']
     },
     {
-        label: '黑洞、太阳、木星、土星',
-        subtitle: '银河系中心黑洞、太阳、木星、土星的直径比例',
+        label: '黑洞、太阳、比邻星、木星、土星',
+        subtitle: '银河系中心黑洞、太阳、比邻星、木星、土星的直径比例',
         isBlackHoleProfile: true,
-        planets: ['blackHoleGravitationalRadius', 'sun', 'jupiter', 'saturn']
+        planets: ['blackHoleGravitationalRadius', 'sun', 'proximaCentauri', 'jupiter', 'saturn']
     }
 ];
 let currentCapacityView = 'sun';
@@ -970,6 +971,7 @@ const currentCapacitySelections = {
     earth: 'venus',
     venus: 'mars',
     mars: 'ganymede',
+    proximaCentauri: 'jupiter',
     blackHole: 'earth',
     blackHoleEventHorizon: 'earth',
     blackHoleGravitationalRadius: 'earth',
@@ -4805,6 +4807,12 @@ const CAPACITY_TARGETS = {
         nameCN: '黑洞（引力影响区）',
         color: '#ffd59a',
         objectKeys: getCapacityObjectKeys('blackHoleGravitationalRadius')
+    },
+    proximaCentauri: {
+        key: 'proximaCentauri',
+        nameCN: '比邻星',
+        color: '#d94d34',
+        objectKeys: getCapacityObjectKeys('proximaCentauri')
     }
 };
 
@@ -4907,7 +4915,7 @@ function getBlackHoleScopeRadius(targetKey) {
 function getCapacityData(targetKey) {
     const target = CAPACITY_TARGETS[targetKey];
     const objectKeys = target.objectKeys.slice();
-    if (currentComparisonMetric === 'diameter' && PROXIMA_CAPACITY_TARGETS.has(targetKey)) {
+    if (PROXIMA_CAPACITY_TARGETS.has(targetKey)) {
         objectKeys.push('proximaCentauri');
     }
     return uniqueComparisonKeys(objectKeys)
@@ -4986,6 +4994,16 @@ function getCapacityNote(targetKey) {
         return `按${scopeLabel}估算：能装数量 ≈ (${scopeLabel}半径 / 天体半径)³，数值会比较大，仅用于量级理解。`;
     }
 
+    if (targetKey === 'proximaCentauri') {
+        if (currentComparisonMetric === 'mass') {
+            return '按质量测算：比邻星质量约为太阳的 0.1221 倍，数量 = 比邻星质量 / 天体质量。';
+        }
+        if (currentComparisonMetric === 'width') {
+            return `按宽度测算：比邻星直径约 ${formatNumber(planetData.proximaCentauri.diameter)} 公里，数量 = 比邻星直径 / 天体直径。`;
+        }
+        return `比邻星按半径 0.1542 R☉ 折算，直径约 ${formatNumber(planetData.proximaCentauri.diameter)} 公里，数量 ≈ (比邻星直径 / 天体直径)³。`;
+    }
+
     if (currentComparisonMetric === 'width') {
         return '当前页签使用直径相除，数量 = 目标直径 / 天体直径，表示横向排起来大约能排多少个。';
     }
@@ -5027,7 +5045,8 @@ function renderCapacityTargetPicker(container) {
         { key: 'earth', icon: '🌍', name: '地球' },
         { key: 'venus', icon: '🟡', name: '金星' },
         { key: 'mars', icon: '🔴', name: '火星' },
-        { key: 'blackHole', icon: '🕳️', name: '黑洞', isGroup: true }
+        { key: 'blackHole', icon: '🕳️', name: '黑洞', isGroup: true },
+        { key: 'proximaCentauri', icon: '⭐', name: '比邻星' }
     ];
     const suffix = currentComparisonMetric === 'width'
         ? '宽度'
@@ -5105,9 +5124,6 @@ function renderBlackHoleScopePicker(container, mode = 'capacity', options = {}) 
 }
 
 function renderCapacityMode(container, subtitle) {
-    if (currentCapacityView === 'proximaCentauri') {
-        currentCapacityView = 'sun';
-    }
     renderCapacityTargetPicker(container);
     if (isDragBlackHoleCapacityParent(currentCapacityView)) {
         currentDragBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentDragBlackHoleScope);
@@ -5205,8 +5221,12 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         barInnerHTML += '</div>';
 
         // 底部"目标 vs 选中天体"按真实直径比例的对比小图
-        const targetRefClass = isBlackHole ? 'black-hole-ref' : 'sun-ref';
-        const refStyle = !isBlackHole && targetKey !== 'sun' && target.texture
+        const targetRefClass = isBlackHole
+            ? 'black-hole-ref'
+            : targetKey === 'proximaCentauri'
+                ? 'proxima-ref'
+                : 'sun-ref';
+        const refStyle = !isBlackHole && targetKey !== 'sun' && targetKey !== 'proximaCentauri' && target.texture
             ? `background: url('${target.texture}') center/cover; box-shadow: 0 0 25px ${target.color}66;`
             : '';
         const initialPlanetSize = initialSelected ? computePlanetRefSize(initialSelected) : 4;
@@ -5227,7 +5247,11 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}${sizeCompareHTML}</div>`;
     }
 
-    const realisticLabel = isBlackHole ? '🌑 还原黑洞' : '☀️ 还原太阳';
+    const realisticLabel = isBlackHole
+        ? '🌑 还原黑洞'
+        : targetKey === 'proximaCentauri'
+            ? '⭐ 还原比邻星'
+            : '☀️ 还原太阳';
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
     const initial3DLabel = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
     const mainAreaClass = `drag-main-area${includeBarChart ? ' drag-main-area--with-bars' : ''}`;
@@ -5547,6 +5571,9 @@ function generateSizeComparison(mode) {
         if (key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
             return `background: url('${BLACK_HOLE_TEXTURE_PATH}') center/cover;`;
         }
+        if (key === 'proximaCentauri') {
+            return `background: radial-gradient(circle at 32% 28%, #ffe0b2 0 9%, #ff9a55 22%, #d94d34 58%, #381112 100%), radial-gradient(circle at 70% 62%, rgba(80, 16, 18, 0.34), transparent 24%), radial-gradient(circle at 44% 72%, rgba(255, 210, 150, 0.2), transparent 18%);`;
+        }
         if (key === 'oortCloud') {
             return `background: radial-gradient(circle at 30% 25%, rgba(183, 230, 255, 0.2), rgba(183, 230, 255, 0) 45%), radial-gradient(circle at 75% 75%, rgba(120, 170, 255, 0.22), rgba(120, 170, 255, 0) 50%), url('textures/starfield.jpg') center/cover;`;
         }
@@ -5698,9 +5725,7 @@ function generateSizeComparison(mode) {
                 displaySize = Math.max(5, displaySize);
             }
 
-            const bgStyle = planetTextures[name]
-                ? `background: url('${planetTextures[name]}') center/cover;`
-                : `background: #${data.color.toString(16).padStart(6, '0')};`;
+            const bgStyle = getDiameterSphereStyle(name, data);
 
             // 计算地球直径倍数
             const earthRatio = data.diameter / earthDiameter;
@@ -5788,9 +5813,7 @@ function generateSizeComparison(mode) {
                 earthMassLabel = `= ${earthMasses.toFixed(4)} 地球质量`;
             }
 
-            const bgStyle2 = planetTextures[name]
-                ? `background: url('${planetTextures[name]}') center/cover;`
-                : `background: #${data.color.toString(16).padStart(6, '0')};`;
+            const bgStyle2 = getDiameterSphereStyle(name, data);
 
             const div = document.createElement('div');
             div.className = `comparison-planet ${categoryClass}`;
@@ -5920,6 +5943,37 @@ function hexToRgbStr(hex) {
     return `${(v >> 16) & 255}, ${(v >> 8) & 255}, ${v & 255}`;
 }
 
+function drawProximaSurface(ctx, cx, cy, r) {
+    const core = ctx.createRadialGradient(cx - r * 0.36, cy - r * 0.38, r * 0.08, cx, cy, r);
+    core.addColorStop(0, '#ffe0b2');
+    core.addColorStop(0.22, '#ff9a55');
+    core.addColorStop(0.58, '#d94d34');
+    core.addColorStop(1, '#381112');
+    ctx.fillStyle = core;
+    ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+
+    for (let i = 0; i < 20; i++) {
+        const angle = i * 2.399963;
+        const rr = r * (0.15 + ((i * 37) % 70) / 100);
+        const x = cx + Math.cos(angle) * rr * 0.72;
+        const y = cy + Math.sin(angle) * rr * 0.72;
+        const spotR = r * (0.025 + ((i * 13) % 22) / 1000);
+        ctx.beginPath();
+        ctx.arc(x, y, spotR, 0, Math.PI * 2);
+        ctx.fillStyle = i % 3 === 0
+            ? 'rgba(255, 210, 150, 0.18)'
+            : 'rgba(80, 16, 18, 0.22)';
+        ctx.fill();
+    }
+
+    const limb = ctx.createRadialGradient(cx, cy, r * 0.35, cx, cy, r);
+    limb.addColorStop(0, 'rgba(255, 180, 100, 0)');
+    limb.addColorStop(0.78, 'rgba(40, 8, 10, 0.18)');
+    limb.addColorStop(1, 'rgba(0, 0, 0, 0.52)');
+    ctx.fillStyle = limb;
+    ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+}
+
 // 把行星纹理画进圆形容器（带球体光照与外围微弱光晕）
 function drawPlanetTextureContainer(ctx, size, targetKey, opts = {}) {
     const cx = size / 2, cy = size / 2, r = size / 2 - (opts.margin ?? 10);
@@ -5931,7 +5985,9 @@ function drawPlanetTextureContainer(ctx, size, targetKey, opts = {}) {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.clip();
-    if (img && img.complete && img.naturalWidth > 0) {
+    if (targetKey === 'proximaCentauri') {
+        drawProximaSurface(ctx, cx, cy, r);
+    } else if (img && img.complete && img.naturalWidth > 0) {
         const srcSize = Math.min(img.naturalWidth, img.naturalHeight);
         const sx = (img.naturalWidth - srcSize) / 2;
         const sy = (img.naturalHeight - srcSize) / 2;
@@ -6488,6 +6544,8 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
                 sunGrad.addColorStop(1, '#e65100');
                 ctx.fillStyle = sunGrad;
                 ctx.fillRect(0, 0, size, size);
+            } else if (containerKey === 'proximaCentauri') {
+                drawProximaSurface(ctx, cx, cy, r);
             } else if (containerTexture && containerTexture.complete && containerTexture.naturalWidth > 0) {
                 // 行星纹理底色
                 const srcSize = Math.min(containerTexture.naturalWidth, containerTexture.naturalHeight);
