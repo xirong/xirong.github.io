@@ -11,6 +11,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="$ROOT_DIR/macos/ZhitianSpace"
 DIST_DIR="$ROOT_DIR/dist"
 APP_BUNDLE="$DIST_DIR/$BUNDLE_DISPLAY_NAME.app"
+LOCAL_APP_BUNDLE="$HOME/Applications/$BUNDLE_DISPLAY_NAME.app"
 APP_CONTENTS="$APP_BUNDLE/Contents"
 APP_MACOS="$APP_CONTENTS/MacOS"
 APP_RESOURCES="$APP_CONTENTS/Resources"
@@ -76,6 +77,11 @@ open_app() {
   /usr/bin/open -n "$APP_BUNDLE"
 }
 
+install_local_app() {
+  mkdir -p "$HOME/Applications"
+  rsync -a --delete "$APP_BUNDLE/" "$LOCAL_APP_BUNDLE/"
+}
+
 create_dmg() {
   DMG_PATH="$DIST_DIR/$BUNDLE_DISPLAY_NAME.dmg"
   rm -f "$DMG_PATH"
@@ -110,6 +116,7 @@ case "$MODE" in
     ;;
   --dmg|dmg)
     build_app
+    install_local_app
     create_dmg
     ;;
   *)
