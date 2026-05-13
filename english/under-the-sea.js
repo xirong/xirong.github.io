@@ -1,11 +1,12 @@
 const AUDIO_BASE = "audio/under-the-sea/";
+const IMAGE_BASE = "images/under-the-sea/";
 
 const steps = [
     step("title", "Song", "Under the Sea", "今天的主题是海底世界", "00-under-the-sea.mp3", "beach-title", startTask("准备出发", "先听标题，再大声说 Under the Sea")),
     step("mermaid-question", "Mia", "Is that a mermaid?", "那是美人鱼吗？", "01-is-that-a-mermaid.mp3", "beach", targetTask("mermaid-shadow", "点一点远处的影子", "Mia 看见了远处的尾巴，点一下海边的美人鱼影子")),
     step("not-sure", "Leo", "I'm not sure.", "我不确定", "02-im-not-sure.mp3", "beach-close", startTask("跟 Leo 说一遍", "点跟读，说 I'm not sure")),
-    step("find-mermaid", "Leo", "I'm going to find the mermaid.", "我要去找美人鱼", "03-going-to-find-mermaid.mp3", "submarine", targetTask("submarine", "点击潜水艇出发", "坐进黄色潜水艇，准备下潜")),
     step("jellyfish", "Mia", "Look, jellyfish!", "看，水母！", "04-look-jellyfish.mp3", "jellyfish", targetTask("jellyfish", "找到水母", "点击发光的 jellyfish")),
+    step("find-mermaid", "Leo", "I'm going to find the mermaid.", "我要去找美人鱼", "03-going-to-find-mermaid.mp3", "submarine", targetTask("submarine", "点击潜水艇出发", "坐进黄色潜水艇，准备下潜")),
     step("starfish", "Leo", "Look, a starfish!", "看，一只海星！", "05-look-a-starfish.mp3", "starfish", targetTask("starfish", "找到海星", "点击黄色 starfish")),
     step("where-starfish", "Mia", "Where is it?", "它在哪里？", "06-where-is-it.mp3", "starfish", choiceTask("选位置", "海星在哪里？", ["on", "behind", "between"], "on", "Right, it is on the turtle's back.")),
     step("turtle-back", "Leo", "It's on the turtle's back.", "它在乌龟背上", "07-on-turtles-back.mp3", "starfish", targetTask("turtle", "点乌龟背", "点一下 turtle's back，记住 on")),
@@ -79,21 +80,45 @@ function render() {
 }
 
 const hotspots = {
-    "mermaid-question": [73, 43, 18, 22],
-    "find-mermaid": [55, 61, 52, 56],
-    jellyfish: [41, 34, 21, 32],
-    starfish: [50, 50, 18, 24],
-    "turtle-back": [48, 60, 24, 22],
-    shark: [35, 44, 27, 24],
-    "behind-dolphin": [61, 41, 27, 24],
-    "thank-dolphins": [55, 45, 56, 48],
-    lost: [57, 64, 20, 24],
-    "behind-coral": [64, 63, 34, 32],
-    "whale-danger": [56, 45, 44, 34],
-    help: [68, 69, 44, 42],
-    between: [42, 57, 22, 30],
-    mermaids: [34, 43, 48, 42],
-    "thank-whale": [64, 49, 44, 36]
+    "mermaid-question": [55, 52, 20, 22],
+    jellyfish: [58, 51, 46, 58],
+    "find-mermaid": [48, 49, 60, 50],
+    starfish: [48, 56, 28, 30],
+    "turtle-back": [48, 56, 28, 30],
+    shark: [49, 50, 58, 46],
+    "behind-dolphin": [53, 50, 54, 44],
+    "thank-dolphins": [56, 54, 68, 62],
+    lost: [48, 48, 58, 50],
+    "behind-coral": [48, 60, 36, 42],
+    "whale-danger": [44, 51, 46, 58],
+    help: [51, 56, 52, 48],
+    between: [50, 65, 54, 38],
+    mermaids: [50, 50, 74, 60],
+    "thank-whale": [62, 58, 66, 58]
+};
+
+const frameImages = {
+    title: "00-title.jpg",
+    "mermaid-question": "01-mermaid-question.jpg",
+    "not-sure": "02-not-sure.jpg",
+    jellyfish: "03-jellyfish.jpg",
+    "find-mermaid": "04-find-mermaid.jpg",
+    starfish: "05-starfish.jpg",
+    "where-starfish": "06-where-starfish.jpg",
+    "turtle-back": "07-turtle-back.jpg",
+    shark: "08-shark.jpg",
+    "where-shark": "09-where-shark.jpg",
+    "behind-dolphin": "10-behind-dolphin.jpg",
+    "thank-dolphins": "11-thank-dolphins.jpg",
+    lost: "12-lost.jpg",
+    "where-mermaid": "13-where-mermaid.jpg",
+    "behind-coral": "14-behind-coral.jpg",
+    "whale-danger": "15-whale-danger.jpg",
+    help: "16-help.jpg",
+    "leo-where": "17-leo-where.jpg",
+    between: "18-between.jpg",
+    mermaids: "19-mermaids.jpg",
+    "thank-whale": "20-thank-whale.jpg"
 };
 
 function buildHotspot(item) {
@@ -242,6 +267,14 @@ nextBtn.addEventListener("click", () => {
 });
 
 function buildScene(item) {
+    const image = frameImages[item.id];
+    if (image) {
+        return `
+            <div class="scene-frame" aria-label="${escapeAttr(item.line)}">
+                <img class="scene-image" src="${IMAGE_BASE}${image}" alt="${escapeAttr(item.line)}">
+            </div>
+        `;
+    }
     const sea = !item.world.startsWith("beach");
     return `
         <svg viewBox="0 0 1280 720" aria-label="${escapeAttr(item.line)}">

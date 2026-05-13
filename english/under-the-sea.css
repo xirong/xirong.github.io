@@ -154,10 +154,19 @@ a {
     inset: 0;
 }
 
-.stage svg {
+.scene-frame,
+.scene-image {
     display: block;
     width: 100%;
     height: 100%;
+}
+
+.scene-frame {
+    position: relative;
+}
+
+.scene-image {
+    object-fit: cover;
 }
 
 .hotspot {
@@ -168,6 +177,16 @@ a {
     background: rgba(255, 226, 90, 0);
     cursor: pointer;
     transform: translate(-50%, -50%);
+}
+
+.hotspot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 4px solid rgba(255, 222, 74, 0.78);
+    box-shadow: 0 0 0 10px rgba(255, 222, 74, 0.14);
+    animation: target-pulse 1.4s ease-in-out infinite;
 }
 
 .hotspot:focus-visible {
