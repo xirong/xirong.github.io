@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under the Sea | 英语互动小游戏</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="under-the-sea.css">
+</head>
+<body>
+    <main class="game-shell">
+        <header class="topbar">
+            <a class="back-link" href="../index.html" aria-label="返回首页">首页</a>
+            <div class="lesson-title">
+                <span>English Adventure</span>
+                <h1>Under the Sea</h1>
+            </div>
+            <div class="progress-pill" aria-label="学习进度">
+                <span id="progressText">1 / 21</span>
+                <span class="progress-track"><span id="progressBar"></span></span>
+            </div>
+        </header>
+
+        <section class="game-board" aria-label="Under the Sea 互动学习">
+            <section class="stage-card">
+                <div class="stage-wrap">
+                    <div id="stage" class="stage" aria-live="polite"></div>
+                    <div id="confetti" class="confetti" aria-hidden="true"></div>
+                </div>
+            </section>
+
+            <aside class="control-panel">
+                <div class="scene-meta">
+                    <span id="sceneBadge">Scene 1</span>
+                    <span id="sceneHint">听一句，做一个小任务</span>
+                </div>
+
+                <div class="sentence-card">
+                    <p id="speakerName" class="speaker">Mia</p>
+                    <p id="englishLine" class="english-line">Under the Sea</p>
+                    <p id="chineseHint" class="chinese-hint">准备开始海底冒险</p>
+                </div>
+
+                <div class="primary-actions">
+                    <button id="listenBtn" class="icon-btn listen-btn" type="button">
+                        <span aria-hidden="true">▶</span>
+                        听一遍
+                    </button>
+                    <button id="repeatBtn" class="icon-btn repeat-btn" type="button">
+                        <span aria-hidden="true">🎙</span>
+                        跟读
+                    </button>
+                </div>
+
+                <div id="taskBox" class="task-box"></div>
+                <div id="feedback" class="feedback" aria-live="polite"></div>
+
+                <div class="step-actions">
+                    <button id="prevBtn" class="plain-btn" type="button">上一句</button>
+                    <button id="nextBtn" class="next-btn" type="button" disabled>下一句</button>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="under-the-sea.js"></script>
+</body>
+</html>
