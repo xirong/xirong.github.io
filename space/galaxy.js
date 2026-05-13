@@ -820,6 +820,29 @@ const galaxyRenderConfigs = {
     }
 };
 
+// ============ 星系 Dock 配置 ============
+const galaxyDockItems = [
+    { key: 'galacticCenter', name: '银河系中心黑洞', shortName: '黑洞', tone: 'black-hole' },
+    { key: 'lmc', shortName: '大麦' },
+    { key: 'smc', shortName: '小麦' },
+    { key: 'sgrDsph', shortName: '人马' },
+    { key: 'sculptorDwarf', shortName: '玉夫' },
+    { key: 'leoI', shortName: '狮I' },
+    { key: 'andromeda', shortName: '仙女' },
+    { key: 'triangulum', shortName: '三角' },
+    { key: 'm32', shortName: 'M32' },
+    { key: 'm110', shortName: 'M110' },
+    { key: 'ngc6822', shortName: '巴纳' },
+    { key: 'ic10', shortName: 'IC10' },
+    { key: 'ic1613', shortName: 'IC1613' },
+    { key: 'sombrero', shortName: '草帽' },
+    { key: 'whirlpool', shortName: '漩涡' },
+    { key: 'centaurusA', shortName: '半A' },
+    { key: 'ngc253', shortName: '玉夫座' },
+    { key: 'm81m82', shortName: 'M81' },
+    { key: 'antennae', shortName: '触须' }
+];
+
 // ============ 信息面板内容 ============
 const infoPanelContent = {
     solarSystem: {
@@ -828,6 +851,14 @@ const infoPanelContent = {
             '银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。',
             '太阳系位于<span class="highlight">猎户臂</span>上，距离银河系中心约<span class="highlight">26000光年</span>。',
             '银河系中心是一个超大质量黑洞——<span class="highlight">人马座A*</span>，质量约为太阳的400万倍。'
+        ]
+    },
+    galacticCenter: {
+        title: '🕳️ 银河系中心黑洞',
+        paragraphs: [
+            '<span class="highlight">人马座A*</span>位于银河系正中央，是一个超大质量黑洞。',
+            '它的质量约为<span class="highlight">400万个太阳</span>，周围的恒星会围着它高速绕行。',
+            '这里不是太阳系附近，而是银河系最深处的核心区域。'
         ]
     },
     localNeighbors: {
@@ -1012,6 +1043,130 @@ function updateMotionToggleButton() {
 function toggleGalacticMotion() {
     motionPaused = !motionPaused;
     updateMotionToggleButton();
+}
+
+// ============ 星系 Dock ============
+function renderGalaxyDock() {
+    const track = document.getElementById('galaxyDockTrack');
+    if (!track) return;
+
+    track.innerHTML = galaxyDockItems.map(item => {
+        const data = galaxyData[item.key] || {};
+        const name = item.name || data.name || item.shortName;
+        const tone = item.tone || getGalaxyDockTone(item.key);
+        return `
+            <button class="galaxy-dock-dot ${tone}" type="button" data-galaxy-key="${item.key}" data-name="${name}" title="${name}" aria-label="进入${name}">
+                ${item.shortName}
+            </button>
+        `;
+    }).join('');
+}
+
+function setupGalaxyDock() {
+    const track = document.getElementById('galaxyDockTrack');
+    if (!track) return;
+
+    track.addEventListener('click', event => {
+        const button = event.target.closest('.galaxy-dock-dot');
+        if (!button) return;
+
+        event.stopPropagation();
+        selectGalaxyDockTarget(button.dataset.galaxyKey, button);
+    });
+}
+
+function getGalaxyDockTone(key) {
+    const type = galaxyRenderConfigs[key]?.type;
+    if (type === 'spiral') return 'spiral';
+    if (type === 'elliptical') return 'elliptical';
+    if (type === 'interacting' || type === 'pair') return 'interacting';
+    return 'irregular';
+}
+
+function setActiveGalaxyDockItem(key) {
+    document.querySelectorAll('.galaxy-dock-dot').forEach(button => {
+        button.classList.toggle('active', button.dataset.galaxyKey === key);
+    });
+}
+
+function selectGalaxyDockTarget(key, button) {
+    if (!key) return;
+
+    setActiveGalaxyDockItem(key);
+    hideGalaxyPopup();
+    hideStarSystemPopup();
+
+    if (key === 'galacticCenter') {
+        focusGalacticBlackHoleFromDock();
+        return;
+    }
+
+    const galaxy = externalGalaxies.find(item => item.key === key);
+    if (!galaxy) return;
+
+    focusDockObject(galaxy, getGalaxyDockViewDistance(galaxy));
+
+    if (button) {
+        const rect = button.getBoundingClientRect();
+        showGalaxyPopup(key, rect.left + rect.width / 2, rect.top);
+    }
+}
+
+function getGalaxyDockViewDistance(galaxy) {
+    const radius = galaxy.config?.radius || 2500;
+    if (galaxy.config?.zone === 'LOCAL') {
+        return Math.max(radius * 8, 4200);
+    }
+    return Math.max(radius * 4.5, 10000);
+}
+
+function focusDockObject(object, viewDistance) {
+    if (!object) return;
+
+    const targetPoint = new THREE.Vector3();
+    object.getWorldPosition(targetPoint);
+    animateCameraToPoint(targetPoint, viewDistance, () => {
+        focusControlsOnObject(object, { immediate: true });
+        updateScaleIndicator();
+    });
+}
+
+function focusGalacticBlackHoleFromDock() {
+    const targetPoint = GALACTIC_CENTER.clone();
+    animateCameraToPoint(targetPoint, 2200, () => {
+        setControlsFocus(targetPoint, { immediate: true });
+        updateScaleIndicator();
+    });
+}
+
+function animateCameraToPoint(targetPoint, viewDistance, onComplete) {
+    if (!targetPoint) return;
+
+    const startPosition = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const viewDirection = new THREE.Vector3(0.68, 0.42, 0.72).normalize();
+    const targetPosition = targetPoint.clone().add(viewDirection.multiplyScalar(viewDistance));
+    const duration = 1400;
+    const startTime = Date.now();
+    clearControlsFocus();
+
+    function animateDockFlight() {
+        const elapsed = Date.now() - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        const easeT = 1 - Math.pow(1 - t, 3);
+
+        camera.position.lerpVectors(startPosition, targetPosition, easeT);
+        controls.target.lerpVectors(startTarget, targetPoint, easeT);
+        controls.update();
+
+        if (t < 1) {
+            requestAnimationFrame(animateDockFlight);
+        } else if (onComplete) {
+            onComplete();
+        }
+    }
+
+    animateDockFlight();
 }
 
 function updateNeighborhoodSystemPositions(solarPosition) {
@@ -1251,6 +1406,9 @@ function init() {
         motionToggle.addEventListener('click', toggleGalacticMotion);
         updateMotionToggleButton();
     }
+
+    renderGalaxyDock();
+    setupGalaxyDock();
 
     // 隐藏加载画面
     setTimeout(() => {
@@ -4205,6 +4363,9 @@ function updateScaleIndicator() {
             scaleValue.textContent = '太阳系近处';
             level = 1;
         }
+    } else if (distance < BLACK_HOLE_REVEAL_START_DISTANCE && controls.target.distanceTo(GALACTIC_CENTER) < 1200) {
+        scaleValue.textContent = '银河系中心黑洞';
+        level = 13;
     } else if (distance > 950000) {
         scaleValue.textContent = '可观测宇宙';
         level = 12;
@@ -4254,6 +4415,8 @@ function updateInfoPanel(level) {
         content = infoPanelContent.solarSystem;
     } else if (level === 3) {
         content = infoPanelContent.solarNeighborhood;
+    } else if (level === 13) {
+        content = infoPanelContent.galacticCenter;
     } else if (level === 4 || level === 5 || level === 6) {
         content = infoPanelContent.solarSystem;
     } else if (level === 7) {
@@ -4294,7 +4457,7 @@ function updateLegend(level) {
 
     // 本地类型图例：银河系全景视图
     localLegendItems.forEach(item => {
-        item.style.display = (level === 6) ? 'flex' : 'none';
+        item.style.display = (level === 6 || level === 13) ? 'flex' : 'none';
     });
 
     // 恒星类型图例：恒星邻域放大视图（level === 3）
@@ -4318,6 +4481,7 @@ function returnToMilkyWay() {
     const duration = 2000;
     const startTime = Date.now();
     clearControlsFocus();
+    setActiveGalaxyDockItem(null);
 
     function animateReturn() {
         const elapsed = Date.now() - startTime;
@@ -4666,6 +4830,8 @@ function showGalaxyPopup(key, x, y) {
 
     const popup = document.getElementById('galaxyPopup');
     if (!popup) return;
+
+    hideStarSystemPopup();
 
     // 填充数据
     popup.querySelector('.galaxy-popup-name').textContent = data.name;

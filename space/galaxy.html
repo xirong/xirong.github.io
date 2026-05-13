@@ -467,6 +467,140 @@
             color: #ffe082;
         }
 
+        /* 星系 Dock */
+        .galaxy-dock {
+            position: fixed;
+            bottom: 24px;
+            left: calc(50% + 70px);
+            transform: translateX(-50%);
+            z-index: 120;
+            max-width: min(540px, 42vw);
+            background: rgba(7, 11, 28, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(22px);
+            border-radius: 42px;
+            padding: 10px 14px 18px;
+            box-shadow: 0 16px 44px rgba(0, 0, 0, 0.35);
+        }
+
+        .galaxy-dock-track {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+            padding: 2px 4px 10px;
+        }
+
+        .galaxy-dock-track::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .galaxy-dock-track::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+        }
+
+        .galaxy-dock-dot {
+            width: 48px;
+            height: 48px;
+            flex: 0 0 48px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 700;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
+            background:
+                radial-gradient(circle at 32% 25%, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.08) 22%, transparent 42%),
+                radial-gradient(circle at 54% 58%, var(--dock-core, #8bd3ff), var(--dock-rim, #254d8f) 62%, rgba(0, 0, 0, 0.92));
+            box-shadow:
+                0 0 18px var(--dock-glow, rgba(80, 160, 255, 0.42)),
+                inset 0 0 18px rgba(255, 255, 255, 0.1);
+        }
+
+        .galaxy-dock-dot::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -31px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(5, 8, 18, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 0.68rem;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .galaxy-dock-dot:hover,
+        .galaxy-dock-dot:focus-visible {
+            transform: translateY(-4px) scale(1.08);
+            border-color: rgba(255, 255, 255, 0.82);
+            outline: none;
+        }
+
+        .galaxy-dock-dot:hover::after,
+        .galaxy-dock-dot:focus-visible::after {
+            opacity: 1;
+        }
+
+        .galaxy-dock-dot.active {
+            border-color: #ffffff;
+            box-shadow:
+                0 0 22px var(--dock-glow, rgba(80, 160, 255, 0.55)),
+                0 0 38px var(--dock-glow, rgba(80, 160, 255, 0.38)),
+                inset 0 0 18px rgba(255, 255, 255, 0.2);
+        }
+
+        .galaxy-dock-dot.black-hole {
+            --dock-core: #efe5ff;
+            --dock-rim: #200022;
+            --dock-glow: rgba(185, 98, 255, 0.62);
+            background:
+                radial-gradient(circle at 50% 50%, #050008 0 26%, transparent 27%),
+                conic-gradient(from 30deg, #ffb86b, #8b5cf6, #00d4ff, #ffb86b);
+        }
+
+        .galaxy-dock-dot.spiral {
+            --dock-core: #fff0a6;
+            --dock-rim: #b76718;
+            --dock-glow: rgba(255, 190, 82, 0.52);
+        }
+
+        .galaxy-dock-dot.elliptical {
+            --dock-core: #ffd3a1;
+            --dock-rim: #7e3d05;
+            --dock-glow: rgba(255, 146, 60, 0.5);
+        }
+
+        .galaxy-dock-dot.irregular {
+            --dock-core: #bde6ff;
+            --dock-rim: #2459a5;
+            --dock-glow: rgba(106, 185, 255, 0.5);
+        }
+
+        .galaxy-dock-dot.interacting {
+            --dock-core: #ffd7ec;
+            --dock-rim: #6740a2;
+            --dock-glow: rgba(232, 129, 255, 0.46);
+        }
+
         /* 恒星系统弹窗样式 */
         .star-system-popup {
             position: fixed;
@@ -766,6 +900,29 @@
                 font-size: 0.8rem;
             }
 
+            .galaxy-dock {
+                left: 50%;
+                bottom: 58px;
+                max-width: calc(100vw - 24px);
+                padding: 8px 10px 14px;
+            }
+
+            .galaxy-dock-track {
+                gap: 8px;
+                padding-bottom: 8px;
+            }
+
+            .galaxy-dock-dot {
+                width: 42px;
+                height: 42px;
+                flex-basis: 42px;
+                font-size: 0.62rem;
+            }
+
+            .galaxy-dock-dot::after {
+                display: none;
+            }
+
             /* 弹窗适配 */
             .galaxy-popup,
             .star-system-popup {
@@ -889,6 +1046,11 @@
         <span class="motion-toggle-icon">⏸️</span>
         <span class="motion-toggle-label">暂停转动</span>
     </button>
+
+    <!-- 星系 Dock -->
+    <div class="galaxy-dock" id="galaxyDock" aria-label="星系快捷入口">
+        <div class="galaxy-dock-track" id="galaxyDockTrack"></div>
+    </div>
 
     <!-- 星系信息弹窗 -->
     <div class="galaxy-popup" id="galaxyPopup">
