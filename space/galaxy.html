@@ -471,10 +471,10 @@
         .galaxy-dock {
             position: fixed;
             bottom: 24px;
-            left: calc(50% + 70px);
+            left: calc(50% + 90px);
             transform: translateX(-50%);
             z-index: 120;
-            max-width: min(540px, 42vw);
+            max-width: min(600px, 44vw);
             background: rgba(7, 11, 28, 0.88);
             border: 1px solid rgba(255, 255, 255, 0.14);
             backdrop-filter: blur(22px);
@@ -599,6 +599,13 @@
             --dock-core: #ffd7ec;
             --dock-rim: #6740a2;
             --dock-glow: rgba(232, 129, 255, 0.46);
+        }
+
+        @media (min-width: 1500px) {
+            .galaxy-dock {
+                left: calc(50% + 70px);
+                max-width: min(820px, 54vw);
+            }
         }
 
         /* 恒星系统弹窗样式 */
