@@ -46,9 +46,21 @@ const SOLAR_ORBIT_SETTINGS = {
     bobSpeedFactor: 0.35,
     bobPhase: 0.35
 };
+const deepSkyTextureCache = new Map();
 
 // 太阳系在银河系中的位置（距银心约26000光年，这里用单位表示）
 const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
+
+function makeGalacticLandmarkPosition(distanceLY, offset) {
+    const sceneDistance = distanceLY / 5;
+    return SOLAR_SYSTEM_POS.clone().add(
+        new THREE.Vector3(
+            offset.x * sceneDistance,
+            offset.y * sceneDistance,
+            offset.z * sceneDistance
+        )
+    );
+}
 
 // ============ 恒星系统数据 ============
 const starSystemData = {
@@ -123,11 +135,11 @@ const starSystemData = {
         nameEn: 'Betelgeuse',
         type: '红超巨星',
         spectralType: 'M1-M2 Ia-ab',
-        distance: '700光年',
+        distance: '约550光年',
         brightness: '视星等 0.5',
         planets: 0,
-        description: '猎户座的"肩膀"，一颗即将爆发为超新星的红超巨星。',
-        funFact: '参宿四的直径是太阳的1000倍，如果放在太阳位置，它会吞没火星轨道！'
+        description: '猎户座的"肩膀"，一颗走到生命晚期的红超巨星，将来会以超新星的方式结束一生。',
+        funFact: '参宿四非常巨大，如果放在太阳位置，它的外层会伸到火星轨道附近！'
     },
     vega: {
         name: '织女星',
@@ -381,7 +393,7 @@ const neighborhoodStarConfigs = {
 // 位置相对于 SOLAR_SYSTEM_POS，offset 为场景单位偏移方向
 const galacticStarConfigs = {
     betelgeuse: {
-        distanceLY: 700,
+        distanceLY: 550,
         zone: 'A',
         color: '#ff4444',
         textureProfile: 'betelgeuse',
@@ -449,8 +461,180 @@ const starTextureProfiles = {
     redSupergiant: 'textures/stars/red_supergiant_surface.jpg'
 };
 
-// ============ 星系数据 ============
+// ============ 星系与银河系名胜数据 ============
 const galaxyData = {
+    orionNebula: {
+        name: '猎户座大星云',
+        nameEn: 'Orion Nebula (M42)',
+        type: '发射星云',
+        distance: '约1350光年',
+        diameter: '约24光年',
+        stars: '恒星育儿园',
+        diameterLabel: '大小',
+        starsLabel: '看点',
+        description: '银河系里最有名的恒星诞生区之一，冬夜肉眼也能在猎户座的剑上看到一小团雾光。',
+        funFact: '这里有很多刚出生不久的恒星，像一间正在亮灯的宇宙育婴室。'
+    },
+    eagleNebula: {
+        name: '鹰状星云',
+        nameEn: 'Eagle Nebula (M16)',
+        type: '恒星形成区',
+        distance: '约6500光年',
+        diameter: '约70×55光年',
+        stars: '创生之柱',
+        diameterLabel: '大小',
+        starsLabel: '名场面',
+        description: '鹰状星云内部有著名的创生之柱，那里是气体和尘埃被新恒星照亮的地方。',
+        funFact: '创生之柱里的柱状尘埃云高达数光年，是哈勃和韦布都拍过的宇宙名场面。'
+    },
+    crabNebula: {
+        name: '蟹状星云',
+        nameEn: 'Crab Nebula (M1)',
+        type: '超新星遗迹',
+        distance: '约6500光年',
+        diameter: '约10光年',
+        stars: '1054年超新星',
+        diameterLabel: '大小',
+        starsLabel: '来源',
+        description: '这是一颗恒星爆炸后留下的残骸，中间有一颗高速旋转的脉冲星。',
+        funFact: '公元1054年前后，古人记录过这次超新星爆发，现在我们看到的是爆炸后的云。'
+    },
+    horseheadNebula: {
+        name: '马头星云',
+        nameEn: 'Horsehead Nebula',
+        type: '暗星云',
+        distance: '约1300光年',
+        diameter: '马头结构约3光年',
+        stars: '黑暗尘埃剪影',
+        diameterLabel: '大小',
+        starsLabel: '看点',
+        description: '马头星云是一团遮住后方亮光的冷尘埃云，因此看起来像黑色马头。',
+        funFact: '它不是自己发光的星云，而是挡住背后的红色发光气体，所以轮廓特别好认。'
+    },
+    pleiades: {
+        name: '昴星团',
+        nameEn: 'Pleiades (M45)',
+        type: '疏散星团',
+        distance: '约444光年',
+        diameter: '约13光年',
+        stars: '上千颗年轻恒星',
+        diameterLabel: '大小',
+        starsLabel: '成员',
+        description: '昴星团也叫七姐妹，是一群年轻的蓝白色恒星，很多文化都认识它。',
+        funFact: '天气好时用肉眼能看到其中几颗亮星，是孩子最容易在夜空里找的星团之一。'
+    },
+    m13Cluster: {
+        name: 'M13球状星团',
+        nameEn: 'Hercules Cluster (M13)',
+        type: '球状星团',
+        distance: '约2.2万光年',
+        diameter: '约145光年',
+        stars: '几十万颗恒星',
+        diameterLabel: '大小',
+        starsLabel: '成员',
+        description: 'M13像一颗由大量古老恒星挤成的发光雪球，位于银河系的银晕中。',
+        funFact: '它不是一个星系，而是被银河系引力束缚的一团古老恒星。'
+    },
+    carinaNebula: {
+        name: '船底座星云',
+        nameEn: 'Carina Nebula',
+        type: '巨大星云',
+        distance: '约7500光年',
+        diameter: '约200光年以上',
+        stars: '大质量恒星工厂',
+        diameterLabel: '大小',
+        starsLabel: '看点',
+        description: '船底座星云是银河系里最壮观的恒星形成区之一，里面有大量年轻而炽热的恒星。',
+        funFact: '韦布拍到的宇宙悬崖就位于这片星云中，看起来像彩色山脉，其实是气体和尘埃。'
+    },
+    uranusLandmark: {
+        name: '天王星',
+        nameEn: 'Uranus',
+        type: '冰巨星行星',
+        distance: '约19.2天文单位',
+        diameter: '约50,724公里',
+        stars: '太阳系第七颗行星',
+        diameterLabel: '直径',
+        starsLabel: '位置',
+        description: '天王星属于太阳系，不是恒星也不是星云。它以青绿色外观和几乎横躺着自转而出名。',
+        funFact: '在银河系这个大地图里，天王星只是太阳系里的一个小成员，真正看清它要回到太阳系页面。'
+    },
+    m87: {
+        name: 'M87星系',
+        nameEn: 'Messier 87',
+        type: '巨型椭圆星系',
+        distance: '约5500万光年',
+        diameter: '约13万光年',
+        stars: '数万亿颗恒星',
+        description: '室女座星系团中心附近的巨型椭圆星系，人类第一张黑洞照片来自它的中心黑洞。',
+        funFact: 'M87中心黑洞质量约为太阳的65亿倍，比银河系中心黑洞大得多。'
+    },
+    pinwheel: {
+        name: '风车星系',
+        nameEn: 'Pinwheel Galaxy (M101)',
+        type: '正面螺旋星系',
+        distance: '约2100万光年',
+        diameter: '约17万光年',
+        stars: '约1万亿颗',
+        description: 'M101正面朝向我们，旋臂展开得像一只宇宙风车，适合观察恒星形成区。',
+        funFact: '它的旋臂里有许多粉红色恒星育儿园，说明那里正在诞生新恒星。'
+    },
+    blackEye: {
+        name: '黑眼星系',
+        nameEn: 'Black Eye Galaxy (M64)',
+        type: '螺旋星系',
+        distance: '约1700万光年',
+        diameter: '约5.4万光年',
+        stars: '约1000亿颗',
+        description: 'M64中心旁边有一条明显的黑色尘埃带，看起来像一只黑眼睛。',
+        funFact: '它内部的气体有反向运动现象，可能和过去吞并小星系有关。'
+    },
+    cartwheel: {
+        name: '车轮星系',
+        nameEn: 'Cartwheel Galaxy',
+        type: '环状星系',
+        distance: '约5亿光年',
+        diameter: '约15万光年',
+        stars: '大型碰撞遗迹',
+        diameterLabel: '大小',
+        starsLabel: '形状来源',
+        description: '车轮星系像一个巨大的宇宙车轮，外环是星系碰撞后向外扩散的恒星形成波。',
+        funFact: '它原本很可能是螺旋星系，被另一个星系高速撞穿后变成了环状。'
+    },
+    hoagObject: {
+        name: '霍格天体',
+        nameEn: "Hoag's Object",
+        type: '环状星系',
+        distance: '约6亿光年',
+        diameter: '约12万光年',
+        stars: '中心球体加外环',
+        diameterLabel: '大小',
+        starsLabel: '形状',
+        description: '霍格天体是罕见的环状星系，中间像一个黄色星球，外面套着一圈蓝色恒星。',
+        funFact: '它的形状太特殊，天文学家到现在还在研究它到底怎么形成。'
+    },
+    stephansQuintet: {
+        name: '斯蒂芬五重星系',
+        nameEn: "Stephan's Quintet",
+        type: '互动星系群',
+        distance: '约2.9亿光年',
+        diameter: '星系群尺度',
+        stars: '多个星系互相拉扯',
+        diameterLabel: '范围',
+        starsLabel: '看点',
+        description: '这是几个星系挤在一起互相拉扯的著名星系群，韦布望远镜拍过非常震撼的图。',
+        funFact: '它适合讲给孩子听：星系并不是静止的，也会靠近、拉扯、碰撞。'
+    },
+    sunflower: {
+        name: '向日葵星系',
+        nameEn: 'Sunflower Galaxy (M63)',
+        type: '絮状螺旋星系',
+        distance: '约2700万光年',
+        diameter: '约9.8万光年',
+        stars: '数千亿颗',
+        description: 'M63的旋臂不是两条清楚的大臂，而像许多花瓣一样一片片展开。',
+        funFact: '它的名字很适合小朋友记忆，看起来像宇宙里的一朵向日葵。'
+    },
     lmc: {
         name: '大麦哲伦云',
         nameEn: 'Large Magellanic Cloud',
@@ -474,7 +658,7 @@ const galaxyData = {
     andromeda: {
         name: '仙女座星系',
         nameEn: 'Andromeda Galaxy (M31)',
-        type: '棒旋星系',
+        type: '大型螺旋星系',
         distance: '254万光年',
         diameter: '22万光年',
         stars: '约1万亿颗',
@@ -494,18 +678,18 @@ const galaxyData = {
     sombrero: {
         name: '草帽星系',
         nameEn: 'Sombrero Galaxy (M104)',
-        type: '螺旋星系',
-        distance: '2900万光年',
+        type: '带尘埃环的螺旋星系',
+        distance: '约2900万光年',
         diameter: '5万光年',
         stars: '约8000亿颗',
-        description: '因其独特的侧面视角和明亮的核心而得名。',
-        funFact: '草帽星系的中心黑洞质量是太阳的10亿倍，是银河系中心黑洞的250倍！'
+        description: '因侧面看过去像一顶宽边草帽而得名，中间有明亮核心，外面有一条深色尘埃带。',
+        funFact: '草帽星系的外形非常适合孩子记忆，一眼就能看出它为什么叫草帽。'
     },
     whirlpool: {
         name: '漩涡星系',
         nameEn: 'Whirlpool Galaxy (M51)',
         type: '螺旋星系',
-        distance: '2300万光年',
+        distance: '约3100万光年',
         diameter: '6万光年',
         stars: '约1000亿颗',
         description: '经典的正面螺旋星系，旋臂结构清晰可见。',
@@ -525,7 +709,7 @@ const galaxyData = {
         name: '触须星系',
         nameEn: 'Antennae Galaxies',
         type: '碰撞星系',
-        distance: '4500万光年',
+        distance: '约6200万光年',
         diameter: '共约10万光年',
         stars: '数千亿颗',
         description: '两个正在碰撞合并的螺旋星系，呈现独特的"触须"形态。',
@@ -636,6 +820,94 @@ const galaxyData = {
 
 // ============ 星系渲染配置 ============
 const galaxyRenderConfigs = {
+    // ===== 银河系内名胜：星云、星团、太阳系行星，用真实照片/纹理呈现 =====
+    orionNebula: {
+        position: makeGalacticLandmarkPosition(1350, { x: 0.78, y: 0.16, z: -0.6 }),
+        radius: 280,
+        type: 'photo',
+        texture: 'textures/deep-sky/orion_m42.jpg',
+        width: 560,
+        height: 560,
+        color: { r: 0.9, g: 0.55, b: 1.0 },
+        tone: 'nebula',
+        zone: 'MILKY_WAY'
+    },
+    eagleNebula: {
+        position: makeGalacticLandmarkPosition(6500, { x: -0.45, y: 0.1, z: 0.9 }),
+        radius: 520,
+        type: 'photo',
+        texture: 'textures/deep-sky/eagle_pillars_m16.jpg',
+        width: 420,
+        height: 720,
+        color: { r: 1.0, g: 0.62, b: 0.38 },
+        tone: 'nebula',
+        zone: 'MILKY_WAY'
+    },
+    crabNebula: {
+        position: makeGalacticLandmarkPosition(6500, { x: 0.5, y: -0.12, z: -0.86 }),
+        radius: 520,
+        type: 'photo',
+        texture: 'textures/deep-sky/crab_m1.jpg',
+        width: 560,
+        height: 560,
+        color: { r: 1.0, g: 0.48, b: 0.78 },
+        tone: 'nebula',
+        zone: 'MILKY_WAY'
+    },
+    horseheadNebula: {
+        position: makeGalacticLandmarkPosition(1300, { x: -0.82, y: 0.12, z: -0.5 }),
+        radius: 270,
+        type: 'photo',
+        texture: 'textures/deep-sky/horsehead.jpg',
+        width: 430,
+        height: 450,
+        color: { r: 1.0, g: 0.25, b: 0.2 },
+        tone: 'nebula',
+        zone: 'MILKY_WAY'
+    },
+    pleiades: {
+        position: makeGalacticLandmarkPosition(444, { x: 0.2, y: 0.48, z: 0.85 }),
+        radius: 170,
+        type: 'photo',
+        texture: 'textures/deep-sky/pleiades_m45.jpg',
+        width: 300,
+        height: 216,
+        color: { r: 0.5, g: 0.72, b: 1.0 },
+        tone: 'cluster',
+        zone: 'MILKY_WAY'
+    },
+    m13Cluster: {
+        position: makeGalacticLandmarkPosition(22000, { x: -0.68, y: 0.28, z: 0.68 }),
+        radius: 900,
+        type: 'photo',
+        texture: 'textures/deep-sky/m13.jpg',
+        width: 840,
+        height: 840,
+        color: { r: 1.0, g: 0.9, b: 0.68 },
+        tone: 'cluster',
+        zone: 'MILKY_WAY'
+    },
+    carinaNebula: {
+        position: makeGalacticLandmarkPosition(7500, { x: 0.15, y: -0.18, z: 0.98 }),
+        radius: 760,
+        type: 'photo',
+        texture: 'textures/deep-sky/carina_nebula.jpg',
+        width: 920,
+        height: 320,
+        color: { r: 1.0, g: 0.72, b: 0.35 },
+        tone: 'nebula',
+        zone: 'MILKY_WAY'
+    },
+    uranusLandmark: {
+        position: SOLAR_SYSTEM_POS.clone().add(new THREE.Vector3(95, 34, -70)),
+        radius: 70,
+        type: 'texturedSphere',
+        texture: 'textures/uranus.jpg',
+        sphereRadius: 42,
+        color: { r: 0.48, g: 0.92, b: 0.86 },
+        tone: 'planet',
+        zone: 'SOLAR_LOCAL'
+    },
     lmc: {
         position: new THREE.Vector3(25000, 3000, -20000),
         radius: 3500,
@@ -655,13 +927,12 @@ const galaxyRenderConfigs = {
     andromeda: {
         position: new THREE.Vector3(-120000, 10000, 80000),
         radius: 22000,
-        particleCount: 16000,
-        type: 'spiral',
-        arms: 2,
-        tightness: 0.45,
-        armWidth: 0.55,
+        type: 'photo',
+        texture: 'textures/deep-sky/andromeda_m31.jpg',
+        width: 36000,
+        height: 23650,
         color: { r: 1.0, g: 0.9, b: 0.7 },
-        tilt: { x: 0.3, z: 0.2 },
+        tone: 'spiral',
         zone: 'A'
     },
     triangulum: {
@@ -680,26 +951,23 @@ const galaxyRenderConfigs = {
     sombrero: {
         position: new THREE.Vector3(200000, 30000, -150000),
         radius: 10000,
-        particleCount: 6000,
-        type: 'spiral',
-        arms: 2,
-        tightness: 0.5,
-        hasBar: false,
+        type: 'photo',
+        texture: 'textures/deep-sky/sombrero_m104.jpg',
+        width: 18000,
+        height: 10080,
         color: { r: 1.0, g: 0.85, b: 0.6 },
-        tilt: { x: 1.4, z: 0.1 }, // 几乎侧面
+        tone: 'spiral',
         zone: 'B'
     },
     whirlpool: {
         position: new THREE.Vector3(-180000, -20000, -200000),
         radius: 12000,
-        particleCount: 9000,
-        type: 'spiral',
-        arms: 2,
-        tightness: 0.36,
-        armWidth: 0.5,
-        hasBar: false,
+        type: 'photo',
+        texture: 'textures/deep-sky/whirlpool_m51.jpg',
+        width: 17000,
+        height: 11800,
         color: { r: 0.9, g: 0.95, b: 1.0 },
-        tilt: { x: 0.1, z: 0.05 }, // 正面
+        tone: 'spiral',
         zone: 'B'
     },
     centaurusA: {
@@ -715,13 +983,94 @@ const galaxyRenderConfigs = {
     antennae: {
         position: new THREE.Vector3(-250000, 50000, 180000),
         radius: 15000,
-        particleCount: 4500,
-        type: 'interacting',
+        type: 'photo',
+        texture: 'textures/deep-sky/antennae.jpg',
+        width: 18000,
+        height: 17860,
         color: { r: 0.85, g: 0.9, b: 1.0 },
+        tone: 'interacting',
+        zone: 'B'
+    },
+    m87: {
+        position: new THREE.Vector3(230000, 70000, 150000),
+        radius: 13000,
+        type: 'photo',
+        texture: 'textures/deep-sky/m87_black_hole.jpg',
+        width: 15000,
+        height: 15000,
+        color: { r: 1.0, g: 0.56, b: 0.18 },
+        tone: 'black-hole',
+        zone: 'B'
+    },
+    pinwheel: {
+        position: new THREE.Vector3(210000, -45000, 210000),
+        radius: 15000,
+        type: 'photo',
+        texture: 'textures/deep-sky/m101_pinwheel.jpg',
+        width: 17000,
+        height: 13300,
+        color: { r: 0.78, g: 0.88, b: 1.0 },
+        tone: 'spiral',
+        zone: 'B'
+    },
+    blackEye: {
+        position: new THREE.Vector3(-220000, 70000, 130000),
+        radius: 10000,
+        type: 'photo',
+        texture: 'textures/deep-sky/m64_black_eye.jpg',
+        width: 10500,
+        height: 12500,
+        color: { r: 1.0, g: 0.86, b: 0.62 },
+        tone: 'spiral',
+        zone: 'B'
+    },
+    cartwheel: {
+        position: new THREE.Vector3(270000, -65000, -210000),
+        radius: 16000,
+        type: 'photo',
+        texture: 'textures/deep-sky/cartwheel.jpg',
+        width: 17000,
+        height: 15650,
+        color: { r: 1.0, g: 0.48, b: 0.86 },
+        tone: 'interacting',
+        zone: 'B'
+    },
+    hoagObject: {
+        position: new THREE.Vector3(-310000, -45000, 240000),
+        radius: 15000,
+        type: 'photo',
+        texture: 'textures/deep-sky/hoag_object.jpg',
+        width: 16000,
+        height: 15600,
+        color: { r: 0.66, g: 0.84, b: 1.0 },
+        tone: 'ring',
+        zone: 'B'
+    },
+    stephansQuintet: {
+        position: new THREE.Vector3(-300000, 85000, -230000),
+        radius: 19000,
+        type: 'photo',
+        texture: 'textures/deep-sky/stephans_quintet.jpg',
+        width: 19000,
+        height: 18200,
+        color: { r: 1.0, g: 0.72, b: 0.9 },
+        tone: 'interacting',
+        zone: 'B'
+    },
+    sunflower: {
+        position: new THREE.Vector3(185000, 110000, 155000),
+        radius: 14000,
+        type: 'photo',
+        texture: 'textures/deep-sky/m63_sunflower.jpg',
+        width: 15000,
+        height: 14050,
+        color: { r: 1.0, g: 0.86, b: 0.48 },
+        tone: 'spiral',
         zone: 'B'
     },
     // ===== 银河系卫星矮星系（zone LOCAL，始终可见，方便从任何角度观察）=====
     sgrDsph: {
+        enabled: false,
         position: new THREE.Vector3(3500, -3200, 1000),
         radius: 700,
         particleCount: 800,
@@ -732,6 +1081,7 @@ const galaxyRenderConfigs = {
         zone: 'LOCAL'
     },
     sculptorDwarf: {
+        enabled: false,
         position: new THREE.Vector3(8500, -10000, 4500),
         radius: 600,
         particleCount: 700,
@@ -741,6 +1091,7 @@ const galaxyRenderConfigs = {
         zone: 'LOCAL'
     },
     leoI: {
+        enabled: false,
         position: new THREE.Vector3(-22000, 26000, -7000),
         radius: 800,
         particleCount: 800,
@@ -751,6 +1102,7 @@ const galaxyRenderConfigs = {
     },
     // ===== 本星系群其他成员 =====
     ngc6822: {
+        enabled: false,
         position: new THREE.Vector3(46000, -38000, -82000),
         radius: 1500,
         particleCount: 1400,
@@ -760,6 +1112,7 @@ const galaxyRenderConfigs = {
         zone: 'A'
     },
     ic10: {
+        enabled: false,
         position: new THREE.Vector3(-92000, 18000, 58000),
         radius: 1400,
         particleCount: 1300,
@@ -770,6 +1123,7 @@ const galaxyRenderConfigs = {
         zone: 'A'
     },
     ic1613: {
+        enabled: false,
         position: new THREE.Vector3(-46000, 52000, -125000),
         radius: 1500,
         particleCount: 1200,
@@ -779,6 +1133,7 @@ const galaxyRenderConfigs = {
         zone: 'A'
     },
     m32: {
+        enabled: false,
         // 紧邻仙女座（仙女座位置 -120000, 10000, 80000）
         position: new THREE.Vector3(-118000, 8500, 76000),
         radius: 1100,
@@ -789,6 +1144,7 @@ const galaxyRenderConfigs = {
         zone: 'A'
     },
     m110: {
+        enabled: false,
         position: new THREE.Vector3(-124000, 12000, 84500),
         radius: 1500,
         particleCount: 1100,
@@ -799,6 +1155,7 @@ const galaxyRenderConfigs = {
     },
     // ===== 本星系群外（zone B，远视角）=====
     ngc253: {
+        enabled: false,
         position: new THREE.Vector3(80000, -100000, 30000),
         radius: 7000,
         particleCount: 3500,
@@ -812,6 +1169,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     m81m82: {
+        enabled: false,
         position: new THREE.Vector3(-160000, 90000, -110000),
         radius: 11000,
         particleCount: 5000,
@@ -823,24 +1181,30 @@ const galaxyRenderConfigs = {
 
 // ============ 星系 Dock 配置 ============
 const galaxyDockItems = [
+    { section: '银河系内' },
     { key: 'galacticCenter', name: '银河系中心黑洞', shortName: '黑洞', tone: 'black-hole' },
-    { key: 'lmc', shortName: '大麦' },
-    { key: 'smc', shortName: '小麦' },
-    { key: 'sgrDsph', shortName: '人马' },
-    { key: 'sculptorDwarf', shortName: '玉夫' },
-    { key: 'leoI', shortName: '狮I' },
+    { key: 'orionNebula', shortName: '猎户', tone: 'nebula' },
+    { key: 'eagleNebula', shortName: '鹰状', tone: 'nebula' },
+    { key: 'crabNebula', shortName: '蟹状', tone: 'nebula' },
+    { key: 'horseheadNebula', shortName: '马头', tone: 'nebula' },
+    { key: 'pleiades', shortName: '昴星', tone: 'cluster' },
+    { key: 'm13Cluster', shortName: 'M13', tone: 'cluster' },
+    { key: 'carinaNebula', shortName: '船底', tone: 'nebula' },
+    { key: 'uranusLandmark', shortName: '天王', tone: 'planet' },
+    { key: 'betelgeuse', shortName: '参宿', tone: 'star', kind: 'star' },
+    { key: 'sirius', shortName: '天狼', tone: 'star', kind: 'star' },
+    { key: 'alphaCentauri', shortName: '半α', tone: 'star', kind: 'star' },
+    { section: '银河系外' },
     { key: 'andromeda', shortName: '仙女' },
-    { key: 'triangulum', shortName: '三角' },
-    { key: 'm32', shortName: 'M32' },
-    { key: 'm110', shortName: 'M110' },
-    { key: 'ngc6822', shortName: '巴纳' },
-    { key: 'ic10', shortName: 'IC10' },
-    { key: 'ic1613', shortName: 'IC1613' },
     { key: 'sombrero', shortName: '草帽' },
     { key: 'whirlpool', shortName: '漩涡' },
-    { key: 'centaurusA', shortName: '半A' },
-    { key: 'ngc253', shortName: '玉夫座' },
-    { key: 'm81m82', shortName: 'M81' },
+    { key: 'm87', shortName: 'M87', tone: 'black-hole' },
+    { key: 'pinwheel', shortName: '风车' },
+    { key: 'blackEye', shortName: '黑眼' },
+    { key: 'cartwheel', shortName: '车轮', tone: 'ring' },
+    { key: 'hoagObject', shortName: '霍格', tone: 'ring' },
+    { key: 'stephansQuintet', shortName: '五重', tone: 'interacting' },
+    { key: 'sunflower', shortName: '向日', tone: 'spiral' },
     { key: 'antennae', shortName: '触须' }
 ];
 
@@ -851,7 +1215,7 @@ const infoPanelContent = {
         paragraphs: [
             '银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。',
             '太阳系位于<span class="highlight">猎户臂</span>上，距离银河系中心约<span class="highlight">26000光年</span>。',
-            '银河系中心是一个超大质量黑洞——<span class="highlight">人马座A*</span>，质量约为太阳的400万倍。'
+            '银河系里面没有另一个星系，更适合介绍<span class="highlight">星云、星团、黑洞、恒星系统和太阳系行星</span>。'
         ]
     },
     galacticCenter: {
@@ -863,11 +1227,11 @@ const infoPanelContent = {
         ]
     },
     localNeighbors: {
-        title: '🌌 银河系近邻',
+        title: '🌌 银河系外名场面',
         paragraphs: [
-            '银河系并不孤独！在它周围有多个<span class="highlight">卫星星系</span>环绕运行。',
-            '<span class="highlight">大麦哲伦云</span>和<span class="highlight">小麦哲伦云</span>是最著名的两个，在南半球可以用肉眼看到。',
-            '这些矮星系正被银河系的引力牵引，未来可能与银河系合并。'
+            '离开银河系后，才会看到真正的<span class="highlight">其他星系</span>。',
+            '<span class="highlight">仙女座、草帽、漩涡、风车、黑眼、车轮、触须、斯蒂芬五重星系</span>都是适合孩子记住的宇宙名场面。',
+            '<span class="highlight">大麦哲伦云</span>和<span class="highlight">小麦哲伦云</span>名字里有“云”，但它们其实是银河系旁边的卫星矮星系，不是星云。'
         ]
     },
     solarNeighborhood: {
@@ -882,7 +1246,7 @@ const infoPanelContent = {
         title: '🌌 本星系群 Local Group',
         paragraphs: [
             '银河系属于<span class="highlight">本星系群</span>，跨度约<span class="highlight">1000万光年</span>，包含 50 多个星系。',
-            '<span class="highlight">仙女座 M31</span>与<span class="highlight">银河系</span>是两位主角，共有约 30 颗矮卫星：<span class="highlight">M32 / M110 / 大小麦哲伦云 / 人马座矮椭球 / 玉夫座矮 / 巴纳德 / IC 10 / IC 1613</span> 等。',
+            '<span class="highlight">仙女座 M31</span>与<span class="highlight">银河系</span>是两位主角，大小麦哲伦云是银河系旁边较有名的卫星矮星系。',
             '约<span class="highlight">45亿年后</span>，仙女座与银河系将发生壮观的碰撞合并，形成"银仙系"。'
         ]
     },
@@ -1066,7 +1430,9 @@ function getGalaxyNarrationText(key) {
     const data = galaxyData[key];
     if (!data) return '';
 
-    return `${data.name}。它是${data.type}，距离我们${data.distance}，直径${data.diameter}，恒星数量${data.stars}。${data.description}${data.funFact}`;
+    const diameterLabel = data.diameterLabel || '直径';
+    const starsLabel = data.starsLabel || '恒星数量';
+    return `${data.name}。它是${data.type}，距离我们${data.distance}，${diameterLabel}${data.diameter}，${starsLabel}${data.stars}。${data.description}${data.funFact}`;
 }
 
 function playGalaxyAudio(key) {
@@ -1094,11 +1460,16 @@ function renderGalaxyDock() {
     if (!track) return;
 
     track.innerHTML = galaxyDockItems.map(item => {
+        if (item.section) {
+            return `<span class="galaxy-dock-section">${item.section}</span>`;
+        }
+
         const data = galaxyData[item.key] || {};
-        const name = item.name || data.name || item.shortName;
+        const starData = starSystemData[item.key] || {};
+        const name = item.name || data.name || starData.name || item.shortName;
         const tone = item.tone || getGalaxyDockTone(item.key);
         return `
-            <button class="galaxy-dock-dot ${tone}" type="button" data-galaxy-key="${item.key}" data-name="${name}" title="${name}" aria-label="进入${name}">
+            <button class="galaxy-dock-dot ${tone}" type="button" data-galaxy-key="${item.key}" data-kind="${item.kind || 'landmark'}" data-name="${name}" title="${name}" aria-label="进入${name}">
                 ${item.shortName}
             </button>
         `;
@@ -1119,7 +1490,9 @@ function setupGalaxyDock() {
 }
 
 function getGalaxyDockTone(key) {
-    const type = galaxyRenderConfigs[key]?.type;
+    const config = galaxyRenderConfigs[key];
+    if (config?.tone) return config.tone;
+    const type = config?.type;
     if (type === 'spiral') return 'spiral';
     if (type === 'elliptical') return 'elliptical';
     if (type === 'interacting' || type === 'pair') return 'interacting';
@@ -1144,6 +1517,17 @@ function selectGalaxyDockTarget(key, button) {
         return;
     }
 
+    const star = findDockStarTarget(key);
+    if (star) {
+        focusDockObject(star, getStarDockViewDistance(star));
+
+        if (button) {
+            const rect = button.getBoundingClientRect();
+            showStarSystemPopup(key, rect.left + rect.width / 2, rect.top);
+        }
+        return;
+    }
+
     const galaxy = externalGalaxies.find(item => item.key === key);
     if (!galaxy) return;
 
@@ -1155,8 +1539,27 @@ function selectGalaxyDockTarget(key, button) {
     }
 }
 
+function findDockStarTarget(key) {
+    return starSystems.find(item => item.key === key) ||
+        neighborhoodStarSystems.find(item => item.key === key);
+}
+
+function getStarDockViewDistance(star) {
+    if (!star || !star.config) return 160;
+    if (star.config.distanceLY && star.config.distanceLY <= 50) return 120;
+    if (star.config.size === 'hypergiant') return 360;
+    if (star.config.size === 'supergiant') return 240;
+    return 180;
+}
+
 function getGalaxyDockViewDistance(galaxy) {
     const radius = galaxy.config?.radius || 2500;
+    if (galaxy.config?.zone === 'SOLAR_LOCAL') {
+        return Math.max(radius * 6, 520);
+    }
+    if (galaxy.config?.zone === 'MILKY_WAY') {
+        return Math.max(radius * 3.4, 980);
+    }
     if (galaxy.config?.zone === 'LOCAL') {
         return Math.max(radius * 8, 4200);
     }
@@ -1243,6 +1646,10 @@ function updateGalacticMotion(elapsed) {
 
     for (const starSystem of starSystems) {
         updateGalacticOrbit(starSystem, diskAngle, elapsed);
+    }
+
+    for (const galaxy of externalGalaxies) {
+        updateGalacticOrbit(galaxy, diskAngle, elapsed);
     }
 
     const solarPosition = getSolarSystemWorldPosition(tempSolarSystemPosition);
@@ -2558,12 +2965,102 @@ function makeStructureLabel(cn, en, scale) {
     return sprite;
 }
 
+// ============ 真实照片名胜渲染 ============
+function getDeepSkyTexture(texturePath) {
+    if (!texturePath || !textureLoader) return null;
+
+    if (!deepSkyTextureCache.has(texturePath)) {
+        const texture = textureLoader.load(texturePath);
+        texture.encoding = THREE.sRGBEncoding;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.anisotropy = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
+        deepSkyTextureCache.set(texturePath, texture);
+    }
+
+    return deepSkyTextureCache.get(texturePath);
+}
+
+function createPhotoLandmark(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const radius = config.radius || Math.max(config.width || 1000, config.height || 1000) * 0.5;
+    const texture = getDeepSkyTexture(config.texture);
+
+    const glow = makeAccentSprite('blueCluster', Math.max(config.width, config.height) * 1.25, 0.2);
+    group.add(glow);
+
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity: config.opacity || 0.92,
+        depthWrite: false,
+        blending: config.blending === 'normal' ? THREE.NormalBlending : THREE.AdditiveBlending
+    });
+    material.userData.baseOpacity = material.opacity;
+
+    const photo = new THREE.Sprite(material);
+    photo.scale.set(config.width || radius * 2, config.height || radius * 2, 1);
+    group.add(photo);
+    group.sprite = photo;
+    group.photoSprite = photo;
+
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.clickRadius || radius);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    createGalaxyLabel(group, galaxyData[key], 0, Math.max(config.height || radius, radius) * 0.72, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
+function createTexturedSphereLandmark(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+
+    const radius = config.sphereRadius || config.radius || 50;
+    const texture = getDeepSkyTexture(config.texture);
+    const material = new THREE.MeshBasicMaterial(
+        texture
+            ? { map: texture, color: 0xffffff }
+            : { color: new THREE.Color(config.color || '#7de8d5') }
+    );
+    material.userData.baseOpacity = 1;
+
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 64), material);
+    group.add(sphere);
+    group.particles = sphere;
+
+    const glow = makeAccentSprite('blueCluster', radius * 4, 0.35);
+    group.add(glow);
+    group.sprite = glow;
+
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.clickRadius || radius * 2.2);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    createGalaxyLabel(group, galaxyData[key], 0, radius * 3.5, 0, key);
+
+    scene.add(group);
+    return group;
+}
+
 // ============ 创建所有外部星系 ============
 function createExternalGalaxies() {
     for (const [key, config] of Object.entries(galaxyRenderConfigs)) {
+        if (config.enabled === false) continue;
+
         let galaxyObj;
 
         switch (config.type) {
+            case 'photo':
+                galaxyObj = createPhotoLandmark(key, config);
+                break;
+            case 'texturedSphere':
+                galaxyObj = createTexturedSphereLandmark(key, config);
+                break;
             case 'spiral':
                 galaxyObj = createSpiralGalaxy(key, config);
                 break;
@@ -2584,6 +3081,20 @@ function createExternalGalaxies() {
         if (galaxyObj) {
             galaxyObj.key = key;
             galaxyObj.config = config;
+            if (config.zone === 'SOLAR_LOCAL') {
+                registerGalacticOrbit(galaxyObj, config.position, {
+                    speedFactor: SOLAR_ORBIT_SETTINGS.speedFactor,
+                    bobAmplitude: 3,
+                    bobSpeedFactor: SOLAR_ORBIT_SETTINGS.bobSpeedFactor,
+                    bobPhase: SOLAR_ORBIT_SETTINGS.bobPhase
+                });
+            } else if (config.zone === 'MILKY_WAY') {
+                registerGalacticOrbit(galaxyObj, config.position, {
+                    speedFactor: getGalacticOrbitSpeedFactor(Math.hypot(config.position.x, config.position.z)) * GALACTIC_LANDMARK_SPEED_SCALE,
+                    bobAmplitude: 8,
+                    bobSpeedFactor: 0.32
+                });
+            }
             externalGalaxies.push(galaxyObj);
         }
     }
@@ -4123,7 +4634,11 @@ function createGalaxyLabel(parent, info, x, y, z, key) {
     const config = galaxyRenderConfigs[key];
     const baseW = config && config.radius ? config.radius * 0.6 : 3000;
     // 标签宽度有上下限，避免极小或极大星系标签失衡
-    const labelW = THREE.MathUtils.clamp(baseW, 1200, 14000);
+    const labelW = config?.labelWidth
+        ? config.labelWidth
+        : (config?.zone === 'MILKY_WAY' || config?.zone === 'SOLAR_LOCAL')
+            ? THREE.MathUtils.clamp((config.radius || 160) * 1.6, 200, 700)
+            : THREE.MathUtils.clamp(baseW, 1200, 14000);
     sprite.scale.set(labelW, labelW * 0.31, 1);
     sprite.position.set(x, y, z);
     sprite.name = 'galaxyLabel';
@@ -4292,7 +4807,12 @@ function animate() {
 
         // 可见性控制
         const zoneDistance = camera.position.length();
-        if (galaxy.config.zone === 'LOCAL') {
+        if (galaxy.config.zone === 'SOLAR_LOCAL') {
+            const solarDistance = galaxy.position.distanceTo(solarPositionForMotion);
+            galaxy.visible = distance > 120 && distance < 12000 && solarDistance < 400;
+        } else if (galaxy.config.zone === 'MILKY_WAY') {
+            galaxy.visible = zoneDistance > 450 && zoneDistance < 60000;
+        } else if (galaxy.config.zone === 'LOCAL') {
             // 银河系卫星（如 Sgr dSph）始终可见，但仅近距离显粒子
             galaxy.visible = true;
         } else if (galaxy.config.zone === 'A') {
@@ -4571,7 +5091,7 @@ function updateGalaxyHover() {
     if (found !== hoveredGalaxy) {
         // 恢复之前的星系
         if (hoveredGalaxy && hoveredGalaxy.sprite) {
-            hoveredGalaxy.sprite.material.opacity = 0.8;
+            hoveredGalaxy.sprite.material.opacity = hoveredGalaxy.sprite.material.userData.baseOpacity || 0.8;
         }
 
         hoveredGalaxy = found;
@@ -4580,7 +5100,8 @@ function updateGalaxyHover() {
         if (hoveredGalaxy) {
             renderer.domElement.style.cursor = 'pointer';
             if (hoveredGalaxy.sprite && hoveredGalaxy.sprite.visible) {
-                hoveredGalaxy.sprite.material.opacity = 1.0;
+                const baseOpacity = hoveredGalaxy.sprite.material.userData.baseOpacity || 0.8;
+                hoveredGalaxy.sprite.material.opacity = Math.min(1, baseOpacity + 0.14);
             }
         } else if (!hoveredStarSystem) {
             renderer.domElement.style.cursor = 'default';
@@ -4885,6 +5406,9 @@ function showGalaxyPopup(key, x, y) {
     popup.querySelector('.stat-distance').textContent = data.distance;
     popup.querySelector('.stat-diameter').textContent = data.diameter;
     popup.querySelector('.stat-stars').textContent = data.stars;
+    const statLabels = popup.querySelectorAll('.galaxy-popup-stat-label');
+    if (statLabels[2]) statLabels[2].textContent = data.diameterLabel || '直径';
+    if (statLabels[3]) statLabels[3].textContent = data.starsLabel || '恒星数量';
     popup.querySelector('.galaxy-popup-desc').textContent = data.description;
     popup.querySelector('.galaxy-popup-funfact').textContent = '💡 ' + data.funFact;
 

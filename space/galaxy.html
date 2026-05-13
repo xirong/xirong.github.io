@@ -474,7 +474,7 @@
             left: calc(50% + 90px);
             transform: translateX(-50%);
             z-index: 120;
-            max-width: min(600px, 44vw);
+            max-width: min(860px, 58vw);
             background: rgba(7, 11, 28, 0.88);
             border: 1px solid rgba(255, 255, 255, 0.14);
             backdrop-filter: blur(22px);
@@ -486,12 +486,22 @@
         .galaxy-dock-track {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
             overflow-y: hidden;
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
             padding: 2px 4px 10px;
+        }
+
+        .galaxy-dock-section {
+            flex: 0 0 auto;
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            padding: 0 4px;
+            white-space: nowrap;
         }
 
         .galaxy-dock-track::-webkit-scrollbar {
@@ -601,10 +611,40 @@
             --dock-glow: rgba(232, 129, 255, 0.46);
         }
 
+        .galaxy-dock-dot.nebula {
+            --dock-core: #ffd1ea;
+            --dock-rim: #7d235f;
+            --dock-glow: rgba(255, 121, 194, 0.5);
+        }
+
+        .galaxy-dock-dot.cluster {
+            --dock-core: #fff5b0;
+            --dock-rim: #8b6a12;
+            --dock-glow: rgba(255, 229, 120, 0.5);
+        }
+
+        .galaxy-dock-dot.star {
+            --dock-core: #fff8cc;
+            --dock-rim: #d98022;
+            --dock-glow: rgba(255, 205, 92, 0.56);
+        }
+
+        .galaxy-dock-dot.planet {
+            --dock-core: #c7fff4;
+            --dock-rim: #177d7e;
+            --dock-glow: rgba(117, 232, 213, 0.5);
+        }
+
+        .galaxy-dock-dot.ring {
+            --dock-core: #e1f2ff;
+            --dock-rim: #4a4f9f;
+            --dock-glow: rgba(152, 193, 255, 0.5);
+        }
+
         @media (min-width: 1500px) {
             .galaxy-dock {
                 left: calc(50% + 70px);
-                max-width: min(820px, 54vw);
+                max-width: min(980px, 62vw);
             }
         }
 
@@ -977,7 +1017,7 @@
             <h2>🌌 银河系</h2>
             <p>银河系是一个棒旋星系，直径约<span class="highlight">10万光年</span>，包含<span class="highlight">2000-4000亿</span>颗恒星。</p>
             <p>太阳系位于<span class="highlight">猎户臂</span>上，距离银河系中心约<span class="highlight">26000光年</span>。</p>
-            <p>银河系中心是一个超大质量黑洞——<span class="highlight">人马座A*</span>，质量约为太阳的400万倍。</p>
+            <p>银河系里面没有另一个星系，更适合介绍<span class="highlight">星云、星团、黑洞、恒星系统和太阳系行星</span>。</p>
         </div>
     </div>
 
@@ -1054,8 +1094,8 @@
         <span class="motion-toggle-label">暂停转动</span>
     </button>
 
-    <!-- 星系 Dock -->
-    <div class="galaxy-dock" id="galaxyDock" aria-label="星系快捷入口">
+    <!-- 宇宙名胜 Dock -->
+    <div class="galaxy-dock" id="galaxyDock" aria-label="宇宙名胜快捷入口">
         <div class="galaxy-dock-track" id="galaxyDockTrack"></div>
     </div>
 
