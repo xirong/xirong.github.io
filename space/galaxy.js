@@ -1412,8 +1412,38 @@ function getGalaxyNarrationText(key) {
     return `${data.name}。它是${data.type}，距离我们${data.distance}，${diameterLabel}${data.diameter}，${starsLabel}${data.stars}。${data.description}${data.funFact}`;
 }
 
+function getStarSystemNarrationText(key) {
+    const data = starSystemData[key];
+    if (!data) return '';
+
+    const planetText = data.planets > 0
+        ? `已经发现${data.planets}颗行星。`
+        : '目前还没有确认发现行星。';
+
+    return `${data.name}。它是${data.type}，光谱型是${data.spectralType}，距离我们${data.distance}，亮度是${data.brightness}。${planetText}${data.description}${data.funFact}`;
+}
+
 function playGalaxyAudio(key) {
     const fallbackText = getGalaxyNarrationText(key);
+    if (!fallbackText) return;
+
+    stopGalaxyAudio();
+
+    const audio = new Audio(`audio/galaxy/${key}.mp3`);
+    currentGalaxyAudio = audio;
+
+    audio.play().catch(() => {
+        if (!window.speechSynthesis) return;
+
+        const utterance = new SpeechSynthesisUtterance(fallbackText);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    });
+}
+
+function playStarSystemAudio(key) {
+    const fallbackText = getStarSystemNarrationText(key);
     if (!fallbackText) return;
 
     stopGalaxyAudio();
@@ -5426,6 +5456,7 @@ function showStarSystemPopup(key, x, y) {
     popup.style.left = left + 'px';
     popup.style.top = top + 'px';
     popup.classList.add('visible');
+    playStarSystemAudio(key);
 }
 
 // ============ 隐藏恒星系统弹窗 ============
