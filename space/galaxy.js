@@ -547,18 +547,6 @@ const galaxyData = {
         description: '船底座星云是银河系里最壮观的恒星形成区之一，里面有大量年轻而炽热的恒星。',
         funFact: '韦布拍到的宇宙悬崖就位于这片星云中，看起来像彩色山脉，其实是气体和尘埃。'
     },
-    uranusLandmark: {
-        name: '天王星',
-        nameEn: 'Uranus',
-        type: '冰巨星行星',
-        distance: '约19.2天文单位',
-        diameter: '约50,724公里',
-        stars: '太阳系第七颗行星',
-        diameterLabel: '直径',
-        starsLabel: '位置',
-        description: '天王星属于太阳系，不是恒星也不是星云。它以青绿色外观和几乎横躺着自转而出名。',
-        funFact: '在银河系这个大地图里，天王星只是太阳系里的一个小成员，真正看清它要回到太阳系页面。'
-    },
     m87: {
         name: 'M87星系',
         nameEn: 'Messier 87',
@@ -820,7 +808,7 @@ const galaxyData = {
 
 // ============ 星系渲染配置 ============
 const galaxyRenderConfigs = {
-    // ===== 银河系内名胜：星云、星团、太阳系行星，用真实照片/纹理呈现 =====
+    // ===== 银河系内名胜：星云、星团、著名恒星，用真实照片/纹理呈现 =====
     orionNebula: {
         position: makeGalacticLandmarkPosition(1350, { x: 0.78, y: 0.16, z: -0.6 }),
         radius: 280,
@@ -897,16 +885,6 @@ const galaxyRenderConfigs = {
         color: { r: 1.0, g: 0.72, b: 0.35 },
         tone: 'nebula',
         zone: 'MILKY_WAY'
-    },
-    uranusLandmark: {
-        position: SOLAR_SYSTEM_POS.clone().add(new THREE.Vector3(95, 34, -70)),
-        radius: 70,
-        type: 'texturedSphere',
-        texture: 'textures/uranus.jpg',
-        sphereRadius: 42,
-        color: { r: 0.48, g: 0.92, b: 0.86 },
-        tone: 'planet',
-        zone: 'SOLAR_LOCAL'
     },
     lmc: {
         position: new THREE.Vector3(25000, 3000, -20000),
@@ -1190,7 +1168,6 @@ const galaxyDockItems = [
     { key: 'pleiades', shortName: '昴星', tone: 'cluster' },
     { key: 'm13Cluster', shortName: 'M13', tone: 'cluster' },
     { key: 'carinaNebula', shortName: '船底', tone: 'nebula' },
-    { key: 'uranusLandmark', shortName: '天王', tone: 'planet' },
     { key: 'betelgeuse', shortName: '参宿', tone: 'star', kind: 'star' },
     { key: 'sirius', shortName: '天狼', tone: 'star', kind: 'star' },
     { key: 'alphaCentauri', shortName: '半α', tone: 'star', kind: 'star' },
@@ -1554,9 +1531,6 @@ function getStarDockViewDistance(star) {
 
 function getGalaxyDockViewDistance(galaxy) {
     const radius = galaxy.config?.radius || 2500;
-    if (galaxy.config?.zone === 'SOLAR_LOCAL') {
-        return Math.max(radius * 6, 520);
-    }
     if (galaxy.config?.zone === 'MILKY_WAY') {
         return Math.max(radius * 3.4, 980);
     }
@@ -3016,37 +2990,6 @@ function createPhotoLandmark(key, config) {
     return group;
 }
 
-function createTexturedSphereLandmark(key, config) {
-    const group = new THREE.Group();
-    group.position.copy(config.position);
-
-    const radius = config.sphereRadius || config.radius || 50;
-    const texture = getDeepSkyTexture(config.texture);
-    const material = new THREE.MeshBasicMaterial(
-        texture
-            ? { map: texture, color: 0xffffff }
-            : { color: new THREE.Color(config.color || '#7de8d5') }
-    );
-    material.userData.baseOpacity = 1;
-
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 64), material);
-    group.add(sphere);
-    group.particles = sphere;
-
-    const glow = makeAccentSprite('blueCluster', radius * 4, 0.35);
-    group.add(glow);
-    group.sprite = glow;
-
-    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), config.clickRadius || radius * 2.2);
-    group.add(clickTarget);
-    group.clickTarget = clickTarget;
-
-    createGalaxyLabel(group, galaxyData[key], 0, radius * 3.5, 0, key);
-
-    scene.add(group);
-    return group;
-}
-
 // ============ 创建所有外部星系 ============
 function createExternalGalaxies() {
     for (const [key, config] of Object.entries(galaxyRenderConfigs)) {
@@ -3057,9 +3000,6 @@ function createExternalGalaxies() {
         switch (config.type) {
             case 'photo':
                 galaxyObj = createPhotoLandmark(key, config);
-                break;
-            case 'texturedSphere':
-                galaxyObj = createTexturedSphereLandmark(key, config);
                 break;
             case 'spiral':
                 galaxyObj = createSpiralGalaxy(key, config);
@@ -3081,14 +3021,7 @@ function createExternalGalaxies() {
         if (galaxyObj) {
             galaxyObj.key = key;
             galaxyObj.config = config;
-            if (config.zone === 'SOLAR_LOCAL') {
-                registerGalacticOrbit(galaxyObj, config.position, {
-                    speedFactor: SOLAR_ORBIT_SETTINGS.speedFactor,
-                    bobAmplitude: 3,
-                    bobSpeedFactor: SOLAR_ORBIT_SETTINGS.bobSpeedFactor,
-                    bobPhase: SOLAR_ORBIT_SETTINGS.bobPhase
-                });
-            } else if (config.zone === 'MILKY_WAY') {
+            if (config.zone === 'MILKY_WAY') {
                 registerGalacticOrbit(galaxyObj, config.position, {
                     speedFactor: getGalacticOrbitSpeedFactor(Math.hypot(config.position.x, config.position.z)) * GALACTIC_LANDMARK_SPEED_SCALE,
                     bobAmplitude: 8,
@@ -4636,7 +4569,7 @@ function createGalaxyLabel(parent, info, x, y, z, key) {
     // 标签宽度有上下限，避免极小或极大星系标签失衡
     const labelW = config?.labelWidth
         ? config.labelWidth
-        : (config?.zone === 'MILKY_WAY' || config?.zone === 'SOLAR_LOCAL')
+        : config?.zone === 'MILKY_WAY'
             ? THREE.MathUtils.clamp((config.radius || 160) * 1.6, 200, 700)
             : THREE.MathUtils.clamp(baseW, 1200, 14000);
     sprite.scale.set(labelW, labelW * 0.31, 1);
@@ -4807,10 +4740,7 @@ function animate() {
 
         // 可见性控制
         const zoneDistance = camera.position.length();
-        if (galaxy.config.zone === 'SOLAR_LOCAL') {
-            const solarDistance = galaxy.position.distanceTo(solarPositionForMotion);
-            galaxy.visible = distance > 120 && distance < 12000 && solarDistance < 400;
-        } else if (galaxy.config.zone === 'MILKY_WAY') {
+        if (galaxy.config.zone === 'MILKY_WAY') {
             galaxy.visible = zoneDistance > 450 && zoneDistance < 60000;
         } else if (galaxy.config.zone === 'LOCAL') {
             // 银河系卫星（如 Sgr dSph）始终可见，但仅近距离显粒子
