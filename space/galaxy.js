@@ -1599,7 +1599,9 @@ const cosmicScaleItems = [
         section: 'galaxy',
         diameterKm: 7000 * LIGHT_YEAR_IN_KM,
         displaySize: '约7000光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/smc-page-capture.png') center/cover",
         note: '名字里有云，但它其实是银河系旁边的矮星系。'
     },
     {
@@ -1609,7 +1611,9 @@ const cosmicScaleItems = [
         section: 'galaxy',
         diameterKm: 14000 * LIGHT_YEAR_IN_KM,
         displaySize: '约1.4万光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/lmc-page-capture.png') center/cover",
         note: '大麦哲伦云是银河系最著名的卫星星系之一。'
     },
     {
@@ -1631,7 +1635,9 @@ const cosmicScaleItems = [
         section: 'galaxy',
         diameterKm: 60000 * LIGHT_YEAR_IN_KM,
         displaySize: '约6万光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/triangulum-page-capture.png') center/cover",
         note: '三角座星系是本星系群第三大星系。'
     },
     {
@@ -1689,7 +1695,9 @@ const cosmicScaleItems = [
         section: 'structure',
         diameterKm: 10000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约1000万光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/local-group-page-capture.png') center/cover",
         note: '银河系、仙女座星系和许多矮星系一起组成了本星系群。'
     },
     {
@@ -1699,7 +1707,9 @@ const cosmicScaleItems = [
         section: 'structure',
         diameterKm: 110000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约1.1亿光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/virgo-page-capture.png') center/cover",
         note: '本星系群只是室女座超星系团里很小的一部分。'
     },
     {
@@ -1709,7 +1719,9 @@ const cosmicScaleItems = [
         section: 'structure',
         diameterKm: 520000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约5.2亿光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/laniakea-page-capture.png') center/cover",
         note: '拉尼亚凯亚像一张巨大的宇宙网，包含约10万个星系。'
     },
     {
@@ -1719,7 +1731,9 @@ const cosmicScaleItems = [
         section: 'structure',
         diameterKm: 93000000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约930亿光年',
-        kind: 'structure',
+        kind: 'photo',
+        aspect: 1.67,
+        visual: "url('textures/deep-sky/generated/observable-universe-page-capture.png') center/cover",
         note: '这是光能够把信息带到我们眼前的最大范围，宇宙本身可能还更大。'
     }
 ].sort((a, b) => a.diameterKm - b.diameterKm);
