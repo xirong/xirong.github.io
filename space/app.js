@@ -830,7 +830,7 @@ const satelliteDockItems = [
     { key: 'titan', nameCN: '土卫六', nameShort: '土卫六', accent: 0xf6d08b, texture: 'textures/titan.jpg' },
     { key: 'rhea', nameCN: '土卫五', nameShort: '土卫五', accent: 0x9fa2b8, texture: 'textures/rhea.jpg' },
     { key: 'enceladus', nameCN: '土卫二', nameShort: '土卫二', accent: 0x9fd9ff, texture: 'textures/enceladus.jpg' },
-    { key: 'phobos', nameCN: '火卫一', nameShort: '火卫一', accent: 0x8a7c66, texture: 'textures/phobos.jpg' },
+    { key: 'phobos', nameCN: '火卫一', nameShort: '火卫一', accent: 0x8a7c66, texture: 'textures/phobos_clean.jpg' },
     { key: 'deimos', nameCN: '火卫二', nameShort: '火卫二', accent: 0x6e7280, texture: 'textures/deimos.jpg' },
     { key: 'triton', nameCN: '海卫一', nameShort: '海卫一', accent: 0x7cc8ff, texture: 'textures/triton.jpg' },
     { key: 'titania', nameCN: '天卫一', nameShort: '天卫一', accent: 0x88b999, texture: 'textures/titania.jpg' }
@@ -1164,7 +1164,7 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     titan: 'textures/titan.jpg',
     rhea: 'textures/rhea.jpg',
     enceladus: 'textures/enceladus.jpg',
-    phobos: 'textures/phobos.jpg',
+    phobos: 'textures/phobos_clean.jpg',
     deimos: 'textures/deimos.jpg',
     triton: 'textures/triton.jpg',
     titania: 'textures/titania.jpg',
@@ -1799,7 +1799,7 @@ const blackHoleVolumeData = [
 const moonsData = {
     // 火星的卫星
     mars: [
-        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 1.7, axisScale: [1.25, 1.02, 0.84] },
+        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos_clean.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 1.7, axisScale: [1.25, 1.02, 0.84] },
         { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '火卫二（Deimos）是火星的外侧卫星，体积更小更暗，轨道更远，运行更慢，适合理解“卫星也有“多层”轨道”的差别。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 2.4, axisScale: [1.18, 0.96, 0.84] }
     ],
     // 木星的伽利略卫星
@@ -5615,7 +5615,7 @@ function generateSizeComparison(mode) {
         titan: 'textures/titan.jpg',
         rhea: 'textures/rhea.jpg',
         enceladus: 'textures/enceladus.jpg',
-        phobos: 'textures/phobos.jpg',
+        phobos: 'textures/phobos_clean.jpg',
         deimos: 'textures/deimos.jpg',
         triton: 'textures/triton.jpg',
         titania: 'textures/titania.jpg',
