@@ -909,9 +909,33 @@ const COMPARISON_BODY_KEYS = [
     'makemake',
     'ceres'
 ];
+const DIAMETER_BLACK_HOLE_KEY = 'blackHoleScope';
+const DIAMETER_START_KEYS = [
+    'oortCloud',
+    DIAMETER_BLACK_HOLE_KEY,
+    'sun',
+    'proximaCentauri',
+    'jupiter',
+    'saturn',
+    'uranus',
+    'neptune',
+    'earth',
+    'mars',
+    'ganymede'
+];
 
 function uniqueComparisonKeys(keys) {
     return [...new Set(keys)].filter(key => planetData[key]);
+}
+
+function uniqueDiameterComparisonKeys(keys) {
+    const seen = new Set();
+    return keys.filter(key => {
+        if (seen.has(key)) return false;
+        if (key !== DIAMETER_BLACK_HOLE_KEY && !planetData[key]) return false;
+        seen.add(key);
+        return true;
+    });
 }
 
 function sortComparisonKeys(keys, metric = 'diameter') {
@@ -932,35 +956,48 @@ function getCapacityObjectKeys(targetKey) {
     return COMPARISON_BODY_KEYS.filter(key => key !== targetKey);
 }
 
-const DIAMETER_DETAIL_PROFILES = [
-    {
-        label: '去掉太阳/比邻星/木星/土星',
-        subtitle: '去掉太阳、比邻星、木星、土星，以天王星为最大参照，看清小天体真实比例',
-        planets: getComparisonKeysWithout(['sun', 'proximaCentauri', 'jupiter', 'saturn'])
-    },
-    {
-        label: '继续去掉天王星/海王星',
-        subtitle: '继续去掉天王星、海王星，地球和金星开始成为这组中的最大天体',
-        planets: getComparisonKeysWithout(['sun', 'proximaCentauri', 'jupiter', 'saturn', 'uranus', 'neptune'])
-    },
-    {
-        label: '继续去掉地球/金星',
-        subtitle: '继续去掉地球、金星，火星、木卫三等天体是这组的主对比对象',
-        planets: getComparisonKeysWithout(['sun', 'proximaCentauri', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth', 'venus'])
-    },
-    {
-        label: '黑洞、奥尔特云、太阳、比邻星、木星、土星',
-        subtitle: '银河系中心黑洞、奥尔特云与太阳、比邻星、木星、土星的直径比例',
-        isBlackHoleProfile: true,
-        planets: ['blackHoleGravitationalRadius', 'oortCloud', 'sun', 'proximaCentauri', 'jupiter', 'saturn']
-    },
-    {
-        label: '黑洞、太阳、比邻星、木星、土星',
-        subtitle: '银河系中心黑洞、太阳、比邻星、木星、土星的直径比例',
-        isBlackHoleProfile: true,
-        planets: ['blackHoleGravitationalRadius', 'sun', 'proximaCentauri', 'jupiter', 'saturn']
+function getDiameterBaseSequenceKeys() {
+    return uniqueDiameterComparisonKeys([
+        'oortCloud',
+        DIAMETER_BLACK_HOLE_KEY,
+        ...sortComparisonKeys(COMPARISON_BODY_KEYS, 'diameter')
+    ]);
+}
+
+function getDiameterStartLabel(key) {
+    if (key === 'oortCloud') return '全部';
+    if (key === DIAMETER_BLACK_HOLE_KEY) return '从黑洞开始';
+    return `从${planetData[key].nameCN}开始`;
+}
+
+function getDiameterStartSubtitle(key) {
+    if (key === 'oortCloud') {
+        return '从奥尔特云开始，把黑洞、太阳、比邻星和后面的天体按真实直径排在一起';
     }
-];
+    if (key === DIAMETER_BLACK_HOLE_KEY) {
+        return '去掉奥尔特云，从黑洞开始，后面的天体会按当前最大天体重新缩放';
+    }
+    return `从${planetData[key].nameCN}开始，前面更大的天体先收起来，后面的天体按真实直径重新缩放`;
+}
+
+function buildDiameterDetailProfiles() {
+    const baseSequence = getDiameterBaseSequenceKeys();
+    return DIAMETER_START_KEYS
+        .map(startKey => {
+            const startIndex = baseSequence.indexOf(startKey);
+            if (startIndex < 0) return null;
+            const planets = baseSequence.slice(startIndex);
+            return {
+                label: getDiameterStartLabel(startKey),
+                subtitle: getDiameterStartSubtitle(startKey),
+                isBlackHoleProfile: planets.includes(DIAMETER_BLACK_HOLE_KEY),
+                planets
+            };
+        })
+        .filter(Boolean);
+}
+
+const DIAMETER_DETAIL_PROFILES = buildDiameterDetailProfiles();
 let currentCapacityView = 'sun';
 const currentCapacitySelections = {
     sun: 'earth',
@@ -5546,13 +5583,15 @@ function generateSizeComparison(mode) {
     };
 
     const getDiameterPlanetData = (key) => {
-        if (key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
-            const isGravityScope = key === 'blackHoleGravitationalRadius';
+        if (key === DIAMETER_BLACK_HOLE_KEY || key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
+            const scopeKey = BLACK_HOLE_TARGET_KEYS.includes(key) ? key : currentBlackHoleScope;
+            const isGravityScope = scopeKey === 'blackHoleGravitationalRadius';
+            const scopeLabel = getBlackHoleScopeLabel(scopeKey);
             return {
                 name: '银河系中心黑洞',
                 nameCN: '黑洞',
                 nameEN: 'Black Hole',
-                type: '黑洞',
+                type: `${scopeLabel}口径`,
                 diameter: (isGravityScope ? BLACK_HOLE_GRAVITY_RADIUS_KM : BLACK_HOLE_EVENT_HORIZON_RADIUS_KM) * 2,
                 mass: planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES,
                 category: 'blackHole',
@@ -5569,7 +5608,7 @@ function generateSizeComparison(mode) {
     };
 
     const getDiameterSphereStyle = (key, data) => {
-        if (key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
+        if (key === DIAMETER_BLACK_HOLE_KEY || key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
             return `background: url('${BLACK_HOLE_TEXTURE_PATH}') center/cover;`;
         }
         if (key === 'proximaCentauri') {
@@ -5584,6 +5623,10 @@ function generateSizeComparison(mode) {
     };
 
     if (mode === 'diameter') {
+        if (currentDiameterDetailIndex < 0 || currentDiameterDetailIndex >= DIAMETER_DETAIL_PROFILES.length) {
+            currentDiameterDetailIndex = 0;
+        }
+        isDiameterDetailMode = true;
         // 按直径排序（从大到小）
         const sortedPlanets = sortComparisonKeys(COMPARISON_BODY_KEYS, 'diameter');
         const detailProfile = isDiameterDetailMode && currentDiameterDetailIndex >= 0
@@ -5609,13 +5652,8 @@ function generateSizeComparison(mode) {
                 tabBtn.type = 'button';
                 tabBtn.textContent = profile.label;
                 tabBtn.addEventListener('click', () => {
-                    if (isDiameterDetailMode && currentDiameterDetailIndex === index) {
-                        isDiameterDetailMode = false;
-                        currentDiameterDetailIndex = -1;
-                    } else {
-                        isDiameterDetailMode = true;
-                        currentDiameterDetailIndex = index;
-                    }
+                    isDiameterDetailMode = true;
+                    currentDiameterDetailIndex = index;
                     generateSizeComparison('diameter');
                 });
                 mainTabRow.appendChild(tabBtn);
@@ -5652,7 +5690,7 @@ function generateSizeComparison(mode) {
                 currentBlackHoleScope = diameterBlackHoleScope;
             }
             const detailPlanets = isBlackHoleDetailProfile
-                ? profile.planets.map(name => (BLACK_HOLE_TARGET_KEYS.includes(name) ? diameterBlackHoleScope : name))
+                ? profile.planets.map(name => (name === DIAMETER_BLACK_HOLE_KEY || BLACK_HOLE_TARGET_KEYS.includes(name) ? diameterBlackHoleScope : name))
                 : sortComparisonKeys(profile.planets, 'diameter');
             if (isBlackHoleDetailProfile) {
                 detailPlanets.sort((a, b) => {
@@ -5681,7 +5719,7 @@ function generateSizeComparison(mode) {
                     ? '= 1 地球'
                     : `= ${earthRatio.toFixed(2)} 地球`;
                 const bgStyle = getDiameterSphereStyle(name, data);
-                const extraStyle = BLACK_HOLE_TARGET_KEYS.includes(name) || name === 'blackHole'
+                const extraStyle = name === DIAMETER_BLACK_HOLE_KEY || BLACK_HOLE_TARGET_KEYS.includes(name) || name === 'blackHole'
                     ? 'box-shadow: 0 0 50px rgba(255, 210, 140, 0.5), 0 0 100px rgba(255, 90, 20, 0.25);'
                     : '';
 

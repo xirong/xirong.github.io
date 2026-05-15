@@ -2359,7 +2359,9 @@
         /* 类型图例 */
         .planet-types-legend {
             display: flex;
-            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
             margin-bottom: 15px;
         }
 
@@ -2393,6 +2395,24 @@
             color: #cccccc;
         }
 
+        .legend-item.star {
+            background: rgba(255, 152, 0, 0.28);
+            border: 1px solid #ff9800;
+            color: #ffcc80;
+        }
+
+        .legend-item.blackHole {
+            background: rgba(255, 214, 150, 0.22);
+            border: 1px solid #ffd696;
+            color: #ffe6bd;
+        }
+
+        .legend-item.region {
+            background: rgba(120, 190, 255, 0.2);
+            border: 1px solid #78c8ff;
+            color: #bfe8ff;
+        }
+
         /* 对比副标题 */
         .comparison-subtitle {
             color: var(--text-secondary);
@@ -2408,6 +2428,19 @@
         .comparison-planet.jovian .sphere {
             box-shadow: 0 0 15px currentColor, 0 0 30px rgba(100, 149, 237, 0.5);
             border: 2px solid rgba(100, 149, 237, 0.6);
+        }
+
+        .comparison-planet.star .sphere {
+            box-shadow: 0 0 20px currentColor, 0 0 42px rgba(255, 152, 0, 0.5);
+            border: 2px solid rgba(255, 190, 88, 0.55);
+        }
+
+        .comparison-planet.blackHole .sphere {
+            border: 2px solid rgba(255, 214, 150, 0.72);
+        }
+
+        .comparison-planet.region .sphere {
+            border: 2px solid rgba(120, 200, 255, 0.55);
         }
 
         /* 类型标签 */
@@ -2441,6 +2474,16 @@
         .type-label.moon {
             background: rgba(158, 158, 158, 0.3);
             color: #aaaaaa;
+        }
+
+        .type-label.blackHole {
+            background: rgba(255, 214, 150, 0.28);
+            color: #ffe6bd;
+        }
+
+        .type-label.region {
+            background: rgba(120, 190, 255, 0.24);
+            color: #bfe8ff;
         }
 
         /* 太阳能装多少个 - volume tab */
@@ -3631,6 +3674,9 @@
 
         <!-- 类型说明 -->
         <div class="planet-types-legend">
+            <span class="legend-item region">☁️ 天体云团</span>
+            <span class="legend-item blackHole">🕳️ 黑洞</span>
+            <span class="legend-item star">⭐ 恒星</span>
             <span class="legend-item terrestrial">🪨 类地行星（岩石质）</span>
             <span class="legend-item jovian">💨 类木行星（气态）</span>
             <span class="legend-item dwarf">🧊 矮行星</span>
