@@ -1185,6 +1185,547 @@ const galaxyDockItems = [
     { key: 'antennae', shortName: '触须' }
 ];
 
+// ============ 宇宙尺度滑尺数据 ============
+const LIGHT_YEAR_IN_KM = 9.4607e12;
+const SOLAR_DIAMETER_KM = 1392700;
+
+const cosmicScaleSections = [
+    { key: 'small', label: '小天体' },
+    { key: 'planetary', label: '行星和卫星' },
+    { key: 'stellar', label: '恒星' },
+    { key: 'nebula', label: '星云星团' },
+    { key: 'galaxy', label: '星系' },
+    { key: 'structure', label: '宇宙结构' }
+];
+
+const cosmicScaleItems = [
+    {
+        key: 'deimos',
+        name: '火卫二',
+        nameEn: 'Deimos',
+        section: 'small',
+        diameterKm: 12.4,
+        displaySize: '约12.4公里',
+        kind: 'rock',
+        visual: "url('textures/deimos.jpg') center/cover",
+        note: '火卫二像一块绕着火星飞的小石头，是这趟尺度旅程的起点。'
+    },
+    {
+        key: 'phobos',
+        name: '火卫一',
+        nameEn: 'Phobos',
+        section: 'small',
+        diameterKm: 22.5,
+        displaySize: '约22.5公里',
+        kind: 'rock',
+        visual: "url('textures/phobos_clean.jpg') center/cover",
+        note: '火卫一比火卫二大一些，但放到地球旁边仍然只是很小的一颗。'
+    },
+    {
+        key: 'ceres',
+        name: '谷神星',
+        nameEn: 'Ceres',
+        section: 'small',
+        diameterKm: 939,
+        displaySize: '约939公里',
+        kind: 'sphere',
+        visual: "url('textures/ceres.jpg') center/cover",
+        note: '谷神星是小行星带里最大的天体，从这里开始已经不再只是小石块。'
+    },
+    {
+        key: 'makemake',
+        name: '鸟神星',
+        nameEn: 'Makemake',
+        section: 'small',
+        diameterKm: 1430,
+        displaySize: '约1430公里',
+        kind: 'sphere',
+        visual: "url('textures/makemake.jpg') center/cover",
+        note: '鸟神星住在遥远的柯伊伯带，大小已经接近一颗真正的小世界。'
+    },
+    {
+        key: 'haumea',
+        name: '妊神星',
+        nameEn: 'Haumea',
+        section: 'small',
+        diameterKm: 1632,
+        displaySize: '约1632公里',
+        kind: 'sphere',
+        visual: "url('textures/haumea.jpg') center/cover",
+        note: '妊神星转得很快，形状被拉长，像宇宙里一颗特别的冰世界。'
+    },
+    {
+        key: 'eris',
+        name: '阋神星',
+        nameEn: 'Eris',
+        section: 'small',
+        diameterKm: 2326,
+        displaySize: '约2326公里',
+        kind: 'sphere',
+        visual: "url('textures/eris.jpg') center/cover",
+        note: '阋神星和冥王星差不多大，它让科学家重新思考什么才算行星。'
+    },
+    {
+        key: 'pluto',
+        name: '冥王星',
+        nameEn: 'Pluto',
+        section: 'small',
+        diameterKm: 2376,
+        displaySize: '约2376公里',
+        kind: 'sphere',
+        visual: "url('textures/pluto.jpg') center/cover",
+        note: '冥王星虽然不是八大行星之一，但仍然是孩子很容易记住的遥远冰世界。'
+    },
+    {
+        key: 'europa',
+        name: '木卫二',
+        nameEn: 'Europa',
+        section: 'planetary',
+        diameterKm: 3122,
+        displaySize: '约3122公里',
+        kind: 'sphere',
+        visual: "url('textures/europa.jpg') center/cover",
+        note: '木卫二外面是冰壳，下面可能藏着很深的海洋。'
+    },
+    {
+        key: 'moon',
+        name: '月球',
+        nameEn: 'Moon',
+        section: 'planetary',
+        diameterKm: 3474,
+        displaySize: '约3474公里',
+        kind: 'sphere',
+        visual: "url('textures/moon.jpg') center/cover",
+        note: '月球是地球最熟悉的伙伴，放进这条尺度轴里会发现它并不算大。'
+    },
+    {
+        key: 'io',
+        name: '木卫一',
+        nameEn: 'Io',
+        section: 'planetary',
+        diameterKm: 3643,
+        displaySize: '约3643公里',
+        kind: 'sphere',
+        visual: "url('textures/io.jpg') center/cover",
+        note: '木卫一比月球略大，是太阳系里火山活动最活跃的卫星。'
+    },
+    {
+        key: 'mercury',
+        name: '水星',
+        nameEn: 'Mercury',
+        section: 'planetary',
+        diameterKm: 4879,
+        displaySize: '约4879公里',
+        kind: 'sphere',
+        visual: "url('textures/mercury.jpg') center/cover",
+        note: '水星是八大行星里最小的一颗，比木卫三还要小。'
+    },
+    {
+        key: 'ganymede',
+        name: '木卫三',
+        nameEn: 'Ganymede',
+        section: 'planetary',
+        diameterKm: 5268,
+        displaySize: '约5268公里',
+        kind: 'sphere',
+        visual: "url('textures/ganymede.jpg') center/cover",
+        note: '木卫三是太阳系最大的卫星，甚至比水星还大。'
+    },
+    {
+        key: 'mars',
+        name: '火星',
+        nameEn: 'Mars',
+        section: 'planetary',
+        diameterKm: 6779,
+        displaySize: '约6779公里',
+        kind: 'sphere',
+        visual: "url('textures/mars.jpg') center/cover",
+        note: '火星比地球小很多，但已经是能装下高山、峡谷和沙尘暴的红色世界。'
+    },
+    {
+        key: 'venus',
+        name: '金星',
+        nameEn: 'Venus',
+        section: 'planetary',
+        diameterKm: 12104,
+        displaySize: '约1.21万公里',
+        kind: 'sphere',
+        visual: "url('textures/venus_atmosphere.jpg') center/cover",
+        note: '金星和地球差不多大，却被厚厚云层包住，表面非常热。'
+    },
+    {
+        key: 'earth',
+        name: '地球',
+        nameEn: 'Earth',
+        section: 'planetary',
+        diameterKm: 12742,
+        displaySize: '约1.27万公里',
+        kind: 'sphere',
+        visual: "url('textures/earth_daymap.jpg') center/cover",
+        note: '地球是我们的家，在行星里不算最大，但对我们来说已经足够辽阔。'
+    },
+    {
+        key: 'neptune',
+        name: '海王星',
+        nameEn: 'Neptune',
+        section: 'planetary',
+        diameterKm: 49244,
+        displaySize: '约4.92万公里',
+        kind: 'sphere',
+        visual: "url('textures/neptune.jpg') center/cover",
+        note: '海王星是遥远的蓝色冰巨星，直径接近地球的4倍。'
+    },
+    {
+        key: 'uranus',
+        name: '天王星',
+        nameEn: 'Uranus',
+        section: 'planetary',
+        diameterKm: 50724,
+        displaySize: '约5.07万公里',
+        kind: 'sphere',
+        visual: "url('textures/uranus.jpg') center/cover",
+        note: '天王星比海王星稍大，它像侧躺着一样绕太阳运行。'
+    },
+    {
+        key: 'saturn',
+        name: '土星',
+        nameEn: 'Saturn',
+        section: 'planetary',
+        diameterKm: 116460,
+        displaySize: '约11.65万公里',
+        kind: 'sphere',
+        visual: "url('textures/saturn.jpg') center/cover",
+        note: '土星本体已经非常巨大，如果加上光环，视觉上会更夸张。'
+    },
+    {
+        key: 'jupiter',
+        name: '木星',
+        nameEn: 'Jupiter',
+        section: 'planetary',
+        diameterKm: 139820,
+        displaySize: '约13.98万公里',
+        kind: 'sphere',
+        visual: "url('textures/jupiter.jpg') center/cover",
+        note: '木星是太阳系最大的行星，很多小天体放在它旁边都会变成小点。'
+    },
+    {
+        key: 'proximaCentauri',
+        name: '比邻星',
+        nameEn: 'Proxima Centauri',
+        section: 'stellar',
+        diameterKm: 214550,
+        displaySize: '约21.5万公里',
+        kind: 'sphere',
+        visual: "url('textures/stars/red_dwarf_surface.jpg') center/cover",
+        note: '比邻星是离太阳最近的恒星，但它比太阳小得多，只比木星大一些。'
+    },
+    {
+        key: 'sun',
+        name: '太阳',
+        nameEn: 'Sun',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM,
+        displaySize: '约139万公里',
+        kind: 'sphere',
+        visual: "url('textures/sun.jpg') center/cover",
+        glow: 'rgba(255, 196, 77, 0.56)',
+        note: '太阳已经能装下约130万个地球，但在更大的恒星面前，它还只是普通恒星。'
+    },
+    {
+        key: 'sirius',
+        name: '天狼星',
+        nameEn: 'Sirius A',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 2.38,
+        displaySize: '约太阳的2.4倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/blue_white_star_surface.jpg') center/cover",
+        note: '天狼星是夜空最亮的恒星，本体也比太阳大很多。'
+    },
+    {
+        key: 'vega',
+        name: '织女星',
+        nameEn: 'Vega',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 2.36,
+        displaySize: '约太阳的2.4倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/white_star_surface.jpg') center/cover",
+        note: '织女星和天狼星大小接近，是夏季夜空里很亮的蓝白色恒星。'
+    },
+    {
+        key: 'arcturus',
+        name: '大角星',
+        nameEn: 'Arcturus',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 25.4,
+        displaySize: '约太阳的25倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/orange_star_surface.jpg') center/cover",
+        note: '大角星是一颗红巨星，太阳放到它旁边就会明显小下去。'
+    },
+    {
+        key: 'antares',
+        name: '心宿二',
+        nameEn: 'Antares',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 680,
+        displaySize: '约太阳的680倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/antares_surface.jpg') center/cover",
+        note: '心宿二是红超巨星，如果放到太阳的位置，外层会伸到火星轨道附近。'
+    },
+    {
+        key: 'betelgeuse',
+        name: '参宿四',
+        nameEn: 'Betelgeuse',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 887,
+        displaySize: '约太阳的887倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/betelgeuse_surface.jpg') center/cover",
+        note: '参宿四是猎户座的红超巨星，已经大到能吞掉内侧行星轨道。'
+    },
+    {
+        key: 'vyCanisMajoris',
+        name: '大犬座VY',
+        nameEn: 'VY Canis Majoris',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 1420,
+        displaySize: '约太阳的1420倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/red_supergiant_surface.jpg') center/cover",
+        note: '大犬座VY巨大到让太阳显得像一颗小亮点。'
+    },
+    {
+        key: 'uyScuti',
+        name: '盾牌座UY',
+        nameEn: 'UY Scuti',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 1700,
+        displaySize: '约太阳的1700倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/red_supergiant_surface.jpg') center/cover",
+        note: '盾牌座UY是孩子理解巨星尺度时很震撼的一站。'
+    },
+    {
+        key: 'horseheadNebula',
+        name: '马头星云',
+        nameEn: 'Horsehead Nebula',
+        section: 'nebula',
+        diameterKm: 3 * LIGHT_YEAR_IN_KM,
+        displaySize: '约3光年',
+        kind: 'photo',
+        aspect: 1,
+        visual: "url('textures/deep-sky/horsehead.jpg') center/cover",
+        note: '从恒星跳到星云，单位变成光年，马头形状本身就有好几光年宽。'
+    },
+    {
+        key: 'crabNebula',
+        name: '蟹状星云',
+        nameEn: 'Crab Nebula',
+        section: 'nebula',
+        diameterKm: 10 * LIGHT_YEAR_IN_KM,
+        displaySize: '约10光年',
+        kind: 'photo',
+        aspect: 1,
+        visual: "url('textures/deep-sky/crab_m1.jpg') center/cover",
+        note: '蟹状星云是一颗恒星爆炸后留下的云，光穿过去也要很多年。'
+    },
+    {
+        key: 'pleiades',
+        name: '昴星团',
+        nameEn: 'Pleiades',
+        section: 'nebula',
+        diameterKm: 13 * LIGHT_YEAR_IN_KM,
+        displaySize: '约13光年',
+        kind: 'photo',
+        aspect: 1.39,
+        visual: "url('textures/deep-sky/pleiades_m45.jpg') center/cover",
+        note: '昴星团是一群年轻恒星组成的小团队，比单颗恒星大太多。'
+    },
+    {
+        key: 'orionNebula',
+        name: '猎户座大星云',
+        nameEn: 'Orion Nebula',
+        section: 'nebula',
+        diameterKm: 24 * LIGHT_YEAR_IN_KM,
+        displaySize: '约24光年',
+        kind: 'photo',
+        aspect: 1,
+        visual: "url('textures/deep-sky/orion_m42.jpg') center/cover",
+        note: '猎户座大星云是恒星育儿园，一整片发光气体比恒星大得多。'
+    },
+    {
+        key: 'eagleNebula',
+        name: '鹰状星云',
+        nameEn: 'Eagle Nebula',
+        section: 'nebula',
+        diameterKm: 70 * LIGHT_YEAR_IN_KM,
+        displaySize: '约70光年',
+        kind: 'photo',
+        aspect: 0.58,
+        visual: "url('textures/deep-sky/eagle_pillars_m16.jpg') center/cover",
+        note: '鹰状星云里的创生之柱本身就有数光年高，整片星云更巨大。'
+    },
+    {
+        key: 'm13Cluster',
+        name: 'M13球状星团',
+        nameEn: 'Hercules Cluster',
+        section: 'nebula',
+        diameterKm: 145 * LIGHT_YEAR_IN_KM,
+        displaySize: '约145光年',
+        kind: 'photo',
+        aspect: 1,
+        visual: "url('textures/deep-sky/m13.jpg') center/cover",
+        note: 'M13像一个由几十万颗恒星挤成的发光雪球。'
+    },
+    {
+        key: 'carinaNebula',
+        name: '船底座星云',
+        nameEn: 'Carina Nebula',
+        section: 'nebula',
+        diameterKm: 200 * LIGHT_YEAR_IN_KM,
+        displaySize: '约200光年以上',
+        kind: 'photo',
+        aspect: 2.88,
+        visual: "url('textures/deep-sky/carina_nebula.jpg') center/cover",
+        note: '船底座星云是银河系里非常壮观的恒星形成区。'
+    },
+    {
+        key: 'smc',
+        name: '小麦哲伦云',
+        nameEn: 'Small Magellanic Cloud',
+        section: 'galaxy',
+        diameterKm: 7000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约7000光年',
+        kind: 'structure',
+        note: '名字里有云，但它其实是银河系旁边的矮星系。'
+    },
+    {
+        key: 'lmc',
+        name: '大麦哲伦云',
+        nameEn: 'Large Magellanic Cloud',
+        section: 'galaxy',
+        diameterKm: 14000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约1.4万光年',
+        kind: 'structure',
+        note: '大麦哲伦云是银河系最著名的卫星星系之一。'
+    },
+    {
+        key: 'sombrero',
+        name: '草帽星系',
+        nameEn: 'Sombrero Galaxy',
+        section: 'galaxy',
+        diameterKm: 50000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约5万光年',
+        kind: 'photo',
+        aspect: 1.79,
+        visual: "url('textures/deep-sky/sombrero_m104.jpg') center/cover",
+        note: '草帽星系外形很醒目，但直径大约只有银河系的一半。'
+    },
+    {
+        key: 'triangulum',
+        name: '三角座星系',
+        nameEn: 'Triangulum Galaxy',
+        section: 'galaxy',
+        diameterKm: 60000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约6万光年',
+        kind: 'structure',
+        note: '三角座星系是本星系群第三大星系。'
+    },
+    {
+        key: 'milkyWay',
+        name: '银河系',
+        nameEn: 'Milky Way',
+        section: 'galaxy',
+        diameterKm: 100000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约10万光年',
+        kind: 'photo',
+        aspect: 1,
+        visual: "url('textures/milkyway.jpg') center/cover",
+        note: '银河系是太阳系所在的家园星系，已经包含数千亿颗恒星。'
+    },
+    {
+        key: 'm87',
+        name: 'M87星系',
+        nameEn: 'Messier 87',
+        section: 'galaxy',
+        diameterKm: 130000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约13万光年',
+        kind: 'photo',
+        aspect: 1,
+        visual: "url('textures/deep-sky/m87_black_hole.jpg') center/cover",
+        note: 'M87是室女座星系团里的巨型椭圆星系，人类第一张黑洞照片来自它。'
+    },
+    {
+        key: 'pinwheel',
+        name: '风车星系',
+        nameEn: 'Pinwheel Galaxy',
+        section: 'galaxy',
+        diameterKm: 170000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约17万光年',
+        kind: 'photo',
+        aspect: 1.28,
+        visual: "url('textures/deep-sky/m101_pinwheel.jpg') center/cover",
+        note: '风车星系的旋臂铺得很开，比银河系还要宽。'
+    },
+    {
+        key: 'andromeda',
+        name: '仙女座星系',
+        nameEn: 'Andromeda Galaxy',
+        section: 'galaxy',
+        diameterKm: 220000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约22万光年',
+        kind: 'photo',
+        aspect: 1.52,
+        visual: "url('textures/deep-sky/andromeda_m31.jpg') center/cover",
+        note: '仙女座星系比银河系更大，是本星系群里最巨大的成员。'
+    },
+    {
+        key: 'localGroup',
+        name: '本星系群',
+        nameEn: 'Local Group',
+        section: 'structure',
+        diameterKm: 10000000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约1000万光年',
+        kind: 'structure',
+        note: '银河系、仙女座星系和许多矮星系一起组成了本星系群。'
+    },
+    {
+        key: 'virgoSupercluster',
+        name: '室女座超星系团',
+        nameEn: 'Virgo Supercluster',
+        section: 'structure',
+        diameterKm: 110000000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约1.1亿光年',
+        kind: 'structure',
+        note: '本星系群只是室女座超星系团里很小的一部分。'
+    },
+    {
+        key: 'laniakea',
+        name: '拉尼亚凯亚超星系团',
+        nameEn: 'Laniakea Supercluster',
+        section: 'structure',
+        diameterKm: 520000000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约5.2亿光年',
+        kind: 'structure',
+        note: '拉尼亚凯亚像一张巨大的宇宙网，包含约10万个星系。'
+    },
+    {
+        key: 'observableUniverse',
+        name: '可观测宇宙',
+        nameEn: 'Observable Universe',
+        section: 'structure',
+        diameterKm: 93000000000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约930亿光年',
+        kind: 'structure',
+        note: '这是光能够把信息带到我们眼前的最大范围，宇宙本身可能还更大。'
+    }
+].sort((a, b) => a.diameterKm - b.diameterKm);
+
+let currentCosmicScaleIndex = 0;
+
 // ============ 信息面板内容 ============
 const infoPanelContent = {
     solarSystem: {
@@ -1510,6 +2051,299 @@ function setActiveGalaxyDockItem(key) {
     document.querySelectorAll('.galaxy-dock-dot').forEach(button => {
         button.classList.toggle('active', button.dataset.galaxyKey === key);
     });
+}
+
+// ============ 宇宙尺度滑尺 ============
+function clampNumber(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function getCosmicScaleSection(sectionKey) {
+    return cosmicScaleSections.find(section => section.key === sectionKey) || cosmicScaleSections[0];
+}
+
+function getFirstCosmicScaleIndex(sectionKey) {
+    const index = cosmicScaleItems.findIndex(item => item.section === sectionKey);
+    return index >= 0 ? index : 0;
+}
+
+function formatCosmicMultiplier(value) {
+    if (!Number.isFinite(value) || value <= 0) return '很多倍';
+    if (value < 1.08) return '差不多大';
+    if (value < 10) return `${value.toFixed(1)}倍`;
+    if (value < 10000) return `${Math.round(value).toLocaleString('zh-CN')}倍`;
+    if (value < 100000000) {
+        const unitValue = value / 10000;
+        return `${unitValue < 100 ? unitValue.toFixed(1) : Math.round(unitValue).toLocaleString('zh-CN')}万倍`;
+    }
+    const yiValue = value / 100000000;
+    return `${yiValue < 100 ? yiValue.toFixed(1) : Math.round(yiValue).toLocaleString('zh-CN')}亿倍`;
+}
+
+function getCosmicScaleRatioText(index) {
+    if (index <= 0) return '旅程起点';
+
+    const current = cosmicScaleItems[index];
+    const previous = cosmicScaleItems[index - 1];
+    return `比上一站大${formatCosmicMultiplier(current.diameterKm / previous.diameterKm)}`;
+}
+
+function getCosmicScaleGlow(item) {
+    if (item.glow) return item.glow;
+    if (item.section === 'stellar') return 'rgba(255, 204, 92, 0.48)';
+    if (item.section === 'nebula') return 'rgba(255, 121, 194, 0.36)';
+    if (item.section === 'galaxy') return 'rgba(124, 230, 255, 0.38)';
+    if (item.section === 'structure') return 'rgba(167, 139, 250, 0.42)';
+    return 'rgba(117, 232, 213, 0.34)';
+}
+
+function getCosmicScaleVisual(item) {
+    if (item.visual) return item.visual;
+    if (item.kind === 'structure') {
+        return 'radial-gradient(circle at 50% 50%, rgba(124, 230, 255, 0.2), transparent 44%), radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.24), rgba(2, 4, 12, 0.1))';
+    }
+    return 'radial-gradient(circle at 32% 24%, #ffffff, #7ce6ff 24%, #1f6fb8 62%, #071324 100%)';
+}
+
+function renderCosmicScaleTabs() {
+    const tabs = document.getElementById('cosmicScaleTabs');
+    if (!tabs) return;
+
+    const current = cosmicScaleItems[currentCosmicScaleIndex];
+    tabs.innerHTML = cosmicScaleSections.map(section => `
+        <button class="cosmic-scale-tab ${current.section === section.key ? 'active' : ''}" type="button" data-section="${section.key}">
+            ${section.label}
+        </button>
+    `).join('');
+
+    const activeTab = tabs.querySelector('.cosmic-scale-tab.active');
+    if (activeTab) {
+        window.requestAnimationFrame(() => {
+            activeTab.scrollIntoView({ block: 'nearest', inline: 'center' });
+        });
+    }
+}
+
+function renderCosmicScaleTimeline() {
+    const timeline = document.getElementById('cosmicScaleTimeline');
+    if (!timeline) return;
+
+    timeline.innerHTML = cosmicScaleItems.map((item, index) => `
+        <button
+            class="cosmic-scale-marker ${index === currentCosmicScaleIndex ? 'active' : ''} ${index < currentCosmicScaleIndex ? 'passed' : ''}"
+            type="button"
+            data-index="${index}"
+            title="${item.name}，${item.displaySize}"
+            aria-label="跳到${item.name}">
+        </button>
+    `).join('');
+}
+
+function getCosmicScaleObjectDimensions(item, displayDiameter) {
+    const aspect = item.aspect || 1;
+    if (item.kind !== 'photo') {
+        return { width: displayDiameter, height: displayDiameter };
+    }
+
+    if (aspect >= 1) {
+        return { width: displayDiameter, height: displayDiameter / aspect };
+    }
+
+    return { width: displayDiameter * aspect, height: displayDiameter };
+}
+
+function renderCosmicScaleObjects() {
+    const windowEl = document.getElementById('cosmicScaleWindow');
+    if (!windowEl) return;
+
+    const rect = windowEl.getBoundingClientRect();
+    const stageWidth = rect.width || window.innerWidth;
+    const stageHeight = rect.height || Math.max(360, window.innerHeight * 0.55);
+    const baseSize = clampNumber(stageHeight * 0.36, 150, 270);
+    const maxSize = clampNumber(Math.min(stageWidth * 0.92, stageHeight * 1.36), 300, 960);
+    const minSize = stageWidth < 760 ? 6 : 8;
+    const current = cosmicScaleItems[currentCosmicScaleIndex];
+    const currentLog = Math.log10(current.diameterKm);
+
+    const objectHtml = cosmicScaleItems.map((item, index) => {
+        const indexDelta = index - currentCosmicScaleIndex;
+        const logDelta = Math.log10(item.diameterKm) - currentLog;
+        const shouldRender = Math.abs(indexDelta) <= 3 || Math.abs(logDelta) <= 0.55;
+        if (!shouldRender) return '';
+
+        const ratio = item.diameterKm / current.diameterKm;
+        const rawDisplaySize = baseSize * ratio;
+        const displayDiameter = clampNumber(rawDisplaySize, minSize, maxSize);
+        const dimensions = getCosmicScaleObjectDimensions(item, displayDiameter);
+        const x = clampNumber(50 + indexDelta * 21 + clampNumber(logDelta * 5, -9, 9), -8, 108);
+        const isActive = index === currentCosmicScaleIndex;
+        const isCapped = rawDisplaySize > maxSize;
+        const isTiny = rawDisplaySize < minSize;
+        const opacity = isActive ? 1 : clampNumber(1 - Math.abs(indexDelta) * 0.14, 0.42, 0.86);
+        const visualRadius = item.kind === 'photo' ? '8px' : (item.kind === 'rock' ? '46% 54% 49% 51%' : '50%');
+        const classes = [
+            'cosmic-scale-object',
+            item.kind || 'sphere',
+            isActive ? 'active' : '',
+            isCapped ? 'capped' : '',
+            isTiny ? 'tiny' : ''
+        ].filter(Boolean).join(' ');
+        const zIndex = isActive ? 30 : 20 - Math.abs(indexDelta);
+
+        return `
+            <button
+                class="${classes}"
+                type="button"
+                data-index="${index}"
+                title="${item.name}，${item.displaySize}"
+                aria-label="查看${item.name}"
+                style="
+                    --x: ${x}%;
+                    --size: ${displayDiameter}px;
+                    --w: ${dimensions.width}px;
+                    --h: ${dimensions.height}px;
+                    --object-opacity: ${opacity};
+                    --visual-bg: ${getCosmicScaleVisual(item)};
+                    --visual-radius: ${visualRadius};
+                    --glow-color: ${getCosmicScaleGlow(item)};
+                    --glow-size: ${clampNumber(displayDiameter * 0.34, 18, 96)}px;
+                    z-index: ${zIndex};
+                ">
+                <span class="cosmic-object-visual" aria-hidden="true"></span>
+                <span class="cosmic-object-label">${item.name}</span>
+            </button>
+        `;
+    }).join('');
+
+    windowEl.innerHTML = objectHtml;
+}
+
+function renderCosmicScaleCurrent() {
+    const current = cosmicScaleItems[currentCosmicScaleIndex];
+    const section = getCosmicScaleSection(current.section);
+
+    const sectionEl = document.getElementById('cosmicCurrentSection');
+    const nameEl = document.getElementById('cosmicCurrentName');
+    const enEl = document.getElementById('cosmicCurrentEn');
+    const sizeEl = document.getElementById('cosmicCurrentSize');
+    const ratioEl = document.getElementById('cosmicCurrentRatio');
+    const noteEl = document.getElementById('cosmicCurrentNote');
+
+    if (sectionEl) sectionEl.textContent = section.label;
+    if (nameEl) nameEl.textContent = current.name;
+    if (enEl) enEl.textContent = current.nameEn;
+    if (sizeEl) sizeEl.textContent = current.displaySize;
+    if (ratioEl) ratioEl.textContent = getCosmicScaleRatioText(currentCosmicScaleIndex);
+    if (noteEl) noteEl.textContent = current.note;
+}
+
+function renderCosmicScaleExplorer() {
+    const range = document.getElementById('cosmicScaleRange');
+    const prevBtn = document.getElementById('cosmicScalePrev');
+    const nextBtn = document.getElementById('cosmicScaleNext');
+
+    if (range) {
+        range.max = String(cosmicScaleItems.length - 1);
+        range.value = String(currentCosmicScaleIndex);
+    }
+
+    if (prevBtn) prevBtn.disabled = currentCosmicScaleIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentCosmicScaleIndex === cosmicScaleItems.length - 1;
+
+    renderCosmicScaleTabs();
+    renderCosmicScaleTimeline();
+    renderCosmicScaleObjects();
+    renderCosmicScaleCurrent();
+}
+
+function setCosmicScaleIndex(index) {
+    const nextIndex = Math.round(Number(index));
+    if (!Number.isFinite(nextIndex)) return;
+
+    currentCosmicScaleIndex = clampNumber(nextIndex, 0, cosmicScaleItems.length - 1);
+    renderCosmicScaleExplorer();
+}
+
+function openCosmicScaleExplorer() {
+    const panel = document.getElementById('cosmicScalePanel');
+    if (!panel) return;
+
+    hideGalaxyPopup();
+    hideStarSystemPopup();
+    panel.classList.add('visible');
+    panel.setAttribute('aria-hidden', 'false');
+    renderCosmicScaleExplorer();
+}
+
+function closeCosmicScaleExplorer() {
+    const panel = document.getElementById('cosmicScalePanel');
+    if (!panel) return;
+
+    panel.classList.remove('visible');
+    panel.setAttribute('aria-hidden', 'true');
+}
+
+function setupCosmicScaleExplorer() {
+    const openBtn = document.getElementById('openCosmicScale');
+    const closeBtn = document.getElementById('closeCosmicScale');
+    const prevBtn = document.getElementById('cosmicScalePrev');
+    const nextBtn = document.getElementById('cosmicScaleNext');
+    const range = document.getElementById('cosmicScaleRange');
+    const tabs = document.getElementById('cosmicScaleTabs');
+    const timeline = document.getElementById('cosmicScaleTimeline');
+    const windowEl = document.getElementById('cosmicScaleWindow');
+
+    if (openBtn) openBtn.addEventListener('click', openCosmicScaleExplorer);
+    if (closeBtn) closeBtn.addEventListener('click', closeCosmicScaleExplorer);
+    if (prevBtn) prevBtn.addEventListener('click', () => setCosmicScaleIndex(currentCosmicScaleIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => setCosmicScaleIndex(currentCosmicScaleIndex + 1));
+    if (range) range.addEventListener('input', event => setCosmicScaleIndex(event.target.value));
+
+    if (tabs) {
+        tabs.addEventListener('click', event => {
+            const button = event.target.closest('.cosmic-scale-tab');
+            if (!button) return;
+            setCosmicScaleIndex(getFirstCosmicScaleIndex(button.dataset.section));
+        });
+    }
+
+    if (timeline) {
+        timeline.addEventListener('click', event => {
+            const button = event.target.closest('.cosmic-scale-marker');
+            if (!button) return;
+            setCosmicScaleIndex(button.dataset.index);
+        });
+    }
+
+    if (windowEl) {
+        windowEl.addEventListener('click', event => {
+            const button = event.target.closest('.cosmic-scale-object');
+            if (!button) return;
+            setCosmicScaleIndex(button.dataset.index);
+        });
+    }
+
+    document.addEventListener('keydown', event => {
+        const panel = document.getElementById('cosmicScalePanel');
+        if (!panel || !panel.classList.contains('visible')) return;
+
+        if (event.key === 'Escape') {
+            closeCosmicScaleExplorer();
+        } else if (event.key === 'ArrowLeft') {
+            setCosmicScaleIndex(currentCosmicScaleIndex - 1);
+        } else if (event.key === 'ArrowRight') {
+            setCosmicScaleIndex(currentCosmicScaleIndex + 1);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        const panel = document.getElementById('cosmicScalePanel');
+        if (panel && panel.classList.contains('visible')) {
+            renderCosmicScaleExplorer();
+        }
+    });
+
+    renderCosmicScaleExplorer();
 }
 
 function selectGalaxyDockTarget(key, button) {
@@ -1864,6 +2698,7 @@ function init() {
 
     renderGalaxyDock();
     setupGalaxyDock();
+    setupCosmicScaleExplorer();
 
     // 隐藏加载画面
     setTimeout(() => {

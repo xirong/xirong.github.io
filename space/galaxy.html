@@ -115,7 +115,14 @@
             letter-spacing: 1px;
         }
 
-        .back-btn {
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn,
+        .scale-journey-btn {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(20px);
@@ -132,7 +139,13 @@
             gap: 8px;
         }
 
-        .back-btn:hover {
+        .scale-journey-btn {
+            border-color: rgba(0, 212, 255, 0.32);
+            background: rgba(6, 16, 34, 0.72);
+        }
+
+        .back-btn:hover,
+        .scale-journey-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: var(--accent-cyan);
         }
@@ -641,6 +654,379 @@
             --dock-glow: rgba(152, 193, 255, 0.5);
         }
 
+        /* 宇宙尺度滑尺 */
+        .cosmic-scale-panel {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+            background: linear-gradient(180deg, #02040c, #030712);
+            color: var(--text-primary);
+        }
+
+        .cosmic-scale-panel.visible {
+            display: block;
+        }
+
+        .cosmic-scale-shell {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto auto minmax(0, 1fr) auto;
+            gap: 14px;
+            padding: 22px 26px 24px;
+            overflow: hidden;
+        }
+
+        .cosmic-scale-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .cosmic-scale-kicker {
+            color: rgba(124, 230, 255, 0.92);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            margin-bottom: 4px;
+        }
+
+        .cosmic-scale-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.15rem;
+            line-height: 1.08;
+            letter-spacing: 0;
+            color: #ffffff;
+        }
+
+        .cosmic-scale-subtitle {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.92rem;
+            line-height: 1.55;
+            margin-top: 8px;
+            max-width: 820px;
+        }
+
+        .cosmic-scale-close {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cosmic-scale-close:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.42);
+        }
+
+        .cosmic-scale-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .cosmic-scale-tab {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.78);
+            border-radius: 999px;
+            padding: 8px 13px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0;
+        }
+
+        .cosmic-scale-tab:hover,
+        .cosmic-scale-tab.active {
+            color: #ffffff;
+            border-color: rgba(0, 212, 255, 0.62);
+            background: rgba(0, 212, 255, 0.13);
+        }
+
+        .cosmic-scale-stage {
+            position: relative;
+            min-height: 0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            background:
+                linear-gradient(180deg, rgba(4, 8, 18, 0.52), rgba(2, 5, 12, 0.86)),
+                url('textures/starfield.jpg') center/cover;
+            overflow: hidden;
+            box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.62), 0 20px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        .cosmic-scale-stage::before {
+            content: '';
+            position: absolute;
+            inset: 50% 0 auto;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124, 230, 255, 0.45), transparent);
+            opacity: 0.8;
+        }
+
+        .cosmic-scale-window {
+            position: absolute;
+            inset: 0;
+        }
+
+        .cosmic-scale-object {
+            position: absolute;
+            left: var(--x, 50%);
+            top: 47%;
+            width: var(--w, var(--size, 100px));
+            min-width: 7px;
+            min-height: 7px;
+            transform: translate(-50%, -50%);
+            border: 0;
+            background: transparent;
+            color: #ffffff;
+            padding: 0;
+            opacity: var(--object-opacity, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: left 0.45s ease, opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .cosmic-scale-object:hover,
+        .cosmic-scale-object:focus-visible {
+            outline: none;
+            transform: translate(-50%, -50%) scale(1.03);
+        }
+
+        .cosmic-scale-object.active {
+            z-index: 20;
+        }
+
+        .cosmic-object-visual {
+            width: var(--w, var(--size, 100px));
+            height: var(--h, var(--size, 100px));
+            min-width: 7px;
+            min-height: 7px;
+            border-radius: var(--visual-radius, 50%);
+            background: var(--visual-bg);
+            box-shadow: 0 0 var(--glow-size, 34px) var(--glow-color, rgba(124, 230, 255, 0.32));
+            position: relative;
+            overflow: hidden;
+            flex: 0 0 auto;
+        }
+
+        .cosmic-scale-object.sphere .cosmic-object-visual::after,
+        .cosmic-scale-object.rock .cosmic-object-visual::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.42), transparent 26%, rgba(0, 0, 0, 0.18) 72%, rgba(0, 0, 0, 0.58));
+        }
+
+        .cosmic-scale-object.photo .cosmic-object-visual {
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .cosmic-scale-object.structure .cosmic-object-visual {
+            border: 1px solid rgba(124, 230, 255, 0.5);
+            background:
+                radial-gradient(circle at 50% 50%, rgba(124, 230, 255, 0.22), transparent 42%),
+                repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.32) 0 1px, transparent 2px 18px),
+                radial-gradient(circle at 50% 50%, rgba(18, 38, 70, 0.6), rgba(2, 4, 12, 0.16));
+        }
+
+        .cosmic-object-label {
+            max-width: 180px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(2, 5, 14, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.78rem;
+            line-height: 1.15;
+            text-align: center;
+            white-space: normal;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+        }
+
+        .cosmic-scale-object.active .cosmic-object-label {
+            color: #ffffff;
+            border-color: rgba(255, 214, 102, 0.54);
+            background: rgba(46, 31, 8, 0.76);
+        }
+
+        .cosmic-scale-current {
+            position: absolute;
+            left: 24px;
+            bottom: 22px;
+            width: min(420px, calc(100% - 48px));
+            background: rgba(4, 10, 24, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 8px;
+            padding: 16px 18px;
+            backdrop-filter: blur(16px);
+            z-index: 30;
+        }
+
+        .cosmic-current-section {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #7ce6ff;
+            font-size: 0.76rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .cosmic-current-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            line-height: 1.12;
+            letter-spacing: 0;
+            color: #ffffff;
+        }
+
+        .cosmic-current-en {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.82rem;
+            margin-top: 4px;
+        }
+
+        .cosmic-current-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 14px 0 10px;
+        }
+
+        .cosmic-current-stat {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 9px 10px;
+        }
+
+        .cosmic-current-stat span {
+            display: block;
+            color: rgba(255, 255, 255, 0.56);
+            font-size: 0.68rem;
+            margin-bottom: 4px;
+        }
+
+        .cosmic-current-stat strong {
+            display: block;
+            color: #ffd666;
+            font-size: 0.9rem;
+            line-height: 1.22;
+        }
+
+        .cosmic-current-note {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 0.86rem;
+            line-height: 1.55;
+        }
+
+        .cosmic-scale-controls {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .cosmic-scale-nav {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.07);
+            color: #ffffff;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cosmic-scale-nav:hover {
+            border-color: rgba(0, 212, 255, 0.55);
+            background: rgba(0, 212, 255, 0.13);
+        }
+
+        .cosmic-scale-nav:disabled {
+            opacity: 0.35;
+            cursor: default;
+            transform: none;
+        }
+
+        .cosmic-scale-range-wrap {
+            position: relative;
+            padding: 18px 0 4px;
+        }
+
+        .cosmic-scale-range {
+            width: 100%;
+            accent-color: #00d4ff;
+        }
+
+        .cosmic-scale-timeline {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2px;
+            margin-top: 6px;
+            min-height: 22px;
+        }
+
+        .cosmic-scale-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 2px;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .cosmic-scale-marker {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: 0;
+            background: rgba(255, 255, 255, 0.38);
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+
+        .cosmic-scale-marker.active {
+            width: 16px;
+            height: 16px;
+            background: #ffd666;
+            box-shadow: 0 0 18px rgba(255, 214, 102, 0.62);
+        }
+
+        .cosmic-scale-marker.passed {
+            background: rgba(0, 212, 255, 0.72);
+        }
+
         @media (min-width: 1500px) {
             .galaxy-dock {
                 left: calc(50% + 70px);
@@ -821,6 +1207,14 @@
                 font-size: 0.8rem;
             }
 
+            .header-actions {
+                gap: 8px;
+            }
+
+            .scale-journey-btn span:last-child {
+                display: none;
+            }
+
             .legend {
                 top: 75px;
                 right: 12px;
@@ -970,6 +1364,76 @@
                 display: none;
             }
 
+            .cosmic-scale-shell {
+                padding: 14px 12px 16px;
+                gap: 10px;
+            }
+
+            .cosmic-scale-title {
+                font-size: 1.45rem;
+            }
+
+            .cosmic-scale-subtitle {
+                display: none;
+            }
+
+            .cosmic-scale-tabs {
+                gap: 6px;
+                overflow-x: visible;
+                flex-wrap: wrap;
+                padding-bottom: 4px;
+            }
+
+            .cosmic-scale-tab {
+                flex: 0 0 auto;
+                padding: 7px 10px;
+                font-size: 0.76rem;
+            }
+
+            .cosmic-scale-stage {
+                border-radius: 8px;
+            }
+
+            .cosmic-scale-current {
+                left: 12px;
+                bottom: 12px;
+                width: calc(100% - 24px);
+                padding: 12px;
+            }
+
+            .cosmic-current-name {
+                font-size: 1.18rem;
+            }
+
+            .cosmic-current-stats {
+                grid-template-columns: 1fr;
+                gap: 7px;
+                margin: 10px 0 8px;
+            }
+
+            .cosmic-current-note {
+                font-size: 0.78rem;
+            }
+
+            .cosmic-object-label {
+                font-size: 0.68rem;
+                max-width: 118px;
+            }
+
+            .cosmic-scale-object:not(.active) .cosmic-object-label {
+                display: none;
+            }
+
+            .cosmic-scale-controls {
+                grid-template-columns: 38px minmax(0, 1fr) 38px;
+                gap: 8px;
+            }
+
+            .cosmic-scale-nav {
+                width: 38px;
+                height: 38px;
+            }
+
             /* 弹窗适配 */
             .galaxy-popup,
             .star-system-popup {
@@ -1001,10 +1465,16 @@
                 <p>银河系探索</p>
             </div>
         </div>
-        <a href="solar-system.html" class="back-btn">
-            <span>☀️</span>
-            <span>返回太阳系</span>
-        </a>
+        <div class="header-actions">
+            <button class="scale-journey-btn" id="openCosmicScale" type="button" title="从小到大看宇宙">
+                <span>🔭</span>
+                <span>宇宙有多大</span>
+            </button>
+            <a href="solar-system.html" class="back-btn">
+                <span>☀️</span>
+                <span>返回太阳系</span>
+            </a>
+        </div>
     </div>
 
     <!-- 信息面板 -->
@@ -1093,6 +1563,48 @@
         <span class="motion-toggle-icon">⏸️</span>
         <span class="motion-toggle-label">暂停转动</span>
     </button>
+
+    <!-- 宇宙尺度滑尺 -->
+    <div class="cosmic-scale-panel" id="cosmicScalePanel" aria-hidden="true">
+        <div class="cosmic-scale-shell">
+            <div class="cosmic-scale-header">
+                <div>
+                    <div class="cosmic-scale-kicker">从火星小卫星到可观测宇宙</div>
+                    <h2 class="cosmic-scale-title">宇宙有多大</h2>
+                    <p class="cosmic-scale-subtitle">从几十公里的小卫星，到横跨930亿光年的可观测宇宙，尺度会一站一站展开。</p>
+                </div>
+                <button class="cosmic-scale-close" id="closeCosmicScale" type="button" aria-label="关闭宇宙尺度滑尺">×</button>
+            </div>
+            <div class="cosmic-scale-tabs" id="cosmicScaleTabs" aria-label="宇宙尺度分段"></div>
+            <div class="cosmic-scale-stage" id="cosmicScaleStage">
+                <div class="cosmic-scale-window" id="cosmicScaleWindow"></div>
+                <div class="cosmic-scale-current" aria-live="polite">
+                    <div class="cosmic-current-section" id="cosmicCurrentSection">小天体</div>
+                    <div class="cosmic-current-name" id="cosmicCurrentName">火卫二</div>
+                    <div class="cosmic-current-en" id="cosmicCurrentEn">Deimos</div>
+                    <div class="cosmic-current-stats">
+                        <div class="cosmic-current-stat">
+                            <span>尺度</span>
+                            <strong id="cosmicCurrentSize">约12.4公里</strong>
+                        </div>
+                        <div class="cosmic-current-stat">
+                            <span>放大关系</span>
+                            <strong id="cosmicCurrentRatio">旅程起点</strong>
+                        </div>
+                    </div>
+                    <div class="cosmic-current-note" id="cosmicCurrentNote">从一颗很小的火星卫星开始，慢慢把视野放大。</div>
+                </div>
+            </div>
+            <div class="cosmic-scale-controls">
+                <button class="cosmic-scale-nav" id="cosmicScalePrev" type="button" aria-label="上一站">‹</button>
+                <div class="cosmic-scale-range-wrap">
+                    <input class="cosmic-scale-range" id="cosmicScaleRange" type="range" min="0" value="0" step="1" aria-label="宇宙尺度进度">
+                    <div class="cosmic-scale-timeline" id="cosmicScaleTimeline" aria-label="宇宙尺度刻度"></div>
+                </div>
+                <button class="cosmic-scale-nav" id="cosmicScaleNext" type="button" aria-label="下一站">›</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 宇宙名胜 Dock -->
     <div class="galaxy-dock" id="galaxyDock" aria-label="宇宙名胜快捷入口">
