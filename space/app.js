@@ -1799,8 +1799,8 @@ const blackHoleVolumeData = [
 const moonsData = {
     // 火星的卫星
     mars: [
-        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 1.7, rockDetail: 3, axisScale: [1.34, 0.82, 0.94] },
-        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '火卫二（Deimos）是火星的外侧卫星，体积更小更暗，轨道更远，运行更慢，适合理解“卫星也有“多层”轨道”的差别。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 2.4, rockDetail: 2, axisScale: [1.22, 0.74, 0.88] }
+        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 1.7, axisScale: [1.25, 1.02, 0.84] },
+        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '火卫二（Deimos）是火星的外侧卫星，体积更小更暗，轨道更远，运行更慢，适合理解“卫星也有“多层”轨道”的差别。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 2.4, axisScale: [1.18, 0.96, 0.84] }
     ],
     // 木星的伽利略卫星
     jupiter: [
@@ -2736,26 +2736,31 @@ function createRealisticEarth(size) {
     return earth;
 }
 
-// ============ 不规则石块几何体 ============
+// ============ 连续不规则石块几何体 ============
 function createIrregularRockGeometry(size, config = {}) {
-    const geometry = new THREE.IcosahedronGeometry(size, config.rockDetail || 2);
+    const geometry = new THREE.SphereGeometry(size, 64, 32);
     const position = geometry.attributes.position;
     const seed = config.rockSeed || 1;
-    const axisScale = config.axisScale || [1.2, 0.82, 0.94];
+    const axisScale = config.axisScale || [1.18, 0.96, 0.84];
 
     for (let i = 0; i < position.count; i++) {
         const x = position.getX(i);
         const y = position.getY(i);
         const z = position.getZ(i);
-        const wobbleA = Math.sin((x * 12.9898 + y * 78.233 + z * 37.719 + seed) * 2.4);
-        const wobbleB = Math.sin((i + 1) * (seed + 3.17));
-        const factor = 1 + wobbleA * 0.13 + wobbleB * 0.07;
+        const length = Math.sqrt(x * x + y * y + z * z) || 1;
+        const nx = x / length;
+        const ny = y / length;
+        const nz = z / length;
+        const broadLump = Math.sin(nx * 3.2 + ny * 1.7 + seed) * 0.055;
+        const sideDent = Math.sin(ny * 4.5 - nz * 2.1 + seed * 1.9) * 0.04;
+        const ridge = Math.sin((nx + nz) * 5.3 + seed * 2.7) * 0.03;
+        const factor = 1 + broadLump + sideDent + ridge;
 
         position.setXYZ(
             i,
-            x * axisScale[0] * factor,
-            y * axisScale[1] * (factor * 0.94 + 0.06),
-            z * axisScale[2] * (factor * 1.04)
+            nx * size * axisScale[0] * factor,
+            ny * size * axisScale[1] * (factor * 0.96 + 0.04),
+            nz * size * axisScale[2] * (factor * 0.98 + 0.02)
         );
     }
 
@@ -3006,7 +3011,6 @@ function createRealisticMoon(size, moonData) {
         segments: moonData.segments || 48,
         shape: moonData.shape,
         rockSeed: moonData.rockSeed,
-        rockDetail: moonData.rockDetail,
         axisScale: moonData.axisScale
     });
 }
