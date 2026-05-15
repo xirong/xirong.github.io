@@ -2135,6 +2135,22 @@
             box-shadow: 0 0 20px currentColor;
         }
 
+        .comparison-planet.irregular-rock .sphere {
+            border-radius: 54% 46% 59% 41% / 45% 57% 43% 55%;
+            clip-path: polygon(9% 31%, 21% 13%, 48% 6%, 73% 16%, 92% 38%, 84% 70%, 64% 91%, 32% 86%, 10% 64%);
+            overflow: hidden;
+        }
+
+        .comparison-planet.phobos-rock .sphere {
+            transform: rotate(-8deg) scaleX(1.28) scaleY(0.86);
+            transform-origin: center;
+        }
+
+        .comparison-planet.deimos-rock .sphere {
+            transform: rotate(9deg) scaleX(1.18) scaleY(0.78);
+            transform-origin: center;
+        }
+
         .comparison-planet .name {
             font-size: 0.85rem;
             color: var(--text-secondary);

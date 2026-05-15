@@ -921,7 +921,8 @@ const DIAMETER_START_KEYS = [
     'neptune',
     'earth',
     'mars',
-    'ganymede'
+    'ganymede',
+    'phobos'
 ];
 
 function uniqueComparisonKeys(keys) {
@@ -1798,8 +1799,8 @@ const blackHoleVolumeData = [
 const moonsData = {
     // 火星的卫星
     mars: [
-        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, segments: 48 },
-        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '火卫二（Deimos）是火星的外侧卫星，体积更小更暗，轨道更远，运行更慢，适合理解“卫星也有“多层”轨道”的差别。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, segments: 48 }
+        { name: '火卫一', nameCN: '火卫一', diameter: 22.2, orbitRadius: 2.5, orbitSpeed: 0.08, color: 0x8b7355, desc: '火卫一（Phobos）是贴近火星的内侧卫星，形状不规则、表面坑洼。它离火星非常近，每天要跑很多圈，外观偏暗、偏破碎。', texturePath: 'textures/phobos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.72, 0.62, 0.5)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 1.7, rockDetail: 3, axisScale: [1.34, 0.82, 0.94] },
+        { name: '火卫二', nameCN: '火卫二', diameter: 12.6, orbitRadius: 3.5, orbitSpeed: 0.05, color: 0x9a8b7a, desc: '火卫二（Deimos）是火星的外侧卫星，体积更小更暗，轨道更远，运行更慢，适合理解“卫星也有“多层”轨道”的差别。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.7, 0.66, 0.6)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 2.4, rockDetail: 2, axisScale: [1.22, 0.74, 0.88] }
     ],
     // 木星的伽利略卫星
     jupiter: [
@@ -2735,11 +2736,42 @@ function createRealisticEarth(size) {
     return earth;
 }
 
+// ============ 不规则石块几何体 ============
+function createIrregularRockGeometry(size, config = {}) {
+    const geometry = new THREE.IcosahedronGeometry(size, config.rockDetail || 2);
+    const position = geometry.attributes.position;
+    const seed = config.rockSeed || 1;
+    const axisScale = config.axisScale || [1.2, 0.82, 0.94];
+
+    for (let i = 0; i < position.count; i++) {
+        const x = position.getX(i);
+        const y = position.getY(i);
+        const z = position.getZ(i);
+        const wobbleA = Math.sin((x * 12.9898 + y * 78.233 + z * 37.719 + seed) * 2.4);
+        const wobbleB = Math.sin((i + 1) * (seed + 3.17));
+        const factor = 1 + wobbleA * 0.13 + wobbleB * 0.07;
+
+        position.setXYZ(
+            i,
+            x * axisScale[0] * factor,
+            y * axisScale[1] * (factor * 0.94 + 0.06),
+            z * axisScale[2] * (factor * 1.04)
+        );
+    }
+
+    position.needsUpdate = true;
+    geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
+    return geometry;
+}
+
 // ============ 通用纹理行星创建辅助函数 ============
-// config: { texturePath, brightness, atmosphereColor, atmosphereIntensity, atmosphereSize, fresnelColor, fresnelIntensity }
+// config: { texturePath, brightness, atmosphereColor, atmosphereIntensity, atmosphereSize, fresnelColor, fresnelIntensity, shape }
 function createTexturedPlanet(size, config) {
     const segments = config.segments || 128;
-    const geometry = new THREE.SphereGeometry(size, segments, segments);
+    const geometry = config.shape === 'irregularRock'
+        ? createIrregularRockGeometry(size, config)
+        : new THREE.SphereGeometry(size, segments, segments);
     const textureLoader = new THREE.TextureLoader();
     const planetMap = textureLoader.load(config.texturePath);
 
@@ -2788,7 +2820,7 @@ function createTexturedPlanet(size, config) {
     const planet = new THREE.Mesh(geometry, material);
 
     // 可选大气层光晕
-    if (config.atmosphereColor) {
+    if (config.shape !== 'irregularRock' && config.atmosphereColor) {
         const atmoSize = config.atmosphereSize || 1.06;
         const atmoIntensity = config.atmosphereIntensity || 0.25;
         const ac = config.atmosphereColor;
@@ -2971,7 +3003,11 @@ function createRealisticMoon(size, moonData) {
         atmosphereColor: moonData.atmosphereColor,
         atmosphereSize: moonData.atmosphereSize,
         atmosphereIntensity: moonData.atmosphereIntensity,
-        segments: moonData.segments || 48
+        segments: moonData.segments || 48,
+        shape: moonData.shape,
+        rockSeed: moonData.rockSeed,
+        rockDetail: moonData.rockDetail,
+        axisScale: moonData.axisScale
     });
 }
 
@@ -5622,6 +5658,12 @@ function generateSizeComparison(mode) {
             : `background: #${data.color.toString(16).padStart(6, '0')};`;
     };
 
+    const getComparisonShapeClass = (key) => {
+        if (key === 'phobos') return 'irregular-rock phobos-rock';
+        if (key === 'deimos') return 'irregular-rock deimos-rock';
+        return '';
+    };
+
     if (mode === 'diameter') {
         if (currentDiameterDetailIndex < 0 || currentDiameterDetailIndex >= DIAMETER_DETAIL_PROFILES.length) {
             currentDiameterDetailIndex = 0;
@@ -5713,6 +5755,7 @@ function generateSizeComparison(mode) {
                 const data = getDiameterPlanetData(name);
                 if (!data) return;
                 const categoryClass = data.category || '';
+                const shapeClass = getComparisonShapeClass(name);
                 const displaySize = Math.max(8, maxDisplaySize * (data.diameter / maxDiameter));
                 const earthRatio = data.diameter / earthDiameter;
                 const earthLabel = name === 'earth'
@@ -5724,7 +5767,7 @@ function generateSizeComparison(mode) {
                     : '';
 
                 const div = document.createElement('div');
-                div.className = `comparison-planet diameter-detail-planet ${categoryClass}`;
+                div.className = `comparison-planet diameter-detail-planet ${categoryClass} ${shapeClass}`;
                 div.innerHTML = `
                     <div class="sphere" style="
                         width: ${displaySize}px;
@@ -5754,6 +5797,7 @@ function generateSizeComparison(mode) {
         sortedPlanets.forEach(name => {
             const data = planetData[name];
             const categoryClass = data.category || '';
+            const shapeClass = getComparisonShapeClass(name);
 
             let displaySize;
             if (name === 'sun') {
@@ -5792,7 +5836,7 @@ function generateSizeComparison(mode) {
             }
 
             const div = document.createElement('div');
-            div.className = `comparison-planet ${categoryClass}`;
+            div.className = `comparison-planet ${categoryClass} ${shapeClass}`;
             div.innerHTML = `
                 <div class="sphere" style="
                     width: ${displaySize}px;
@@ -5823,6 +5867,7 @@ function generateSizeComparison(mode) {
         sortedPlanets.forEach(name => {
             const data = planetData[name];
             const categoryClass = data.category || '';
+            const shapeClass = getComparisonShapeClass(name);
 
             let displaySize;
             if (name === 'sun') {
@@ -5866,7 +5911,7 @@ function generateSizeComparison(mode) {
             const bgStyle2 = getDiameterSphereStyle(name, data);
 
             const div = document.createElement('div');
-            div.className = `comparison-planet ${categoryClass}`;
+            div.className = `comparison-planet ${categoryClass} ${shapeClass}`;
             div.innerHTML = `
                 <div class="sphere" style="
                     width: ${displaySize}px;
