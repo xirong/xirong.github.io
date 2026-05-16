@@ -423,7 +423,7 @@ const galacticStarConfigs = {
         distanceLY: 3900,
         zone: 'A',
         color: '#ff3333',
-        textureProfile: 'redSupergiant',
+        textureProfile: 'vyCanisMajoris',
         size: 'hypergiant',
         hasPlanets: false,
         offset: { x: -0.5, y: 0.1, z: -0.85 }
@@ -432,7 +432,7 @@ const galacticStarConfigs = {
         distanceLY: 9500,
         zone: 'B',
         color: '#ff3333',
-        textureProfile: 'redSupergiant',
+        textureProfile: 'uyScuti',
         size: 'hypergiant',
         hasPlanets: false,
         offset: { x: 0.8, y: -0.05, z: 0.6 }
@@ -456,8 +456,10 @@ const starTextureProfiles = {
     redDwarf: 'textures/stars/red_dwarf_surface.jpg',
     blueWhite: 'textures/stars/blue_white_star_surface.jpg',
     white: 'textures/stars/white_star_surface.jpg',
-    betelgeuse: 'textures/stars/betelgeuse_surface.jpg',
-    antares: 'textures/stars/antares_surface.jpg',
+    betelgeuse: 'textures/stars/generated/betelgeuse_custom.png',
+    antares: 'textures/stars/generated/antares_custom.jpg',
+    vyCanisMajoris: 'textures/stars/generated/vy_canis_majoris_custom.png',
+    uyScuti: 'textures/stars/generated/uy_scuti_custom.png',
     redSupergiant: 'textures/stars/red_supergiant_surface.jpg'
 };
 
@@ -1472,7 +1474,7 @@ const cosmicScaleItems = [
         diameterKm: SOLAR_DIAMETER_KM * 680,
         displaySize: '约太阳的680倍',
         kind: 'sphere',
-        visual: "url('textures/stars/antares_surface.jpg') center/cover",
+        visual: "url('textures/stars/generated/antares_custom.jpg') center/cover",
         note: '心宿二是红超巨星，如果放到太阳的位置，外层会伸到火星轨道附近。'
     },
     {
@@ -1483,7 +1485,7 @@ const cosmicScaleItems = [
         diameterKm: SOLAR_DIAMETER_KM * 887,
         displaySize: '约太阳的887倍',
         kind: 'sphere',
-        visual: "url('textures/stars/betelgeuse_surface.jpg') center/cover",
+        visual: "url('textures/stars/generated/betelgeuse_custom.png') center/cover",
         note: '参宿四是猎户座的红超巨星，已经大到能吞掉内侧行星轨道。'
     },
     {
@@ -1494,7 +1496,7 @@ const cosmicScaleItems = [
         diameterKm: SOLAR_DIAMETER_KM * 1420,
         displaySize: '约太阳的1420倍',
         kind: 'sphere',
-        visual: "url('textures/stars/red_supergiant_surface.jpg') center/cover",
+        visual: "url('textures/stars/generated/vy_canis_majoris_custom.png') center/cover",
         note: '大犬座VY巨大到让太阳显得像一颗小亮点。'
     },
     {
@@ -1505,7 +1507,7 @@ const cosmicScaleItems = [
         diameterKm: SOLAR_DIAMETER_KM * 1700,
         displaySize: '约太阳的1700倍',
         kind: 'sphere',
-        visual: "url('textures/stars/red_supergiant_surface.jpg') center/cover",
+        visual: "url('textures/stars/generated/uy_scuti_custom.png') center/cover",
         note: '盾牌座UY是孩子理解巨星尺度时很震撼的一站。'
     },
     {
