@@ -1698,21 +1698,21 @@ const cosmicScaleItems = [
         diameterKm: 10000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约1000万光年',
         kind: 'photo',
-        aspect: 1.67,
-        visual: "url('textures/deep-sky/generated/local-group-page-capture.png') center/cover",
+        aspect: 1.31,
+        visual: "url('textures/deep-sky/generated/local-group-custom.png') center/cover",
         note: '银河系、仙女座星系和许多矮星系一起组成了本星系群。'
     },
     {
         key: 'virgoSupercluster',
-        name: '室女座超星系团',
-        nameEn: 'Virgo Supercluster',
+        name: '室女座星系团',
+        nameEn: 'Virgo Cluster',
         section: 'structure',
-        diameterKm: 110000000 * LIGHT_YEAR_IN_KM,
-        displaySize: '约1.1亿光年',
+        diameterKm: 15000000 * LIGHT_YEAR_IN_KM,
+        displaySize: '约1500万光年',
         kind: 'photo',
-        aspect: 1.67,
-        visual: "url('textures/deep-sky/generated/virgo-page-capture.png') center/cover",
-        note: '本星系群只是室女座超星系团里很小的一部分。'
+        aspect: 2.10,
+        visual: "url('textures/deep-sky/generated/virgo-cluster-custom.png') center/cover",
+        note: '室女座星系团包含上千个星系，是本星系群附近最重要的大型星系团之一。'
     },
     {
         key: 'laniakea',
@@ -1722,8 +1722,8 @@ const cosmicScaleItems = [
         diameterKm: 520000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约5.2亿光年',
         kind: 'photo',
-        aspect: 1.67,
-        visual: "url('textures/deep-sky/generated/laniakea-page-capture.png') center/cover",
+        aspect: 1.14,
+        visual: "url('textures/deep-sky/generated/laniakea-custom.png') center/cover",
         note: '拉尼亚凯亚像一张巨大的宇宙网，包含约10万个星系。'
     },
     {
@@ -1734,8 +1734,8 @@ const cosmicScaleItems = [
         diameterKm: 93000000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约930亿光年',
         kind: 'photo',
-        aspect: 1.67,
-        visual: "url('textures/deep-sky/generated/observable-universe-page-capture.png') center/cover",
+        aspect: 1.73,
+        visual: "url('textures/deep-sky/generated/observable-universe-custom.png') center/cover",
         note: '这是光能够把信息带到我们眼前的最大范围，宇宙本身可能还更大。'
     }
 ].sort((a, b) => a.diameterKm - b.diameterKm);
