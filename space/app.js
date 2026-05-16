@@ -3,6 +3,88 @@
  * 使用 Three.js 创建的交互式太阳系动画
  */
 
+const SOLAR_MASS_10E24_KG = 1989100;
+const EARTH_DIAMETER_KM = 12742;
+const BLACK_HOLE_SCHWARZSCHILD_RADIUS_PER_SOLAR_MASS_KM = 2.95;
+const DEFAULT_BLACK_HOLE_BODY_KEY = 'sagittariusA';
+const BLACK_HOLE_GRAVITY_BASE_RADIUS_KM = 1000000000;
+
+const BLACK_HOLE_BODY_CONFIGS = {
+    sagittariusA: {
+        nameCN: '银河系中心黑洞',
+        shortName: 'Sgr A*',
+        nameEN: 'Sagittarius A*',
+        type: '超大质量黑洞',
+        massSolar: 4300000,
+        color: 0xffefd6,
+        pickerName: '银河系黑洞',
+        description: '银河系中心黑洞 Sgr A* 藏在银河系中央，质量大约是太阳的430万倍，是认识超大质量黑洞的起点。'
+    },
+    m31BlackHole: {
+        nameCN: '仙女座中心黑洞',
+        shortName: 'M31*',
+        nameEN: 'M31*',
+        type: '超大质量黑洞',
+        massSolar: 140000000,
+        color: 0xffd59a,
+        pickerName: '仙女座黑洞',
+        description: '仙女座中心黑洞 M31* 位于仙女座星系中央，质量大约是太阳的1.4亿倍，是银河系中心黑洞的30多倍。'
+    },
+    s50014BlackHole: {
+        nameCN: 'S5 0014+81',
+        shortName: 'S5 0014+81',
+        nameEN: 'S5 0014+81',
+        type: '超大质量黑洞',
+        massSolar: 40000000000,
+        color: 0xffb66e,
+        pickerName: 'S5 0014+81',
+        description: 'S5 0014+81 是遥远类星体里的巨型黑洞，常见估算约为太阳质量的400亿倍，比仙女座中心黑洞还要大很多。'
+    },
+    ton618BlackHole: {
+        nameCN: 'TON 618',
+        shortName: 'TON 618',
+        nameEN: 'TON 618',
+        type: '超大质量黑洞',
+        massSolar: 60000000000,
+        massPrefix: '超过',
+        color: 0xff9f55,
+        pickerName: 'TON 618',
+        description: 'TON 618 是非常夸张的超大质量黑洞，质量超过太阳的600亿倍，适合作为黑洞尺度对比里的终极大个子。'
+    }
+};
+const BLACK_HOLE_BODY_KEYS = Object.keys(BLACK_HOLE_BODY_CONFIGS);
+
+function getBlackHoleEventHorizonRadiusKm(bodyKey) {
+    const config = BLACK_HOLE_BODY_CONFIGS[bodyKey] || BLACK_HOLE_BODY_CONFIGS[DEFAULT_BLACK_HOLE_BODY_KEY];
+    return config.massSolar * BLACK_HOLE_SCHWARZSCHILD_RADIUS_PER_SOLAR_MASS_KM;
+}
+
+function getBlackHoleGravityRadiusKm(bodyKey) {
+    const config = BLACK_HOLE_BODY_CONFIGS[bodyKey] || BLACK_HOLE_BODY_CONFIGS[DEFAULT_BLACK_HOLE_BODY_KEY];
+    return BLACK_HOLE_GRAVITY_BASE_RADIUS_KM * (config.massSolar / BLACK_HOLE_BODY_CONFIGS[DEFAULT_BLACK_HOLE_BODY_KEY].massSolar);
+}
+
+function createBlackHolePlanetData(bodyKey) {
+    const config = BLACK_HOLE_BODY_CONFIGS[bodyKey];
+    const eventHorizonDiameter = getBlackHoleEventHorizonRadiusKm(bodyKey) * 2;
+    return {
+        name: config.nameCN,
+        nameCN: config.nameCN,
+        nameEN: config.nameEN,
+        type: config.type,
+        diameter: Math.round(eventHorizonDiameter),
+        mass: SOLAR_MASS_10E24_KG * config.massSolar,
+        category: 'blackHole',
+        distance: 0,
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: config.color,
+        emissive: 0x0a0400,
+        description: config.description,
+        relativeSize: eventHorizonDiameter / EARTH_DIAMETER_KM
+    };
+}
+
 const STAR_SURFACE_TEXTURES = {
     proximaCentauri: 'textures/stars/red_dwarf_surface.jpg',
     alphaCentauri: 'textures/stars/yellow_star_surface.jpg',
@@ -23,7 +105,7 @@ const planetData = {
         nameEN: 'Sun',
         type: '恒星',
         diameter: 1392700, // km
-        mass: 1989100, // 10²⁴ kg
+        mass: SOLAR_MASS_10E24_KG, // 10²⁴ kg
         category: 'star',
         distance: 0,
         orbitPeriod: 0,
@@ -187,6 +269,10 @@ const planetData = {
         relativeSize: 185807.57,
         texturePath: STAR_SURFACE_TEXTURES.uyScuti
     },
+    sagittariusA: createBlackHolePlanetData('sagittariusA'),
+    m31BlackHole: createBlackHolePlanetData('m31BlackHole'),
+    s50014BlackHole: createBlackHolePlanetData('s50014BlackHole'),
+    ton618BlackHole: createBlackHolePlanetData('ton618BlackHole'),
     mercury: {
         name: '水星',
         nameCN: '水星',
@@ -1039,6 +1125,7 @@ const SATELLITE_COMPARISON_KEYS = [
     'deimos'
 ];
 const COMPARISON_BODY_KEYS = [
+    ...BLACK_HOLE_BODY_KEYS,
     'uyScuti',
     'vyCanisMajoris',
     'betelgeuse',
@@ -1117,7 +1204,7 @@ function getDiameterBaseSequenceKeys() {
     return uniqueDiameterComparisonKeys([
         'oortCloud',
         DIAMETER_BLACK_HOLE_KEY,
-        ...sortComparisonKeys(COMPARISON_BODY_KEYS, 'diameter')
+        ...sortComparisonKeys(COMPARISON_BODY_KEYS.filter(key => !isBlackHoleBodyKey(key)), 'diameter')
     ]);
 }
 
@@ -1132,9 +1219,13 @@ function getDiameterStartSubtitle(key) {
         return '从奥尔特云开始，把黑洞、巨星、太阳、比邻星和后面的天体按真实直径排在一起';
     }
     if (key === DIAMETER_BLACK_HOLE_KEY) {
-        return '去掉奥尔特云，从黑洞开始，后面的天体会按当前最大天体重新缩放';
+        return '去掉奥尔特云，从 TON 618、S5、仙女座、银河系这些黑洞开始，后面的天体会按当前最大天体重新缩放';
     }
     return `从${planetData[key].nameCN}开始，前面更大的天体先收起来，后面的天体按真实直径重新缩放`;
+}
+
+function expandDiameterBlackHoleKeys(keys) {
+    return keys.flatMap(key => key === DIAMETER_BLACK_HOLE_KEY ? BLACK_HOLE_BODY_KEYS : [key]);
 }
 
 function buildDiameterDetailProfiles() {
@@ -1143,11 +1234,11 @@ function buildDiameterDetailProfiles() {
         .map(startKey => {
             const startIndex = baseSequence.indexOf(startKey);
             if (startIndex < 0) return null;
-            const planets = baseSequence.slice(startIndex);
+            const planets = expandDiameterBlackHoleKeys(baseSequence.slice(startIndex));
             return {
                 label: getDiameterStartLabel(startKey),
                 subtitle: getDiameterStartSubtitle(startKey),
-                isBlackHoleProfile: planets.includes(DIAMETER_BLACK_HOLE_KEY),
+                isBlackHoleProfile: planets.some(isBlackHoleBodyKey),
                 planets
             };
         })
@@ -1186,6 +1277,8 @@ let activeDragCleanup = null; // 当前拖拽态的兜底清理函数
 let pendingDragResultRevealIds = []; // 拖拽结果延时显隐定时器
 let isRealMotion = false; // 是否使用真实自转 / 公转比例
 let simulationTime = 0; // 暂停期间不增长，恢复时从冻结画面继续
+let currentBlackHoleBodyKey = DEFAULT_BLACK_HOLE_BODY_KEY;
+let currentDragBlackHoleBodyKey = DEFAULT_BLACK_HOLE_BODY_KEY;
 let currentBlackHoleScope = 'blackHoleEventHorizon'; // 黑洞能装子口径
 let currentDragBlackHoleScope = 'blackHoleEventHorizon'; // 拖进黑洞子口径
 
@@ -1197,9 +1290,9 @@ const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
 const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
 // 黑洞口径：事件视界（史瓦西半径）与引力影响区
-const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = 12000000;
+const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = Math.round(getBlackHoleEventHorizonRadiusKm(DEFAULT_BLACK_HOLE_BODY_KEY));
 // 简化教学口径：用“引力影响区”展示 Sgr A*，约 1,000,000,000 km（约 6.7 AU）
-const BLACK_HOLE_GRAVITY_RADIUS_KM = 1000000000;
+const BLACK_HOLE_GRAVITY_RADIUS_KM = BLACK_HOLE_GRAVITY_BASE_RADIUS_KM;
 const COMPARISON_MODE_ALIASES = {
     volume: 'volumeCapacity',
     sunVolume: 'volumeCapacity'
@@ -1243,6 +1336,57 @@ const BLACK_HOLE_SCOPE_OPTIONS = [
     { key: 'blackHoleEventHorizon', label: '事件视界' },
     { key: 'blackHoleGravitationalRadius', label: '引力影响区' }
 ];
+
+function isBlackHoleBodyKey(key) {
+    return BLACK_HOLE_BODY_KEYS.includes(key);
+}
+
+function getBlackHoleTargetKey(bodyKey, scopeKey = 'blackHoleEventHorizon') {
+    if (bodyKey === DEFAULT_BLACK_HOLE_BODY_KEY) {
+        return scopeKey === 'blackHoleGravitationalRadius' ? 'blackHoleGravitationalRadius' : 'blackHoleEventHorizon';
+    }
+    return scopeKey === 'blackHoleGravitationalRadius' ? `${bodyKey}GravitationalRadius` : bodyKey;
+}
+
+function getBlackHoleTargetDescriptor(targetKey) {
+    if (targetKey === 'blackHole' || targetKey === 'blackHoleEventHorizon') {
+        return { bodyKey: DEFAULT_BLACK_HOLE_BODY_KEY, scopeKey: 'blackHoleEventHorizon' };
+    }
+    if (targetKey === 'blackHoleGravitationalRadius') {
+        return { bodyKey: DEFAULT_BLACK_HOLE_BODY_KEY, scopeKey: 'blackHoleGravitationalRadius' };
+    }
+    if (isBlackHoleBodyKey(targetKey)) {
+        return { bodyKey: targetKey, scopeKey: 'blackHoleEventHorizon' };
+    }
+    const gravitySuffix = 'GravitationalRadius';
+    if (typeof targetKey === 'string' && targetKey.endsWith(gravitySuffix)) {
+        const bodyKey = targetKey.slice(0, -gravitySuffix.length);
+        if (isBlackHoleBodyKey(bodyKey)) {
+            return { bodyKey, scopeKey: 'blackHoleGravitationalRadius' };
+        }
+    }
+    return null;
+}
+
+function getBlackHoleDisplayName(bodyKey, withShortName = true) {
+    const config = BLACK_HOLE_BODY_CONFIGS[bodyKey] || BLACK_HOLE_BODY_CONFIGS[DEFAULT_BLACK_HOLE_BODY_KEY];
+    return withShortName && config.shortName && config.shortName !== config.nameCN
+        ? `${config.nameCN} ${config.shortName}`
+        : config.nameCN;
+}
+
+function getBlackHoleMassSolarPhrase(bodyKey) {
+    const config = BLACK_HOLE_BODY_CONFIGS[bodyKey] || BLACK_HOLE_BODY_CONFIGS[DEFAULT_BLACK_HOLE_BODY_KEY];
+    const prefix = config.massPrefix || '约';
+    return `${prefix}为太阳质量的${formatCompactCount(config.massSolar)}倍`;
+}
+
+function getBlackHoleScopeDiameterKm(bodyKey, scopeKey) {
+    const radius = scopeKey === 'blackHoleGravitationalRadius'
+        ? getBlackHoleGravityRadiusKm(bodyKey)
+        : getBlackHoleEventHorizonRadiusKm(bodyKey);
+    return Math.round(radius * 2);
+}
 const TEACHING_NUMBER_FONT = '"Noto Sans SC", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif';
 
 function clearPendingDragResultReveal(resetContent = false) {
@@ -1298,7 +1442,6 @@ function isDragComparisonTab(mode) {
 function isCapacityComparisonMode(mode) {
     return CAPACITY_COMPARISON_TABS.has(normalizeComparisonMode(mode));
 }
-const BLACK_HOLE_MASS_IN_SOLAR_MASSES = 4000000;
 const BLACK_HOLE_TEXTURE_PATH = 'textures/2.png';
 const blackHoleTextureImage = new Image();
 blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
@@ -1307,6 +1450,10 @@ blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
 // 在 canvas 粒子里贴对应天体的真实纹理（用 Solar System Scope 资源）
 const DRAG_VOLUME_TEXTURE_PATHS = {
     sun: 'textures/sun.jpg',
+    sagittariusA: BLACK_HOLE_TEXTURE_PATH,
+    m31BlackHole: BLACK_HOLE_TEXTURE_PATH,
+    s50014BlackHole: BLACK_HOLE_TEXTURE_PATH,
+    ton618BlackHole: BLACK_HOLE_TEXTURE_PATH,
     proximaCentauri: STAR_SURFACE_TEXTURES.proximaCentauri,
     alphaCentauri: STAR_SURFACE_TEXTURES.alphaCentauri,
     betaCentauri: STAR_SURFACE_TEXTURES.betaCentauri,
@@ -4983,6 +5130,36 @@ function updatePlanetScales() {
 }
 
 // ============ 行星对比换算工具 ============
+function buildBlackHoleCapacityTargets() {
+    const targets = {
+        blackHole: createBlackHoleCapacityTarget(DEFAULT_BLACK_HOLE_BODY_KEY, 'blackHoleEventHorizon', 'blackHole'),
+        blackHoleEventHorizon: createBlackHoleCapacityTarget(DEFAULT_BLACK_HOLE_BODY_KEY, 'blackHoleEventHorizon', 'blackHoleEventHorizon'),
+        blackHoleGravitationalRadius: createBlackHoleCapacityTarget(DEFAULT_BLACK_HOLE_BODY_KEY, 'blackHoleGravitationalRadius', 'blackHoleGravitationalRadius')
+    };
+
+    BLACK_HOLE_BODY_KEYS.forEach(bodyKey => {
+        BLACK_HOLE_TARGET_KEYS.forEach(scopeKey => {
+            const targetKey = getBlackHoleTargetKey(bodyKey, scopeKey);
+            if (!targets[targetKey]) {
+                targets[targetKey] = createBlackHoleCapacityTarget(bodyKey, scopeKey, targetKey);
+            }
+        });
+    });
+
+    return targets;
+}
+
+function createBlackHoleCapacityTarget(bodyKey, scopeKey, targetKey) {
+    const config = BLACK_HOLE_BODY_CONFIGS[bodyKey];
+    const scopeName = BLACK_HOLE_SCOPE_LABELS[scopeKey];
+    return {
+        key: targetKey,
+        nameCN: `${config.pickerName || config.nameCN}（${scopeName}）`,
+        color: '#' + config.color.toString(16).padStart(6, '0'),
+        objectKeys: getCapacityObjectKeys(targetKey).filter(key => key !== bodyKey)
+    };
+}
+
 const CAPACITY_TARGETS = {
     uyScuti: {
         key: 'uyScuti',
@@ -5096,24 +5273,7 @@ const CAPACITY_TARGETS = {
         color: '#c1440e',
         objectKeys: getCapacityObjectKeys('mars')
     },
-    blackHole: {
-        key: 'blackHole',
-        nameCN: '黑洞（事件视界）',
-        color: '#fff3cf',
-        objectKeys: getCapacityObjectKeys('blackHole')
-    },
-    blackHoleEventHorizon: {
-        key: 'blackHoleEventHorizon',
-        nameCN: '黑洞（事件视界）',
-        color: '#fff3cf',
-        objectKeys: getCapacityObjectKeys('blackHoleEventHorizon')
-    },
-    blackHoleGravitationalRadius: {
-        key: 'blackHoleGravitationalRadius',
-        nameCN: '黑洞（引力影响区）',
-        color: '#ffd59a',
-        objectKeys: getCapacityObjectKeys('blackHoleGravitationalRadius')
-    },
+    ...buildBlackHoleCapacityTargets(),
     proximaCentauri: {
         key: 'proximaCentauri',
         nameCN: '比邻星',
@@ -5162,12 +5322,10 @@ const CAPACITY_COUNT_OVERRIDES = {
 };
 
 function getCapacityTargetValue(targetKey, metric) {
-    if (BLACK_HOLE_TARGET_KEYS.includes(targetKey) || targetKey === 'blackHole') {
-        if (metric === 'mass') return planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES;
-        const radiusKm = targetKey === 'blackHoleGravitationalRadius'
-            ? BLACK_HOLE_GRAVITY_RADIUS_KM
-            : BLACK_HOLE_EVENT_HORIZON_RADIUS_KM;
-        return radiusKm * 2;
+    const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
+    if (blackHoleDescriptor) {
+        if (metric === 'mass') return planetData[blackHoleDescriptor.bodyKey].mass;
+        return getBlackHoleScopeDiameterKm(blackHoleDescriptor.bodyKey, blackHoleDescriptor.scopeKey);
     }
     const target = planetData[targetKey];
     return metric === 'mass' ? target.mass : target.diameter;
@@ -5190,11 +5348,11 @@ function getCapacityCount(targetKey, objectKey, metric = currentComparisonMetric
 }
 
 function isBlackHoleTargetType(targetKey) {
-    return targetKey === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(targetKey);
+    return !!getBlackHoleTargetDescriptor(targetKey);
 }
 
 function isBlackHoleCapacityParent(targetKey) {
-    return targetKey === 'blackHole' || isBlackHoleTargetType(targetKey);
+    return !!getBlackHoleTargetDescriptor(targetKey);
 }
 
 function isDragBlackHoleCapacityParent(targetKey) {
@@ -5202,20 +5360,27 @@ function isDragBlackHoleCapacityParent(targetKey) {
 }
 
 function getBlackHoleScopeFromView(targetView, fallback = 'blackHoleEventHorizon') {
-    return targetView === 'blackHoleGravitationalRadius' || targetView === 'dragBlackHoleGravitationalRadius'
+    const descriptor = getBlackHoleTargetDescriptor(targetView);
+    if (descriptor) return descriptor.scopeKey;
+    return targetView === 'dragBlackHoleGravitationalRadius'
         ? 'blackHoleGravitationalRadius'
         : fallback;
 }
 
 function getBlackHoleScopeLabel(targetKey) {
-    if (targetKey === 'blackHoleGravitationalRadius') return BLACK_HOLE_SCOPE_LABELS.blackHoleGravitationalRadius;
-    return BLACK_HOLE_SCOPE_LABELS.blackHoleEventHorizon;
+    const descriptor = getBlackHoleTargetDescriptor(targetKey);
+    const scopeKey = descriptor?.scopeKey || targetKey;
+    return BLACK_HOLE_SCOPE_LABELS[scopeKey] || BLACK_HOLE_SCOPE_LABELS.blackHoleEventHorizon;
 }
 
 function getBlackHoleScopeRadius(targetKey) {
-    return targetKey === 'blackHoleGravitationalRadius'
-        ? BLACK_HOLE_GRAVITY_RADIUS_KM
-        : BLACK_HOLE_EVENT_HORIZON_RADIUS_KM;
+    const descriptor = getBlackHoleTargetDescriptor(targetKey) || {
+        bodyKey: DEFAULT_BLACK_HOLE_BODY_KEY,
+        scopeKey: targetKey
+    };
+    return descriptor.scopeKey === 'blackHoleGravitationalRadius'
+        ? getBlackHoleGravityRadiusKm(descriptor.bodyKey)
+        : getBlackHoleEventHorizonRadiusKm(descriptor.bodyKey);
 }
 
 function getCapacityData(targetKey) {
@@ -5251,13 +5416,15 @@ function setCurrentCapacitySelection(targetKey, value) {
 
 function getCapacitySubtitle(targetKey) {
     const target = CAPACITY_TARGETS[targetKey];
-    if (isBlackHoleTargetType(targetKey)) {
+    const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
+    if (blackHoleDescriptor) {
         const scopeLabel = getBlackHoleScopeLabel(targetKey);
+        const blackHoleName = getBlackHoleDisplayName(blackHoleDescriptor.bodyKey);
         return currentComparisonMetric === 'mass'
-            ? `按质量测算，银河系中心黑洞 Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍`
+            ? `按质量测算，${blackHoleName}${getBlackHoleMassSolarPhrase(blackHoleDescriptor.bodyKey)}`
             : currentComparisonMetric === 'width'
-                ? `按宽度测算，银河系中心黑洞 Sgr A* 的${scopeLabel}直径约等于太阳直径的${formatCapacityLabel(getCapacityCount(targetKey, 'sun'))}倍`
-                : `按${scopeLabel}体积估算，银河系中心黑洞 Sgr A* 的${scopeLabel}半径约 ${formatNumber(getBlackHoleScopeRadius(targetKey))} 公里`;
+                ? `按宽度测算，${blackHoleName}的${scopeLabel}直径约等于太阳直径的${formatCapacityLabel(getCapacityCount(targetKey, 'sun'))}倍`
+                : `按${scopeLabel}体积估算，${blackHoleName}的${scopeLabel}半径约 ${formatNumber(Math.round(getBlackHoleScopeRadius(targetKey)))} 公里`;
     }
 
     const earthCount = getCapacityCount(targetKey, 'earth');
@@ -5274,7 +5441,10 @@ function getCapacitySubtitle(targetKey) {
 }
 
 function getCapacityTargetDisplayName(targetKey) {
-    return isBlackHoleTargetType(targetKey) ? '黑洞' : (CAPACITY_TARGETS[targetKey]?.nameCN || '');
+    const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
+    return blackHoleDescriptor
+        ? getBlackHoleDisplayName(blackHoleDescriptor.bodyKey, false)
+        : (CAPACITY_TARGETS[targetKey]?.nameCN || '');
 }
 
 function getCapacityUnitText(targetKey, selected) {
@@ -5289,15 +5459,17 @@ function getCapacityUnitText(targetKey, selected) {
 }
 
 function getCapacityNote(targetKey) {
-    if (isBlackHoleTargetType(targetKey)) {
+    const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
+    if (blackHoleDescriptor) {
         const scopeLabel = getBlackHoleScopeLabel(targetKey);
+        const blackHoleName = getBlackHoleDisplayName(blackHoleDescriptor.bodyKey);
         if (currentComparisonMetric === 'mass') {
-            return `按质量估算：Sgr A* 约为太阳质量的${formatCompactCount(BLACK_HOLE_MASS_IN_SOLAR_MASSES)}倍，数量 = 黑洞质量 / 天体质量。`;
+            return `按质量估算：${blackHoleName}${getBlackHoleMassSolarPhrase(blackHoleDescriptor.bodyKey)}，数量 = 黑洞质量 / 天体质量。`;
         }
         if (currentComparisonMetric === 'width') {
-            return `按宽度估算：数量 = ${scopeLabel}直径 / 天体直径，表示把这些天体横向排起来大约能排多少个。`;
+            return `按宽度估算：${blackHoleName}${scopeLabel}直径约 ${formatNumber(getBlackHoleScopeDiameterKm(blackHoleDescriptor.bodyKey, blackHoleDescriptor.scopeKey))} 公里，数量 = ${scopeLabel}直径 / 天体直径。`;
         }
-        return `按${scopeLabel}估算：能装数量 ≈ (${scopeLabel}半径 / 天体半径)³，数值会比较大，仅用于量级理解。`;
+        return `按${scopeLabel}估算：${blackHoleName}${scopeLabel}半径约 ${formatNumber(Math.round(getBlackHoleScopeRadius(targetKey)))} 公里，能装数量 ≈ (${scopeLabel}半径 / 天体半径)³。`;
     }
 
     const targetBody = planetData[targetKey];
@@ -5345,6 +5517,12 @@ function renderCapacityComparison(container, subtitle, targetKey) {
 }
 
 function renderCapacityTargetPicker(container) {
+    const blackHoleTargetOptions = BLACK_HOLE_BODY_KEYS.map(bodyKey => ({
+        key: getBlackHoleTargetKey(bodyKey, currentBlackHoleScope),
+        icon: '🕳️',
+        name: BLACK_HOLE_BODY_CONFIGS[bodyKey].pickerName || BLACK_HOLE_BODY_CONFIGS[bodyKey].nameCN,
+        blackHoleBodyKey: bodyKey
+    }));
     const targetOptions = [
         { key: 'sun', icon: '☀️', name: '太阳' },
         { key: 'jupiter', icon: '🪐', name: '木星' },
@@ -5354,7 +5532,7 @@ function renderCapacityTargetPicker(container) {
         { key: 'earth', icon: '🌍', name: '地球' },
         { key: 'venus', icon: '🟡', name: '金星' },
         { key: 'mars', icon: '🔴', name: '火星' },
-        { key: 'blackHole', icon: '🕳️', name: '黑洞', isGroup: true },
+        ...blackHoleTargetOptions,
         { key: 'uyScuti', icon: '⭐', name: '盾牌座UY' },
         { key: 'vyCanisMajoris', icon: '⭐', name: '大犬座VY' },
         { key: 'betelgeuse', icon: '⭐', name: '参宿四' },
@@ -5376,23 +5554,22 @@ function renderCapacityTargetPicker(container) {
     targetOptions.forEach(option => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        const isActive = option.key === 'blackHole'
-            ? isBlackHoleCapacityParent(currentCapacityView)
+        const currentBlackHoleDescriptor = getBlackHoleTargetDescriptor(currentCapacityView);
+        const isActive = option.blackHoleBodyKey
+            ? currentBlackHoleDescriptor?.bodyKey === option.blackHoleBodyKey
             : option.key === 'dragBlackHole'
                 ? isDragBlackHoleCapacityParent(currentCapacityView)
                 : option.key === currentCapacityView;
         btn.className = `capacity-target-btn${isActive ? ' active' : ''}`;
         btn.dataset.capacityView = option.key;
-        const targetLabel = option.key === 'blackHole'
-            ? `${option.name}${suffix}`
-            : option.isAction || option.isGroup
-                ? option.name
-                : `${option.name}${suffix}`;
+        const targetLabel = option.isAction || option.isGroup
+            ? option.name
+            : `${option.name}${suffix}`;
         btn.textContent = `${option.icon} ${targetLabel}`;
         btn.addEventListener('click', () => {
-            if (option.key === 'blackHole') {
-                currentCapacityView = 'blackHole';
-                currentBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentBlackHoleScope);
+            if (option.blackHoleBodyKey) {
+                currentBlackHoleBodyKey = option.blackHoleBodyKey;
+                currentCapacityView = getBlackHoleTargetKey(currentBlackHoleBodyKey, currentBlackHoleScope);
             } else if (option.key === 'dragBlackHole') {
                 currentCapacityView = 'dragBlackHole';
                 currentDragBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentDragBlackHoleScope);
@@ -5430,8 +5607,13 @@ function renderBlackHoleScopePicker(container, mode = 'capacity', options = {}) 
         btn.addEventListener('click', () => {
             if (mode === 'drag') {
                 currentDragBlackHoleScope = option.key;
+                currentDragBlackHoleBodyKey = currentDragBlackHoleBodyKey || DEFAULT_BLACK_HOLE_BODY_KEY;
             } else {
                 currentBlackHoleScope = option.key;
+                if (mode !== 'diameter') {
+                    currentBlackHoleBodyKey = currentBlackHoleBodyKey || DEFAULT_BLACK_HOLE_BODY_KEY;
+                    currentCapacityView = getBlackHoleTargetKey(currentBlackHoleBodyKey, currentBlackHoleScope);
+                }
             }
             generateSizeComparison(currentComparisonTab);
         });
@@ -5455,9 +5637,12 @@ function renderCapacityMode(container, subtitle) {
         return;
     }
     if (isBlackHoleCapacityParent(currentCapacityView)) {
-        currentBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentBlackHoleScope);
+        const descriptor = getBlackHoleTargetDescriptor(currentCapacityView);
+        currentBlackHoleBodyKey = descriptor?.bodyKey || currentBlackHoleBodyKey || DEFAULT_BLACK_HOLE_BODY_KEY;
+        currentBlackHoleScope = descriptor?.scopeKey || getBlackHoleScopeFromView(currentCapacityView, currentBlackHoleScope);
+        currentCapacityView = getBlackHoleTargetKey(currentBlackHoleBodyKey, currentBlackHoleScope);
         renderBlackHoleScopePicker(container);
-        renderCapacityComparison(container, subtitle, currentBlackHoleScope);
+        renderCapacityComparison(container, subtitle, currentCapacityView);
         return;
     }
     renderCapacityComparison(container, subtitle, currentCapacityView);
@@ -5468,7 +5653,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     const isBlackHole = isBlackHoleTargetType(targetKey);
     const blackHoleScopeLabel = isBlackHole ? getBlackHoleScopeLabel(targetKey) : '';
     const capacityData = getCapacityData(targetKey);
-    const targetDisplayName = isBlackHole ? '黑洞' : target.nameCN;
+    const targetDisplayName = isBlackHole ? getCapacityTargetDisplayName(targetKey) : target.nameCN;
     const includeBarChart = !!options.includeBarChart;
     const isStellarTarget = !isBlackHole && planetData[targetKey]?.category === 'star';
 
@@ -5873,19 +6058,25 @@ function generateSizeComparison(mode) {
     };
 
     const getDiameterPlanetData = (key) => {
-        if (key === DIAMETER_BLACK_HOLE_KEY || key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
-            const scopeKey = BLACK_HOLE_TARGET_KEYS.includes(key) ? key : currentBlackHoleScope;
-            const isGravityScope = scopeKey === 'blackHoleGravitationalRadius';
+        const blackHoleDescriptor = key === DIAMETER_BLACK_HOLE_KEY
+            ? { bodyKey: DEFAULT_BLACK_HOLE_BODY_KEY, scopeKey: currentBlackHoleScope }
+            : isBlackHoleBodyKey(key)
+                ? { bodyKey: key, scopeKey: currentBlackHoleScope }
+            : getBlackHoleTargetDescriptor(key);
+        if (blackHoleDescriptor) {
+            const scopeKey = blackHoleDescriptor.scopeKey;
+            const bodyKey = blackHoleDescriptor.bodyKey;
             const scopeLabel = getBlackHoleScopeLabel(scopeKey);
+            const config = BLACK_HOLE_BODY_CONFIGS[bodyKey];
             return {
-                name: '银河系中心黑洞',
-                nameCN: '黑洞',
-                nameEN: 'Black Hole',
+                name: config.nameCN,
+                nameCN: config.nameCN,
+                nameEN: config.nameEN,
                 type: `${scopeLabel}口径`,
-                diameter: (isGravityScope ? BLACK_HOLE_GRAVITY_RADIUS_KM : BLACK_HOLE_EVENT_HORIZON_RADIUS_KM) * 2,
-                mass: planetData.sun.mass * BLACK_HOLE_MASS_IN_SOLAR_MASSES,
+                diameter: getBlackHoleScopeDiameterKm(bodyKey, scopeKey),
+                mass: planetData[bodyKey].mass,
                 category: 'blackHole',
-                color: 0xffefd6
+                color: config.color
             };
         }
         if (key === 'oortCloud' && planetData[key]) {
@@ -5898,7 +6089,7 @@ function generateSizeComparison(mode) {
     };
 
     const getDiameterSphereStyle = (key, data) => {
-        if (key === DIAMETER_BLACK_HOLE_KEY || key === 'blackHole' || BLACK_HOLE_TARGET_KEYS.includes(key)) {
+        if (key === DIAMETER_BLACK_HOLE_KEY || getBlackHoleTargetDescriptor(key)) {
             return `background: url('${BLACK_HOLE_TEXTURE_PATH}') center/cover;`;
         }
         if (key === 'proximaCentauri') {
@@ -5986,7 +6177,7 @@ function generateSizeComparison(mode) {
                 currentBlackHoleScope = diameterBlackHoleScope;
             }
             const detailPlanets = isBlackHoleDetailProfile
-                ? profile.planets.map(name => (name === DIAMETER_BLACK_HOLE_KEY || BLACK_HOLE_TARGET_KEYS.includes(name) ? diameterBlackHoleScope : name))
+                ? profile.planets.slice()
                 : sortComparisonKeys(profile.planets, 'diameter');
             if (isBlackHoleDetailProfile) {
                 detailPlanets.sort((a, b) => {
@@ -6016,7 +6207,7 @@ function generateSizeComparison(mode) {
                     ? '= 1 地球'
                     : `= ${earthRatio.toFixed(2)} 地球`;
                 const bgStyle = getDiameterSphereStyle(name, data);
-                const extraStyle = name === DIAMETER_BLACK_HOLE_KEY || BLACK_HOLE_TARGET_KEYS.includes(name) || name === 'blackHole'
+                const extraStyle = name === DIAMETER_BLACK_HOLE_KEY || !!getBlackHoleTargetDescriptor(name)
                     ? 'box-shadow: 0 0 50px rgba(255, 210, 140, 0.5), 0 0 100px rgba(255, 90, 20, 0.25);'
                     : '';
 
@@ -6126,6 +6317,9 @@ function generateSizeComparison(mode) {
             let displaySize;
             if (name === 'sun') {
                 displaySize = sunDisplaySize;
+            } else if (data.category === 'blackHole') {
+                const ratio = data.mass / sunMass;
+                displaySize = Math.min(360, 110 + Math.log10(ratio) * 26);
             } else if (data.category === 'star') {
                 const ratio = data.mass / sunMass;
                 displaySize = sunDisplaySize * Math.cbrt(ratio);
@@ -6140,7 +6334,9 @@ function generateSizeComparison(mode) {
             // 格式化质量显示
             let massDisplay;
             const earthMasses = data.mass / 5.97;
-            if (data.mass >= 100) {
+            if (data.category === 'blackHole') {
+                massDisplay = `${formatCompactCount(BLACK_HOLE_BODY_CONFIGS[name].massSolar)} 太阳质量`;
+            } else if (data.mass >= 100) {
                 massDisplay = `${formatNumber(Math.round(data.mass))} × 10²⁴ kg`;
             } else if (data.mass >= 1) {
                 massDisplay = `${data.mass} × 10²⁴ kg`;
@@ -6152,6 +6348,8 @@ function generateSizeComparison(mode) {
             let earthMassLabel;
             if (name === 'sun') {
                 earthMassLabel = '= 1 太阳质量';
+            } else if (data.category === 'blackHole') {
+                earthMassLabel = getBlackHoleMassSolarPhrase(name);
             } else if (data.category === 'star') {
                 earthMassLabel = `≈ ${(data.mass / sunMass).toFixed(3)} 太阳质量`;
             } else if (name === 'earth') {
