@@ -2789,7 +2789,7 @@ function createMilkyWay() {
 
     milkyWay = new THREE.Group();
 
-    // === 1. Canvas 生成银河系纹理 ===
+    // === 1. Canvas 生成备用银河系纹理 ===
     const texSize = 2048;
     const canvas = document.createElement('canvas');
     canvas.width = texSize;
@@ -2967,8 +2967,13 @@ function createMilkyWay() {
     ctx.globalCompositeOperation = 'source-over';
 
     // === 2. 纹理圆盘 ===
-    const diskTexture = new THREE.CanvasTexture(canvas);
-    diskTexture.needsUpdate = true;
+    // 优先使用 NASA/JPL/ESO/R. Hurt 的银河系结构图，Canvas 仅作为加载器不可用时的备用纹理。
+    const diskTexture = textureLoader ? textureLoader.load('textures/milkyway.jpg') : new THREE.CanvasTexture(canvas);
+    diskTexture.encoding = THREE.sRGBEncoding;
+    diskTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    diskTexture.magFilter = THREE.LinearFilter;
+    diskTexture.anisotropy = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
+    if (!textureLoader) diskTexture.needsUpdate = true;
 
     const diskGeo = new THREE.CircleGeometry(galaxyRadius, 128);
     const diskMat = new THREE.MeshBasicMaterial({
