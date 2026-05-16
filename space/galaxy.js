@@ -47,6 +47,11 @@ const SOLAR_ORBIT_SETTINGS = {
     bobPhase: 0.35
 };
 const deepSkyTextureCache = new Map();
+const STRUCTURE_REFERENCE_TEXTURES = {
+    virgo: 'textures/deep-sky/generated/virgo-cluster-custom.png',
+    laniakea: 'textures/deep-sky/generated/laniakea-custom.png',
+    observableUniverse: 'textures/deep-sky/generated/observable-universe-custom.png'
+};
 
 // 太阳系在银河系中的位置（距银心约26000光年，这里用单位表示）
 const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
@@ -1710,7 +1715,7 @@ const cosmicScaleItems = [
         diameterKm: 15000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约1500万光年',
         kind: 'photo',
-        aspect: 2.10,
+        aspect: 1.90,
         visual: "url('textures/deep-sky/generated/virgo-cluster-custom.png') center/cover",
         note: '室女座星系团包含上千个星系，是本星系群附近最重要的大型星系团之一。'
     },
@@ -1722,7 +1727,7 @@ const cosmicScaleItems = [
         diameterKm: 520000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约5.2亿光年',
         kind: 'photo',
-        aspect: 1.14,
+        aspect: 1.61,
         visual: "url('textures/deep-sky/generated/laniakea-custom.png') center/cover",
         note: '拉尼亚凯亚像一张巨大的宇宙网，包含约10万个星系。'
     },
@@ -1734,7 +1739,7 @@ const cosmicScaleItems = [
         diameterKm: 93000000000 * LIGHT_YEAR_IN_KM,
         displaySize: '约930亿光年',
         kind: 'photo',
-        aspect: 1.73,
+        aspect: 1,
         visual: "url('textures/deep-sky/generated/observable-universe-custom.png') center/cover",
         note: '这是光能够把信息带到我们眼前的最大范围，宇宙本身可能还更大。'
     }
@@ -2527,7 +2532,11 @@ function applyOpacityToObject(obj, alpha) {
                 if (m.userData.baseOpacity === undefined) {
                     m.userData.baseOpacity = m.opacity !== undefined ? m.opacity : 1;
                 }
-                m.opacity = m.userData.baseOpacity * alpha;
+                const nextOpacity = m.userData.baseOpacity * alpha;
+                m.opacity = nextOpacity;
+                if (m.uniforms && m.uniforms.uOpacity) {
+                    m.uniforms.uOpacity.value = nextOpacity;
+                }
                 m.transparent = true;
             }
         }
@@ -2596,7 +2605,7 @@ function init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 100;
-    controls.maxDistance = 1500000;
+    controls.maxDistance = 2300000;
     controls.target.copy(GALACTIC_CENTER);
 
     // 创建场景内容
@@ -2789,12 +2798,17 @@ function createMilkyWay() {
 
     milkyWay = new THREE.Group();
 
-    // === 1. Canvas 生成备用银河系纹理 ===
-    const texSize = 2048;
-    const canvas = document.createElement('canvas');
-    canvas.width = texSize;
-    canvas.height = texSize;
-    const ctx = canvas.getContext('2d');
+    // === 1. 银河系圆盘纹理 ===
+    // 正常情况下直接使用真实纹理，不再每次进页面都生成 2048px Canvas。
+    let diskTexture;
+    if (textureLoader) {
+        diskTexture = textureLoader.load('textures/milkyway.jpg');
+    } else {
+        const texSize = 1024;
+        const canvas = document.createElement('canvas');
+        canvas.width = texSize;
+        canvas.height = texSize;
+        const ctx = canvas.getContext('2d');
 
     // 简易噪声函数
     function hash(x, y) {
@@ -2966,14 +2980,16 @@ function createMilkyWay() {
     ctx.fillRect(0, 0, texSize, texSize);
     ctx.globalCompositeOperation = 'source-over';
 
+        diskTexture = new THREE.CanvasTexture(canvas);
+        diskTexture.needsUpdate = true;
+    }
+
     // === 2. 纹理圆盘 ===
     // 优先使用 NASA/JPL/ESO/R. Hurt 的银河系结构图，Canvas 仅作为加载器不可用时的备用纹理。
-    const diskTexture = textureLoader ? textureLoader.load('textures/milkyway.jpg') : new THREE.CanvasTexture(canvas);
     diskTexture.encoding = THREE.sRGBEncoding;
     diskTexture.minFilter = THREE.LinearMipmapLinearFilter;
     diskTexture.magFilter = THREE.LinearFilter;
     diskTexture.anisotropy = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
-    if (!textureLoader) diskTexture.needsUpdate = true;
 
     const diskGeo = new THREE.CircleGeometry(galaxyRadius, 128);
     const diskMat = new THREE.MeshBasicMaterial({
@@ -3491,23 +3507,44 @@ function createLocalGroupBoundary() {
     group.add(wire);
 
     // 边缘高亮粒子（让球壳更"具体"）
-    const beadCount = 800;
+    const beadCount = 1800;
     const beadPositions = new Float32Array(beadCount * 3);
     const beadColors = new Float32Array(beadCount * 3);
     const beadSizes = new Float32Array(beadCount);
     for (let i = 0; i < beadCount; i++) {
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
-        beadPositions[i * 3] = 180000 * Math.sin(phi) * Math.cos(theta);
-        beadPositions[i * 3 + 1] = 180000 * 0.75 * Math.sin(phi) * Math.sin(theta);
-        beadPositions[i * 3 + 2] = 180000 * 1.1 * Math.cos(phi);
-        beadColors[i * 3] = 0.72;
-        beadColors[i * 3 + 1] = 0.55;
-        beadColors[i * 3 + 2] = 1.0;
-        beadSizes[i] = 5 + Math.random() * 4;
+        const radiusJitter = 0.88 + Math.random() * 0.16;
+        beadPositions[i * 3] = 180000 * radiusJitter * Math.sin(phi) * Math.cos(theta);
+        beadPositions[i * 3 + 1] = 180000 * 0.75 * radiusJitter * Math.sin(phi) * Math.sin(theta);
+        beadPositions[i * 3 + 2] = 180000 * 1.1 * radiusJitter * Math.cos(phi);
+        const cool = Math.random();
+        beadColors[i * 3] = cool < 0.72 ? 0.72 : 1.0;
+        beadColors[i * 3 + 1] = cool < 0.72 ? 0.55 : 0.82;
+        beadColors[i * 3 + 2] = cool < 0.72 ? 1.0 : 0.62;
+        beadSizes[i] = 4 + Math.random() * 7;
     }
-    const beads = buildGalaxyParticles(beadPositions, beadColors, beadSizes);
+    const beads = buildGalaxyParticles(beadPositions, beadColors, beadSizes, { opacity: 0.82 });
     group.add(beads);
+
+    // 内部稀疏成员星系，让远景看起来不只是空球壳
+    const memberCount = 260;
+    const memberPositions = new Float32Array(memberCount * 3);
+    const memberColors = new Float32Array(memberCount * 3);
+    const memberSizes = new Float32Array(memberCount);
+    for (let i = 0; i < memberCount; i++) {
+        const r = Math.pow(Math.random(), 0.62) * 135000;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        memberPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        memberPositions[i * 3 + 1] = r * 0.72 * Math.sin(phi) * Math.sin(theta);
+        memberPositions[i * 3 + 2] = r * 1.05 * Math.cos(phi);
+        memberColors[i * 3] = 0.82 + Math.random() * 0.18;
+        memberColors[i * 3 + 1] = 0.82 + Math.random() * 0.12;
+        memberColors[i * 3 + 2] = 1.0;
+        memberSizes[i] = 14 + Math.random() * 16;
+    }
+    group.add(buildGalaxyParticles(memberPositions, memberColors, memberSizes, { opacity: 0.5 }));
 
     // 居中标签
     const label = makeStructureLabel('本星系群', 'Local Group', 36000);
@@ -3527,39 +3564,93 @@ function createVirgoCluster() {
     const center = new THREE.Vector3(120000, 280000, 90000);
     group.position.copy(center);
 
-    const memberCount = 90;
+    const reference = makeDeepSkyReferenceSprite(
+        STRUCTURE_REFERENCE_TEXTURES.virgo,
+        168000,
+        88400,
+        0.26,
+        { position: new THREE.Vector3(21000, 5000, -36000) }
+    );
+    if (reference) group.add(reference);
+
+    const memberCount = 1900;
     const positions = new Float32Array(memberCount * 3);
     const colors = new Float32Array(memberCount * 3);
     const sizes = new Float32Array(memberCount);
 
     for (let i = 0; i < memberCount; i++) {
-        // 中央密集球分布
-        const r = Math.abs(gaussianRandom()) * 22000 + Math.random() * 8000;
+        // 中央极密集，外围有长尾星系，贴近视频截图里白亮云团的感觉
+        const inCore = Math.random() < 0.72;
+        const r = inCore
+            ? Math.pow(Math.random(), 1.8) * 26000 + Math.abs(gaussianRandom()) * 4500
+            : 26000 + Math.pow(Math.random(), 0.58) * 52000;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
-        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-        positions[i * 3 + 2] = r * Math.cos(phi);
+        positions[i * 3] = r * 1.25 * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * 0.78 * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * 1.05 * Math.cos(phi);
 
         // 多数偏黄红（椭圆星系主导），少数偏蓝（旋涡）
-        const isElliptical = Math.random() < 0.65;
-        if (isElliptical) {
+        const colorRoll = Math.random();
+        if (colorRoll < 0.58) {
             colors[i * 3] = 1.0;
-            colors[i * 3 + 1] = 0.85;
-            colors[i * 3 + 2] = 0.6;
+            colors[i * 3 + 1] = 0.84 + Math.random() * 0.12;
+            colors[i * 3 + 2] = 0.64 + Math.random() * 0.18;
+        } else if (colorRoll < 0.82) {
+            colors[i * 3] = 0.95;
+            colors[i * 3 + 1] = 0.86;
+            colors[i * 3 + 2] = 1.0;
         } else {
-            colors[i * 3] = 0.85;
-            colors[i * 3 + 1] = 0.92;
+            colors[i * 3] = 1.0;
+            colors[i * 3 + 1] = 0.58;
             colors[i * 3 + 2] = 1.0;
         }
-        sizes[i] = 14 + Math.random() * 14;
+        sizes[i] = inCore ? 18 + Math.random() * 20 : 10 + Math.random() * 15;
     }
 
-    const particles = buildGalaxyParticles(positions, colors, sizes);
+    const particles = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.88 });
     group.add(particles);
 
+    const mistCount = 1800;
+    const mistPositions = new Float32Array(mistCount * 3);
+    const mistColors = new Float32Array(mistCount * 3);
+    const mistSizes = new Float32Array(mistCount);
+    for (let i = 0; i < mistCount; i++) {
+        const r = Math.pow(Math.random(), 0.5) * 76000;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        mistPositions[i * 3] = r * 1.4 * Math.sin(phi) * Math.cos(theta);
+        mistPositions[i * 3 + 1] = r * 0.72 * Math.sin(phi) * Math.sin(theta);
+        mistPositions[i * 3 + 2] = r * 0.92 * Math.cos(phi);
+        const cool = Math.random() < 0.55;
+        mistColors[i * 3] = cool ? 0.88 : 1.0;
+        mistColors[i * 3 + 1] = cool ? 0.94 : 0.82 + Math.random() * 0.12;
+        mistColors[i * 3 + 2] = cool ? 1.0 : 0.72 + Math.random() * 0.18;
+        mistSizes[i] = 24 + Math.random() * 34;
+    }
+    group.add(buildGalaxyParticles(mistPositions, mistColors, mistSizes, { opacity: 0.24 }));
+
+    // 外围亮斑，模拟截图里粉紫、橙黄的大型成员星系
+    const brightMembers = [
+        { pos: [46000, 12000, -18000], kind: 'violetCluster', scale: 22000, opacity: 0.62 },
+        { pos: [-52000, -10000, 26000], kind: 'bulgeCore', scale: 17000, opacity: 0.48 },
+        { pos: [26000, -30000, 38000], kind: 'hii', scale: 15000, opacity: 0.42 },
+        { pos: [-34000, 27000, -36000], kind: 'blueCluster', scale: 18000, opacity: 0.42 },
+        { pos: [78000, -22000, 12000], kind: 'bulgeCore', scale: 15000, opacity: 0.42 },
+        { pos: [90000, 17000, -11000], kind: 'hii', scale: 13000, opacity: 0.42 },
+        { pos: [65000, 42000, 33000], kind: 'violetCluster', scale: 14500, opacity: 0.44 }
+    ];
+    brightMembers.forEach(member => {
+        const sprite = makeAccentSprite(member.kind, member.scale, member.opacity);
+        sprite.position.set(member.pos[0], member.pos[1], member.pos[2]);
+        group.add(sprite);
+    });
+
     // 中央 M87（巨型椭圆，超大质量黑洞所在）
-    const m87 = makeAccentSprite('bulgeCore', 12000, 1.0);
+    const clusterMist = makeStructureGlowSphere(68000, 0xdde7ff, 0.035, { x: 1.25, y: 0.72, z: 1.0 });
+    group.add(clusterMist);
+
+    const m87 = makeAccentSprite('universeGlow', 28000, 0.74);
     group.add(m87);
 
     // 大尺度发光（远视角看像一个星系团）
@@ -3567,11 +3658,11 @@ function createVirgoCluster() {
         map: createGlowTexture(256, { r: 1.0, g: 0.85, b: 0.6 }),
         transparent: true,
         blending: THREE.AdditiveBlending,
-        opacity: 0.55,
+        opacity: 0.36,
         depthWrite: false
     });
     const halo = new THREE.Sprite(haloMat);
-    halo.scale.set(70000, 70000, 1);
+    halo.scale.set(115000, 115000, 1);
     group.add(halo);
 
     // 标签
@@ -3623,47 +3714,95 @@ function createLaniakeaSupercluster() {
         [0, 4], // 本星系群→孔雀印第安（次要丝）
     ];
 
+    // 截图里最震撼的是“黄金盆地”一样的大尺度引力流，先铺一层淡淡的整体体积光。
+    const basin = makeStructureGlowSphere(300000, 0xffbd45, 0.035, { x: 1.28, y: 0.62, z: 0.9 });
+    basin.position.set(-150000, -90000, -160000);
+    basin.rotation.z = -0.35;
+    group.add(basin);
+
+    const basinCore = makeAccentSprite('bulgeCore', 145000, 0.28);
+    basinCore.position.set(-260000, -80000, -210000);
+    group.add(basinCore);
+
+    const reference = makeDeepSkyReferenceSprite(
+        STRUCTURE_REFERENCE_TEXTURES.laniakea,
+        620000,
+        384000,
+        0.28,
+        { position: new THREE.Vector3(-90000, -24000, -180000) }
+    );
+    if (reference) group.add(reference);
+
+    addLaniakeaGravityFlow(group);
+
     // 画纤维丝（粒子流）
     for (const [aIdx, bIdx] of filaments) {
         const a = nodes[aIdx].pos;
         const b = nodes[bIdx].pos;
 
-        // 曲线略加 wobble 让它弯曲
-        const mid = a.clone().add(b).multiplyScalar(0.5);
-        const perp = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3(0, 1, 0)).normalize();
-        const wobble = perp.multiplyScalar((Math.random() - 0.5) * 80000);
-        mid.add(wobble);
-        mid.y += (Math.random() - 0.5) * 60000;
+        for (let strand = 0; strand < 4; strand++) {
+            // 曲线加不同 wobble，让每条连接像星系流束，而不是一根单线
+            const mid = a.clone().add(b).multiplyScalar(0.5);
+            let perp = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3(0, 1, 0));
+            if (perp.lengthSq() < 0.001) perp = new THREE.Vector3(1, 0, 0);
+            perp.normalize();
+            const side = new THREE.Vector3().crossVectors(perp, new THREE.Vector3().subVectors(b, a).normalize()).normalize();
+            mid.add(perp.multiplyScalar((Math.random() - 0.5) * 120000));
+            mid.add(side.multiplyScalar((strand - 1.5) * 24000 + (Math.random() - 0.5) * 24000));
+            mid.y += (Math.random() - 0.5) * 90000;
 
-        const curve = new THREE.CatmullRomCurve3([a, mid, b]);
-        const samples = 220;
-        const positions = new Float32Array(samples * 3);
-        const colors = new Float32Array(samples * 3);
-        const sizes = new Float32Array(samples);
-        for (let i = 0; i < samples; i++) {
-            const t = i / (samples - 1);
-            const p = curve.getPoint(t);
-            // 沿曲线随机扩散，形成丝状云
-            const spread = 4500 + Math.random() * 2500;
-            positions[i * 3] = p.x + gaussianRandom() * spread;
-            positions[i * 3 + 1] = p.y + gaussianRandom() * spread;
-            positions[i * 3 + 2] = p.z + gaussianRandom() * spread;
-            // 中心略亮，端点稍暗
-            const lum = 0.5 + Math.sin(t * Math.PI) * 0.4;
-            colors[i * 3] = 0.85 * lum;
-            colors[i * 3 + 1] = 0.85 * lum;
-            colors[i * 3 + 2] = 1.0 * lum;
-            sizes[i] = 18 + Math.random() * 12;
+            const curve = new THREE.CatmullRomCurve3([a, mid, b]);
+            const samples = 390;
+            const positions = new Float32Array(samples * 3);
+            const colors = new Float32Array(samples * 3);
+            const sizes = new Float32Array(samples);
+            const linePoints = [];
+            for (let i = 0; i < samples; i++) {
+                const t = i / (samples - 1);
+                const p = curve.getPoint(t);
+                if (i % 18 === 0) linePoints.push(p.clone());
+                // 沿曲线随机扩散，形成一条有厚度、有颗粒的白色宇宙网
+                const spread = 6000 + Math.random() * 5600;
+                positions[i * 3] = p.x + gaussianRandom() * spread;
+                positions[i * 3 + 1] = p.y + gaussianRandom() * spread;
+                positions[i * 3 + 2] = p.z + gaussianRandom() * spread;
+                const lum = 0.48 + Math.sin(t * Math.PI) * 0.48;
+                const warm = strand === 1 ? 0.18 : 0;
+                colors[i * 3] = Math.min(1, (0.82 + warm) * lum);
+                colors[i * 3 + 1] = Math.min(1, (0.86 + warm * 0.6) * lum);
+                colors[i * 3 + 2] = 1.0 * lum;
+                sizes[i] = 14 + Math.random() * 16;
+            }
+            group.add(buildGalaxyParticles(positions, colors, sizes, { opacity: strand === 1 || strand === 2 ? 0.72 : 0.48 }));
+            group.add(makeCosmicFilamentLine(linePoints, strand === 1 || strand === 2 ? 0xffe3a1 : 0x9fc8ff, strand === 1 || strand === 2 ? 0.2 : 0.1));
         }
-        const filament = buildGalaxyParticles(positions, colors, sizes);
-        group.add(filament);
     }
+
+    // 远处背景星系，补出截图那种“密密麻麻铺满空间”的底层颗粒
+    const backgroundCount = 7600;
+    const bgPositions = new Float32Array(backgroundCount * 3);
+    const bgColors = new Float32Array(backgroundCount * 3);
+    const bgSizes = new Float32Array(backgroundCount);
+    for (let i = 0; i < backgroundCount; i++) {
+        const r = Math.pow(Math.random(), 0.72) * 600000;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        bgPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        bgPositions[i * 3 + 1] = r * 0.72 * Math.sin(phi) * Math.sin(theta);
+        bgPositions[i * 3 + 2] = r * Math.cos(phi);
+        const roll = Math.random();
+        bgColors[i * 3] = roll < 0.48 ? 1.0 : 0.76 + Math.random() * 0.2;
+        bgColors[i * 3 + 1] = roll < 0.48 ? 0.82 + Math.random() * 0.14 : 0.84 + Math.random() * 0.14;
+        bgColors[i * 3 + 2] = roll < 0.48 ? 0.62 + Math.random() * 0.24 : 1.0;
+        bgSizes[i] = 7 + Math.random() * 12;
+    }
+    group.add(buildGalaxyParticles(bgPositions, bgColors, bgSizes, { opacity: 0.32 }));
 
     // 节点处的星系密集团 + 标签
     for (const node of nodes) {
         if (node.isLocal) continue; // 本群和室女座已单独绘制
 
-        const clumpCount = 60;
+        const clumpCount = 210;
         const positions = new Float32Array(clumpCount * 3);
         const colors = new Float32Array(clumpCount * 3);
         const sizes = new Float32Array(clumpCount);
@@ -3680,9 +3819,9 @@ function createLaniakeaSupercluster() {
             } else {
                 colors[i * 3] = 0.85; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0;
             }
-            sizes[i] = 16 + Math.random() * 14;
+            sizes[i] = 14 + Math.random() * 18;
         }
-        const cluster = buildGalaxyParticles(positions, colors, sizes);
+        const cluster = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.82 });
         group.add(cluster);
 
         // 节点中央光晕
@@ -3690,11 +3829,11 @@ function createLaniakeaSupercluster() {
             map: createGlowTexture(256, { r: 1.0, g: 0.85, b: 0.65 }),
             transparent: true,
             blending: THREE.AdditiveBlending,
-            opacity: 0.45,
+            opacity: 0.34,
             depthWrite: false
         });
         const halo = new THREE.Sprite(haloMat);
-        halo.scale.set(node.size * 2.3, node.size * 2.3, 1);
+        halo.scale.set(node.size * 3.0, node.size * 3.0, 1);
         halo.position.copy(node.pos);
         group.add(halo);
 
@@ -3715,53 +3854,173 @@ function createLaniakeaSupercluster() {
     return group;
 }
 
+function addLaniakeaGravityFlow(group) {
+    const flowPaths = [
+        [
+            new THREE.Vector3(-410000, -145000, -285000),
+            new THREE.Vector3(-330000, -95000, -230000),
+            new THREE.Vector3(-165000, -42000, -185000),
+            new THREE.Vector3(90000, -10000, -135000),
+            new THREE.Vector3(250000, 18000, -90000)
+        ],
+        [
+            new THREE.Vector3(-380000, -190000, -230000),
+            new THREE.Vector3(-310000, -125000, -205000),
+            new THREE.Vector3(-190000, -72000, -155000),
+            new THREE.Vector3(70000, 20000, -115000),
+            new THREE.Vector3(300000, 70000, -70000)
+        ],
+        [
+            new THREE.Vector3(-430000, -70000, -320000),
+            new THREE.Vector3(-320000, -35000, -235000),
+            new THREE.Vector3(-220000, 20000, -175000),
+            new THREE.Vector3(30000, 65000, -95000),
+            new THREE.Vector3(230000, 105000, -25000)
+        ],
+        [
+            new THREE.Vector3(-360000, -240000, -260000),
+            new THREE.Vector3(-270000, -180000, -190000),
+            new THREE.Vector3(-160000, -126000, -155000),
+            new THREE.Vector3(60000, -76000, -130000),
+            new THREE.Vector3(290000, -42000, -110000)
+        ],
+        [
+            new THREE.Vector3(-410000, -115000, -360000),
+            new THREE.Vector3(-305000, -82000, -260000),
+            new THREE.Vector3(-195000, -20000, -215000),
+            new THREE.Vector3(20000, 22000, -185000),
+            new THREE.Vector3(230000, 5000, -160000)
+        ]
+    ];
+
+    flowPaths.forEach((points, pathIndex) => {
+        const curve = new THREE.CatmullRomCurve3(points);
+        const samples = 620;
+        const positions = new Float32Array(samples * 3);
+        const colors = new Float32Array(samples * 3);
+        const sizes = new Float32Array(samples);
+        const linePoints = [];
+
+        for (let i = 0; i < samples; i++) {
+            const t = i / (samples - 1);
+            const p = curve.getPoint(t);
+            if (i % 22 === 0) linePoints.push(p.clone());
+
+            const spread = 7000 + Math.sin(t * Math.PI) * 16000 + Math.random() * 9000;
+            const fan = Math.sin(t * Math.PI) * (pathIndex - 2) * 11500;
+            positions[i * 3] = p.x + gaussianRandom() * spread;
+            positions[i * 3 + 1] = p.y + gaussianRandom() * spread * 0.54 + fan;
+            positions[i * 3 + 2] = p.z + gaussianRandom() * spread * 0.78;
+
+            const glow = 0.56 + Math.sin(t * Math.PI) * 0.42;
+            colors[i * 3] = Math.min(1, 1.0 * glow);
+            colors[i * 3 + 1] = Math.min(1, (0.72 + Math.random() * 0.18) * glow);
+            colors[i * 3 + 2] = Math.min(1, (0.36 + Math.random() * 0.16) * glow);
+            sizes[i] = 18 + Math.random() * 22;
+        }
+
+        group.add(buildGalaxyParticles(positions, colors, sizes, { opacity: pathIndex === 2 ? 0.78 : 0.52 }));
+        group.add(makeCosmicFilamentLine(linePoints, 0xffd47a, pathIndex === 2 ? 0.28 : 0.16));
+    });
+}
+
 // ===== 可观测宇宙球壳（类似奥尔特云）=====
 function createObservableUniverseShell() {
     const group = new THREE.Group();
-    const innerR = 850000;
+    const innerR = 780000;
     const outerR = 1000000;
 
-    const particleCount = 8000;
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-    const sizes = new Float32Array(particleCount);
+    // 外层高密度球壳，做成视频截图里那种近乎发白的巨大球体边界
+    const shellCount = 30000;
+    const positions = new Float32Array(shellCount * 3);
+    const colors = new Float32Array(shellCount * 3);
+    const sizes = new Float32Array(shellCount);
 
-    for (let i = 0; i < particleCount; i++) {
-        const r = innerR + Math.random() * (outerR - innerR);
+    for (let i = 0; i < shellCount; i++) {
+        const r = innerR + Math.pow(Math.random(), 0.45) * (outerR - innerR);
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
         positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
         positions[i * 3 + 2] = r * Math.cos(phi);
 
-        // 微红移色调（远处的星系泛红）
+        // 微红移色调（远处星系泛红），但整体保持近白色密集球壳
         const tint = Math.random();
-        if (tint < 0.6) {
+        if (tint < 0.52) {
             colors[i * 3] = 1.0;
-            colors[i * 3 + 1] = 0.7 + Math.random() * 0.2;
-            colors[i * 3 + 2] = 0.55 + Math.random() * 0.2;
+            colors[i * 3 + 1] = 0.78 + Math.random() * 0.2;
+            colors[i * 3 + 2] = 0.66 + Math.random() * 0.22;
         } else {
-            colors[i * 3] = 0.85 + Math.random() * 0.15;
-            colors[i * 3 + 1] = 0.85 + Math.random() * 0.15;
+            colors[i * 3] = 0.9 + Math.random() * 0.1;
+            colors[i * 3 + 1] = 0.9 + Math.random() * 0.1;
             colors[i * 3 + 2] = 1.0;
         }
-        sizes[i] = 22 + Math.random() * 18;
+        sizes[i] = 18 + Math.random() * 22;
     }
 
-    const shellParticles = buildGalaxyParticles(positions, colors, sizes);
+    const shellParticles = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.72 });
     group.add(shellParticles);
+
+    // 内部较暗的星系海，让球体不是空壳，而是一个密集的可观测范围
+    const interiorCount = 13000;
+    const interiorPositions = new Float32Array(interiorCount * 3);
+    const interiorColors = new Float32Array(interiorCount * 3);
+    const interiorSizes = new Float32Array(interiorCount);
+    for (let i = 0; i < interiorCount; i++) {
+        const r = Math.pow(Math.random(), 0.42) * innerR;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        interiorPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        interiorPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        interiorPositions[i * 3 + 2] = r * Math.cos(phi);
+        const warm = Math.random() < 0.55;
+        interiorColors[i * 3] = warm ? 1.0 : 0.82 + Math.random() * 0.12;
+        interiorColors[i * 3 + 1] = warm ? 0.78 + Math.random() * 0.12 : 0.86 + Math.random() * 0.12;
+        interiorColors[i * 3 + 2] = warm ? 0.62 + Math.random() * 0.16 : 1.0;
+        interiorSizes[i] = 8 + Math.random() * 14;
+    }
+    group.add(buildGalaxyParticles(interiorPositions, interiorColors, interiorSizes, { opacity: 0.24 }));
 
     // 微薄宇宙微波背景式的弱光球壳（半透 mesh）
     const fillGeom = new THREE.SphereGeometry(outerR * 0.99, 48, 32);
     const fillMat = new THREE.MeshBasicMaterial({
-        color: 0x1a0a30,
+        color: 0xe8ecff,
         transparent: true,
-        opacity: 0.05,
-        side: THREE.BackSide,
-        depthWrite: false
+        opacity: 0.012,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
     });
+    fillMat.userData.baseOpacity = fillMat.opacity;
     const fill = new THREE.Mesh(fillGeom, fillMat);
     group.add(fill);
+
+    const reference = makeDeepSkyReferenceSprite(
+        STRUCTURE_REFERENCE_TEXTURES.observableUniverse,
+        outerR * 1.48,
+        outerR * 1.48,
+        0.045,
+        { position: new THREE.Vector3(0, outerR * 0.03, -outerR * 0.08) }
+    );
+    if (reference) group.add(reference);
+
+    const rim = makeAccentSprite('universeGlow', outerR * 0.42, 0.06);
+    rim.position.set(0, outerR * 0.18, 0);
+    group.add(rim);
+
+    const outerWire = new THREE.Mesh(
+        new THREE.SphereGeometry(outerR, 64, 36),
+        new THREE.MeshBasicMaterial({
+            color: 0xdde6ff,
+            transparent: true,
+            opacity: 0.045,
+            wireframe: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        })
+    );
+    outerWire.material.userData.baseOpacity = outerWire.material.opacity;
+    group.add(outerWire);
 
     // 远处标签
     const label = makeStructureLabel('可观测宇宙', 'Observable Universe', 130000);
@@ -3839,6 +4098,27 @@ function getDeepSkyTexture(texturePath) {
     }
 
     return deepSkyTextureCache.get(texturePath);
+}
+
+function makeDeepSkyReferenceSprite(texturePath, width, height, opacity, options = {}) {
+    const texture = getDeepSkyTexture(texturePath);
+    if (!texture) return null;
+
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+        depthTest: options.depthTest ?? false,
+        blending: options.blending === 'normal' ? THREE.NormalBlending : THREE.AdditiveBlending
+    });
+    material.userData.baseOpacity = opacity;
+
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(width, height, 1);
+    if (options.position) sprite.position.copy(options.position);
+    sprite.renderOrder = options.renderOrder ?? -20;
+    return sprite;
 }
 
 function createPhotoLandmark(key, config) {
@@ -4124,30 +4404,35 @@ const GALAXY_PARTICLE_VERTEX = `
 `;
 
 const GALAXY_PARTICLE_FRAGMENT = `
+    uniform float uOpacity;
     varying vec3 vColor;
 
     void main() {
         vec2 center = gl_PointCoord - vec2(0.5);
         float dist = length(center);
         float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-        gl_FragColor = vec4(vColor, alpha * 0.95);
+        gl_FragColor = vec4(vColor, alpha * uOpacity);
     }
 `;
 
-function buildGalaxyParticles(positions, colors, sizes) {
+function buildGalaxyParticles(positions, colors, sizes, options = {}) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    const opacity = options.opacity ?? 0.95;
 
     const material = new THREE.ShaderMaterial({
-        uniforms: {},
+        uniforms: {
+            uOpacity: { value: opacity }
+        },
         vertexShader: GALAXY_PARTICLE_VERTEX,
         fragmentShader: GALAXY_PARTICLE_FRAGMENT,
         transparent: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
+    material.userData.baseOpacity = opacity;
 
     return new THREE.Points(geometry, material);
 }
@@ -4182,6 +4467,18 @@ function getAccentTexture(kind) {
         grad.addColorStop(0.3, 'rgba(255, 200, 130, 0.55)');
         grad.addColorStop(0.7, 'rgba(220, 150, 80, 0.15)');
         grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else if (kind === 'violetCluster') {
+        // 紫粉色星系团辉光
+        grad.addColorStop(0, 'rgba(245, 225, 255, 1)');
+        grad.addColorStop(0.26, 'rgba(190, 130, 255, 0.62)');
+        grad.addColorStop(0.65, 'rgba(110, 70, 210, 0.18)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else if (kind === 'universeGlow') {
+        // 近白色宇宙球壳辉光
+        grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        grad.addColorStop(0.42, 'rgba(232, 238, 255, 0.46)');
+        grad.addColorStop(0.78, 'rgba(160, 180, 235, 0.16)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     }
 
     ctx.fillStyle = grad;
@@ -4202,6 +4499,35 @@ function makeAccentSprite(kind, scale, opacity) {
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(scale, scale, 1);
     return sprite;
+}
+
+function makeStructureGlowSphere(radius, color, opacity, scale = { x: 1, y: 1, z: 1 }) {
+    const geom = new THREE.SphereGeometry(radius, 48, 28);
+    const mat = new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+    mat.userData.baseOpacity = opacity;
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.scale.set(scale.x || 1, scale.y || 1, scale.z || 1);
+    return mesh;
+}
+
+function makeCosmicFilamentLine(points, color, opacity) {
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({
+        color,
+        transparent: true,
+        opacity,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+    material.userData.baseOpacity = opacity;
+    return new THREE.Line(geometry, material);
 }
 
 // ============ 创建螺旋星系（强化结构：核球+棒+对数螺旋臂+HII区+尘埃带）============
