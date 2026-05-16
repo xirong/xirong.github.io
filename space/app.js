@@ -3,6 +3,18 @@
  * 使用 Three.js 创建的交互式太阳系动画
  */
 
+const STAR_SURFACE_TEXTURES = {
+    proximaCentauri: 'textures/stars/red_dwarf_surface.jpg',
+    alphaCentauri: 'textures/stars/yellow_star_surface.jpg',
+    betaCentauri: 'textures/stars/blue_white_star_surface.jpg',
+    sirius: 'textures/stars/blue_white_star_surface.jpg',
+    arcturus: 'textures/stars/orange_star_surface.jpg',
+    antares: 'textures/stars/generated/antares_custom.jpg',
+    betelgeuse: 'textures/stars/generated/betelgeuse_custom.png',
+    vyCanisMajoris: 'textures/stars/generated/vy_canis_majoris_custom.png',
+    uyScuti: 'textures/stars/generated/uy_scuti_custom.png'
+};
+
 // ============ 行星数据 ============
 const planetData = {
     sun: {
@@ -37,7 +49,143 @@ const planetData = {
         emissive: 0x8f1f1c,
         description: '比邻星是离太阳最近的恒星，是一颗又小又暗的红矮星，直径大约是太阳的 0.154 倍，比木星大约 1.5 倍。',
         relativeSize: 16.85,
-        texture: null
+        texturePath: STAR_SURFACE_TEXTURES.proximaCentauri
+    },
+    alphaCentauri: {
+        name: '半人马座α星',
+        nameCN: '半人马座α星',
+        nameEN: 'Alpha Centauri A',
+        type: '类太阳恒星',
+        diameter: 1703829, // km，约 1.2234 R☉
+        mass: 2145841, // 10²⁴ kg，约 1.0788 M☉
+        category: 'star',
+        distance: 41340000000000, // km，约 4.37 光年
+        orbitPeriod: 79.9 * 365.25,
+        rotationPeriod: 22,
+        color: 0xffd56b,
+        emissive: 0xffb13b,
+        description: '半人马座α星是距离太阳系最近的恒星系统中最亮的主星，大小和太阳很接近，但比太阳稍大、稍重。',
+        relativeSize: 133.72,
+        texturePath: STAR_SURFACE_TEXTURES.alphaCentauri
+    },
+    betaCentauri: {
+        name: '半人马座β星',
+        nameCN: '半人马座β星',
+        nameEN: 'Beta Centauri',
+        type: '蓝白巨星',
+        diameter: 13202796, // km，约 9.48 R☉
+        mass: 18100810, // 10²⁴ kg，约 9.1 M☉
+        category: 'star',
+        distance: 3700000000000000, // km，约 390 光年
+        orbitPeriod: 357,
+        rotationPeriod: 0,
+        color: 0xbfdcff,
+        emissive: 0x8bbcff,
+        description: '半人马座β星是一颗明亮的蓝白色巨星，南半球常把它和半人马座α星一起当作指向南十字座的“指针星”。',
+        relativeSize: 1036.17,
+        texturePath: STAR_SURFACE_TEXTURES.betaCentauri
+    },
+    sirius: {
+        name: '天狼星',
+        nameCN: '天狼星',
+        nameEN: 'Sirius A',
+        type: '蓝白主序星',
+        diameter: 3314626, // km，约 2.38 R☉
+        mass: 4103513, // 10²⁴ kg，约 2.063 M☉
+        category: 'star',
+        distance: 81360000000000, // km，约 8.6 光年
+        orbitPeriod: 50.1 * 365.25,
+        rotationPeriod: 5.5,
+        color: 0xbfdcff,
+        emissive: 0x8bbcff,
+        description: '天狼星是夜空中最亮的恒星，主星比太阳更大、更亮，旁边还有一颗很小但密度极高的白矮星。',
+        relativeSize: 260.13,
+        texturePath: STAR_SURFACE_TEXTURES.sirius
+    },
+    arcturus: {
+        name: '大角星',
+        nameCN: '大角星',
+        nameEN: 'Arcturus',
+        type: '红巨星',
+        diameter: 35374580, // km，约 25.4 R☉
+        mass: 2148228, // 10²⁴ kg，约 1.08 M☉
+        category: 'star',
+        distance: 347000000000000, // km，约 36.7 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xff8f45,
+        emissive: 0xd85f2a,
+        description: '大角星是一颗红巨星，直径大约是太阳的 25 倍，用来理解“恒星变老后会膨胀”很直观。',
+        relativeSize: 2776.22,
+        texturePath: STAR_SURFACE_TEXTURES.arcturus
+    },
+    antares: {
+        name: '心宿二',
+        nameCN: '心宿二',
+        nameEN: 'Antares',
+        type: '红超巨星',
+        diameter: 947036000, // km，约 680 R☉
+        mass: 24664840, // 10²⁴ kg，约 12.4 M☉
+        category: 'star',
+        distance: 5200000000000000, // km，约 550 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xff5c34,
+        emissive: 0xb82419,
+        description: '心宿二是天蝎座的红超巨星，名字有“火星的对手”的意思，因为它看起来也带着醒目的红色。',
+        relativeSize: 74321.14,
+        texturePath: STAR_SURFACE_TEXTURES.antares
+    },
+    betelgeuse: {
+        name: '参宿四',
+        nameCN: '参宿四',
+        nameEN: 'Betelgeuse',
+        type: '红超巨星',
+        diameter: 1235324900, // km，约 887 R☉
+        mass: 32820150, // 10²⁴ kg，约 16.5 M☉
+        category: 'star',
+        distance: 5200000000000000, // km，约 550 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xff6d3a,
+        emissive: 0xc72c1f,
+        description: '参宿四是猎户座肩膀位置的红超巨星，如果放到太阳的位置，它的外层会大到接近火星轨道。',
+        relativeSize: 96948.12,
+        texturePath: STAR_SURFACE_TEXTURES.betelgeuse
+    },
+    vyCanisMajoris: {
+        name: '大犬座VY',
+        nameCN: '大犬座VY',
+        nameEN: 'VY Canis Majoris',
+        type: '红特超巨星',
+        diameter: 1977634000, // km，约 1420 R☉
+        mass: 33814700, // 10²⁴ kg，约 17 M☉
+        category: 'star',
+        distance: 36900000000000000, // km，约 3900 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xd94a2b,
+        emissive: 0x9c1f17,
+        description: '大犬座VY是非常巨大的红特超巨星，太阳放到它旁边会像一个小亮点。',
+        relativeSize: 155203.26,
+        texturePath: STAR_SURFACE_TEXTURES.vyCanisMajoris
+    },
+    uyScuti: {
+        name: '盾牌座UY',
+        nameCN: '盾牌座UY',
+        nameEN: 'UY Scuti',
+        type: '红超巨星',
+        diameter: 2367590000, // km，约 1700 R☉
+        mass: 15912800, // 10²⁴ kg，约 8 M☉
+        category: 'star',
+        distance: 89900000000000000, // km，约 9500 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xb93426,
+        emissive: 0x7f1814,
+        description: '盾牌座UY曾被认为是已知体积最大的恒星之一，很适合用来感受红超巨星的夸张尺度。',
+        relativeSize: 185807.57,
+        texturePath: STAR_SURFACE_TEXTURES.uyScuti
     },
     mercury: {
         name: '水星',
@@ -891,6 +1039,14 @@ const SATELLITE_COMPARISON_KEYS = [
     'deimos'
 ];
 const COMPARISON_BODY_KEYS = [
+    'uyScuti',
+    'vyCanisMajoris',
+    'betelgeuse',
+    'antares',
+    'arcturus',
+    'betaCentauri',
+    'sirius',
+    'alphaCentauri',
     'sun',
     'proximaCentauri',
     'jupiter',
@@ -973,7 +1129,7 @@ function getDiameterStartLabel(key) {
 
 function getDiameterStartSubtitle(key) {
     if (key === 'oortCloud') {
-        return '从奥尔特云开始，把黑洞、太阳、比邻星和后面的天体按真实直径排在一起';
+        return '从奥尔特云开始，把黑洞、巨星、太阳、比邻星和后面的天体按真实直径排在一起';
     }
     if (key === DIAMETER_BLACK_HOLE_KEY) {
         return '去掉奥尔特云，从黑洞开始，后面的天体会按当前最大天体重新缩放';
@@ -1001,6 +1157,14 @@ function buildDiameterDetailProfiles() {
 const DIAMETER_DETAIL_PROFILES = buildDiameterDetailProfiles();
 let currentCapacityView = 'sun';
 const currentCapacitySelections = {
+    uyScuti: 'sun',
+    vyCanisMajoris: 'sun',
+    betelgeuse: 'sun',
+    antares: 'sun',
+    arcturus: 'sun',
+    betaCentauri: 'sun',
+    sirius: 'sun',
+    alphaCentauri: 'sun',
     sun: 'earth',
     jupiter: 'earth',
     saturn: 'earth',
@@ -1143,6 +1307,15 @@ blackHoleTextureImage.src = BLACK_HOLE_TEXTURE_PATH;
 // 在 canvas 粒子里贴对应天体的真实纹理（用 Solar System Scope 资源）
 const DRAG_VOLUME_TEXTURE_PATHS = {
     sun: 'textures/sun.jpg',
+    proximaCentauri: STAR_SURFACE_TEXTURES.proximaCentauri,
+    alphaCentauri: STAR_SURFACE_TEXTURES.alphaCentauri,
+    betaCentauri: STAR_SURFACE_TEXTURES.betaCentauri,
+    sirius: STAR_SURFACE_TEXTURES.sirius,
+    arcturus: STAR_SURFACE_TEXTURES.arcturus,
+    antares: STAR_SURFACE_TEXTURES.antares,
+    betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
+    vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
+    uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
     mercury: 'textures/mercury.jpg',
     venus: 'textures/venus_atmosphere.jpg',
     earth: 'textures/earth_daymap.jpg',
@@ -4811,6 +4984,62 @@ function updatePlanetScales() {
 
 // ============ 行星对比换算工具 ============
 const CAPACITY_TARGETS = {
+    uyScuti: {
+        key: 'uyScuti',
+        nameCN: '盾牌座UY',
+        texture: STAR_SURFACE_TEXTURES.uyScuti,
+        color: '#b93426',
+        objectKeys: getCapacityObjectKeys('uyScuti')
+    },
+    vyCanisMajoris: {
+        key: 'vyCanisMajoris',
+        nameCN: '大犬座VY',
+        texture: STAR_SURFACE_TEXTURES.vyCanisMajoris,
+        color: '#d94a2b',
+        objectKeys: getCapacityObjectKeys('vyCanisMajoris')
+    },
+    betelgeuse: {
+        key: 'betelgeuse',
+        nameCN: '参宿四',
+        texture: STAR_SURFACE_TEXTURES.betelgeuse,
+        color: '#ff6d3a',
+        objectKeys: getCapacityObjectKeys('betelgeuse')
+    },
+    antares: {
+        key: 'antares',
+        nameCN: '心宿二',
+        texture: STAR_SURFACE_TEXTURES.antares,
+        color: '#ff5c34',
+        objectKeys: getCapacityObjectKeys('antares')
+    },
+    arcturus: {
+        key: 'arcturus',
+        nameCN: '大角星',
+        texture: STAR_SURFACE_TEXTURES.arcturus,
+        color: '#ff8f45',
+        objectKeys: getCapacityObjectKeys('arcturus')
+    },
+    betaCentauri: {
+        key: 'betaCentauri',
+        nameCN: '半人马座β星',
+        texture: STAR_SURFACE_TEXTURES.betaCentauri,
+        color: '#bfdcff',
+        objectKeys: getCapacityObjectKeys('betaCentauri')
+    },
+    sirius: {
+        key: 'sirius',
+        nameCN: '天狼星',
+        texture: STAR_SURFACE_TEXTURES.sirius,
+        color: '#bfdcff',
+        objectKeys: getCapacityObjectKeys('sirius')
+    },
+    alphaCentauri: {
+        key: 'alphaCentauri',
+        nameCN: '半人马座α星',
+        texture: STAR_SURFACE_TEXTURES.alphaCentauri,
+        color: '#ffd56b',
+        objectKeys: getCapacityObjectKeys('alphaCentauri')
+    },
     sun: {
         key: 'sun',
         nameCN: '太阳',
@@ -5071,14 +5300,17 @@ function getCapacityNote(targetKey) {
         return `按${scopeLabel}估算：能装数量 ≈ (${scopeLabel}半径 / 天体半径)³，数值会比较大，仅用于量级理解。`;
     }
 
-    if (targetKey === 'proximaCentauri') {
+    const targetBody = planetData[targetKey];
+    if (targetBody?.category === 'star' && targetKey !== 'sun') {
+        const solarDiameterRatio = targetBody.diameter / planetData.sun.diameter;
+        const solarMassRatio = targetBody.mass / planetData.sun.mass;
         if (currentComparisonMetric === 'mass') {
-            return '按质量测算：比邻星质量约为太阳的 0.1221 倍，数量 = 比邻星质量 / 天体质量。';
+            return `按质量测算：${targetBody.nameCN}质量约为太阳的 ${solarMassRatio.toFixed(solarMassRatio < 1 ? 4 : 1)} 倍，数量 = 恒星质量 / 天体质量。`;
         }
         if (currentComparisonMetric === 'width') {
-            return `按宽度测算：比邻星直径约 ${formatNumber(planetData.proximaCentauri.diameter)} 公里，数量 = 比邻星直径 / 天体直径。`;
+            return `按宽度测算：${targetBody.nameCN}直径约 ${formatNumber(targetBody.diameter)} 公里，数量 = 恒星直径 / 天体直径。`;
         }
-        return `比邻星按半径 0.1542 R☉ 折算，直径约 ${formatNumber(planetData.proximaCentauri.diameter)} 公里，数量 ≈ (比邻星直径 / 天体直径)³。`;
+        return `${targetBody.nameCN}按直径约 ${solarDiameterRatio.toFixed(solarDiameterRatio < 1 ? 4 : 1)} 个太阳折算，数量 ≈ (恒星直径 / 天体直径)³。`;
     }
 
     if (currentComparisonMetric === 'width') {
@@ -5123,6 +5355,14 @@ function renderCapacityTargetPicker(container) {
         { key: 'venus', icon: '🟡', name: '金星' },
         { key: 'mars', icon: '🔴', name: '火星' },
         { key: 'blackHole', icon: '🕳️', name: '黑洞', isGroup: true },
+        { key: 'uyScuti', icon: '⭐', name: '盾牌座UY' },
+        { key: 'vyCanisMajoris', icon: '⭐', name: '大犬座VY' },
+        { key: 'betelgeuse', icon: '⭐', name: '参宿四' },
+        { key: 'antares', icon: '⭐', name: '心宿二' },
+        { key: 'arcturus', icon: '⭐', name: '大角星' },
+        { key: 'betaCentauri', icon: '⭐', name: '半人马座β星' },
+        { key: 'sirius', icon: '⭐', name: '天狼星' },
+        { key: 'alphaCentauri', icon: '⭐', name: '半人马座α星' },
         { key: 'proximaCentauri', icon: '⭐', name: '比邻星' }
     ];
     const suffix = currentComparisonMetric === 'width'
@@ -5230,6 +5470,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     const capacityData = getCapacityData(targetKey);
     const targetDisplayName = isBlackHole ? '黑洞' : target.nameCN;
     const includeBarChart = !!options.includeBarChart;
+    const isStellarTarget = !isBlackHole && planetData[targetKey]?.category === 'star';
 
     subtitle.textContent = currentComparisonMetric === 'mass'
         ? `拖拽天体放入${targetDisplayName}，按质量看看相当于多少个`
@@ -5326,8 +5567,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
 
     const realisticLabel = isBlackHole
         ? '🌑 还原黑洞'
-        : targetKey === 'proximaCentauri'
-            ? '⭐ 还原比邻星'
+        : isStellarTarget
+            ? `⭐ 还原${target.nameCN}`
             : '☀️ 还原太阳';
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
     const initial3DLabel = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
@@ -5595,6 +5836,15 @@ function generateSizeComparison(mode) {
     // 行星纹理贴图映射
     const planetTextures = {
         sun: 'textures/sun.jpg',
+        proximaCentauri: STAR_SURFACE_TEXTURES.proximaCentauri,
+        alphaCentauri: STAR_SURFACE_TEXTURES.alphaCentauri,
+        betaCentauri: STAR_SURFACE_TEXTURES.betaCentauri,
+        sirius: STAR_SURFACE_TEXTURES.sirius,
+        arcturus: STAR_SURFACE_TEXTURES.arcturus,
+        antares: STAR_SURFACE_TEXTURES.antares,
+        betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
+        vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
+        uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
         jupiter: 'textures/jupiter.jpg',
         saturn: 'textures/saturn.jpg',
         earth: 'textures/earth_daymap.jpg',
