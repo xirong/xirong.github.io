@@ -5732,21 +5732,74 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         const refStyle = !isBlackHole && targetKey !== 'sun' && targetKey !== 'proximaCentauri' && target.texture
             ? `background: url('${target.texture}') center/cover; box-shadow: 0 0 25px ${target.color}66;`
             : '';
+        const widthCompareSize = 120;
+        function renderWidthFitRow(item) {
+            if (!item) return '';
+            const count = Math.max(item.count, 1);
+            const rawDotSize = widthCompareSize / count;
+            const dotSize = Math.max(4, rawDotSize);
+            if (count > 18 || rawDotSize < 5) {
+                return `
+                    <div class="width-fit-scale" style="width:${widthCompareSize}px;">
+                        <div class="width-fit-tiny-dot" style="background:${item.color}; box-shadow: 0 0 6px ${item.color};"></div>
+                        <span>横向约 ${item.label} 个</span>
+                    </div>
+                `;
+            }
+
+            const fullCount = Math.floor(count);
+            const fraction = count - fullCount;
+            let dotsHTML = '';
+            for (let i = 0; i < fullCount; i++) {
+                dotsHTML += `<span class="width-fit-dot" style="left:${i * dotSize}px; width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 6px ${item.color};"></span>`;
+            }
+            if (fraction >= 0.05) {
+                dotsHTML += `
+                    <span class="width-fit-dot width-fit-dot--partial" style="left:${fullCount * dotSize}px; width:${dotSize * fraction}px; height:${dotSize}px;">
+                        <span style="width:${dotSize}px; height:${dotSize}px; background:${item.color}; box-shadow: 0 0 6px ${item.color};"></span>
+                    </span>
+                `;
+            }
+
+            return `
+                <div class="width-fit-row" style="width:${widthCompareSize}px; height:${Math.max(dotSize, 14)}px;">
+                    ${dotsHTML}
+                </div>
+                <div class="width-fit-caption">横向约 ${item.label} 个${item.nameCN}</div>
+            `;
+        }
+
         const initialPlanetSize = initialSelected ? computePlanetRefSize(initialSelected) : 4;
         const initialPlanetColor = initialSelected ? initialSelected.color : '#888';
         const initialPlanetName = initialSelected ? initialSelected.nameCN : '';
-        const sizeCompareHTML = `
-            <div class="drag-size-compare">
-                <div class="volume-size-compare">
-                    <div class="${targetRefClass}" style="${refStyle}"></div>
-                    <div class="planet-ref" data-planet-ref style="width:${initialPlanetSize}px; height:${initialPlanetSize}px; background:${initialPlanetColor}; box-shadow: 0 0 6px ${initialPlanetColor};"></div>
+        const sizeCompareHTML = currentComparisonMetric === 'width'
+            ? `
+                <div class="drag-size-compare drag-size-compare--width">
+                    <div class="width-size-compare">
+                        <div class="width-target-compare">
+                            <div class="${targetRefClass}" style="width:${widthCompareSize}px; height:${widthCompareSize}px; ${refStyle}"></div>
+                            <div class="width-diameter-line"></div>
+                        </div>
+                        <div class="width-fit-compare" data-width-fit-row>${renderWidthFitRow(initialSelected)}</div>
+                    </div>
+                    <div class="volume-compare-labels volume-compare-labels--width">
+                        <span>${targetDisplayName}</span>
+                        <span data-planet-ref-label>${initialPlanetName}</span>
+                    </div>
                 </div>
-                <div class="volume-compare-labels">
-                    <span>${targetDisplayName}</span>
-                    <span data-planet-ref-label>${initialPlanetName}</span>
+            `
+            : `
+                <div class="drag-size-compare">
+                    <div class="volume-size-compare">
+                        <div class="${targetRefClass}" style="${refStyle}"></div>
+                        <div class="planet-ref" data-planet-ref style="width:${initialPlanetSize}px; height:${initialPlanetSize}px; background:${initialPlanetColor}; box-shadow: 0 0 6px ${initialPlanetColor};"></div>
+                    </div>
+                    <div class="volume-compare-labels">
+                        <span>${targetDisplayName}</span>
+                        <span data-planet-ref-label>${initialPlanetName}</span>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
         barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}${sizeCompareHTML}</div>`;
     }
 
@@ -5804,6 +5857,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
             planetRef.style.background = item.color;
             planetRef.style.boxShadow = `0 0 6px ${item.color}`;
         }
+        const widthFitRow = wrapper.querySelector('[data-width-fit-row]');
+        if (widthFitRow) widthFitRow.innerHTML = renderWidthFitRow(item);
         if (planetRefLabel) planetRefLabel.textContent = item.nameCN;
     }
 
