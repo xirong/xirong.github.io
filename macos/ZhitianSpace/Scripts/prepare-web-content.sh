@@ -24,7 +24,7 @@ do
   fi
 done
 
-for dir in space math puzzle engineering etf; do
+for dir in space math puzzle english engineering etf; do
   if [[ -d "$ROOT_DIR/$dir" ]]; then
     rsync -a --delete \
       --exclude '.DS_Store' \
