@@ -5656,18 +5656,21 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     const targetDisplayName = isBlackHole ? getCapacityTargetDisplayName(targetKey) : target.nameCN;
     const includeBarChart = !!options.includeBarChart;
     const isStellarTarget = !isBlackHole && planetData[targetKey]?.category === 'star';
+    const isWidthMode = currentComparisonMetric === 'width';
 
     subtitle.textContent = currentComparisonMetric === 'mass'
         ? `拖拽天体放入${targetDisplayName}，按质量看看相当于多少个`
         : currentComparisonMetric === 'width'
-            ? `拖拽天体放入${targetDisplayName}，按宽度看看横向约等于多少个`
+            ? `拖拽天体放到${targetDisplayName}的赤道线上，按直径看看横向约等于多少个`
             : `拖拽天体放入${targetDisplayName}，按直径折算体积看看能装多少个`;
 
     const wrapper = document.createElement('div');
-    wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}${includeBarChart ? ' drag-volume-container--with-bars' : ''}`;
+    wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}${includeBarChart ? ' drag-volume-container--with-bars' : ''}${isWidthMode ? ' width-drag' : ''}`;
 
     // 装入球放大让纹理细节更清晰；ghost 也按比例放大
     const canvasSize = isBlackHole ? 480 : 460;
+    const canvasWidth = isWidthMode ? 520 : canvasSize;
+    const canvasHeight = isWidthMode ? 260 : canvasSize;
     const dpr = window.devicePixelRatio || 1;
 
     function getDotSize(key) {
@@ -5811,16 +5814,22 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
     const initial3DLabel = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
     const mainAreaClass = `drag-main-area${includeBarChart ? ' drag-main-area--with-bars' : ''}`;
-
-    wrapper.innerHTML = `
-        <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '横向约等于多少个' : '能装多少个'}！</div>
-        <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
-        <div class="${mainAreaClass}">
-            <div class="drag-sun-area" style="width:${canvasSize}px; height:${canvasSize}px;">
+    const show3DCanvas = !isWidthMode && isDrag3DMode();
+    const toolButtonsHTML = isWidthMode
+        ? ''
+        : `
                 <button class="drag-style-toggle" type="button" aria-pressed="${isGlassDragMode()}">${initialToggleLabel}</button>
                 <button class="drag-3d-toggle" type="button" aria-pressed="${isDrag3DMode()}">${initial3DLabel}</button>
-                <canvas class="drag-sun-canvas" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; position:absolute; top:0; left:0; ${isDrag3DMode() ? 'display:none;' : ''}"></canvas>
-                <canvas class="drag-sun-canvas-3d" width="${canvasSize * dpr}" height="${canvasSize * dpr}" style="width:${canvasSize}px; height:${canvasSize}px; ${isDrag3DMode() ? '' : 'display:none;'}"></canvas>
+                <canvas class="drag-sun-canvas-3d" width="${canvasWidth * dpr}" height="${canvasHeight * dpr}" style="width:${canvasWidth}px; height:${canvasHeight}px; ${show3DCanvas ? '' : 'display:none;'}"></canvas>
+        `;
+
+    wrapper.innerHTML = `
+        <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '沿赤道横向约等于多少个' : '能装多少个'}！</div>
+        <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
+        <div class="${mainAreaClass}">
+            <div class="drag-sun-area" style="width:${canvasWidth}px; height:${canvasHeight}px;">
+                ${toolButtonsHTML}
+                <canvas class="drag-sun-canvas" width="${canvasWidth * dpr}" height="${canvasHeight * dpr}" style="width:${canvasWidth}px; height:${canvasHeight}px; position:absolute; top:0; left:0; ${show3DCanvas ? 'display:none;' : ''}"></canvas>
             </div>
             <div class="drag-planet-tray">${trayHTML}</div>
             ${barChartHTML}
@@ -5880,7 +5889,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 ctx2.setTransform(1, 0, 0, 1, 0, 0);
                 ctx2.scale(dpr, dpr);
                 clearDragResultState();
-                const startAnim = isBlackHole ? startBlackHoleFillAnimation : startFillAnimation;
+                const startAnim = isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation);
                 const animConfig = {
                     resultLabel: currentComparisonMetric === 'mass'
                         ? `${targetDisplayName}质量约等于`
@@ -5889,7 +5898,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                             : `${targetDisplayName}能装`,
                     blackHoleScopeLabel: isBlackHole ? blackHoleScopeLabel : '',
                     wrapper,
-                    targetKey
+                    targetKey,
+                    canvasWidth,
+                    canvasHeight
                 };
                 startAnim(ctx2, canvasSize, item, animConfig);
             });
@@ -5897,7 +5908,11 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     }
 
     function drawIdle() {
-        if (isBlackHole) {
+        if (isWidthMode) {
+            drawIdleWidthContainer(ctx, canvasWidth, canvasHeight, targetKey, {
+                blackHoleScopeLabel
+            });
+        } else if (isBlackHole) {
             drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
             if (!blackHoleTextureImage.complete) {
                 blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
@@ -5997,7 +6012,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     };
 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
-        startAnimation: isBlackHole ? startBlackHoleFillAnimation : startFillAnimation,
+        startAnimation: isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation),
         ghostMaxSize: isBlackHole ? 70 : 64,
         resultLabel: currentComparisonMetric === 'mass'
             ? `${targetDisplayName}质量约等于`
@@ -6008,6 +6023,8 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         wrapper,
         onSelect: includeBarChart ? applySelected : undefined,
         targetKey,
+        canvasWidth,
+        canvasHeight,
         // 用 .drag-sun-area 元素做拖拽 hit 判定，覆盖 2D/3D 两个 canvas
         getHitElement: () => wrapper.querySelector('.drag-sun-area')
     });
@@ -6798,6 +6815,156 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '
     }
 }
 
+function getWidthPlaneGeometry(width, height) {
+    const cx = width / 2;
+    const cy = height / 2;
+    const radius = Math.min(width * 0.42, height * 0.38);
+    const lineHalf = Math.min(width * 0.42, radius * 1.35);
+    return {
+        cx,
+        cy,
+        radius,
+        left: cx - lineHalf,
+        right: cx + lineHalf,
+        lineLength: lineHalf * 2
+    };
+}
+
+function drawWidthTargetDisk(ctx, width, height, targetKey, geo, options = {}) {
+    const target = (typeof CAPACITY_TARGETS !== 'undefined') ? CAPACITY_TARGETS[targetKey] : null;
+    const fallbackColor = (target && target.color) || '#888888';
+    const isBlackHole = isBlackHoleTargetType(targetKey);
+    const rgb = hexToRgbStr(fallbackColor);
+
+    ctx.save();
+    ctx.globalAlpha = 0.26;
+    ctx.beginPath();
+    ctx.arc(geo.cx, geo.cy, geo.radius, 0, Math.PI * 2);
+    ctx.clip();
+    if (isBlackHole) {
+        const grad = ctx.createRadialGradient(geo.cx, geo.cy, geo.radius * 0.05, geo.cx, geo.cy, geo.radius);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0.96)');
+        grad.addColorStop(0.55, 'rgba(14, 18, 42, 0.9)');
+        grad.addColorStop(1, 'rgba(120, 170, 255, 0.22)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(geo.cx - geo.radius, geo.cy - geo.radius, geo.radius * 2, geo.radius * 2);
+    } else if (targetKey === 'proximaCentauri') {
+        drawProximaSurface(ctx, geo.cx, geo.cy, geo.radius);
+    } else {
+        const img = getDragVolumeTexture(targetKey);
+        if (img && img.complete && img.naturalWidth > 0) {
+            const srcSize = Math.min(img.naturalWidth, img.naturalHeight);
+            const sx = (img.naturalWidth - srcSize) / 2;
+            const sy = (img.naturalHeight - srcSize) / 2;
+            ctx.drawImage(img, sx, sy, srcSize, srcSize, geo.cx - geo.radius, geo.cy - geo.radius, geo.radius * 2, geo.radius * 2);
+        } else {
+            ctx.fillStyle = fallbackColor;
+            ctx.fillRect(geo.cx - geo.radius, geo.cy - geo.radius, geo.radius * 2, geo.radius * 2);
+        }
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(geo.cx, geo.cy, geo.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${rgb}, 0.42)`;
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.restore();
+
+    const band = ctx.createLinearGradient(geo.left, geo.cy, geo.right, geo.cy);
+    band.addColorStop(0, `rgba(${rgb}, 0)`);
+    band.addColorStop(0.18, `rgba(${rgb}, 0.14)`);
+    band.addColorStop(0.5, 'rgba(255, 255, 255, 0.18)');
+    band.addColorStop(0.82, `rgba(${rgb}, 0.14)`);
+    band.addColorStop(1, `rgba(${rgb}, 0)`);
+    ctx.fillStyle = band;
+    ctx.fillRect(geo.left, geo.cy - 13, geo.lineLength, 26);
+
+    ctx.beginPath();
+    ctx.moveTo(geo.left, geo.cy);
+    ctx.lineTo(geo.right, geo.cy);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.35)';
+    ctx.shadowBlur = 8;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+    ctx.font = '600 13px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(options.label || '赤道直径', geo.cx, geo.cy - geo.radius - 12);
+}
+
+function drawWidthFitDots(ctx, width, height, data, progress = 1) {
+    const geo = getWidthPlaneGeometry(width, height);
+    const targetCount = Math.max(data.count, 1);
+    const rawDotSize = geo.lineLength / targetCount;
+    const exactLayout = targetCount <= 45 && rawDotSize >= 4;
+    const color = data.color;
+
+    if (exactLayout) {
+        const visibleUnits = targetCount * progress;
+        const fullVisible = Math.floor(visibleUnits);
+        const fraction = visibleUnits - fullVisible;
+        const dotSize = Math.max(4, rawDotSize);
+        const radius = dotSize / 2;
+
+        for (let i = 0; i < fullVisible; i++) {
+            const x = geo.left + radius + i * dotSize;
+            drawTexturedMiniPlanet(ctx, x, geo.cy, radius, data.key, color);
+        }
+
+        if (fraction >= 0.04 && fullVisible < targetCount) {
+            const x = geo.left + radius + fullVisible * dotSize;
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x - radius, geo.cy - radius, dotSize * fraction, dotSize);
+            ctx.clip();
+            drawTexturedMiniPlanet(ctx, x, geo.cy, radius, data.key, color);
+            ctx.restore();
+        }
+        return;
+    }
+
+    const visualCount = Math.max(1, Math.min(140, Math.round(targetCount)));
+    const visibleCount = Math.ceil(visualCount * progress);
+    const gap = visualCount <= 1 ? 0 : geo.lineLength / (visualCount - 1);
+    const radius = Math.max(1.6, Math.min(4.5, gap * 0.36));
+
+    for (let i = 0; i < visibleCount; i++) {
+        const x = visualCount <= 1 ? geo.cx : geo.left + i * gap;
+        ctx.beginPath();
+        ctx.arc(x, geo.cy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 5;
+        ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+}
+
+function drawIdleWidthContainer(ctx, width, height, targetKey, options = {}) {
+    const geo = getWidthPlaneGeometry(width, height);
+    const target = CAPACITY_TARGETS[targetKey];
+    ctx.clearRect(0, 0, width, height);
+    drawWidthTargetDisk(ctx, width, height, targetKey, geo, {
+        label: options.blackHoleScopeLabel ? `${options.blackHoleScopeLabel}直径` : `${target?.nameCN || '目标'}直径`
+    });
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.74)';
+    ctx.font = '600 16px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('拖到赤道线', geo.cx, geo.cy + geo.radius + 20);
+
+    const img = getDragVolumeTexture(targetKey);
+    if (img && !img.complete) {
+        img.onload = () => drawIdleWidthContainer(ctx, width, height, targetKey, options);
+    }
+}
+
 function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, targetConfig = {}) {
     const sizeComparison = document.getElementById('sizeComparison');
     let ghost = null;
@@ -6935,13 +7102,14 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
         const canvasRect = (hitElement || canvas).getBoundingClientRect();
         const cx = canvasRect.left + canvasRect.width / 2;
         const cy = canvasRect.top + canvasRect.height / 2;
-        const dist = Math.sqrt((clientX - cx) ** 2 + (clientY - cy) ** 2);
-        const hitRadius = canvasRect.width / 2;
+        const hitRadiusX = canvasRect.width / 2;
+        const hitRadiusY = canvasRect.height / 2;
+        const normalizedHitDistance = ((clientX - cx) / hitRadiusX) ** 2 + ((clientY - cy) / hitRadiusY) ** 2;
         const clickTarget = getDropClickTarget(clientX, clientY);
 
         detachGlobalDragListeners();
 
-        if (dist < hitRadius * 1.2) {
+        if (normalizedHitDistance < 1.44) {
             ghost.style.transition = 'all 0.2s ease';
             ghost.style.left = (cx - offsetX) + 'px';
             ghost.style.top = (cy - offsetY) + 'px';
@@ -7055,6 +7223,77 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             }
         });
     });
+}
+
+function startWidthFitAnimation(ctx, size, data, animationConfig = {}) {
+    const width = animationConfig.canvasWidth || size;
+    const height = animationConfig.canvasHeight || Math.round(size * 0.5);
+    const geo = getWidthPlaneGeometry(width, height);
+    const targetKey = animationConfig.targetKey || 'sun';
+    const target = CAPACITY_TARGETS[targetKey];
+    const targetLabel = animationConfig.blackHoleScopeLabel
+        ? `${animationConfig.blackHoleScopeLabel}直径`
+        : `${target?.nameCN || '目标'}直径`;
+    const targetCount = data.count;
+    const duration = 2200;
+    playVolumeFillCollisionSound(targetCount, isBlackHoleTargetType(targetKey) ? 'blackHole' : 'sun', duration);
+
+    const startTime = performance.now();
+    let resultShown = false;
+    let lastFrameTime = 0;
+
+    function animate(now) {
+        lastFrameTime = now;
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const ease = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const displayCount = Math.max(1, Math.round(targetCount * ease));
+
+        ctx.clearRect(0, 0, width, height);
+        drawWidthTargetDisk(ctx, width, height, targetKey, geo, { label: targetLabel });
+        drawWidthFitDots(ctx, width, height, data, ease);
+
+        let countText;
+        if (progress >= 0.98) {
+            countText = data.label;
+        } else if (displayCount >= 100000000) {
+            countText = (displayCount / 100000000).toFixed(1) + ' 亿';
+        } else if (displayCount >= 10000) {
+            countText = (displayCount / 10000).toFixed(displayCount >= 1000000 ? 0 : 1) + ' 万';
+        } else {
+            countText = formatNumber(displayCount);
+        }
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.58)';
+        ctx.font = `900 26px ${TEACHING_NUMBER_FONT}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(countText, geo.cx + 1, geo.cy + geo.radius + 35);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(countText, geo.cx, geo.cy + geo.radius + 34);
+        ctx.font = '500 13px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.74)';
+        ctx.fillText(`个${data.nameCN}横向排起来`, geo.cx, geo.cy + geo.radius + 58);
+        ctx.restore();
+
+        if (progress < 1) {
+            dragVolumeAnimationId = requestAnimationFrame(animate);
+        } else {
+            dragVolumeAnimationId = null;
+            if (!resultShown) {
+                showDragResult(data.label, data.nameCN, animationConfig.resultLabel || '宽度约等于');
+                resultShown = true;
+            }
+        }
+    }
+
+    if (animationConfig.wrapper) {
+        animationConfig.wrapper._dragRedraw = () => animate(lastFrameTime || performance.now());
+    }
+    dragVolumeAnimationId = requestAnimationFrame(animate);
 }
 
 function startFillAnimation(ctx, size, data, animationConfig = {}) {
