@@ -12,7 +12,7 @@
             question: '太阳系有4个岩石行星和4个气态行星，一共几个？',
             expression: '4 + 4',
             answer: 8,
-            hint: '4加4等于8'
+            hint: '数一数两组行星，一组一组接着数'
         },
         {
             id: 'sun-add-light-energy',
@@ -22,7 +22,7 @@
             question: '太阳能板今天收集了6份光能，又收集了4份，一共收集了几份光能？',
             expression: '6 + 4',
             answer: 10,
-            hint: '6加4等于10'
+            hint: '先数已经收集的光能，再接着数新来的光能'
         },
         {
             id: 'mars-add-volcanoes',
@@ -32,7 +32,7 @@
             question: '火星上有3座大火山和4座小火山，一共几座？',
             expression: '3 + 4',
             answer: 7,
-            hint: '3加4等于7'
+            hint: '把大火山和小火山放在一起数一数'
         },
         {
             id: 'mars-add-rovers-photos',
@@ -42,7 +42,7 @@
             question: '祝融号拍了4张照片，好奇号拍了6张，一共拍了几张？',
             expression: '4 + 6',
             answer: 10,
-            hint: '4加6等于10'
+            hint: '先数一台探测器拍的照片，再接着数另一台'
         },
         {
             id: 'jupiter-add-moons',
@@ -52,7 +52,7 @@
             question: '木星有4颗大卫星和3颗小卫星在身边，一共几颗？',
             expression: '4 + 3',
             answer: 7,
-            hint: '4加3等于7'
+            hint: '把大卫星和小卫星合在一起数'
         },
         {
             id: 'jupiter-add-ice-rivers',
@@ -62,7 +62,7 @@
             question: '木卫二的冰面下有4条地下河，科学家又发现了5条，一共几条？',
             expression: '4 + 5',
             answer: 9,
-            hint: '4加5等于9'
+            hint: '从冰面下原来的地下河开始接着数'
         },
         {
             id: 'saturn-add-rings',
@@ -72,7 +72,7 @@
             question: '土星环有3层明亮的环和4层暗淡的环，一共几层？',
             expression: '3 + 4',
             answer: 7,
-            hint: '3加4等于7'
+            hint: '明亮的环和暗淡的环都要算进去'
         },
         {
             id: 'saturn-add-cassini-photos',
@@ -82,7 +82,7 @@
             question: '卡西尼号拍了5张土星照片和4张卫星照片，一共几张？',
             expression: '5 + 4',
             answer: 9,
-            hint: '5加4等于9'
+            hint: '两种照片合在一起，慢慢数'
         },
         {
             id: 'moon-add-astronauts',
@@ -92,7 +92,7 @@
             question: '月球上有4个宇航员，又来了3个，现在一共有几个？',
             expression: '4 + 3',
             answer: 7,
-            hint: '4加3等于7'
+            hint: '先数原来的宇航员，再数后来的人'
         },
         {
             id: 'moon-add-spacesuits',
@@ -102,7 +102,7 @@
             question: '月球基地里有6名宇航员，又乘飞船来了4名，现在月球基地有几名宇航员？',
             expression: '6 + 4',
             answer: 10,
-            hint: '6加4等于10'
+            hint: '把基地里原有的人和新来的人合起来'
         },
         {
             id: 'neptune-add-blue-zones',
@@ -112,7 +112,7 @@
             question: '海王星的深蓝色很美，科学家数了5个蓝色区域，又发现了3个，一共几个？',
             expression: '5 + 3',
             answer: 8,
-            hint: '5加3等于8'
+            hint: '从已经看到的蓝色区域继续往后数'
         },
         {
             id: 'mercury-add-craters',
@@ -122,7 +122,7 @@
             question: '水星上有4个大陨石坑和5个小坑，一共几个？',
             expression: '4 + 5',
             answer: 9,
-            hint: '4加5等于9'
+            hint: '大坑和小坑都在水星表面，一起数'
         },
         {
             id: 'sun-sub-earth-models',
@@ -132,7 +132,7 @@
             question: '太阳能装下130万个地球！桌上原来有9个地球模型，搬走了3个，还剩几个？',
             expression: '9 - 3',
             answer: 6,
-            hint: '9减3等于6'
+            hint: '先想原来有多少，再拿走搬走的那一部分'
         },
         {
             id: 'sun-sub-light-rays',
@@ -142,7 +142,7 @@
             question: '太阳发出了9束光线，有4束照到了地球，还有几束没照到地球？',
             expression: '9 - 4',
             answer: 5,
-            hint: '9减4等于5'
+            hint: '先看总共有几束，再去掉照到地球的光线'
         },
         {
             id: 'mars-sub-red-stones',
@@ -152,7 +152,7 @@
             question: '火星表面有6块红色石头，风吹走了2块，还剩几块？',
             expression: '6 - 2',
             answer: 4,
-            hint: '6减2等于4'
+            hint: '原来的红色石头里，有一些被风吹走了'
         },
         {
             id: 'mars-sub-ice',
@@ -162,7 +162,7 @@
             question: '火星北极有7块大冰，融化了1块，还有几块？',
             expression: '7 - 1',
             answer: 6,
-            hint: '7减1等于6'
+            hint: '从大冰的总数里拿掉融化的那一块'
         },
         {
             id: 'jupiter-sub-cloud-layers',
@@ -172,7 +172,7 @@
             question: '木星大气有5层，我们看到了3层，还有几层没看到？',
             expression: '5 - 3',
             answer: 2,
-            hint: '5减3等于2'
+            hint: '先看一共有几层，再去掉已经看到的几层'
         },
         {
             id: 'jupiter-sub-dust',
@@ -182,7 +182,7 @@
             question: '木星环上飘着6粒尘埃，飞走了2粒，还剩几粒？',
             expression: '6 - 2',
             answer: 4,
-            hint: '6减2等于4'
+            hint: '尘埃飞走以后，只数还留下来的'
         },
         {
             id: 'saturn-sub-ice-blocks',
@@ -192,7 +192,7 @@
             question: '土星环上有8块大冰块，碎掉了2块，还剩几块？',
             expression: '8 - 2',
             answer: 6,
-            hint: '8减2等于6'
+            hint: '碎掉的冰块不算在剩下的里面'
         },
         {
             id: 'saturn-sub-rivers',
@@ -202,7 +202,7 @@
             question: '土卫六上有9条甲烷河流，干涸了4条，还有几条在流动？',
             expression: '9 - 4',
             answer: 5,
-            hint: '9减4等于5'
+            hint: '干涸的河流要从总数里拿掉'
         },
         {
             id: 'moon-sub-flags',
@@ -212,7 +212,7 @@
             question: '宇航员带了8面旗帜，插了5面，还剩几面？',
             expression: '8 - 5',
             answer: 3,
-            hint: '8减5等于3'
+            hint: '已经插好的旗帜不用再数进剩下的'
         },
         {
             id: 'moon-sub-oxygen',
@@ -222,7 +222,7 @@
             question: '宇航员带了7瓶氧气，用了4瓶，还剩几瓶？',
             expression: '7 - 4',
             answer: 3,
-            hint: '7减4等于3'
+            hint: '用掉的氧气瓶要从带来的瓶子里拿走'
         },
         {
             id: 'neptune-sub-diamonds',
@@ -232,7 +232,7 @@
             question: '钻石雨下了8颗钻石，智天捡了5颗，还剩几颗？',
             expression: '8 - 5',
             answer: 3,
-            hint: '8减5等于3'
+            hint: '智天捡走的钻石不算在雨里剩下的'
         },
         {
             id: 'mercury-sub-temperature',
@@ -242,7 +242,7 @@
             question: '水星白天很热晚上很冷！温度计白天升了6格，晚上降了4格，还剩几格？',
             expression: '6 - 4',
             answer: 2,
-            hint: '6减4等于2'
+            hint: '温度计降下去的格子要从升高的格子里拿掉'
         },
         {
             id: 'sun-seq-light-energy',
@@ -252,7 +252,7 @@
             question: '太阳能板有8份光能，用掉了3份照明，又收集了2份，现在有几份光能？',
             expression: '8 - 3 + 2',
             answer: 7,
-            hint: '先算8减3等于5，再算5加2等于7'
+            hint: '分两步算，先处理用掉的光能，再处理新收集的光能'
         },
         {
             id: 'sun-seq-hot-zones',
@@ -262,7 +262,7 @@
             question: '太阳表面有9个热区，冷却了4个变成暗区，又爆发了2个新热区，现在有几个热区？',
             expression: '9 - 4 + 2',
             answer: 7,
-            hint: '先算9减4等于5，再算5加2等于7'
+            hint: '分两步算，先看冷却后的热区，再加上新爆发的热区'
         },
         {
             id: 'mars-seq-red-stones',
@@ -272,7 +272,7 @@
             question: '火星沙漠里有8粒红色石子，风吹走了3粒，又落下来2粒，现在有几粒？',
             expression: '8 - 3 + 2',
             answer: 7,
-            hint: '先算8减3等于5，再算5加2等于7'
+            hint: '分两步算，先去掉吹走的石子，再加上落下来的石子'
         },
         {
             id: 'mars-seq-canyons',
@@ -282,7 +282,7 @@
             question: '火星地形探测器发现了5条峡谷，又找到了3条，其中2条已经研究完了，还有几条没研究？',
             expression: '5 + 3 - 2',
             answer: 6,
-            hint: '先算5加3等于8，再算8减2等于6'
+            hint: '分两步算，先把发现的峡谷合起来，再拿掉研究完的'
         },
         {
             id: 'jupiter-seq-small-planets',
@@ -292,7 +292,7 @@
             question: '木星装了9颗小星球，飞走了3颗，又被吸引来了2颗，现在装了几颗？',
             expression: '9 - 3 + 2',
             answer: 8,
-            hint: '先算9减3等于6，再算6加2等于8'
+            hint: '分两步算，先看飞走后剩下多少，再加上新来的'
         },
         {
             id: 'jupiter-seq-storm-days',
@@ -302,7 +302,7 @@
             question: '大红斑风暴持续了6天，又加强了2天，减弱了1天，一共刮了几天？',
             expression: '6 + 2 - 1',
             answer: 7,
-            hint: '先算6加2等于8，再算8减1等于7'
+            hint: '分两步算，先处理加强的天数，再处理减弱的天数'
         },
         {
             id: 'saturn-seq-floating-balls',
@@ -312,7 +312,7 @@
             question: '游泳池里有9个球，沉下去3个，又浮上来2个，现在浮着几个？',
             expression: '9 - 3 + 2',
             answer: 8,
-            hint: '先算9减3等于6，再算6加2等于8'
+            hint: '分两步算，先去掉沉下去的球，再加上浮上来的球'
         },
         {
             id: 'moon-seq-rocks',
@@ -322,7 +322,7 @@
             question: '月球上原来有8块月球岩石，宇航员带走了3块，又捡回来了2块，现在有几块？',
             expression: '8 - 3 + 2',
             answer: 7,
-            hint: '先算8减3等于5，再算5加2等于7'
+            hint: '分两步算，先拿走带走的岩石，再加上捡回来的岩石'
         },
         {
             id: 'neptune-seq-clouds',
@@ -332,7 +332,7 @@
             question: '海王星大气有10层深蓝色云，消散了4层，又生成了2层，现在有几层？',
             expression: '10 - 4 + 2',
             answer: 8,
-            hint: '先算10减4等于6，再算6加2等于8'
+            hint: '分两步算，先看消散后剩下多少，再加上新生成的云'
         },
         {
             id: 'mercury-seq-craters',
@@ -342,7 +342,7 @@
             question: '水星表面有10个陨石坑，小行星填平了3个，探测器又发现了2个新坑，现在一共有几个陨石坑？',
             expression: '10 - 3 + 2',
             answer: 9,
-            hint: '先算10减3等于7，再算7加2等于9'
+            hint: '分两步算，先去掉填平的坑，再加上新发现的坑'
         }
     ];
 

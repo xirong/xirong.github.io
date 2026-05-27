@@ -526,21 +526,29 @@
         session.locked = true;
         session.wrongAttempts += 1;
         button.classList.add('is-wrong');
-        button.dataset.blocked = 'true';
         setAllButtonsDisabled(session, true);
 
-        const hintText = question.hint ? `再想一下：${question.hint}` : '再想一下，能量还差一点';
+        const hintText = getWrongEncouragement(session.wrongAttempts);
         const feedback = session.root.querySelector('.learning-gate-feedback');
         feedback.classList.remove('is-celebration');
         feedback.textContent = hintText;
-        playQuestionHint(question);
+        stopGateAudio();
 
         window.setTimeout(() => {
             session.locked = false;
-            session.answerButtons.forEach(answerButton => {
-                answerButton.disabled = answerButton.dataset.blocked === 'true';
-            });
+            button.classList.remove('is-wrong');
+            setAllButtonsDisabled(session, false);
         }, session.plan.wrongLockMs || 650);
+    }
+
+    function getWrongEncouragement(attempts) {
+        const messages = [
+            '再想一想，先看题目问的是一共还是还剩',
+            '别急，把星球一颗一颗数清楚',
+            '还差一点，换个顺序重新算一遍',
+            '这道题要答对才能继续，慢慢来'
+        ];
+        return messages[(Math.max(1, attempts) - 1) % messages.length];
     }
 
     function setAllButtonsDisabled(session, disabled) {
@@ -577,17 +585,8 @@
         playGateAudio(getQuestionAudioPath(question), text);
     }
 
-    function playQuestionHint(question) {
-        if (!question.hint) return;
-        playGateAudio(getQuestionHintAudioPath(question), question.hint);
-    }
-
     function getQuestionAudioPath(question) {
         return question.audio || `audio/learning-gate/${question.id}.mp3`;
-    }
-
-    function getQuestionHintAudioPath(question) {
-        return question.hintAudio || `audio/learning-gate/${question.id}-hint.mp3`;
     }
 
     function buildQuestionSpeechText(question) {

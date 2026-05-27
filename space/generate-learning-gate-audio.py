@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Edge-TTS 音频生成脚本 - 为宇宙能量补给闸门生成题目和提示音频。
+Edge-TTS 音频生成脚本 - 为宇宙能量补给闸门生成题目音频。
 题库来源是 learning-gate-data.js，避免题目文案在脚本里重复维护。
 """
 
@@ -48,10 +48,6 @@ def build_audio_items(questions):
             question_text = f"{question_text}。{to_speech_expression(expression)}"
 
         items.append((AUDIO_DIR / f"{question['id']}.mp3", question_text))
-
-        hint = question.get("hint")
-        if hint:
-            items.append((AUDIO_DIR / f"{question['id']}-hint.mp3", hint))
 
     return items
 
