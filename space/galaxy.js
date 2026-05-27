@@ -80,6 +80,39 @@ const starSystemData = {
         description: '距离太阳系最近的恒星系统，由三颗恒星组成：半人马座α A、B和比邻星，画面里更亮的黄白色主星是A，旁边偏橙的是B，更远处的小红星就是比邻星。',
         funFact: '比邻星是距离我们最近的恒星，它周围发现了一颗可能宜居的行星——比邻星b！'
     },
+    alphaCentauriA: {
+        name: '半人马座α A星',
+        nameEn: 'Alpha Centauri A',
+        type: '类太阳恒星',
+        spectralType: 'G2V',
+        distance: '4.37光年',
+        brightness: '视星等 -0.01',
+        planets: 0,
+        description: '半人马座α A星是这个三合星系统里最亮、最大的一颗主星，颜色偏黄白，和太阳很像，但比太阳稍大、稍重、也稍亮。',
+        funFact: '如果把它单独放到夜空里，它会是一颗非常明亮的近邻恒星，很适合拿来和太阳做对比。'
+    },
+    alphaCentauriB: {
+        name: '半人马座α B星',
+        nameEn: 'Alpha Centauri B',
+        type: '橙色主序星',
+        spectralType: 'K1V',
+        distance: '4.37光年',
+        brightness: '视星等 1.33',
+        planets: 0,
+        description: '半人马座α B星是A星旁边偏橙色的伙伴，比太阳小一点、暗一点，也更冷一点。它和A星互相绕着共同的重心运行。',
+        funFact: 'A星和B星像一对相互牵引的双星伙伴，一圈绕行大约需要近80年。'
+    },
+    proximaCentauri: {
+        name: '比邻星',
+        nameEn: 'Proxima Centauri',
+        type: '红矮星',
+        spectralType: 'M5.5Ve',
+        distance: '4.24光年',
+        brightness: '视星等 11.13',
+        planets: 2,
+        description: '比邻星是离太阳最近的恒星，比A星和B星小得多、暗得多，是一颗容易爆发耀斑的红矮星。它在画面里是更远处的小红星。',
+        funFact: '比邻星周围发现了行星，比邻星b常被拿来讨论“离我们最近的系外行星世界”。'
+    },
     barnardStar: {
         name: '巴纳德星',
         nameEn: "Barnard's Star",
@@ -273,6 +306,7 @@ const neighborhoodStarConfigs = {
         labelOffsetY: 36,
         components: [
             {
+                key: 'alphaCentauriA',
                 label: 'A',
                 radius: 7.5,
                 color: '#fff1b8',
@@ -282,6 +316,7 @@ const neighborhoodStarConfigs = {
                 glowOpacity: 0.55
             },
             {
+                key: 'alphaCentauriB',
                 label: 'B',
                 radius: 5.5,
                 color: '#ffc56b',
@@ -291,6 +326,7 @@ const neighborhoodStarConfigs = {
                 glowOpacity: 0.5
             },
             {
+                key: 'proximaCentauri',
                 label: '比邻星',
                 radius: 2.6,
                 color: '#ff6a5e',
@@ -2667,8 +2703,7 @@ function init() {
                 // 检查是否点击了恒星系统（包括邻域恒星）
                 for (const starSystem of starSystems) {
                     if (starSystem.clickTarget && starSystem.visible) {
-                        const intersects = raycaster.intersectObject(starSystem.clickTarget);
-                        if (intersects.length > 0) {
+                        if (getStarSystemHit(starSystem)) {
                             hitObject = true;
                             break;
                         }
@@ -2679,8 +2714,7 @@ function init() {
                 if (!hitObject && isNeighborhoodView) {
                     for (const starSystem of neighborhoodStarSystems) {
                         if (starSystem.clickTarget && starSystem.visible && starSystem.name !== 'neighborhoodSun') {
-                            const intersects = raycaster.intersectObject(starSystem.clickTarget);
-                            if (intersects.length > 0) {
+                            if (getStarSystemHit(starSystem)) {
                                 hitObject = true;
                                 break;
                             }
@@ -5467,6 +5501,7 @@ function addNeighborhoodStarComponent(parent, component) {
     const starColor = new THREE.Color(component.color || '#ffffff');
 
     componentGroup.position.set(position.x || 0, position.y || 0, position.z || 0);
+    componentGroup.starSystemKey = component.key || null;
 
     const starGeometry = new THREE.SphereGeometry(radius, 32, 32);
     const starMaterial = createStarSurfaceMaterial(component.color || '#ffffff', component.textureProfile);
@@ -5514,8 +5549,48 @@ function addNeighborhoodStarComponent(parent, component) {
         );
     }
 
+    if (component.key) {
+        const clickTarget = createStarSystemClickTarget(radius * 1.9);
+        clickTarget.starSystemKey = component.key;
+        componentGroup.add(clickTarget);
+        componentGroup.clickTarget = clickTarget;
+
+        if (!parent.componentClickTargets) parent.componentClickTargets = [];
+        parent.componentClickTargets.push({
+            key: component.key,
+            object: componentGroup,
+            clickTarget
+        });
+    }
+
     parent.add(componentGroup);
     return componentGroup;
+}
+
+function getStarSystemHit(starSystem) {
+    if (starSystem.componentClickTargets) {
+        for (const component of starSystem.componentClickTargets) {
+            const intersects = raycaster.intersectObject(component.clickTarget);
+            if (intersects.length > 0) {
+                return {
+                    key: component.key,
+                    focusObject: component.object
+                };
+            }
+        }
+    }
+
+    if (starSystem.clickTarget) {
+        const intersects = raycaster.intersectObject(starSystem.clickTarget);
+        if (intersects.length > 0) {
+            return {
+                key: starSystem.key,
+                focusObject: starSystem
+            };
+        }
+    }
+
+    return null;
 }
 
 // ============ 创建邻域恒星组件标签 ============
@@ -6425,8 +6500,7 @@ function updateStarSystemHover() {
             if (!starSystem.visible || !starSystem.clickTarget) continue;
             if (starSystem.name === 'neighborhoodSun') continue;
 
-            const intersects = raycaster.intersectObject(starSystem.clickTarget);
-            if (intersects.length > 0) {
+            if (getStarSystemHit(starSystem)) {
                 found = starSystem;
                 break;
             }
@@ -6438,8 +6512,7 @@ function updateStarSystemHover() {
         for (const starSystem of starSystems) {
             if (!starSystem.visible || !starSystem.clickTarget) continue;
 
-            const intersects = raycaster.intersectObject(starSystem.clickTarget);
-            if (intersects.length > 0) {
+            if (getStarSystemHit(starSystem)) {
                 found = starSystem;
                 break;
             }
@@ -6471,10 +6544,10 @@ function onCanvasClick(event) {
             // 跳过太阳（neighborhoodSun）
             if (starSystem.name === 'neighborhoodSun') continue;
 
-            const intersects = raycaster.intersectObject(starSystem.clickTarget);
-            if (intersects.length > 0) {
-                focusControlsOnObject(starSystem, { immediate: true });
-                showStarSystemPopup(starSystem.key, event.clientX, event.clientY);
+            const hit = getStarSystemHit(starSystem);
+            if (hit) {
+                focusControlsOnObject(hit.focusObject, { immediate: true });
+                showStarSystemPopup(hit.key, event.clientX, event.clientY);
                 return;
             }
         }
@@ -6484,10 +6557,10 @@ function onCanvasClick(event) {
     for (const starSystem of starSystems) {
         if (!starSystem.visible || !starSystem.clickTarget) continue;
 
-        const intersects = raycaster.intersectObject(starSystem.clickTarget);
-        if (intersects.length > 0) {
-            focusControlsOnObject(starSystem, { immediate: true });
-            showStarSystemPopup(starSystem.key, event.clientX, event.clientY);
+        const hit = getStarSystemHit(starSystem);
+        if (hit) {
+            focusControlsOnObject(hit.focusObject, { immediate: true });
+            showStarSystemPopup(hit.key, event.clientX, event.clientY);
             return;
         }
     }
