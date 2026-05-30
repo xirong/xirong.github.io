@@ -5684,7 +5684,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     // 装入球放大让纹理细节更清晰；ghost 也按比例放大
     const canvasSize = isBlackHole ? 480 : 460;
     const canvasWidth = isWidthMode ? 520 : canvasSize;
-    const canvasHeight = isWidthMode ? 260 : canvasSize;
+    const canvasHeight = isWidthMode ? 320 : canvasSize;
     const dpr = window.devicePixelRatio || 1;
 
     function getDotSize(key) {
@@ -6831,8 +6831,10 @@ function drawIdleBlackHole(ctx, size, pulse = 0, showHint = true, scopeLabel = '
 
 function getWidthPlaneGeometry(width, height) {
     const cx = width / 2;
-    const cy = height / 2;
-    const radius = Math.min(width * 0.42, height * 0.38);
+    const topPadding = 32;
+    const bottomTextPadding = 74;
+    const radius = Math.min(width * 0.42, Math.max(48, (height - topPadding - bottomTextPadding) / 2));
+    const cy = topPadding + radius;
     const lineHalf = Math.min(width * 0.42, radius * 1.35);
     return {
         cx,
