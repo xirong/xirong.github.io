@@ -3,38 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>太阳能装多少个？（体积 vs 质量）</title>
+<title>天体能装多少个？（体积、质量、直径）</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
-body { font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; background: #0B0E17; color: #E8E4DC; min-height: 100vh; display: flex; justify-content: center; padding: 16px; }
-.wrap { max-width: 440px; width: 100%; }
+body { font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; background: #0B0E17; color: #E8E4DC; min-height: 100vh; display: flex; justify-content: center; padding: 16px; overflow-x: hidden; }
+.wrap { max-width: 520px; width: 100%; }
 h1 { text-align: center; font-size: 20px; font-weight: 600; color: #EF9F27; margin-bottom: 6px; letter-spacing: 1px; }
 .subtitle { text-align: center; font-size: 12px; color: #7A7672; margin-bottom: 16px; }
 
-.mode-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 18px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 3px; max-width: 240px; margin-left: auto; margin-right: auto; }
-.mode-btn { flex: 1; padding: 8px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: #7A7672; font-family: inherit; }
+.mode-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 18px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 3px; max-width: 330px; margin-left: auto; margin-right: auto; }
+.mode-btn { flex: 1; padding: 8px 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: #7A7672; font-family: inherit; white-space: nowrap; }
 .mode-btn.active { background: #EF9F27; color: #0B0E17; }
 .mode-btn:not(.active):hover { color: #E8E4DC; }
 
 .sun-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 12px; }
-.sun-wrap { position: relative; width: 180px; height: 180px; }
-.sun-circle { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FAD961, #EF9F27 45%, #BA7517 90%); position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(239,159,39,0.25); }
-.sun-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 13px; font-weight: 500; color: #fff; text-align: center; z-index: 2; line-height: 1.5; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
-.sfill { position: absolute; bottom: 0; left: 0; width: 100%; transition: height 0.8s cubic-bezier(0.34,1.56,0.64,1); height: 0; opacity: 0.4; z-index: 1; }
+.sun-wrap { position: relative; width: 190px; height: 190px; }
+.sun-circle { width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FAD961, #EF9F27 45%, #BA7517 90%); position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(239,159,39,0.25); transition: background 0.35s, box-shadow 0.35s; }
+.sun-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 13px; font-weight: 500; color: #fff; text-align: center; z-index: 2; line-height: 1.5; text-shadow: 0 1px 4px rgba(0,0,0,0.4); width: 86%; }
+.sfill { position: absolute; bottom: 0; left: 0; width: 100%; transition: height 0.8s cubic-bezier(0.34,1.56,0.64,1); height: 0; opacity: 0.36; z-index: 1; }
 
-.count-area { text-align: center; margin-bottom: 14px; min-height: 80px; }
-.ct-num { font-size: 44px; font-weight: 700; transition: all 0.25s; }
+.count-area { text-align: center; margin-bottom: 14px; min-height: 80px; overflow: hidden; }
+.ct-num { font-size: 44px; font-weight: 700; transition: all 0.25s; line-height: 1.08; }
 .ct-unit { font-size: 13px; color: #9A9690; margin-top: 2px; }
 .ct-compare { font-size: 12px; margin-top: 6px; padding: 4px 12px; border-radius: 6px; display: inline-block; }
 
 .section-label { font-size: 11px; color: #5A5650; margin-bottom: 6px; padding-left: 2px; font-weight: 600; letter-spacing: 1px; }
 
 .pgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 6px; }
-.pbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 8px; border: 1.5px solid transparent; background: rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s; }
+.pbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 58px; padding: 8px 2px; border-radius: 8px; border: 1.5px solid transparent; background: rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s; }
 .pbtn:hover { background: rgba(255,255,255,0.1); }
 .pbtn.active { border-color: #EF9F27; background: rgba(239,159,39,0.12); }
 .pdot { border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px rgba(255,255,255,0.08); }
-.pnm { font-size: 10px; color: #B0ACA5; font-weight: 500; }
+.pnm { font-size: 10px; color: #B0ACA5; font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pbtn.active .pnm { color: #E8E4DC; }
 
 .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0 8px; }
@@ -42,7 +42,7 @@ h1 { text-align: center; font-size: 20px; font-weight: 600; color: #EF9F27; marg
 .bars { margin-top: 10px; }
 .brow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; cursor: pointer; transition: opacity 0.2s; }
 .brow:hover { opacity: 1 !important; }
-.blbl { font-size: 11px; color: #7A7672; width: 38px; text-align: right; flex-shrink: 0; }
+.blbl { font-size: 11px; color: #7A7672; width: 50px; text-align: right; flex-shrink: 0; }
 .bbar-wrap { flex: 1; position: relative; height: 22px; }
 .bbar { height: 22px; border-radius: 5px; transition: width 0.7s cubic-bezier(0.22,1,0.36,1); display: flex; align-items: center; padding-left: 6px; min-width: 3px; position: absolute; top: 0; left: 0; }
 .bbar.ghost { opacity: 0.15; z-index: 0; }
@@ -53,18 +53,27 @@ h1 { text-align: center; font-size: 20px; font-weight: 600; color: #EF9F27; marg
 .legend-item { display: flex; align-items: center; gap: 4px; }
 .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
+.empty { text-align: center; color: #7A7672; font-size: 12px; padding: 16px 0 8px; }
 .footer { text-align: center; margin-top: 14px; font-size: 11px; color: #5A5650; }
 .density-badge { font-size: 11px; color: #EF9F27; margin-top: 4px; text-align: center; }
+
+@media (max-width: 420px) {
+  body { padding: 12px; }
+  .pgrid { grid-template-columns: repeat(4, 1fr); }
+  .ct-num { font-size: 38px; }
+  .mode-btn { font-size: 13px; padding-left: 6px; padding-right: 6px; }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>太阳能装多少个？</h1>
-  <div class="subtitle">体积 vs 质量，差别超大！</div>
+  <h1>天体能装多少个？</h1>
+  <div class="subtitle">按体积、质量、直径看差别，只比较更小的天体</div>
 
   <div class="mode-toggle">
     <button class="mode-btn active" id="btnVol" onclick="setMode('vol')">按体积</button>
     <button class="mode-btn" id="btnMass" onclick="setMode('mass')">按质量</button>
+    <button class="mode-btn" id="btnDiameter" onclick="setMode('diameter')">按直径</button>
   </div>
 
   <div class="sun-area">
@@ -82,55 +91,108 @@ h1 { text-align: center; font-size: 20px; font-weight: 600; color: #EF9F27; marg
     <div class="ct-compare" id="ctCompare">&nbsp;</div>
   </div>
 
+  <div class="section-label">恒星</div>
+  <div class="pgrid" id="pgrid0"></div>
+
+  <div class="divider"></div>
   <div class="section-label">八大行星</div>
   <div class="pgrid" id="pgrid1"></div>
 
   <div class="divider"></div>
   <div class="section-label">卫星与矮行星</div>
-  <div class="pgrid" id="pgrid2" style="grid-template-columns: repeat(5, 1fr);"></div>
+  <div class="pgrid" id="pgrid2"></div>
 
   <div class="divider"></div>
   <div class="bars" id="bars"></div>
 
   <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>当前模式</div>
-    <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.15)"></div>另一模式</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>当前容器</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.15)"></div>能装下的天体</div>
   </div>
 
   <div class="density-badge" id="densityBadge">&nbsp;</div>
-  <div class="footer">智天的太阳系探索 - 体积与质量</div>
+  <div class="footer">智天的太阳系探索 - 理想球体估算</div>
 </div>
 
 <script>
+const SUN_DIAMETER_KM = 1391400;
+const SUN_MASS_KG = 1.9884e30;
+
 const bodies = [
-  // 八大行星
-  { name: '木星', vol: 1000, mass: 1048, color: '#D85A30', size: 16, group: 1, density: 1.33 },
-  { name: '土星', vol: 1700, mass: 3500, color: '#EF9F27', size: 14, group: 1, density: 0.687 },
-  { name: '天王星', vol: 20000, mass: 22900, color: '#5DCAA5', size: 11, group: 1, density: 1.27 },
-  { name: '海王星', vol: 22000, mass: 19400, color: '#4A90D9', size: 11, group: 1, density: 1.64 },
-  { name: '地球', vol: 1300000, mass: 333000, color: '#4A90D9', size: 9, group: 1, density: 5.51 },
-  { name: '金星', vol: 1500000, mass: 409000, color: '#EF9F27', size: 9, group: 1, density: 5.24 },
-  { name: '火星', vol: 8600000, mass: 3112000, color: '#E24B4A', size: 7, group: 1, density: 3.93 },
-  { name: '水星', vol: 23000000, mass: 6025000, color: '#A0A0A0', size: 6, group: 1, density: 5.43 },
-  // 卫星与矮行星
-  { name: '木卫三', vol: 43000000, mass: 13420000, color: '#8899AA', size: 6, group: 2, density: 1.94 },
-  { name: '月球', vol: 65000000, mass: 27090000, color: '#C8C4BC', size: 5, group: 2, density: 3.34 },
-  { name: '阋神星', vol: 175000000, mass: 119800000, color: '#9AAFCC', size: 5, group: 2, density: 2.52 },
-  { name: '冥王星', vol: 220000000, mass: 152700000, color: '#C8C4BC', size: 5, group: 2, density: 1.85 },
-  { name: '妊神星', vol: 600000000, mass: 496500000, color: '#BBAACC', size: 4, group: 2, density: 1.89 },
-  { name: '鸟神星', vol: 700000000, mass: 641600000, color: '#E87070', size: 4, group: 2, density: 1.80 },
-  { name: '谷神星', vol: 3100000000, mass: 2118000000, color: '#80CC80', size: 4, group: 2, density: 2.16 },
+  // ============ 恒星 ============
+  { name: '心宿二', diameterKm: SUN_DIAMETER_KM * 680, massKg: SUN_MASS_KG * 12, color: '#D9483B', group: 0, note: '红超巨星，比手枪星更宽' },
+  { name: '手枪星', diameterKm: SUN_DIAMETER_KM * 306, massKg: SUN_MASS_KG * 27.5, color: '#9ED7FF', group: 0, note: '超亮蓝变星，很重但比心宿二窄' },
+  { name: '太阳', diameterKm: SUN_DIAMETER_KM, massKg: SUN_MASS_KG, color: '#EF9F27', group: 0 },
+
+  // ============ 八大行星 ============
+  { name: '木星', diameterKm: 139820, massKg: 1.898e27, color: '#D85A30', group: 1 },
+  { name: '土星', diameterKm: 116460, massKg: 5.683e26, color: '#EF9F27', group: 1 },
+  { name: '天王星', diameterKm: 50724, massKg: 8.681e25, color: '#5DCAA5', group: 1 },
+  { name: '海王星', diameterKm: 49244, massKg: 1.024e26, color: '#4A90D9', group: 1 },
+  { name: '地球', diameterKm: 12742, massKg: 5.9722e24, color: '#4A90D9', group: 1 },
+  { name: '金星', diameterKm: 12104, massKg: 4.867e24, color: '#EF9F27', group: 1 },
+  { name: '火星', diameterKm: 6779, massKg: 6.417e23, color: '#E24B4A', group: 1 },
+  { name: '水星', diameterKm: 4879, massKg: 3.301e23, color: '#A0A0A0', group: 1 },
+
+  // ============ 卫星、矮行星、小天体 ============
+  { name: '木卫三', diameterKm: 5268, massKg: 1.4819e23, color: '#8899AA', group: 2 },
+  { name: '土卫六', diameterKm: 5150, massKg: 1.3452e23, color: '#D8A04C', group: 2 },
+  { name: '木卫一', diameterKm: 3630, massKg: 8.9319e22, color: '#E2C15C', group: 2 },
+  { name: '月球', diameterKm: 3475, massKg: 7.342e22, color: '#C8C4BC', group: 2 },
+  { name: '木卫二', diameterKm: 3138, massKg: 4.7998e22, color: '#D6C7A6', group: 2 },
+  { name: '海卫一', diameterKm: 2700, massKg: 2.14e22, color: '#A8C7D8', group: 2 },
+  { name: '冥王星', diameterKm: 2377, massKg: 1.303e22, color: '#C8B08A', group: 2 },
+  { name: '阋神星', diameterKm: 2326, massKg: 1.6466e22, color: '#9AAFCC', group: 2 },
+  { name: '妊神星', diameterKm: 1740, massKg: 4.006e21, color: '#BBAACC', group: 2 },
+  { name: '土卫五', diameterKm: 1530, massKg: 2.306e21, color: '#B5B0A8', group: 2 },
+  { name: '鸟神星', diameterKm: 1434, massKg: 3.1e21, color: '#E87070', group: 2 },
+  { name: '天卫一', diameterKm: 1158, massKg: 1.353e21, color: '#98B8D8', group: 2 },
+  { name: '谷神星', diameterKm: 940, massKg: 9.3835e20, color: '#80CC80', group: 2 },
+  { name: '土卫二', diameterKm: 520, massKg: 1.0802e20, color: '#E4F1F5', group: 2 },
+  { name: '火卫一', diameterKm: 22.5, massKg: 1.0659e16, color: '#8C8078', group: 2 },
 ];
+
+bodies.forEach(body => {
+  body.volumeKm3 = Math.PI / 6 * Math.pow(body.diameterKm, 3);
+  body.density = body.massKg / (body.volumeKm3 * 1e12);
+});
 
 let mode = 'vol';
 let activeIdx = 0;
-const sunDensity = 1.41;
+let activeTargetIdx = null;
 
+const pgrid0 = document.getElementById('pgrid0');
 const pgrid1 = document.getElementById('pgrid1');
 const pgrid2 = document.getElementById('pgrid2');
 
-function getMaxLog() {
-  const vals = bodies.map(b => mode === 'vol' ? b.vol : b.mass);
+function metricValue(body) {
+  if (mode === 'mass') return body.massKg;
+  if (mode === 'diameter') return body.diameterKm;
+  return body.volumeKm3;
+}
+
+function metricRatio(container, target, metric = mode) {
+  if (metric === 'mass') return container.massKg / target.massKg;
+  if (metric === 'diameter') return container.diameterKm / target.diameterKm;
+  return container.volumeKm3 / target.volumeKm3;
+}
+
+function metricLabel() {
+  if (mode === 'mass') return '质量';
+  if (mode === 'diameter') return '直径';
+  return '体积';
+}
+
+function getContainable(container) {
+  return bodies
+    .map((body, index) => ({ body, index, count: metricRatio(container, body) }))
+    .filter(item => item.index !== activeIdx && metricValue(item.body) < metricValue(container))
+    .sort((a, b) => metricValue(b.body) - metricValue(a.body));
+}
+
+function getMaxLog(items) {
+  const vals = items.map(item => item.count);
+  if (!vals.length) return 1;
   return Math.log10(Math.max(...vals));
 }
 
@@ -138,118 +200,148 @@ bodies.forEach((p, i) => {
   const btn = document.createElement('div');
   btn.className = 'pbtn';
   btn.id = 'pbtn-' + i;
-  btn.innerHTML = `<div class="pdot" style="width:${p.size}px;height:${p.size}px;background:${p.color}"></div><div class="pnm">${p.name}</div>`;
+  const size = getDotSize(p);
+  btn.innerHTML = `<div class="pdot" style="width:${size}px;height:${size}px;background:${p.color}"></div><div class="pnm">${p.name}</div>`;
   btn.onclick = () => pick(i);
-  if (p.group === 1) pgrid1.appendChild(btn);
+  if (p.group === 0) pgrid0.appendChild(btn);
+  else if (p.group === 1) pgrid1.appendChild(btn);
   else pgrid2.appendChild(btn);
 });
 
 function fmt(n) {
-  if (n >= 100000000) return (n / 100000000).toFixed(1) + ' 亿';
+  if (!Number.isFinite(n)) return '很多';
+  if (n >= 10000000000000000) return trimFixed(n / 10000000000000000, 1) + ' 亿亿';
+  if (n >= 1000000000000) return trimFixed(n / 1000000000000, 1) + ' 万亿';
+  if (n >= 100000000) return trimFixed(n / 100000000, 1) + ' 亿';
   if (n >= 10000) {
     const w = n / 10000;
-    return (w >= 100 ? Math.round(w) : (w >= 10 ? w.toFixed(0) : w.toFixed(1))) + ' 万';
+    return (w >= 100 ? Math.round(w) : (w >= 10 ? w.toFixed(0) : trimFixed(w, 1))) + ' 万';
   }
-  return Math.round(n).toLocaleString();
+  if (n >= 100) return Math.round(n).toLocaleString();
+  if (n >= 10) return trimFixed(n, 1);
+  return trimFixed(n, 2);
+}
+
+function trimFixed(n, digits) {
+  return n.toFixed(digits).replace(/\.0$/, '');
+}
+
+function fmtMeasure(n, unit) {
+  if (unit === 'kg' && n >= SUN_MASS_KG * 0.1) return trimFixed(n / SUN_MASS_KG, 1) + ' 个太阳质量';
+  if (unit === 'km' && n >= 100000000) return trimFixed(n / 100000000, 1) + ' 亿 km';
+  if (unit === 'km' && n >= 10000) return trimFixed(n / 10000, 1) + ' 万 km';
+  if (unit === 'kg' && n >= 1e24) return trimFixed(n / 1e24, 2) + '×10²⁴ kg';
+  if (unit === 'kg' && n >= 1e20) return trimFixed(n / 1e20, 2) + '×10²⁰ kg';
+  if (unit === 'kg') return n.toExponential(2).replace('e+', '×10^') + ' kg';
+  return fmt(n) + ' ' + unit;
+}
+
+function getDotSize(body) {
+  const min = Math.log10(Math.min(...bodies.map(b => b.diameterKm)));
+  const max = Math.log10(Math.max(...bodies.map(b => b.diameterKm)));
+  const v = (Math.log10(body.diameterKm) - min) / (max - min);
+  return Math.round(5 + v * 13);
 }
 
 function setMode(m) {
   mode = m;
   document.getElementById('btnVol').classList.toggle('active', m === 'vol');
   document.getElementById('btnMass').classList.toggle('active', m === 'mass');
+  document.getElementById('btnDiameter').classList.toggle('active', m === 'diameter');
+  activeTargetIdx = null;
   pick(activeIdx);
 }
 
 function pick(idx) {
   activeIdx = idx;
-  const p = bodies[idx];
-  const val = mode === 'vol' ? p.vol : p.mass;
-  const otherVal = mode === 'vol' ? p.mass : p.vol;
-  const modeLabel = mode === 'vol' ? '体积' : '质量';
-  const otherLabel = mode === 'vol' ? '质量' : '体积';
-  const maxLog = getMaxLog();
+  const container = bodies[idx];
+  const items = getContainable(container);
+  if (!items.some(item => item.index === activeTargetIdx)) {
+    activeTargetIdx = items.length ? items[0].index : null;
+  }
+  const target = activeTargetIdx == null ? null : bodies[activeTargetIdx];
+  const count = target ? metricRatio(container, target) : 0;
+  const modeText = metricLabel();
 
   document.querySelectorAll('.pbtn').forEach((b, i) => b.classList.toggle('active', i === idx));
 
   const sfill = document.getElementById('sfill');
-  const logVal = Math.log10(Math.max(2, val));
-  const pct = Math.min(92, Math.max(6, (logVal / maxLog) * 92));
+  const pct = target ? Math.min(92, Math.max(8, (Math.log10(Math.max(1.1, count)) / getMaxLog(items)) * 92)) : 0;
   sfill.style.height = pct + '%';
-  sfill.style.background = p.color;
+  sfill.style.background = target ? target.color : container.color;
 
   const slabel = document.getElementById('slabel');
-  slabel.innerHTML = `<span style="font-size:11px">按${modeLabel}能装</span><br><span style="font-size:20px;font-weight:700">${fmt(val)}</span><br><span style="font-size:13px">个${p.name}</span>`;
+  slabel.innerHTML = target
+    ? `<span style="font-size:11px">${container.name}按${modeText}能装</span><br><span style="font-size:20px;font-weight:700">${fmt(count)}</span><br><span style="font-size:13px">个${target.name}</span>`
+    : `<span style="font-size:13px">${container.name}</span><br><span style="font-size:12px">当前模式下没有更小对象</span>`;
+  const circle = document.querySelector('.sun-circle');
+  circle.style.background = `radial-gradient(circle at 35% 35%, #fff2b3, ${container.color} 42%, #171923 92%)`;
+  circle.style.boxShadow = `0 0 50px ${container.color}40`;
 
   const ctNum = document.getElementById('ctNum');
-  ctNum.textContent = fmt(val);
-  ctNum.style.color = p.color;
+  ctNum.textContent = target ? fmt(count) : '0';
+  ctNum.style.color = container.color;
 
-  document.getElementById('ctUnit').textContent = `个${p.name}（按${modeLabel}）`;
+  document.getElementById('ctUnit').textContent = target
+    ? `个${target.name}（${container.name}按${modeText}）`
+    : `${container.name}已经是当前模式下最小的一个`;
 
   const ctCompare = document.getElementById('ctCompare');
-  const ratio = val / otherVal;
-  let compareText = '';
-  let compareBg = '';
-  if (ratio > 1.3) {
-    compareText = `按${otherLabel}只需 ${fmt(otherVal)} 个，少了 ${Math.round((1 - otherVal/val) * 100)}%`;
-    compareBg = 'rgba(93,202,165,0.12)';
-    ctCompare.style.color = '#5DCAA5';
-  } else if (ratio < 0.77) {
-    compareText = `按${otherLabel}要 ${fmt(otherVal)} 个，多了 ${Math.round((otherVal/val - 1) * 100)}%`;
-    compareBg = 'rgba(226,75,74,0.12)';
-    ctCompare.style.color = '#E24B4A';
-  } else {
-    compareText = `按${otherLabel}是 ${fmt(otherVal)} 个，差不多`;
-    compareBg = 'rgba(255,255,255,0.06)';
-    ctCompare.style.color = '#9A9690';
-  }
-  ctCompare.textContent = compareText;
-  ctCompare.style.background = compareBg;
+  ctCompare.textContent = target
+    ? `容器直径 ${fmtMeasure(container.diameterKm, 'km')}，质量 ${fmtMeasure(container.massKg, 'kg')}`
+    : `直径 ${fmtMeasure(container.diameterKm, 'km')}，质量 ${fmtMeasure(container.massKg, 'kg')}`;
+  ctCompare.style.background = 'rgba(255,255,255,0.06)';
+  ctCompare.style.color = '#B0ACA5';
 
   const db = document.getElementById('densityBadge');
-  const dRatio = p.density / sunDensity;
-  if (dRatio > 2) {
-    db.textContent = `${p.name}密度 ${p.density} g/cm³，是太阳的 ${dRatio.toFixed(1)} 倍，又小又重！`;
-  } else if (dRatio < 0.7) {
-    db.textContent = `${p.name}密度只有 ${p.density} g/cm³，比太阳还轻，虚胖！`;
+  const dRatio = container.density / bodies.find(body => body.name === '太阳').density;
+  if (container.note) {
+    db.textContent = `${container.name}：${container.note}`;
+  } else if (dRatio > 2) {
+    db.textContent = `${container.name}平均密度约 ${container.density.toFixed(2)} g/cm³，是太阳的 ${dRatio.toFixed(1)} 倍`;
+  } else if (dRatio < 0.1) {
+    db.textContent = `${container.name}平均密度很低，越大的恒星外层越稀薄`;
   } else {
-    db.textContent = `${p.name}密度 ${p.density} g/cm³，跟太阳（1.41）接近`;
+    db.textContent = `${container.name}平均密度约 ${container.density.toFixed(2)} g/cm³`;
   }
 
   ctNum.style.transform = 'scale(1.12)';
   setTimeout(() => { ctNum.style.transform = 'scale(1)'; }, 180);
 
-  renderBars(idx);
+  renderBars(items);
 }
 
-function renderBars(ai) {
+function renderBars(items) {
   const barsEl = document.getElementById('bars');
   barsEl.innerHTML = '';
-  const maxLog = getMaxLog();
-  const otherMaxLog = Math.log10(Math.max(...bodies.map(b => mode === 'vol' ? b.mass : b.vol)));
+  if (!items.length) {
+    barsEl.innerHTML = '<div class="empty">当前模式下，它没有能装下的更小对象</div>';
+    return;
+  }
 
-  bodies.forEach((p, i) => {
-    const val = mode === 'vol' ? p.vol : p.mass;
-    const otherVal = mode === 'vol' ? p.mass : p.vol;
+  const maxLog = getMaxLog(items);
+  items.forEach(({ body, index, count }) => {
     const row = document.createElement('div');
     row.className = 'brow';
-    const isA = i === ai;
+    const isA = index === activeTargetIdx;
     row.style.opacity = isA ? '1' : '0.4';
 
-    const pct = Math.max(2, (Math.log10(Math.max(2, val)) / maxLog) * 100);
-    const otherPct = Math.max(2, (Math.log10(Math.max(2, otherVal)) / maxLog) * 100);
+    const pct = Math.max(2, (Math.log10(Math.max(1.1, count)) / maxLog) * 100);
 
-    row.innerHTML = `<div class="blbl" style="color:${isA ? p.color : ''};font-weight:${isA ? 600 : 400}">${p.name}</div>
+    row.innerHTML = `<div class="blbl" style="color:${isA ? body.color : ''};font-weight:${isA ? 600 : 400}">${body.name}</div>
       <div class="bbar-wrap">
-        <div class="bbar ghost" style="width:${otherPct}%;background:${p.color}"></div>
-        <div class="bbar main" style="width:${pct}%;background:${p.color}"><span class="bval">${fmt(val)}</span></div>
+        <div class="bbar ghost" style="width:100%;background:${body.color}"></div>
+        <div class="bbar main" style="width:${pct}%;background:${body.color}"><span class="bval">${fmt(count)} 个</span></div>
       </div>`;
-    row.onclick = () => pick(i);
+    row.onclick = () => {
+      activeTargetIdx = index;
+      pick(activeIdx);
+    };
     barsEl.appendChild(row);
   });
 }
 
-pick(0);
+pick(bodies.findIndex(body => body.name === '太阳'));
 </script>
 </body>
 </html>
