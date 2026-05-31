@@ -2167,7 +2167,7 @@ const moonsData = {
     saturn: [
         { name: '土卫六', nameCN: '土卫六', diameter: 5150, orbitRadius: 14, orbitSpeed: 0.035, color: 0xddaa55, desc: '土卫六（Titan）是土星最大的卫星之一，拥有浓厚氮气大气，地表有甲烷湖海和迷雾状天象，被称为“另一个早期地球”。', texturePath: 'textures/titan.jpg', brightness: 1.1, fresnelColor: 'vec3(0.94, 0.74, 0.36)', fresnelIntensity: 0.12, atmosphereColor: [0.95, 0.7, 0.3], atmosphereSize: 1.07, atmosphereIntensity: 0.18, segments: 48 },
         { name: '土卫二', nameCN: '土卫二', diameter: 504, orbitRadius: 10, orbitSpeed: 0.06, color: 0xffffff, desc: '土卫二（Enceladus）在南极有“虎纹”冰裂隙，正在向太空喷射含冰颗粒和蒸汽，常被拿来讨论是否存在地下海洋。', texturePath: 'textures/enceladus.jpg', brightness: 1.24, fresnelColor: 'vec3(0.86, 0.94, 1.0)', fresnelIntensity: 0.18, segments: 48 },
-        { name: '土卫五', nameCN: '土卫五', diameter: 1527, orbitRadius: 12, orbitSpeed: 0.045, color: 0xcccccc, desc: '土卫五（Rhea）是土星较亮的一颗大卫星，表面主要是冰和岩石，保存了很多陨石坑与地形裂隙，对撞击史很友好。', texturePath: 'textures/rhea.jpg', brightness: 1.12, fresnelColor: 'vec3(0.82, 0.84, 0.88)', fresnelIntensity: 0.1, segments: 48 }
+        { name: '土卫五', nameCN: '土卫五', diameter: 1527, orbitRadius: 12, orbitSpeed: 0.045, color: 0xcccccc, desc: '土卫五（Rhea）是土星较亮的一颗大卫星，表面主要是冰和岩石，保存了很多陨石坑与地形裂隙，对撞击史很友好。它周围画出一圈很淡的尘埃环，方便和土星主环、木星暗淡尘埃环一起理解。', texturePath: 'textures/rhea.jpg', brightness: 1.12, fresnelColor: 'vec3(0.82, 0.84, 0.88)', fresnelIntensity: 0.1, segments: 48, hasDustRing: true }
     ],
     // 天王星的卫星
     uranus: [
@@ -3508,6 +3508,9 @@ function createAllMoons() {
 
             // 创建卫星标签
             createMoonLabel(moonMesh, moonData.nameCN, moonSize);
+            if (moonData.hasDustRing) {
+                createMoonDustRing(moonMesh, moonSize);
+            }
 
             scene.add(moonMesh);
             moons[planetName].push(moonMesh);
@@ -3516,6 +3519,38 @@ function createAllMoons() {
             createMoonOrbitLine(planet, moonData.orbitRadius, moonData.name);
         });
     });
+}
+
+// ============ 创建卫星尘埃环 ============
+function createMoonDustRing(moonMesh, moonSize) {
+    const ringGeometry = new THREE.RingGeometry(moonSize * 1.55, moonSize * 2.35, 96);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0xd9ecff,
+        transparent: true,
+        opacity: 0.28,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.name = `${moonMesh.name}尘埃环`;
+    ring.rotation.x = Math.PI / 2.35;
+    ring.rotation.z = Math.PI / 9;
+    moonMesh.add(ring);
+
+    const haloGeometry = new THREE.RingGeometry(moonSize * 2.38, moonSize * 2.55, 96);
+    const haloMaterial = new THREE.MeshBasicMaterial({
+        color: 0x9fb7d0,
+        transparent: true,
+        opacity: 0.12,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+    const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+    halo.name = `${moonMesh.name}外侧淡环`;
+    halo.rotation.copy(ring.rotation);
+    moonMesh.add(halo);
 }
 
 // ============ 创建卫星标签 ============
