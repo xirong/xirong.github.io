@@ -611,6 +611,7 @@ const planetData = {
         description: '天王星是一颗"躺着"转的行星，它的自转轴几乎与公转轨道平面平行。它呈现出美丽的蓝绿色，这是因为大气中的甲烷吸收了红光。',
         relativeSize: 4.0,
         orbitRadius: 220,
+        hasRings: true,
         moonCount: 28,
         moonInfo: '🌙 卫星(28颗)：天卫三（泰坦尼亚，最大卫星）、天卫四（奥伯龙，布满陨石坑）、天卫五（米兰达，有奇特地形）'
     },
@@ -2971,7 +2972,7 @@ function createPlanets() {
         // 设置初始位置
         planet.position.x = data.orbitRadius;
 
-        // 土星光环
+        // 行星光环
         if (data.hasRings) {
             createSaturnRings(planet, size);
         }
@@ -3780,19 +3781,51 @@ function createAsteroidBelt() {
 
 // ============ 创建土星环 ============
 function createSaturnRings(saturn, saturnSize) {
-    const ringGeometry = new THREE.RingGeometry(saturnSize * 1.4, saturnSize * 2.3, 128);
+    const isUranus = saturn.name === 'uranus';
+    const innerRadius = isUranus ? saturnSize * 1.35 : saturnSize * 1.4;
+    const outerRadius = isUranus ? saturnSize * 2.75 : saturnSize * 2.3;
+    const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 128);
 
     // 修正 UV 坐标，让纹理沿径向展开
     const pos = ringGeometry.attributes.position;
     const uv = ringGeometry.attributes.uv;
-    const innerR = saturnSize * 1.4;
-    const outerR = saturnSize * 2.3;
     for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const y = pos.getY(i);
         const dist = Math.sqrt(x * x + y * y);
-        const t = (dist - innerR) / (outerR - innerR);
+        const t = (dist - innerRadius) / (outerRadius - innerRadius);
         uv.setXY(i, t, 0.5);
+    }
+
+    if (isUranus) {
+        const ringMaterial = new THREE.MeshBasicMaterial({
+            color: 0xbdeeff,
+            transparent: true,
+            opacity: 0.48,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+        const rings = new THREE.Mesh(ringGeometry, ringMaterial);
+        rings.name = '天王星明亮光环';
+        rings.rotation.x = Math.PI / 2.08;
+        rings.rotation.z = Math.PI / 10;
+        saturn.add(rings);
+
+        const darkRingGeometry = new THREE.RingGeometry(saturnSize * 1.78, saturnSize * 1.92, 128);
+        const darkRingMaterial = new THREE.MeshBasicMaterial({
+            color: 0xe6fbff,
+            transparent: true,
+            opacity: 0.32,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+        const darkRing = new THREE.Mesh(darkRingGeometry, darkRingMaterial);
+        darkRing.name = '天王星内侧亮环';
+        darkRing.rotation.copy(rings.rotation);
+        saturn.add(darkRing);
+        return;
     }
 
     // 加载土星环纹理
@@ -3808,6 +3841,7 @@ function createSaturnRings(saturn, saturnSize) {
     });
 
     const rings = new THREE.Mesh(ringGeometry, ringMaterial);
+    rings.name = '土星光环';
     rings.rotation.x = Math.PI / 2.2;
     saturn.add(rings);
 }
