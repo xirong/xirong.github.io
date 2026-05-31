@@ -92,6 +92,7 @@ const STAR_SURFACE_TEXTURES = {
     sirius: 'textures/stars/blue_white_star_surface.jpg',
     arcturus: 'textures/stars/orange_star_surface.jpg',
     antares: 'textures/stars/generated/antares_custom.jpg',
+    pistolStar: 'textures/stars/blue_white_star_surface.jpg',
     betelgeuse: 'textures/stars/generated/betelgeuse_custom.png',
     vyCanisMajoris: 'textures/stars/generated/vy_canis_majoris_custom.png',
     uyScuti: 'textures/stars/generated/uy_scuti_custom.png'
@@ -217,6 +218,23 @@ const planetData = {
         description: '心宿二是天蝎座的红超巨星，名字有“火星的对手”的意思，因为它看起来也带着醒目的红色。',
         relativeSize: 74321.14,
         texturePath: STAR_SURFACE_TEXTURES.antares
+    },
+    pistolStar: {
+        name: '手枪星',
+        nameCN: '手枪星',
+        nameEN: 'Pistol Star',
+        type: '高光度蓝变星',
+        diameter: 426166200, // km，约 306 R☉，比心宿二窄
+        mass: 54750250, // 10²⁴ kg，约 27.5 M☉
+        category: 'star',
+        distance: 236000000000000000, // km，约 25,000 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0x9ed7ff,
+        emissive: 0x5b9cff,
+        description: '手枪星是一颗非常明亮、非常重的蓝色大质量恒星，位于银河系中心附近。它很大，但按直径比心宿二小；按质量却比心宿二更重。',
+        relativeSize: 33445.39,
+        texturePath: STAR_SURFACE_TEXTURES.pistolStar
     },
     betelgeuse: {
         name: '参宿四',
@@ -1144,6 +1162,7 @@ const COMPARISON_BODY_KEYS = [
     'vyCanisMajoris',
     'betelgeuse',
     'antares',
+    'pistolStar',
     'arcturus',
     'betaCentauri',
     'sirius',
@@ -1474,6 +1493,7 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     sirius: STAR_SURFACE_TEXTURES.sirius,
     arcturus: STAR_SURFACE_TEXTURES.arcturus,
     antares: STAR_SURFACE_TEXTURES.antares,
+    pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
     betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
     vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
     uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
@@ -5174,6 +5194,55 @@ function createBlackHoleCapacityTarget(bodyKey, scopeKey, targetKey) {
     };
 }
 
+const CAPACITY_TARGET_TEXTURES = {
+    sun: 'textures/sun.jpg',
+    proximaCentauri: STAR_SURFACE_TEXTURES.proximaCentauri,
+    alphaCentauri: STAR_SURFACE_TEXTURES.alphaCentauri,
+    betaCentauri: STAR_SURFACE_TEXTURES.betaCentauri,
+    sirius: STAR_SURFACE_TEXTURES.sirius,
+    arcturus: STAR_SURFACE_TEXTURES.arcturus,
+    antares: STAR_SURFACE_TEXTURES.antares,
+    pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
+    betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
+    vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
+    uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
+    mercury: 'textures/mercury.jpg',
+    venus: 'textures/venus_atmosphere.jpg',
+    earth: 'textures/earth_daymap.jpg',
+    moon: 'textures/moon.jpg',
+    mars: 'textures/mars.jpg',
+    ceres: 'textures/ceres.jpg',
+    jupiter: 'textures/jupiter.jpg',
+    saturn: 'textures/saturn.jpg',
+    uranus: 'textures/uranus.jpg',
+    neptune: 'textures/neptune.jpg',
+    pluto: 'textures/pluto.jpg',
+    eris: 'textures/eris.jpg',
+    haumea: 'textures/haumea.jpg',
+    makemake: 'textures/makemake.jpg',
+    io: 'textures/io.jpg',
+    europa: 'textures/europa.jpg',
+    ganymede: 'textures/ganymede.jpg',
+    titan: 'textures/titan.jpg',
+    rhea: 'textures/rhea.jpg',
+    enceladus: 'textures/enceladus.jpg',
+    phobos: 'textures/phobos_clean.jpg',
+    deimos: 'textures/deimos.jpg',
+    triton: 'textures/triton.jpg',
+    titania: 'textures/titania.jpg'
+};
+
+function createCapacityTarget(key) {
+    const data = planetData[key];
+    return {
+        key,
+        nameCN: data.nameCN,
+        texture: CAPACITY_TARGET_TEXTURES[key] || data.texturePath || null,
+        color: '#' + data.color.toString(16).padStart(6, '0'),
+        objectKeys: getCapacityObjectKeys(key)
+    };
+}
+
 const CAPACITY_TARGETS = {
     uyScuti: {
         key: 'uyScuti',
@@ -5203,6 +5272,7 @@ const CAPACITY_TARGETS = {
         color: '#ff5c34',
         objectKeys: getCapacityObjectKeys('antares')
     },
+    pistolStar: createCapacityTarget('pistolStar'),
     arcturus: {
         key: 'arcturus',
         nameCN: '大角星',
@@ -5287,6 +5357,23 @@ const CAPACITY_TARGETS = {
         color: '#c1440e',
         objectKeys: getCapacityObjectKeys('mars')
     },
+    mercury: createCapacityTarget('mercury'),
+    ganymede: createCapacityTarget('ganymede'),
+    titan: createCapacityTarget('titan'),
+    io: createCapacityTarget('io'),
+    moon: createCapacityTarget('moon'),
+    europa: createCapacityTarget('europa'),
+    triton: createCapacityTarget('triton'),
+    pluto: createCapacityTarget('pluto'),
+    eris: createCapacityTarget('eris'),
+    haumea: createCapacityTarget('haumea'),
+    rhea: createCapacityTarget('rhea'),
+    makemake: createCapacityTarget('makemake'),
+    titania: createCapacityTarget('titania'),
+    ceres: createCapacityTarget('ceres'),
+    enceladus: createCapacityTarget('enceladus'),
+    phobos: createCapacityTarget('phobos'),
+    deimos: createCapacityTarget('deimos'),
     ...buildBlackHoleCapacityTargets(),
     proximaCentauri: {
         key: 'proximaCentauri',
@@ -5546,11 +5633,29 @@ function renderCapacityTargetPicker(container) {
         { key: 'earth', icon: '🌍', name: '地球' },
         { key: 'venus', icon: '🟡', name: '金星' },
         { key: 'mars', icon: '🔴', name: '火星' },
+        { key: 'mercury', icon: '🪨', name: '水星' },
+        { key: 'ganymede', icon: '🌙', name: '木卫三' },
+        { key: 'titan', icon: '🌙', name: '土卫六' },
+        { key: 'io', icon: '🌙', name: '木卫一' },
+        { key: 'moon', icon: '🌙', name: '月球' },
+        { key: 'europa', icon: '🌙', name: '木卫二' },
+        { key: 'triton', icon: '🌙', name: '海卫一' },
+        { key: 'pluto', icon: '🧊', name: '冥王星' },
+        { key: 'eris', icon: '🧊', name: '阋神星' },
+        { key: 'haumea', icon: '🧊', name: '妊神星' },
+        { key: 'rhea', icon: '🌙', name: '土卫五' },
+        { key: 'makemake', icon: '🧊', name: '鸟神星' },
+        { key: 'titania', icon: '🌙', name: '天卫一' },
+        { key: 'ceres', icon: '🧊', name: '谷神星' },
+        { key: 'enceladus', icon: '🌙', name: '土卫二' },
+        { key: 'phobos', icon: '🌙', name: '火卫一' },
+        { key: 'deimos', icon: '🌙', name: '火卫二' },
         ...blackHoleTargetOptions,
         { key: 'uyScuti', icon: '⭐', name: '盾牌座UY' },
         { key: 'vyCanisMajoris', icon: '⭐', name: '大犬座VY' },
         { key: 'betelgeuse', icon: '⭐', name: '参宿四' },
         { key: 'antares', icon: '⭐', name: '心宿二' },
+        { key: 'pistolStar', icon: '⭐', name: '手枪星' },
         { key: 'arcturus', icon: '⭐', name: '大角星' },
         { key: 'betaCentauri', icon: '⭐', name: '半人马座β星' },
         { key: 'sirius', icon: '⭐', name: '天狼星' },
@@ -6113,6 +6218,7 @@ function generateSizeComparison(mode) {
         sirius: STAR_SURFACE_TEXTURES.sirius,
         arcturus: STAR_SURFACE_TEXTURES.arcturus,
         antares: STAR_SURFACE_TEXTURES.antares,
+        pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
         betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
         vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
         uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
