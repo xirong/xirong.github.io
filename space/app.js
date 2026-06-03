@@ -1264,7 +1264,7 @@ function expandDiameterBlackHoleKeys(keys) {
 
 function buildDiameterDetailProfiles() {
     const baseSequence = getDiameterBaseSequenceKeys();
-    return DIAMETER_START_KEYS
+    const startProfiles = DIAMETER_START_KEYS
         .map(startKey => {
             const startIndex = baseSequence.indexOf(startKey);
             if (startIndex < 0) return null;
@@ -1277,6 +1277,14 @@ function buildDiameterDetailProfiles() {
             };
         })
         .filter(Boolean);
+    return [
+        ...startProfiles,
+        {
+            label: '手枪星专题',
+            subtitle: '手枪星、银河系黑洞和仙女座黑洞的专门对比',
+            isPistolStarFeature: true
+        }
+    ];
 }
 
 const DIAMETER_DETAIL_PROFILES = buildDiameterDetailProfiles();
@@ -6430,6 +6438,21 @@ function generateSizeComparison(mode) {
             container.style.padding = '18px 12px 24px';
 
             const profile = detailProfile || DIAMETER_DETAIL_PROFILES[0];
+            if (profile && profile.isPistolStarFeature) {
+                container.classList.add('diameter-feature-mode');
+                container.style.padding = '10px 0 22px';
+                container.innerHTML = `
+                    <div class="pistol-star-feature">
+                        <iframe
+                            class="pistol-star-frame"
+                            src="../pistol-star-vs-sgr-a.html"
+                            title="手枪星 vs 两大超级黑洞"
+                            loading="lazy"
+                        ></iframe>
+                    </div>
+                `;
+                return;
+            }
             const isBlackHoleDetailProfile = profile && profile.isBlackHoleProfile;
             const diameterBlackHoleScope = isBlackHoleDetailProfile
                 ? (BLACK_HOLE_TARGET_KEYS.includes(currentBlackHoleScope) ? currentBlackHoleScope : BLACK_HOLE_TARGET_KEYS[0])

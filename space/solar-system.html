@@ -2284,6 +2284,28 @@
             font-size: 0.76rem;
         }
 
+        .planets-row.diameter-feature-mode {
+            display: block;
+            min-height: 560px;
+            overflow: visible;
+        }
+
+        .pistol-star-feature {
+            width: min(100%, 620px);
+            margin: 0 auto;
+        }
+
+        .pistol-star-frame {
+            display: block;
+            width: 100%;
+            height: min(72vh, 720px);
+            min-height: 560px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 18px;
+            background: #050510;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.38);
+        }
+
         /* 页签切换 */
         .comparison-tabs {
             display: flex;
@@ -3487,6 +3509,20 @@
                 font-size: 0.72rem;
             }
 
+            .planets-row.diameter-feature-mode {
+                min-height: 500px;
+            }
+
+            .pistol-star-feature {
+                width: 100%;
+            }
+
+            .pistol-star-frame {
+                min-height: 500px;
+                height: 68vh;
+                border-radius: 16px;
+            }
+
             .comparison-metric-toggle .tab-btn {
                 padding: 7px 12px;
             }
@@ -3886,7 +3922,7 @@
         }
     </script>
 
-    <script src="app.js?v=20260531-uranus-ring"></script>
+    <script src="app.js?v=20260603-pistol-star-feature"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 

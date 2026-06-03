@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手枪星 vs 两大黑洞 · 给智天的天文课</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #60a5fa;
+    --blue-glow: rgba(96,165,250,0.4);
+    --orange: #f97316;
+    --orange-glow: rgba(249,115,22,0.5);
+    --purple: #a78bfa;
+    --purple-glow: rgba(167,139,250,0.5);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --surface: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #050510 0%, #0a0a1a 40%, #0f0f24 100%);
+    color: var(--text);
+    font-family: "Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Stars */
+  .starfield { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .s { position: absolute; border-radius: 50%; background: #fff; animation: tw var(--d) ease-in-out infinite alternate; animation-delay: var(--dl); }
+  @keyframes tw { 0%{opacity:.18} 100%{opacity:.78} }
+  @keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:translateY(0);opacity:1} }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 12px var(--g)} 50%{box-shadow:0 0 28px var(--g),0 0 56px var(--g)} }
+
+  .page { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  .hdr { text-align: center; padding: 32px 0 0; }
+  .hdr .kick { font-size: 13px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 6px; }
+  .hdr h1 {
+    font-size: 26px; font-weight: 900; line-height: 1.3; margin-bottom: 6px;
+    background: linear-gradient(90deg, var(--blue), var(--orange), var(--purple));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hdr .sub { color: var(--text-muted); font-size: 15px; }
+
+  /* Tabs */
+  .tabs { display: flex; justify-content: center; gap: 10px; padding: 20px 0; flex-wrap: wrap; }
+  .tb {
+    padding: 9px 16px; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px;
+    background: var(--surface); color: var(--text-muted);
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all .3s;
+    font-family: inherit; white-space: nowrap;
+  }
+  .tb:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+  .tb.a1 { background: rgba(96,165,250,0.15); border-color: var(--blue); color: var(--blue); }
+  .tb.a2 { background: rgba(249,115,22,0.15); border-color: var(--orange); color: var(--orange); }
+
+  /* Scene */
+  .scene { transition: opacity .3s; }
+  .scene.fading { opacity: 0; }
+
+  .stitle { text-align: center; animation: slideUp .4s ease-out both; }
+  .stitle h2 { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .stitle p { color: var(--text-muted); font-size: 14px; }
+
+  /* Viz area */
+  .viz { display: flex; justify-content: center; align-items: flex-end; gap: 18px; padding: 24px 0 12px; min-height: 300px; flex-wrap: wrap; }
+  .obj { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 0 0 auto; }
+  .obj .lbl { text-align: center; }
+  .obj .nm { font-weight: 700; font-size: 14px; }
+  .obj .dt { color: var(--text-muted); font-size: 11px; }
+  .obj .dt2 { color: var(--text-dim); font-size: 10px; }
+
+  /* Celestial bodies */
+  .cel { border-radius: 50%; transition: all .65s cubic-bezier(.34,1.56,.64,1); }
+  .cel.hide { transform: scale(0); }
+
+  /* Verdict */
+  .verd { text-align: center; padding: 14px 0; animation: slideUp .5s ease-out both; }
+  .vcard {
+    display: inline-block; border-radius: 16px; padding: 14px 24px;
+    backdrop-filter: blur(10px); max-width: 480px;
+  }
+  .vcard .emoji { font-size: 26px; margin-bottom: 4px; }
+  .vcard .vtxt { font-size: 18px; font-weight: 900; font-family: "Space Mono",monospace; margin-bottom: 8px; line-height: 1.4; }
+  .vcard .vexp { font-size: 13px; color: #cbd5e1; line-height: 1.7; }
+
+  /* Analogy */
+  .ana {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 22px; margin: 16px 0 0; text-align: center;
+  }
+  .ana h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .ana p { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+  .hl-b { color: var(--blue); font-weight: 700; }
+  .hl-o { color: var(--orange); font-weight: 700; }
+  .hl-p { color: var(--purple); font-weight: 700; }
+
+  /* Data table */
+  .dcard {
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; overflow: hidden; margin: 16px 0;
+  }
+  .dcard .dh {
+    padding: 10px 16px; background: var(--surface);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px; font-weight: 700; color: var(--text-dim);
+  }
+  .dcard .di { padding: 14px 16px; overflow-x: auto; }
+  .dcard table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 420px; }
+  .dcard th { text-align: left; padding: 5px 4px; font-weight: 700; color: var(--text-dim); white-space: nowrap; }
+  .dcard th:not(:first-child) { text-align: right; }
+  .dcard td { padding: 5px 4px; white-space: nowrap; }
+  .dcard td:not(:first-child) { text-align: right; }
+  .r-star td { color: var(--blue); }
+  .r-sgr td { color: var(--orange); }
+  .r-m31 td { color: var(--purple); }
+  .r-sub td { color: var(--text-muted); font-size: 10px; padding: 0 4px 3px; }
+  .r-tot td { border-top: 1px solid rgba(255,255,255,0.08); padding: 8px 4px; font-weight: 700; color: var(--text); font-size: 11px; }
+
+  .foot { text-align: center; padding: 14px 0 28px; color: #475569; font-size: 12px; }
+
+  /* Gravity scene nested layout */
+  .grav-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .grav-labels { display: flex; gap: 16px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
+  .ring-abs { position: absolute; border-radius: 50%; border: 1px dashed rgba(249,115,22,0.12); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="starfield" id="sf"></div>
+<div class="page">
+
+  <div class="hdr">
+    <div class="kick">🔭 给智天的天文课</div>
+    <h1>手枪星 vs 两大超级黑洞</h1>
+    <p class="sub">同样三个天体，换一把尺子，大小完全反转！</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tb a1" id="t1" onclick="go(1)">📏 事件视界</button>
+    <button class="tb" id="t2" onclick="go(2)">🌀 引力范围</button>
+  </div>
+
+  <div class="scene" id="sc">
+    <!-- ═══ Scene 1: Event Horizon ═══ -->
+    <div id="s1">
+      <div class="stitle">
+        <h2>📏 第一把尺子：事件视界 / 星体半径</h2>
+        <p>比"身体"大小，手枪星赢了银河系黑洞，但输给了仙女座黑洞</p>
+      </div>
+      <div class="viz" id="v1">
+        <!-- M31* event horizon (biggest) -->
+        <div class="obj">
+          <div class="cel hide" id="c-m31eh"
+            style="width:200px;height:200px;
+            background:radial-gradient(circle at 40% 40%,#3b2069,#1a0a30,#0a0a0f);
+            border:2.5px solid var(--purple);
+            box-shadow:0 0 60px var(--purple-glow),0 0 120px rgba(167,139,250,0.2),inset 0 0 40px rgba(0,0,0,0.8);">
+          </div>
+          <div class="lbl">
+            <div class="nm" style="color:var(--purple)">🕳️ 仙女座黑洞 M31*</div>
+            <div class="dt">事件视界半径 ≈ 595 太阳半径</div>
+            <div class="dt2">≈ 4.14 亿 km ≈ 2.77 AU</div>
+          </div>
+        </div>
+        <!-- Pistol Star -->
+        <div class="obj">
+          <div class="cel hide" id="c-star-eh"
+            style="width:103px;height:103px;
+            background:radial-gradient(circle at 35% 35%,#93c5fd,#60a5fa,#1e40af);
+            box-shadow:0 0 40px var(--blue-glow),0 0 80px var(--blue-glow);">
+          </div>
+          <div class="lbl">
+            <div class="nm" style="color:var(--blue)">⭐ 手枪星</div>
+            <div class="dt">半径 ≈ 306 太阳半径</div>
+            <div class="dt2">≈ 2.13 亿 km ≈ 1.42 AU</div>
+          </div>
+        </div>
+        <!-- Sgr A* event horizon (tiny) -->
+        <div class="obj">
+          <div style="display:flex;align-items:center;justify-content:center;height:200px;position:relative;">
+            <div class="cel hide" id="c-sgr-eh"
+              style="width:6px;height:6px;
+              background:radial-gradient(circle at 40% 40%,#2d1f3d,#0a0a0f);
+              border:2px solid var(--orange);
+              box-shadow:0 0 6px var(--orange-glow),0 0 16px var(--orange-glow),inset 0 0 3px rgba(0,0,0,0.8);">
+            </div>
+            <div style="position:absolute;top:calc(50% - 28px);left:50%;transform:translateX(-50%);
+              font-size:10px;color:var(--orange);white-space:nowrap;
+              background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;">
+              ← 就这么小！
+            </div>
+          </div>
+          <div class="lbl">
+            <div class="nm" style="color:var(--orange)">🕳️ 银河系黑洞 Sgr A*</div>
+            <div class="dt">事件视界半径 ≈ 17 太阳半径</div>
+            <div class="dt2">≈ 1,200 万 km ≈ 0.08 AU</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="verd">
+        <div class="vcard" style="background:rgba(167,139,250,0.08);border:2px solid rgba(167,139,250,0.25);">
+          <div class="emoji">🏆</div>
+          <div class="vtxt" style="color:var(--purple)">仙女座黑洞 &gt; 手枪星 &gt; 银河系黑洞</div>
+          <div class="vexp">
+            仙女座黑洞质量是银河系黑洞的33倍，事件视界也大33倍，连手枪星都装得下。
+            但银河系黑洞的事件视界只有手枪星的 1/18，智天说得没错！
+          </div>
+        </div>
+      </div>
+
+      <div class="ana">
+        <h3>💡 打个比方</h3>
+        <p>
+          如果<span class="hl-o">银河系黑洞</span>是一颗<span class="hl-o">弹珠</span>，
+          <span class="hl-b">手枪星</span>就是一个<span class="hl-b">篮球</span>，
+          而<span class="hl-p">仙女座黑洞</span>是一个<span class="hl-p">瑜伽球</span>。
+          同样是黑洞，个头差距也很大！
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ Scene 2: Gravity ═══ -->
+    <div id="s2" style="display:none;">
+      <div class="stitle">
+        <h2>🌀 第二把尺子：引力范围</h2>
+        <p>比"手能伸多远"，两个黑洞都完全碾压手枪星</p>
+      </div>
+
+      <div class="viz" style="flex-direction:column;align-items:center;gap:8px;">
+        <div class="grav-wrap">
+          <!-- M31* gravity sphere (outer) -->
+          <div class="cel hide" id="c-m31g"
+            style="width:270px;height:270px;
+            background:radial-gradient(circle at center,rgba(167,139,250,0.10) 0%,rgba(167,139,250,0.04) 40%,transparent 70%);
+            border:2px dashed rgba(167,139,250,0.4);
+            box-shadow:0 0 60px rgba(167,139,250,0.15);
+            border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;">
+            <!-- Concentric rings for M31* -->
+            <div class="ring-abs" style="width:67px;height:67px;border-color:rgba(167,139,250,0.1);"></div>
+            <div class="ring-abs" style="width:135px;height:135px;border-color:rgba(167,139,250,0.08);"></div>
+            <div class="ring-abs" style="width:202px;height:202px;border-color:rgba(167,139,250,0.06);"></div>
+            <!-- Sgr A* gravity sphere (inner, ~12.5% of M31*) -->
+            <div class="cel hide" id="c-sgrg"
+              style="width:34px;height:34px;
+              background:radial-gradient(circle at center,rgba(249,115,22,0.15) 0%,rgba(249,115,22,0.06) 50%,transparent 100%);
+              border:1.5px dashed rgba(249,115,22,0.5);
+              box-shadow:0 0 12px rgba(249,115,22,0.2);
+              border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <!-- Pistol star: invisible dot -->
+              <div class="cel hide" id="c-starg"
+                style="width:3px;height:3px;
+                background:var(--blue);
+                box-shadow:0 0 4px var(--blue-glow),0 0 8px var(--blue-glow);
+                border-radius:50%;">
+              </div>
+            </div>
+            <!-- Central BH dot -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+              width:6px;height:6px;border-radius:50%;background:#0a0a0f;
+              border:1.5px solid var(--purple);box-shadow:0 0 8px var(--purple-glow);z-index:2;">
+            </div>
+          </div>
+
+          <div class="grav-labels">
+            <div class="lbl">
+              <div class="nm" style="color:var(--purple)">🕳️ 仙女座黑洞引力</div>
+              <div class="dt">~24 秒差距 ≈ 78 光年</div>
+              <div class="dt2">≈ 495万 AU</div>
+            </div>
+            <div class="lbl">
+              <div class="nm" style="color:var(--orange)">🕳️ 银河系黑洞引力</div>
+              <div class="dt">~3 秒差距 ≈ 9.8 光年</div>
+              <div class="dt2">≈ 62万 AU</div>
+            </div>
+            <div class="lbl">
+              <div class="nm" style="color:var(--blue)">⭐ 手枪星 <span style="font-size:10px;color:var(--text-dim)">（中心小点）</span></div>
+              <div class="dt">半径 ≈ 1.42 AU</div>
+              <div class="dt2">≈ 2.13 亿 km</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="verd">
+        <div class="vcard" style="background:rgba(167,139,250,0.08);border:2px solid rgba(167,139,250,0.25);">
+          <div class="emoji">💪</div>
+          <div class="vtxt" style="color:var(--purple)">仙女座黑洞 &gt;&gt; 银河系黑洞 &gt;&gt;&gt;&gt;&gt; 手枪星</div>
+          <div class="vexp">
+            仙女座黑洞的引力能控制78光年范围，银河系黑洞控制约10光年。
+            手枪星在它们面前连一粒沙子都算不上。黑洞虽然"身体"可以很小，但"力气"大得离谱！
+          </div>
+        </div>
+      </div>
+
+      <div class="ana">
+        <h3>💡 打个比方</h3>
+        <p>
+          <span class="hl-p">仙女座黑洞</span>的引力范围相当于一座<span class="hl-p">城市</span>，
+          <span class="hl-o">银河系黑洞</span>相当于一个<span class="hl-o">小区</span>，
+          而<span class="hl-b">手枪星</span>连小区里的<span class="hl-b">一粒米</span>都不到。
+          质量越大，引力越霸道！
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Card -->
+  <div class="dcard">
+    <div class="dh">📊 精确数据卡 · 三大天体对比</div>
+    <div class="di">
+      <table>
+        <thead>
+          <tr>
+            <th>天体</th>
+            <th style="text-align:right">质量</th>
+            <th style="text-align:right">事件视界/半径</th>
+            <th style="text-align:right">引力范围</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="r-star">
+            <td style="font-weight:700">⭐ 手枪星</td>
+            <td>27.5 太阳</td>
+            <td>306 太阳半径</td>
+            <td>≈ 1.42 AU</td>
+          </tr>
+          <tr class="r-sub"><td></td><td></td><td>≈ 2.13 亿 km</td><td>≈ 2.13 亿 km</td></tr>
+
+          <tr class="r-sgr">
+            <td style="font-weight:700">🕳️ 银河系 Sgr A*</td>
+            <td>430 万太阳</td>
+            <td>17 太阳半径</td>
+            <td>~3 秒差距</td>
+          </tr>
+          <tr class="r-sub"><td></td><td></td><td>≈ 1,200 万 km</td><td>≈ 9.8 光年</td></tr>
+
+          <tr class="r-m31">
+            <td style="font-weight:700">🕳️ 仙女座 M31*</td>
+            <td>1.4 亿太阳</td>
+            <td>595 太阳半径</td>
+            <td>~24 秒差距</td>
+          </tr>
+          <tr class="r-sub"><td></td><td></td><td>≈ 4.14 亿 km</td><td>≈ 78 光年</td></tr>
+
+          <tr class="r-tot">
+            <td>对比</td>
+            <td style="color:var(--text-dim);font-size:10px">M31*比Sgr A*重33倍</td>
+            <td><span style="color:var(--purple)">M31*</span> &gt; <span style="color:var(--blue)">星</span> &gt; <span style="color:var(--orange)">Sgr</span></td>
+            <td><span style="color:var(--purple)">M31*</span> &gt; <span style="color:var(--orange)">Sgr</span> &gt;&gt;&gt; <span style="color:var(--blue)">星</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="foot">爸爸和 Claude 一起做的 · 2026 ☄️</div>
+</div>
+
+<script>
+// Stars
+!function(){const e=document.getElementById('sf');let h='';
+for(let i=0;i<120;i++){
+  const x=Math.random()*100,y=Math.random()*100,
+  s=Math.random()*2+.5,d=Math.random()*4;
+  h+=`<div class="s" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;--d:${2+d}s;--dl:${d}s;opacity:${Math.random()*.5+.2}"></div>`;
+}e.innerHTML=h}();
+
+// Scene switch
+let cur=1;
+function go(n){
+  if(n===cur)return;
+  const sc=document.getElementById('sc'),
+    t1=document.getElementById('t1'),
+    t2=document.getElementById('t2');
+  sc.classList.add('fading');
+  setTimeout(()=>{
+    document.getElementById('s1').style.display=n===1?'':'none';
+    document.getElementById('s2').style.display=n===2?'':'none';
+    t1.className=n===1?'tb a1':'tb';
+    t2.className=n===2?'tb a2':'tb';
+    cur=n;
+    // Animate celestials
+    const els=document.querySelectorAll(`#s${n} .cel`);
+    els.forEach(e=>e.classList.add('hide'));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      els.forEach(e=>e.classList.remove('hide'));
+    }));
+    sc.classList.remove('fading');
+  },300);
+}
+// Initial animation
+setTimeout(()=>{
+  document.querySelectorAll('#s1 .cel').forEach(e=>e.classList.remove('hide'));
+},200);
+</script>
+</body>
+</html>
