@@ -1288,6 +1288,9 @@ function buildDiameterDetailProfiles() {
 }
 
 const DIAMETER_DETAIL_PROFILES = buildDiameterDetailProfiles();
+const SATURN_RING_CAPACITY_KEY = 'saturnRing';
+const SATURN_RING_EARTH_CAPACITY = 218;
+const SATURN_RING_EQUIVALENT_DIAMETER = planetData.earth.diameter * Math.cbrt(SATURN_RING_EARTH_CAPACITY);
 let currentCapacityView = 'sun';
 const currentCapacitySelections = {
     uyScuti: 'sun',
@@ -1301,6 +1304,7 @@ const currentCapacitySelections = {
     sun: 'earth',
     jupiter: 'earth',
     saturn: 'earth',
+    saturnRing: 'earth',
     uranus: 'earth',
     neptune: 'earth',
     earth: 'venus',
@@ -1514,6 +1518,7 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     ceres: 'textures/ceres.jpg',
     jupiter: 'textures/jupiter.jpg',
     saturn: 'textures/saturn.jpg',
+    saturnRing: 'textures/saturn_ring.png',
     uranus: 'textures/uranus.jpg',
     neptune: 'textures/neptune.jpg',
     pluto: 'textures/pluto.jpg',
@@ -5399,6 +5404,13 @@ const CAPACITY_TARGETS = {
         color: '#ead6b8',
         objectKeys: getCapacityObjectKeys('saturn')
     },
+    saturnRing: {
+        key: SATURN_RING_CAPACITY_KEY,
+        nameCN: '土星光环',
+        texture: 'textures/saturn_ring.png',
+        color: '#d8c49c',
+        objectKeys: getCapacityObjectKeys(SATURN_RING_CAPACITY_KEY)
+    },
     uranus: {
         key: 'uranus',
         nameCN: '天王星',
@@ -5468,6 +5480,11 @@ const PROXIMA_CAPACITY_TARGETS = new Set([
 ]);
 
 const CAPACITY_COUNT_OVERRIDES = {
+    saturnRing: {
+        diameter: {
+            earth: { count: SATURN_RING_EARTH_CAPACITY, label: '218' }
+        }
+    },
     // 太阳能装采用 sun_vol_vs_mass.html 中的教学数据；其他目标缺失时继续按公式计算。
     sun: {
         diameter: {
@@ -5504,6 +5521,9 @@ function getCapacityTargetValue(targetKey, metric) {
     if (blackHoleDescriptor) {
         if (metric === 'mass') return planetData[blackHoleDescriptor.bodyKey].mass;
         return getBlackHoleScopeDiameterKm(blackHoleDescriptor.bodyKey, blackHoleDescriptor.scopeKey);
+    }
+    if (targetKey === SATURN_RING_CAPACITY_KEY) {
+        return metric === 'mass' ? 0 : SATURN_RING_EQUIVALENT_DIAMETER;
     }
     const target = planetData[targetKey];
     return metric === 'mass' ? target.mass : target.diameter;
@@ -5615,6 +5635,9 @@ function getCapacitySubtitle(targetKey) {
     if (targetKey === 'earth') {
         return `${metricText}，地球是当前目标，下面只展示比地球更小的天体`;
     }
+    if (targetKey === SATURN_RING_CAPACITY_KEY) {
+        return `${metricText}，土星光环约能装下 ${SATURN_RING_EARTH_CAPACITY} 个地球`;
+    }
     return `${metricText}，${target.nameCN}约为地球的${earthOverride?.label || formatCapacityLabel(earthCount)}倍`;
 }
 
@@ -5651,6 +5674,9 @@ function getCapacityNote(targetKey) {
     }
 
     const targetBody = planetData[targetKey];
+    if (targetKey === SATURN_RING_CAPACITY_KEY) {
+        return `以地球 218 个为基准，土星光环等效直径约 ${formatNumber(Math.round(SATURN_RING_EQUIVALENT_DIAMETER))} 公里；其他天体继续按 (等效直径 / 天体直径)³ 估算。`;
+    }
     if (targetBody?.category === 'star' && targetKey !== 'sun') {
         const solarDiameterRatio = targetBody.diameter / planetData.sun.diameter;
         const solarMassRatio = targetBody.mass / planetData.sun.mass;
@@ -5705,6 +5731,9 @@ function renderCapacityTargetPicker(container) {
         { key: 'sun', icon: '☀️', name: '太阳' },
         { key: 'jupiter', icon: '🪐', name: '木星' },
         { key: 'saturn', icon: '🪐', name: '土星' },
+        ...(currentComparisonMetric === 'diameter'
+            ? [{ key: SATURN_RING_CAPACITY_KEY, icon: '💍', name: '土星光环' }]
+            : []),
         { key: 'uranus', icon: '🪐', name: '天王星' },
         { key: 'neptune', icon: '🪐', name: '海王星' },
         { key: 'earth', icon: '🌍', name: '地球' },
@@ -5819,6 +5848,9 @@ function renderBlackHoleScopePicker(container, mode = 'capacity', options = {}) 
 }
 
 function renderCapacityMode(container, subtitle) {
+    if (currentCapacityView === SATURN_RING_CAPACITY_KEY && currentComparisonMetric !== 'diameter') {
+        currentCapacityView = 'saturn';
+    }
     renderCapacityTargetPicker(container);
     if (isDragBlackHoleCapacityParent(currentCapacityView)) {
         currentDragBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentDragBlackHoleScope);
@@ -6006,7 +6038,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         ? '🌑 还原黑洞'
         : isStellarTarget
             ? `⭐ 还原${target.nameCN}`
-            : '☀️ 还原太阳';
+            : `🪐 还原${target.nameCN}`;
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
     const initial3DLabel = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
     const mainAreaClass = `drag-main-area${includeBarChart ? ' drag-main-area--with-bars' : ''}`;
@@ -6852,6 +6884,127 @@ function drawPlanetTextureContainer(ctx, size, targetKey, opts = {}) {
     }
 }
 
+function isSaturnRingCapacityTarget(targetKey) {
+    return targetKey === SATURN_RING_CAPACITY_KEY;
+}
+
+function drawSaturnRingFallback(ctx, cx, cy, r) {
+    const outerX = r * 0.95;
+    const outerY = r * 0.42;
+    const innerX = r * 0.42;
+    const innerY = r * 0.16;
+    const ringGrad = ctx.createLinearGradient(cx - outerX, cy, cx + outerX, cy);
+    ringGrad.addColorStop(0, 'rgba(235, 214, 184, 0.18)');
+    ringGrad.addColorStop(0.22, 'rgba(255, 244, 215, 0.72)');
+    ringGrad.addColorStop(0.5, 'rgba(210, 186, 145, 0.42)');
+    ringGrad.addColorStop(0.78, 'rgba(255, 244, 215, 0.72)');
+    ringGrad.addColorStop(1, 'rgba(235, 214, 184, 0.18)');
+
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, outerX, outerY, -0.08, 0, Math.PI * 2);
+    ctx.ellipse(cx, cy, innerX, innerY, -0.08, 0, Math.PI * 2, true);
+    ctx.fillStyle = ringGrad;
+    ctx.fill('evenodd');
+
+    ctx.lineWidth = Math.max(2, r * 0.018);
+    ctx.strokeStyle = 'rgba(255, 244, 220, 0.76)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, outerX, outerY, -0.08, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(84, 74, 110, 0.52)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, innerX * 1.22, innerY * 1.28, -0.08, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function drawSaturnRingBase(ctx, size, options = {}) {
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size / 2 - (options.margin ?? 18);
+    const ringImg = getDragVolumeTexture(SATURN_RING_CAPACITY_KEY);
+
+    ctx.save();
+    const glow = ctx.createRadialGradient(cx, cy, r * 0.45, cx, cy, r * 1.15);
+    glow.addColorStop(0, 'rgba(255, 235, 190, 0.08)');
+    glow.addColorStop(0.78, 'rgba(214, 190, 150, 0.14)');
+    glow.addColorStop(1, 'rgba(214, 190, 150, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 1.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (ringImg && ringImg.complete && ringImg.naturalWidth > 0) {
+        ctx.globalAlpha = 0.82;
+        ctx.drawImage(ringImg, cx - r * 1.06, cy - r * 0.57, r * 2.12, r * 1.14);
+        ctx.globalAlpha = 1;
+    } else {
+        drawSaturnRingFallback(ctx, cx, cy, r);
+    }
+    ctx.restore();
+}
+
+function drawSaturnRingForeground(ctx, size) {
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size / 2 - 18;
+    const saturnImg = getDragVolumeTexture('saturn');
+    const saturnR = r * 0.33;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, saturnR, 0, Math.PI * 2);
+    ctx.clip();
+    if (saturnImg && saturnImg.complete && saturnImg.naturalWidth > 0) {
+        const srcSize = Math.min(saturnImg.naturalWidth, saturnImg.naturalHeight);
+        const sx = (saturnImg.naturalWidth - srcSize) / 2;
+        const sy = (saturnImg.naturalHeight - srcSize) / 2;
+        ctx.drawImage(saturnImg, sx, sy, srcSize, srcSize, cx - saturnR, cy - saturnR, saturnR * 2, saturnR * 2);
+    } else {
+        const grad = ctx.createRadialGradient(cx - saturnR * 0.35, cy - saturnR * 0.4, saturnR * 0.1, cx, cy, saturnR);
+        grad.addColorStop(0, '#fff3cf');
+        grad.addColorStop(0.5, '#e6c886');
+        grad.addColorStop(1, '#9c7a44');
+        ctx.fillStyle = grad;
+        ctx.fillRect(cx - saturnR, cy - saturnR, saturnR * 2, saturnR * 2);
+    }
+    const shade = ctx.createRadialGradient(cx - saturnR * 0.3, cy - saturnR * 0.4, saturnR * 0.08, cx, cy, saturnR);
+    shade.addColorStop(0, 'rgba(255,255,255,0.22)');
+    shade.addColorStop(0.62, 'rgba(0,0,0,0.04)');
+    shade.addColorStop(1, 'rgba(0,0,0,0.46)');
+    ctx.fillStyle = shade;
+    ctx.fillRect(cx - saturnR, cy - saturnR, saturnR * 2, saturnR * 2);
+    ctx.restore();
+
+    ctx.save();
+    ctx.lineWidth = Math.max(2, r * 0.018);
+    ctx.strokeStyle = 'rgba(255, 248, 224, 0.72)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, r * 0.9, r * 0.39, -0.08, Math.PI * 0.04, Math.PI * 0.96);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(73, 60, 106, 0.46)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, r * 0.58, r * 0.24, -0.08, Math.PI * 0.02, Math.PI * 0.98);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawSaturnRingCapacityContainer(ctx, size, options = {}) {
+    const cx = size / 2;
+    const cy = size / 2;
+    const sizeScale = size / 260;
+    const hintFontPx = Math.max(14, Math.round(14 * sizeScale));
+    if (options.clear !== false) ctx.clearRect(0, 0, size, size);
+    drawSaturnRingBase(ctx, size, options);
+    drawSaturnRingForeground(ctx, size);
+    if (options.showHint !== false) {
+        ctx.fillStyle = 'rgba(255, 244, 220, 0.84)';
+        ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('拖到光环', cx, cy);
+    }
+}
+
 // 通用 idle 渲染：根据 targetKey 自动选择太阳渐变 / 黑洞 / 行星纹理 / 玻璃球
 function drawIdleContainer(ctx, size, targetKey, options = {}) {
     if (isBlackHoleTargetType(targetKey)) {
@@ -6874,6 +7027,18 @@ function drawIdleContainer(ctx, size, targetKey, options = {}) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('拖到这里', cx, cy);
+        return;
+    }
+    if (isSaturnRingCapacityTarget(targetKey)) {
+        drawSaturnRingCapacityContainer(ctx, size);
+        const ringImg = getDragVolumeTexture(SATURN_RING_CAPACITY_KEY);
+        const saturnImg = getDragVolumeTexture('saturn');
+        if (ringImg && !ringImg.complete) {
+            ringImg.onload = () => drawIdleContainer(ctx, size, targetKey, options);
+        }
+        if (saturnImg && !saturnImg.complete) {
+            saturnImg.onload = () => drawIdleContainer(ctx, size, targetKey, options);
+        }
         return;
     }
     drawPlanetTextureContainer(ctx, size, targetKey);
@@ -7526,6 +7691,7 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const containerKey = animationConfig.targetKey || 'sun';
     const containerTarget = (typeof CAPACITY_TARGETS !== 'undefined') ? CAPACITY_TARGETS[containerKey] : null;
     const containerIsSun = containerKey === 'sun';
+    const containerIsSaturnRing = isSaturnRingCapacityTarget(containerKey);
     const containerTexture = !containerIsSun ? getDragVolumeTexture(containerKey) : null;
     const containerGlowRgb = hexToRgbStr((containerTarget && containerTarget.color) || (containerIsSun ? '#ff9800' : '#888888'));
 
@@ -7533,9 +7699,10 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
     const sizeScale = size / 260; // 历史基线，文字字号继续按它缩放
     const particleRadius = compute2DParticleRadius(r, targetCount);
     const visualCount = getVisualParticleCount(targetCount);
+    const ringInnerR = containerIsSaturnRing ? r * 0.36 : 0;
 
     // 六边形密铺槽位：动画过程中按从底向上的顺序逐渐"显形"
-    const slots = compute2DParticleSlots(r, particleRadius, visualCount, targetCount);
+    const slots = compute2DParticleSlots(r, particleRadius, visualCount, targetCount, ringInnerR ? { innerR: ringInnerR } : {});
     const totalSlots = slots.length;
     const finalShown = Math.min(totalSlots, visualCount);
 
@@ -7581,12 +7748,19 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
 
         if (isGlass) {
             drawGlassContainerBack(ctx, size, 10);
+        } else if (containerIsSaturnRing) {
+            drawSaturnRingCapacityContainer(ctx, size, { showHint: false, clear: false });
         }
 
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.clip();
+        if (containerIsSaturnRing) {
+            ctx.arc(cx, cy, ringInnerR, 0, Math.PI * 2, true);
+            ctx.clip('evenodd');
+        } else {
+            ctx.clip();
+        }
 
         if (!isGlass) {
             if (containerIsSun) {
@@ -7599,6 +7773,8 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
                 sunGrad.addColorStop(1, '#e65100');
                 ctx.fillStyle = sunGrad;
                 ctx.fillRect(0, 0, size, size);
+            } else if (containerIsSaturnRing) {
+                // 光环目标的底图在环形裁剪前绘制，这里只保留给小球的环形槽位。
             } else if (containerKey === 'proximaCentauri') {
                 drawProximaSurface(ctx, cx, cy, r);
             } else if (containerTexture && containerTexture.complete && containerTexture.naturalWidth > 0) {
@@ -7656,6 +7832,10 @@ function startFillAnimation(ctx, size, data, animationConfig = {}) {
         }
 
         ctx.restore();
+
+        if (!isGlass && containerIsSaturnRing) {
+            drawSaturnRingForeground(ctx, size);
+        }
 
         // 4. 光晕（玻璃模式不画外圈光晕，让玻璃描边代替）
         if (!isGlass) {
