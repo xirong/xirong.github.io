@@ -1339,6 +1339,20 @@ const COMPARISON_BODY_KEYS = [
     'ceres'
 ];
 const DIAMETER_BLACK_HOLE_KEY = 'blackHoleScope';
+const DWARF_MOON_COMPARISON_KEYS = [
+    'charon',
+    'hiiaka',
+    'dysnomia',
+    'mk2',
+    'nix',
+    'hydra',
+    'kerberos',
+    'styx'
+];
+const DIAMETER_COMPARISON_BODY_KEYS = [
+    ...COMPARISON_BODY_KEYS,
+    ...DWARF_MOON_COMPARISON_KEYS
+];
 const DIAMETER_START_KEYS = [
     'oortCloud',
     DIAMETER_BLACK_HOLE_KEY,
@@ -1383,14 +1397,7 @@ function getComparisonKeysWithout(excludedKeys) {
 }
 
 const DWARF_MOON_CAPACITY_KEYS = [
-    'charon',
-    'nix',
-    'hydra',
-    'kerberos',
-    'styx',
-    'hiiaka',
-    'mk2',
-    'dysnomia'
+    ...DWARF_MOON_COMPARISON_KEYS
 ];
 
 const DWARF_MOON_CAPACITY_SET = new Set(DWARF_MOON_CAPACITY_KEYS);
@@ -1408,7 +1415,7 @@ function getDiameterBaseSequenceKeys() {
     return uniqueDiameterComparisonKeys([
         'oortCloud',
         DIAMETER_BLACK_HOLE_KEY,
-        ...sortComparisonKeys(COMPARISON_BODY_KEYS.filter(key => !isBlackHoleBodyKey(key)), 'diameter')
+        ...sortComparisonKeys(DIAMETER_COMPARISON_BODY_KEYS.filter(key => !isBlackHoleBodyKey(key)), 'diameter')
     ]);
 }
 
@@ -6620,6 +6627,14 @@ function generateSizeComparison(mode) {
         deimos: 'textures/deimos.jpg',
         triton: 'textures/triton.jpg',
         titania: 'textures/titania.jpg',
+        charon: 'textures/moon.jpg',
+        hiiaka: 'textures/moon.jpg',
+        dysnomia: 'textures/moon.jpg',
+        mk2: 'textures/deimos.jpg',
+        nix: 'textures/deimos.jpg',
+        hydra: 'textures/phobos_clean.jpg',
+        kerberos: 'textures/deimos.jpg',
+        styx: 'textures/phobos_clean.jpg',
         oortCloud: 'textures/starfield.jpg'
     };
 
@@ -6681,7 +6696,7 @@ function generateSizeComparison(mode) {
         }
         isDiameterDetailMode = true;
         // 按直径排序（从大到小）
-        const sortedPlanets = sortComparisonKeys(COMPARISON_BODY_KEYS, 'diameter');
+        const sortedPlanets = sortComparisonKeys(DIAMETER_COMPARISON_BODY_KEYS, 'diameter');
         const detailProfile = isDiameterDetailMode && currentDiameterDetailIndex >= 0
             ? DIAMETER_DETAIL_PROFILES[Math.min(currentDiameterDetailIndex, DIAMETER_DETAIL_PROFILES.length - 1)]
             : null;
