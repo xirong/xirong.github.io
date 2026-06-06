@@ -1078,6 +1078,14 @@ const planetAudioNarration = {
     deimos: '火卫二，Deimos，火星的外侧卫星，体积更小更暗，轨道离得更远、更平稳，像颗安静、细小的伴星。',
     triton: '海卫一，Triton，海王星的最大卫星，轨道是逆行的，说明它很可能不是原生形成，而是后来被俘获，表面有年轻的地质痕迹。',
     titania: '天卫一，Titania，天王星系统里体积较大的卫星之一，表面有巨型断谷和亮暗相间地形，内部可能藏有历史上复杂的构造痕迹。',
+    charon: '冥卫一，Charon，冥王星最大的卫星，大小接近冥王星的一半。它和冥王星互相潮汐锁定，像一对很特别的双人舞伙伴。',
+    nix: '冥卫二，Nix，冥王星的一颗小卫星，形状不规则，和冥卫三一样大约只有几十公里宽。它来自遥远的柯伊伯带，很适合观察小冰岩天体。',
+    hydra: '冥卫三，Hydra，冥王星外侧的小卫星之一，形状细长，表面反光较亮。它和冥卫二都是新视野号重点拍到的小卫星。',
+    kerberos: '冥卫四，Kerberos，冥王星的一颗更小的卫星，英文读作 Kerberos。它非常暗、非常小，像一块绕着冥王星运行的冰岩碎片。',
+    styx: '冥卫五，Styx，冥王星最小的卫星之一，名字来自希腊神话中的冥河。它体积很小，轨道位于冥王星小卫星家族之中。',
+    hiiaka: '妊卫一，Hiʻiaka，妊神星较大、较外侧的卫星，英文读作 Hiʻiaka。它表面可能富含明亮的水冰，名字来自夏威夷神话。',
+    mk2: '鸟卫一，S/2015 (136472) 1，也常被叫作 MK2，是鸟神星目前已知的唯一卫星。它很暗，比鸟神星暗一千多倍，像一颗小小的黑色伴星。',
+    dysnomia: '阋卫一，Dysnomia，阋神星目前已知的唯一卫星，英文读作 Dysnomia。科学家通过观察它绕阋神星运动，测出了阋神星的质量。',
     ceres: '谷神星，Ceres，距离太阳2.8个天文单位。自转转完一整圈，约等于0.38个地球天。绕太阳公转一整圈，约等于4.6个地球年。',
     jupiter: '木星，Jupiter，距离太阳5.2个天文单位。自转转完一整圈，约等于0.41个地球天。绕太阳公转一整圈，约等于11.86个地球年。',
     saturn: '土星，Saturn，距离太阳9.5个天文单位。自转转完一整圈，约等于0.45个地球天。绕太阳公转一整圈，约等于29.46个地球年。土星光环的英文通常叫 Saturn\'s rings，也可以说 rings of Saturn。它们不是一整块硬硬的圆盘，而是无数冰块、尘埃和岩石碎片绕着土星运行，从远处看像一圈又一圈亮亮的带子。',
@@ -1100,7 +1108,15 @@ const satelliteDockItems = [
     { key: 'phobos', nameCN: '火卫一', nameShort: '火卫一', accent: 0x8a7c66, texture: 'textures/phobos_clean.jpg' },
     { key: 'deimos', nameCN: '火卫二', nameShort: '火卫二', accent: 0x6e7280, texture: 'textures/deimos.jpg' },
     { key: 'triton', nameCN: '海卫一', nameShort: '海卫一', accent: 0x7cc8ff, texture: 'textures/triton.jpg' },
-    { key: 'titania', nameCN: '天卫一', nameShort: '天卫一', accent: 0x88b999, texture: 'textures/titania.jpg' }
+    { key: 'titania', nameCN: '天卫一', nameShort: '天卫一', accent: 0x88b999, texture: 'textures/titania.jpg' },
+    { key: 'charon', nameCN: '冥卫一', nameShort: '冥卫一', accent: 0xb8b1a7, texture: 'textures/moon.jpg' },
+    { key: 'nix', nameCN: '冥卫二', nameShort: '冥卫二', accent: 0xaeb6c8, texture: 'textures/deimos.jpg' },
+    { key: 'hydra', nameCN: '冥卫三', nameShort: '冥卫三', accent: 0xc8d2de, texture: 'textures/phobos_clean.jpg' },
+    { key: 'kerberos', nameCN: '冥卫四', nameShort: '冥卫四', accent: 0x8f8580, texture: 'textures/deimos.jpg' },
+    { key: 'styx', nameCN: '冥卫五', nameShort: '冥卫五', accent: 0x9aa0aa, texture: 'textures/phobos_clean.jpg' },
+    { key: 'hiiaka', nameCN: '妊卫一', nameShort: '妊卫一', accent: 0xe8edf2, texture: 'textures/moon.jpg' },
+    { key: 'mk2', nameCN: '鸟卫一', nameShort: '鸟卫一', accent: 0x5a4b43, texture: 'textures/deimos.jpg' },
+    { key: 'dysnomia', nameCN: '阋卫一', nameShort: '阋卫一', accent: 0xbfc5cf, texture: 'textures/moon.jpg' }
 ];
 
 const moonKeyToName = {
@@ -1113,7 +1129,15 @@ const moonKeyToName = {
     phobos: '火卫一',
     deimos: '火卫二',
     triton: '海卫一',
-    titania: '天卫一'
+    titania: '天卫一',
+    charon: '冥卫一',
+    nix: '冥卫二',
+    hydra: '冥卫三',
+    kerberos: '冥卫四',
+    styx: '冥卫五',
+    hiiaka: '妊卫一',
+    mk2: '鸟卫一',
+    dysnomia: '阋卫一'
 };
 
 // ============ 人造卫星数据 ============
@@ -2191,6 +2215,26 @@ const moonsData = {
     // 海王星的卫星
     neptune: [
         { name: '海卫一', nameCN: '海卫一', diameter: 2707, orbitRadius: 7, orbitSpeed: -0.04, color: 0xddccbb, desc: '海卫一（Triton）围绕海王星逆行，疑似被俘获，南北两半球地貌差异明显，带有年轻地质活动的痕迹。', texturePath: 'textures/triton.jpg', brightness: 1.12, fresnelColor: 'vec3(0.9, 0.86, 0.8)', fresnelIntensity: 0.08, segments: 48 }
+    ],
+    // 冥王星的卫星
+    pluto: [
+        { name: '冥卫一', nameCN: '冥卫一', diameter: 1212, orbitRadius: 5.2, orbitSpeed: 0.045, color: 0xb8b1a7, desc: '冥卫一（Charon）是冥王星最大的卫星，直径约1212公里，大小接近冥王星的一半。它和冥王星互相潮汐锁定，是一个很特别的矮行星双天体系统。', texturePath: 'textures/moon.jpg', brightness: 1.1, fresnelColor: 'vec3(0.78, 0.74, 0.68)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '冥卫二', nameCN: '冥卫二', diameter: 40, orbitRadius: 8.4, orbitSpeed: 0.033, color: 0xaeb6c8, desc: '冥卫二（Nix）是冥王星的小卫星，形状不规则，最长方向大约40公里。它和其他小卫星一起，帮助我们理解冥王星系统早期的碰撞历史。', texturePath: 'textures/deimos.jpg', brightness: 1.12, fresnelColor: 'vec3(0.76, 0.82, 0.9)', fresnelIntensity: 0.1, shape: 'irregularRock', rockSeed: 3.1, axisScale: [1.45, 1.0, 0.74] },
+        { name: '冥卫三', nameCN: '冥卫三', diameter: 40, orbitRadius: 12.5, orbitSpeed: 0.024, color: 0xc8d2de, desc: '冥卫三（Hydra）是冥王星外侧的小卫星之一，最长方向也大约40公里。它表面反光较亮，像一块被冰包裹的小岩石。', texturePath: 'textures/phobos_clean.jpg', brightness: 1.14, fresnelColor: 'vec3(0.84, 0.88, 0.94)', fresnelIntensity: 0.1, shape: 'irregularRock', rockSeed: 4.2, axisScale: [1.55, 0.92, 0.7] },
+        { name: '冥卫四', nameCN: '冥卫四', diameter: 12, orbitRadius: 10.5, orbitSpeed: 0.028, color: 0x8f8580, desc: '冥卫四（Kerberos）是冥王星一颗很小、很暗的卫星，最长方向大约10到12公里。它让冥王星系统看起来更像一个小型卫星家族。', texturePath: 'textures/deimos.jpg', brightness: 1.08, fresnelColor: 'vec3(0.62, 0.58, 0.54)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 5.3, axisScale: [1.5, 0.88, 0.66] },
+        { name: '冥卫五', nameCN: '冥卫五', diameter: 10, orbitRadius: 7.2, orbitSpeed: 0.038, color: 0x9aa0aa, desc: '冥卫五（Styx）是冥王星最小的卫星之一，最长方向约10到12公里。它的名字来自希腊神话中的冥河，和冥王星的名字很搭。', texturePath: 'textures/phobos_clean.jpg', brightness: 1.1, fresnelColor: 'vec3(0.7, 0.72, 0.78)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 6.4, axisScale: [1.42, 0.86, 0.64] }
+    ],
+    // 妊神星的第一颗卫星
+    haumea: [
+        { name: '妊卫一', nameCN: '妊卫一', diameter: 310, orbitRadius: 7.5, orbitSpeed: 0.032, color: 0xe8edf2, desc: '妊卫一（Hiʻiaka）是妊神星较大、较外侧的卫星，也是最先被发现的妊神星卫星。它的表面可能富含明亮水冰，名字来自夏威夷神话中的女神。', texturePath: 'textures/moon.jpg', brightness: 1.18, fresnelColor: 'vec3(0.88, 0.92, 0.98)', fresnelIntensity: 0.14, shape: 'irregularRock', rockSeed: 7.5, axisScale: [1.16, 1.0, 0.86] }
+    ],
+    // 鸟神星的第一颗卫星
+    makemake: [
+        { name: '鸟卫一', nameCN: '鸟卫一', diameter: 160, orbitRadius: 6.4, orbitSpeed: 0.034, color: 0x5a4b43, desc: '鸟卫一（S/2015 (136472) 1，常叫 MK2）是鸟神星目前已知的唯一卫星。它非常暗，比鸟神星暗一千多倍，直径估计大约160公里。', texturePath: 'textures/deimos.jpg', brightness: 1.04, fresnelColor: 'vec3(0.45, 0.38, 0.32)', fresnelIntensity: 0.08, shape: 'irregularRock', rockSeed: 8.6, axisScale: [1.2, 0.95, 0.8] }
+    ],
+    // 阋神星的第一颗卫星
+    eris: [
+        { name: '阋卫一', nameCN: '阋卫一', diameter: 300, orbitRadius: 7.2, orbitSpeed: 0.03, color: 0xbfc5cf, desc: '阋卫一（Dysnomia）是阋神星目前已知的唯一卫星。科学家通过观察它绕阋神星运动，测出了阋神星的质量，也推动大家更了解矮行星。', texturePath: 'textures/moon.jpg', brightness: 1.14, fresnelColor: 'vec3(0.78, 0.8, 0.86)', fresnelIntensity: 0.1, shape: 'irregularRock', rockSeed: 9.7, axisScale: [1.12, 0.96, 0.82] }
     ]
 };
 
