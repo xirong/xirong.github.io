@@ -7,6 +7,7 @@ Edge-TTS 音频生成脚本
 import edge_tts
 import asyncio
 import os
+import sys
 
 # 语音配置
 VOICE_CN = "zh-CN-XiaoxiaoNeural"  # 中文部分用小晓
@@ -41,15 +42,15 @@ CELESTIAL_AUDIO_TEXTS = {
     "ganymede": "木卫三，Ganymede，太阳系最大的卫星，比水星还大，它的外面像冰壳，里面可能有一片看不见的大海，木卫三有自己的磁场，像是自己的保护罩。",
     "titan": "土卫六，Titan，土星最大的卫星之一，拥有浓厚氮气大气层，表面有甲烷湖和雾色地形，常被拿来讨论原始化学与类地球环境。",
     "enceladus": "土卫二，Enceladus，土星内部热活动很活跃，南极有冰裂隙“虎纹”，会喷出冰尘和水蒸气羽流，常被当成‘探测生命线索的优先目标’。",
-    "rhea": "土卫五，Rhea，土星的一颗大型冰质卫星，表面反光性高，布满陨石坑和断裂带，保留了很久的撞击历史。",
+    "rhea": "土卫五，Rhea，土星的一颗大型冰质卫星，表面反光性高，布满陨石坑和断裂带，保留了很久的撞击历史。这里画出的淡淡光环，英文可以说 Rhea dust ring，也就是土卫五尘埃环。它不像土星光环那样明亮，更像非常稀薄的尘埃带，帮助我们理解卫星旁边也可能有环状物质。",
     "phobos": "火卫一，Phobos，火星最近的一颗小卫星，形状不规则、表面坑坑洼洼，离火星很近，每天需要绕行多圈。",
     "deimos": "火卫二，Deimos，火星的外侧卫星，体积更小更暗，轨道更远更平稳，像颗安静的伴星。",
     "triton": "海卫一，Triton，海王星最大的卫星，公转方向是逆行的，说明它可能是后期俘获天体，表面有年轻地质活动迹象。",
     "titania": "天卫一，Titania，天王星系统较大的卫星，表面有明暗交错地形与巨大断裂谷，反映复杂的内部演化历史。",
     "ceres": "谷神星，Ceres，距离太阳2.8个天文单位。自转转完一整圈，约等于0.38个地球天。绕太阳公转一整圈，约等于4.6个地球年。",
     "jupiter": "木星，Jupiter，距离太阳5.2个天文单位。自转转完一整圈，约等于0.41个地球天。绕太阳公转一整圈，约等于11.86个地球年。",
-    "saturn": "土星，Saturn，距离太阳9.5个天文单位。自转转完一整圈，约等于0.45个地球天。绕太阳公转一整圈，约等于29.46个地球年。",
-    "uranus": "天王星，Uranus，距离太阳19.2个天文单位。自转转完一整圈，约等于0.72个地球天。绕太阳公转一整圈，约等于84个地球年。",
+    "saturn": "土星，Saturn，距离太阳9.5个天文单位。自转转完一整圈，约等于0.45个地球天。绕太阳公转一整圈，约等于29.46个地球年。土星光环的英文通常叫 Saturn's rings，也可以说 rings of Saturn。它们不是一整块硬硬的圆盘，而是无数冰块、尘埃和岩石碎片绕着土星运行，从远处看像一圈又一圈亮亮的带子。",
+    "uranus": "天王星，Uranus，距离太阳19.2个天文单位。自转转完一整圈，约等于0.72个地球天。绕太阳公转一整圈，约等于84个地球年。天王星光环的英文叫 Uranian rings，也可以说 rings of Uranus。它们比土星光环暗得多，主要由很黑的尘埃和小颗粒组成，所以在望远镜里不容易看见。",
     "neptune": "海王星，Neptune，距离太阳30个天文单位。自转转完一整圈，约等于0.67个地球天。绕太阳公转一整圈，约等于164.8个地球年。",
     "pluto": "冥王星，Pluto，距离太阳39.5个天文单位。自转转完一整圈，约等于6.4个地球天。绕太阳公转一整圈，约等于247.94个地球年。",
     "haumea": "妊神星，Haumea，距离太阳43.1个天文单位。自转转完一整圈，约等于0.16个地球天。绕太阳公转一整圈，约等于285个地球年。",
@@ -71,8 +72,16 @@ async def generate_audio(path, text, voice, semaphore):
 async def main():
     """主函数：为每个天体生成完整语音"""
     audios = []
+    selected_keys = sys.argv[1:]
+    missing_keys = [key for key in selected_keys if key not in CELESTIAL_AUDIO_TEXTS]
+    if missing_keys:
+        raise SystemExit(f"未知天体 key: {', '.join(missing_keys)}")
 
-    for key, text in CELESTIAL_AUDIO_TEXTS.items():
+    source_items = CELESTIAL_AUDIO_TEXTS.items()
+    if selected_keys:
+        source_items = ((key, CELESTIAL_AUDIO_TEXTS[key]) for key in selected_keys)
+
+    for key, text in source_items:
         path = os.path.join(OUTPUT_DIR, f"{key}.mp3")
         audios.append((path, text, VOICE_CN))
 
