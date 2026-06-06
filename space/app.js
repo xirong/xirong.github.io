@@ -556,6 +556,134 @@ const planetData = {
         description: '天卫一是天王星系统里较大的卫星，拥有巨大的断裂谷和亮暗相间地形。',
         relativeSize: 0.1238 // 1578/12742
     },
+    charon: {
+        name: '冥卫一',
+        nameCN: '冥卫一',
+        nameEN: 'Charon',
+        type: '卫星',
+        diameter: 1212, // km
+        mass: 0,
+        category: 'moon',
+        distance: 5906,
+        orbitPeriod: 6.4,
+        rotationPeriod: 6.4,
+        color: 0xb8b1a7,
+        emissive: 0x4d463f,
+        description: '冥卫一是冥王星最大的卫星，大小接近冥王星的一半，和冥王星互相潮汐锁定。',
+        relativeSize: 0.0951
+    },
+    nix: {
+        name: '冥卫二',
+        nameCN: '冥卫二',
+        nameEN: 'Nix',
+        type: '卫星',
+        diameter: 40, // km，最长方向近似
+        mass: 0,
+        category: 'moon',
+        distance: 5906,
+        orbitPeriod: 24.9,
+        rotationPeriod: 24.9,
+        color: 0xaeb6c8,
+        emissive: 0x3b4050,
+        description: '冥卫二是冥王星的一颗不规则小卫星，最长方向大约40公里。',
+        relativeSize: 0.00314
+    },
+    hydra: {
+        name: '冥卫三',
+        nameCN: '冥卫三',
+        nameEN: 'Hydra',
+        type: '卫星',
+        diameter: 40, // km，最长方向近似
+        mass: 0,
+        category: 'moon',
+        distance: 5906,
+        orbitPeriod: 38.2,
+        rotationPeriod: 38.2,
+        color: 0xc8d2de,
+        emissive: 0x434a54,
+        description: '冥卫三是冥王星外侧的小卫星之一，最长方向也大约40公里，表面反光较亮。',
+        relativeSize: 0.00314
+    },
+    kerberos: {
+        name: '冥卫四',
+        nameCN: '冥卫四',
+        nameEN: 'Kerberos',
+        type: '卫星',
+        diameter: 12, // km，最长方向近似
+        mass: 0,
+        category: 'moon',
+        distance: 5906,
+        orbitPeriod: 32.2,
+        rotationPeriod: 32.2,
+        color: 0x8f8580,
+        emissive: 0x332f2c,
+        description: '冥卫四是冥王星一颗更小、更暗的卫星，像一块绕着冥王星运行的冰岩碎片。',
+        relativeSize: 0.00094
+    },
+    styx: {
+        name: '冥卫五',
+        nameCN: '冥卫五',
+        nameEN: 'Styx',
+        type: '卫星',
+        diameter: 10, // km，最长方向近似
+        mass: 0,
+        category: 'moon',
+        distance: 5906,
+        orbitPeriod: 20.2,
+        rotationPeriod: 20.2,
+        color: 0x9aa0aa,
+        emissive: 0x30343d,
+        description: '冥卫五是冥王星最小的卫星之一，名字来自希腊神话中的冥河。',
+        relativeSize: 0.00078
+    },
+    hiiaka: {
+        name: '妊卫一',
+        nameCN: '妊卫一',
+        nameEN: 'Hiʻiaka',
+        type: '卫星',
+        diameter: 310, // km，近似
+        mass: 0,
+        category: 'moon',
+        distance: 6452,
+        orbitPeriod: 49.1,
+        rotationPeriod: 49.1,
+        color: 0xe8edf2,
+        emissive: 0x5b646f,
+        description: '妊卫一是妊神星较大、较外侧的卫星，表面可能富含明亮的水冰。',
+        relativeSize: 0.0243
+    },
+    mk2: {
+        name: '鸟卫一',
+        nameCN: '鸟卫一',
+        nameEN: 'S/2015 (136472) 1',
+        type: '卫星',
+        diameter: 160, // km，近似
+        mass: 0,
+        category: 'moon',
+        distance: 6850,
+        orbitPeriod: 12.4,
+        rotationPeriod: 12.4,
+        color: 0x5a4b43,
+        emissive: 0x241d19,
+        description: '鸟卫一是鸟神星目前已知的唯一卫星，也常被叫作 MK2，非常暗。',
+        relativeSize: 0.0126
+    },
+    dysnomia: {
+        name: '阋卫一',
+        nameCN: '阋卫一',
+        nameEN: 'Dysnomia',
+        type: '卫星',
+        diameter: 300, // km，近似
+        mass: 0,
+        category: 'moon',
+        distance: 10149,
+        orbitPeriod: 15.8,
+        rotationPeriod: 15.8,
+        color: 0xbfc5cf,
+        emissive: 0x454a52,
+        description: '阋卫一是阋神星目前已知的唯一卫星，科学家通过它的轨道测出阋神星质量。',
+        relativeSize: 0.0235
+    },
     jupiter: {
         name: '木星',
         nameCN: '木星',
@@ -1254,8 +1382,26 @@ function getComparisonKeysWithout(excludedKeys) {
     return COMPARISON_BODY_KEYS.filter(key => !excluded.has(key));
 }
 
+const DWARF_MOON_CAPACITY_KEYS = [
+    'charon',
+    'nix',
+    'hydra',
+    'kerberos',
+    'styx',
+    'hiiaka',
+    'mk2',
+    'dysnomia'
+];
+
+const DWARF_MOON_CAPACITY_SET = new Set(DWARF_MOON_CAPACITY_KEYS);
+
+const CAPACITY_OBJECT_KEYS = [
+    ...COMPARISON_BODY_KEYS,
+    ...DWARF_MOON_CAPACITY_KEYS
+];
+
 function getCapacityObjectKeys(targetKey) {
-    return COMPARISON_BODY_KEYS.filter(key => key !== targetKey);
+    return CAPACITY_OBJECT_KEYS.filter(key => key !== targetKey);
 }
 
 function getDiameterBaseSequenceKeys() {
@@ -1334,6 +1480,14 @@ const currentCapacitySelections = {
     earth: 'venus',
     venus: 'mars',
     mars: 'ganymede',
+    charon: 'ceres',
+    hiiaka: 'mk2',
+    dysnomia: 'mk2',
+    mk2: 'nix',
+    nix: 'phobos',
+    hydra: 'phobos',
+    kerberos: 'styx',
+    styx: 'deimos',
     proximaCentauri: 'jupiter',
     blackHole: 'earth',
     blackHoleEventHorizon: 'earth',
@@ -5355,7 +5509,15 @@ const CAPACITY_TARGET_TEXTURES = {
     phobos: 'textures/phobos_clean.jpg',
     deimos: 'textures/deimos.jpg',
     triton: 'textures/triton.jpg',
-    titania: 'textures/titania.jpg'
+    titania: 'textures/titania.jpg',
+    charon: 'textures/moon.jpg',
+    nix: 'textures/deimos.jpg',
+    hydra: 'textures/phobos_clean.jpg',
+    kerberos: 'textures/deimos.jpg',
+    styx: 'textures/phobos_clean.jpg',
+    hiiaka: 'textures/moon.jpg',
+    mk2: 'textures/deimos.jpg',
+    dysnomia: 'textures/moon.jpg'
 };
 
 function createCapacityTarget(key) {
@@ -5507,6 +5669,14 @@ const CAPACITY_TARGETS = {
     enceladus: createCapacityTarget('enceladus'),
     phobos: createCapacityTarget('phobos'),
     deimos: createCapacityTarget('deimos'),
+    charon: createCapacityTarget('charon'),
+    hiiaka: createCapacityTarget('hiiaka'),
+    dysnomia: createCapacityTarget('dysnomia'),
+    mk2: createCapacityTarget('mk2'),
+    nix: createCapacityTarget('nix'),
+    hydra: createCapacityTarget('hydra'),
+    kerberos: createCapacityTarget('kerberos'),
+    styx: createCapacityTarget('styx'),
     ...buildBlackHoleCapacityTargets(),
     proximaCentauri: {
         key: 'proximaCentauri',
@@ -5589,6 +5759,15 @@ function getCapacityCount(targetKey, objectKey, metric = currentComparisonMetric
     return Math.pow(targetValue / objectValue, 3);
 }
 
+function isCapacityObjectSmallerThanTarget(targetKey, objectKey, metric = currentComparisonMetric) {
+    const targetValue = getCapacityTargetValue(targetKey, metric);
+    const objectValue = metric === 'mass' ? planetData[objectKey]?.mass : planetData[objectKey]?.diameter;
+    if (!targetValue || !objectValue) return false;
+    return metric === 'mass'
+        ? targetValue >= objectValue
+        : targetValue > objectValue;
+}
+
 function isBlackHoleTargetType(targetKey) {
     return !!getBlackHoleTargetDescriptor(targetKey);
 }
@@ -5644,7 +5823,11 @@ function getCapacityData(targetKey) {
                 color: '#' + data.color.toString(16).padStart(6, '0')
             };
         })
-        .filter(item => Number.isFinite(item.count) && item.count >= 1)
+        .filter(item => (
+            Number.isFinite(item.count)
+            && item.count >= 1
+            && isCapacityObjectSmallerThanTarget(targetKey, item.key)
+        ))
         .sort((a, b) => a.count - b.count);
 }
 
@@ -5681,6 +5864,9 @@ function getCapacitySubtitle(targetKey) {
     }
     if (targetKey === SATURN_RING_CAPACITY_KEY) {
         return `${metricText}，土星光环约能装下 ${SATURN_RING_EARTH_CAPACITY} 个地球`;
+    }
+    if (target?.key && targetKey !== 'sun' && currentComparisonMetric !== 'mass' && planetData[targetKey]?.diameter < planetData.earth.diameter) {
+        return `${metricText}，${target.nameCN}是当前目标，下面只展示比${target.nameCN}更小的已收录天体`;
     }
     return `${metricText}，${target.nameCN}约为地球的${earthOverride?.label || formatCapacityLabel(earthCount)}倍`;
 }
@@ -5771,6 +5957,18 @@ function renderCapacityTargetPicker(container) {
         name: BLACK_HOLE_BODY_CONFIGS[bodyKey].pickerName || BLACK_HOLE_BODY_CONFIGS[bodyKey].nameCN,
         blackHoleBodyKey: bodyKey
     }));
+    const dwarfMoonTargetOptions = currentComparisonMetric === 'mass'
+        ? []
+        : [
+            { key: 'charon', icon: '🌙', name: '冥卫一' },
+            { key: 'hiiaka', icon: '🌙', name: '妊卫一' },
+            { key: 'dysnomia', icon: '🌙', name: '阋卫一' },
+            { key: 'mk2', icon: '🌙', name: '鸟卫一' },
+            { key: 'nix', icon: '🌙', name: '冥卫二' },
+            { key: 'hydra', icon: '🌙', name: '冥卫三' },
+            { key: 'kerberos', icon: '🌙', name: '冥卫四' },
+            { key: 'styx', icon: '🌙', name: '冥卫五' }
+        ];
     const targetOptions = [
         { key: 'sun', icon: '☀️', name: '太阳' },
         { key: 'jupiter', icon: '🪐', name: '木星' },
@@ -5800,6 +5998,7 @@ function renderCapacityTargetPicker(container) {
         { key: 'enceladus', icon: '🌙', name: '土卫二' },
         { key: 'phobos', icon: '🌙', name: '火卫一' },
         { key: 'deimos', icon: '🌙', name: '火卫二' },
+        ...dwarfMoonTargetOptions,
         ...blackHoleTargetOptions,
         { key: 'uyScuti', icon: '⭐', name: '盾牌座UY' },
         { key: 'vyCanisMajoris', icon: '⭐', name: '大犬座VY' },
@@ -5895,6 +6094,9 @@ function renderCapacityMode(container, subtitle) {
     if (currentCapacityView === SATURN_RING_CAPACITY_KEY && currentComparisonMetric !== 'diameter') {
         currentCapacityView = 'saturn';
     }
+    if (DWARF_MOON_CAPACITY_SET.has(currentCapacityView) && currentComparisonMetric === 'mass') {
+        currentCapacityView = 'sun';
+    }
     renderCapacityTargetPicker(container);
     if (isDragBlackHoleCapacityParent(currentCapacityView)) {
         currentDragBlackHoleScope = getBlackHoleScopeFromView(currentCapacityView, currentDragBlackHoleScope);
@@ -5938,6 +6140,25 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
 
     const wrapper = document.createElement('div');
     wrapper.className = `drag-volume-container${isBlackHole ? ' black-hole-drag' : ''}${includeBarChart ? ' drag-volume-container--with-bars' : ''}${isWidthMode ? ' width-drag' : ''}`;
+
+    if (!capacityData.length) {
+        wrapper.innerHTML = `
+            <div class="volume-hero">
+                <div class="volume-sun-circle" style="${getTargetCircleStyle(targetKey, 180)}">
+                    <span class="volume-sun-label">${targetDisplayName}</span>
+                    <span class="volume-sun-count">0</span>
+                    <span class="volume-sun-unit">个更小天体</span>
+                </div>
+                <div class="volume-big-number">
+                    <span class="number">暂无</span>
+                    <span class="unit">比${targetDisplayName}更小的已收录天体</span>
+                </div>
+            </div>
+            <p class="volume-note">${getCapacityNote(targetKey)}</p>
+        `;
+        container.appendChild(wrapper);
+        return;
+    }
 
     // 装入球放大让纹理细节更清晰；ghost 也按比例放大
     const canvasSize = isBlackHole ? 480 : 460;
