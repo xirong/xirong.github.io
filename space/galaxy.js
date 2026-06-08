@@ -234,6 +234,17 @@ const starSystemData = {
         description: '冬季大三角的成员之一，由一颗亚巨星和一颗白矮星组成。',
         funFact: '南河三的名字源自希腊语"狗前面的"，因为它在天狼星（大犬座α）之前升起！'
     },
+    pollux: {
+        name: '北河三',
+        nameEn: 'Pollux',
+        type: '橙巨星',
+        spectralType: 'K0IIIb',
+        distance: '33.8光年',
+        brightness: '视星等 1.15',
+        planets: 1,
+        description: '北河三是双子座最亮的恒星，已经从主序星演化成橙色巨星。它是银河系里的恒星，不是行星，也不是另一个星系。',
+        funFact: '北河三周围已经确认有一颗巨行星，质量大约是木星的几倍，绕着这颗橙巨星运行。'
+    },
     arcturus: {
         name: '大角星',
         nameEn: 'Arcturus',
@@ -244,6 +255,17 @@ const starSystemData = {
         planets: 0,
         description: '北天最亮的恒星，牧夫座的主星。它是一颗红巨星，直径约为太阳的25倍。',
         funFact: '大角星是1933年芝加哥世博会的"明星"——它的光被用来触发开幕式的灯光！这道光走了40年才到达地球。'
+    },
+    elnath: {
+        name: '五车五',
+        nameEn: 'Elnath',
+        type: '蓝白巨星',
+        spectralType: 'B7III',
+        distance: '134光年',
+        brightness: '视星等 1.65',
+        planets: 0,
+        description: '五车五也叫金牛座β星，位在金牛座和御夫座交界附近，是一颗很亮的蓝白色巨星。它属于银河系里的恒星，不是行星。',
+        funFact: '五车五的亮度约为太阳的数百倍，中文星名来自古代星官“五车”。'
     },
     antares: {
         name: '心宿二',
@@ -419,6 +441,15 @@ const neighborhoodStarConfigs = {
         starType: 'binary',
         hasPlanets: false
     },
+    pollux: {
+        distanceLY: 33.8,
+        angle: Math.PI * 1.85,
+        elevation: -0.28,
+        color: '#ffb45c',
+        textureProfile: 'orange',
+        starType: 'single',
+        hasPlanets: true
+    },
     arcturus: {
         distanceLY: 36.7,
         angle: Math.PI * 1.7,
@@ -459,6 +490,15 @@ const galacticStarConfigs = {
         size: 'normal',
         hasPlanets: true,
         offset: { x: 0.3, y: 0.05, z: 0.95 }
+    },
+    elnath: {
+        distanceLY: 134,
+        zone: 'A',
+        color: '#9fc8ff',
+        textureProfile: 'blueWhite',
+        size: 'normal',
+        hasPlanets: false,
+        offset: { x: 0.2, y: 0.18, z: -0.98 }
     },
     vyCanisMajoris: {
         distanceLY: 3900,
@@ -1214,6 +1254,8 @@ const galaxyDockItems = [
     { key: 'betelgeuse', shortName: '参宿', tone: 'star', kind: 'star' },
     { key: 'sirius', shortName: '天狼', tone: 'star', kind: 'star' },
     { key: 'alphaCentauri', shortName: '半α', tone: 'star', kind: 'star' },
+    { key: 'pollux', shortName: '北河', tone: 'star', kind: 'star' },
+    { key: 'elnath', shortName: '五车', tone: 'star', kind: 'star' },
     { section: '银河系外' },
     { key: 'andromeda', shortName: '仙女' },
     { key: 'sombrero', shortName: '草帽' },
@@ -1495,6 +1537,29 @@ const cosmicScaleItems = [
         kind: 'sphere',
         visual: "url('textures/stars/white_star_surface.jpg') center/cover",
         note: '织女星和天狼星大小接近，是夏季夜空里很亮的蓝白色恒星。'
+    },
+    {
+        key: 'elnath',
+        name: '五车五',
+        nameEn: 'Elnath',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 4.79,
+        displaySize: '约太阳的4.8倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/blue_white_star_surface.jpg') center/cover",
+        note: '五车五是蓝白巨星，比太阳大几倍，亮度却能达到太阳的数百倍。'
+    },
+    {
+        key: 'pollux',
+        name: '北河三',
+        nameEn: 'Pollux',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 9.3,
+        displaySize: '约太阳的9.3倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/orange_star_surface.jpg') center/cover",
+        glow: 'rgba(255, 170, 92, 0.42)',
+        note: '北河三是一颗橙巨星，已经膨胀到比太阳大很多，旁边还确认有巨行星。'
     },
     {
         key: 'arcturus',
