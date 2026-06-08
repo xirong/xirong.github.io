@@ -90,6 +90,8 @@ const STAR_SURFACE_TEXTURES = {
     alphaCentauri: 'textures/stars/yellow_star_surface.jpg',
     betaCentauri: 'textures/stars/blue_white_star_surface.jpg',
     sirius: 'textures/stars/blue_white_star_surface.jpg',
+    elnath: 'textures/stars/blue_white_star_surface.jpg',
+    pollux: 'textures/stars/orange_star_surface.jpg',
     arcturus: 'textures/stars/orange_star_surface.jpg',
     antares: 'textures/stars/generated/antares_custom.jpg',
     pistolStar: 'textures/stars/blue_white_star_surface.jpg',
@@ -184,6 +186,40 @@ const planetData = {
         description: '天狼星是夜空中最亮的恒星，主星比太阳更大、更亮，旁边还有一颗很小但密度极高的白矮星。',
         relativeSize: 260.13,
         texturePath: STAR_SURFACE_TEXTURES.sirius
+    },
+    elnath: {
+        name: '五车五',
+        nameCN: '五车五',
+        nameEN: 'Elnath',
+        type: '蓝白巨星',
+        diameter: 6671033, // km，约 4.79 R☉
+        mass: 9945500, // 10²⁴ kg，约 5 M☉
+        category: 'star',
+        distance: 1268000000000000, // km，约 134 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0x9fc8ff,
+        emissive: 0x5f96ff,
+        description: '五车五也叫金牛座β星，是一颗很亮的蓝白色巨星，直径大约是太阳的 4.79 倍，质量约为太阳的 5 倍。',
+        relativeSize: 523.56,
+        texturePath: STAR_SURFACE_TEXTURES.elnath
+    },
+    pollux: {
+        name: '北河三',
+        nameCN: '北河三',
+        nameEN: 'Pollux',
+        type: '橙巨星',
+        diameter: 12952110, // km，约 9.3 R☉
+        mass: 3799181, // 10²⁴ kg，约 1.91 M☉
+        category: 'star',
+        distance: 319800000000000, // km，约 33.8 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0xffb45c,
+        emissive: 0xd66b25,
+        description: '北河三是双子座最亮的恒星，是一颗橙色巨星，已经膨胀到比太阳大很多，周围还确认有一颗巨行星。',
+        relativeSize: 1016.48,
+        texturePath: STAR_SURFACE_TEXTURES.pollux
     },
     arcturus: {
         name: '大角星',
@@ -1689,6 +1725,8 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     alphaCentauri: STAR_SURFACE_TEXTURES.alphaCentauri,
     betaCentauri: STAR_SURFACE_TEXTURES.betaCentauri,
     sirius: STAR_SURFACE_TEXTURES.sirius,
+    elnath: STAR_SURFACE_TEXTURES.elnath,
+    pollux: STAR_SURFACE_TEXTURES.pollux,
     arcturus: STAR_SURFACE_TEXTURES.arcturus,
     antares: STAR_SURFACE_TEXTURES.antares,
     pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
@@ -5582,6 +5620,20 @@ const CAPACITY_TARGETS = {
         color: '#bfdcff',
         objectKeys: getCapacityObjectKeys('betaCentauri')
     },
+    pollux: {
+        key: 'pollux',
+        nameCN: '北河三',
+        texture: STAR_SURFACE_TEXTURES.pollux,
+        color: '#ffb45c',
+        objectKeys: getCapacityObjectKeys('pollux')
+    },
+    elnath: {
+        key: 'elnath',
+        nameCN: '五车五',
+        texture: STAR_SURFACE_TEXTURES.elnath,
+        color: '#9fc8ff',
+        objectKeys: getCapacityObjectKeys('elnath')
+    },
     sirius: {
         key: 'sirius',
         nameCN: '天狼星',
@@ -6014,6 +6066,8 @@ function renderCapacityTargetPicker(container) {
         { key: 'pistolStar', icon: '⭐', name: '手枪星' },
         { key: 'arcturus', icon: '⭐', name: '大角星' },
         { key: 'betaCentauri', icon: '⭐', name: '半人马座β星' },
+        { key: 'pollux', icon: '⭐', name: '北河三' },
+        { key: 'elnath', icon: '⭐', name: '五车五' },
         { key: 'sirius', icon: '⭐', name: '天狼星' },
         { key: 'alphaCentauri', icon: '⭐', name: '半人马座α星' },
         { key: 'proximaCentauri', icon: '⭐', name: '比邻星' }
