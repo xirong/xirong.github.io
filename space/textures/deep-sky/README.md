@@ -38,3 +38,11 @@ Real image textures used by `space/galaxy.html` for child-friendly Milky Way and
   source: https://commons.wikimedia.org/wiki/File:Stephan%E2%80%99s_Quintet_(NIRCam_%2B_MIRI_Imaging)_(weic2208a).jpeg
 - `m63_sunflower.jpg`: Sunflower Galaxy M63, Hubble, NASA/ESA
   source: https://commons.wikimedia.org/wiki/File:A_galactic_sunflower.jpg
+- `triangulum_m33.jpg`: Triangulum Galaxy M33, VST, ESO (CC BY 4.0)
+  source: https://www.eso.org/public/images/eso1424a/
+- `centaurus_a.jpg`: Centaurus A, WFI/MPG/ESO 2.2-m, ESO (CC BY 4.0)
+  source: https://www.eso.org/public/images/eso0903a/
+- `lmc.jpg`: Large Magellanic Cloud, VISTA, ESO/VMC Survey (CC BY 4.0)
+  source: https://www.eso.org/public/images/eso1914a/
+- `smc.jpg`: Small Magellanic Cloud, VISTA, ESO/VISTA VMC (CC BY 4.0)
+  source: https://www.eso.org/public/images/eso1714a/

@@ -56,8 +56,21 @@ const STRUCTURE_REFERENCE_TEXTURES = {
 // 太阳系在银河系中的位置（距银心约26000光年，这里用单位表示）
 const SOLAR_SYSTEM_POS = new THREE.Vector3(5000, 0, 2000);
 
+// 视觉距离压缩：保持远近顺序不变，但把近的拉开、远的压近。
+// 真实比例下几百光年内的天体会全部叠在太阳附近，旋转时相互遮挡；
+// 用幂函数映射（8 * ly^0.6）让各天体在视觉上拉开距离，方便孩子分辨。
+function compressGalacticDistance(distanceLY) {
+    return 8 * Math.pow(distanceLY, 0.6);
+}
+
+// 邻域视图的距离压缩：4~40光年的恒星按对数拉伸摆放，
+// 最近的比邻星不贴着太阳，最远的也不会跑出邻域视野（约 47~225 单位）。
+function compressNeighborhoodDistance(distanceLY) {
+    return NEIGHBORHOOD_SCALE * (4 + 8 * Math.log(Math.max(distanceLY, 4) / 4));
+}
+
 function makeGalacticLandmarkPosition(distanceLY, offset) {
-    const sceneDistance = distanceLY / 5;
+    const sceneDistance = compressGalacticDistance(distanceLY);
     return SOLAR_SYSTEM_POS.clone().add(
         new THREE.Vector3(
             offset.x * sceneDistance,
@@ -314,13 +327,14 @@ const starSystemData = {
 };
 
 // ============ 太阳系邻域视图恒星配置（局部放大尺度）============
-// 在这个视图中：1单位 = 1光年 * NEIGHBORHOOD_SCALE
-// 太阳位于原点(0,0,0)，其他恒星根据真实距离放置
+// distanceLY 是真实光年距离（用于标签展示）；
+// 实际摆放半径经 compressNeighborhoodDistance() 对数压缩——近的拉开、远的收拢，
+// 方位角按黄金角错开，保证转动时恒星互不遮挡。
 const neighborhoodStarConfigs = {
     alphaCentauri: {
         distanceLY: 4.37, // 光年
-        angle: Math.PI * 0.3, // 方位角
-        elevation: 0.1, // 仰角
+        angle: 0.50, // 方位角
+        elevation: 0.10, // 仰角
         color: '#ffcc00',
         starType: 'triple',
         hasPlanets: true,
@@ -362,8 +376,8 @@ const neighborhoodStarConfigs = {
     },
     barnardStar: {
         distanceLY: 6,
-        angle: Math.PI * 1.2,
-        elevation: 0.2,
+        angle: 2.90,
+        elevation: 0.28,
         color: '#ff6633',
         textureProfile: 'redDwarf',
         starType: 'single',
@@ -371,8 +385,8 @@ const neighborhoodStarConfigs = {
     },
     sirius: {
         distanceLY: 8.6,
-        angle: Math.PI * 0.8,
-        elevation: -0.15,
+        angle: 5.30,
+        elevation: -0.22,
         color: '#aaccff',
         textureProfile: 'blueWhite',
         starType: 'binary',
@@ -380,8 +394,8 @@ const neighborhoodStarConfigs = {
     },
     epsilonEridani: {
         distanceLY: 10.5,
-        angle: Math.PI * 1.6,
-        elevation: 0.05,
+        angle: 3.82,
+        elevation: -0.30,
         color: '#ffcc00',
         textureProfile: 'orange',
         starType: 'single',
@@ -389,8 +403,8 @@ const neighborhoodStarConfigs = {
     },
     ross154: {
         distanceLY: 9.7,
-        angle: Math.PI * 0.5,
-        elevation: -0.3,
+        angle: 1.42,
+        elevation: 0.35,
         color: '#ff6633',
         textureProfile: 'redDwarf',
         starType: 'single',
@@ -398,8 +412,8 @@ const neighborhoodStarConfigs = {
     },
     lacaille9352: {
         distanceLY: 10.7,
-        angle: Math.PI * 1.9,
-        elevation: 0.25,
+        angle: 6.22,
+        elevation: 0.18,
         color: '#ff8844',
         textureProfile: 'redDwarf',
         starType: 'single',
@@ -407,8 +421,8 @@ const neighborhoodStarConfigs = {
     },
     vega: {
         distanceLY: 25,
-        angle: Math.PI * 0.1,
-        elevation: 0.4,
+        angle: 0.85,
+        elevation: 0.42,
         color: '#aaccff',
         textureProfile: 'blueWhite',
         starType: 'single',
@@ -416,8 +430,8 @@ const neighborhoodStarConfigs = {
     },
     trappist1: {
         distanceLY: 39,
-        angle: Math.PI * 1.4,
-        elevation: -0.1,
+        angle: 1.77,
+        elevation: -0.15,
         color: '#ff6633',
         textureProfile: 'redDwarf',
         starType: 'single',
@@ -425,8 +439,8 @@ const neighborhoodStarConfigs = {
     },
     tauCeti: {
         distanceLY: 11.9,
-        angle: Math.PI * 0.6,
-        elevation: 0.15,
+        angle: 4.73,
+        elevation: 0.30,
         color: '#ffdd66',
         textureProfile: 'yellow',
         starType: 'single',
@@ -434,8 +448,8 @@ const neighborhoodStarConfigs = {
     },
     procyon: {
         distanceLY: 11.5,
-        angle: Math.PI * 1.1,
-        elevation: -0.2,
+        angle: 2.33,
+        elevation: -0.12,
         color: '#ffffcc',
         textureProfile: 'white',
         starType: 'binary',
@@ -443,8 +457,8 @@ const neighborhoodStarConfigs = {
     },
     pollux: {
         distanceLY: 33.8,
-        angle: Math.PI * 1.85,
-        elevation: -0.28,
+        angle: 3.25,
+        elevation: -0.25,
         color: '#ffb45c',
         textureProfile: 'orange',
         starType: 'single',
@@ -452,8 +466,8 @@ const neighborhoodStarConfigs = {
     },
     arcturus: {
         distanceLY: 36.7,
-        angle: Math.PI * 1.7,
-        elevation: 0.35,
+        angle: 5.65,
+        elevation: 0.33,
         color: '#ff8833',
         textureProfile: 'orange',
         starType: 'single',
@@ -969,24 +983,33 @@ const galaxyRenderConfigs = {
         tone: 'nebula',
         zone: 'MILKY_WAY'
     },
+    // ===== 河外星系：全部使用真实望远镜照片渲染 =====
+    // 位置为艺术化布局：保持"近的近、远的远"的相对关系，
+    // 但方位角/俯仰角均匀错开，避免多个星系挤在同一象限互相遮挡。
     lmc: {
-        position: new THREE.Vector3(25000, 3000, -20000),
+        position: new THREE.Vector3(22000, -6000, -24000),
         radius: 3500,
-        particleCount: 2000,
-        type: 'irregular',
+        type: 'photo',
+        texture: 'textures/deep-sky/lmc.jpg',
+        width: 7000,
+        height: 7820,
         color: { r: 0.6, g: 0.8, b: 1.0 },
+        tone: 'irregular',
         zone: 'A'
     },
     smc: {
-        position: new THREE.Vector3(30000, -2000, -25000),
+        position: new THREE.Vector3(32000, -9000, -30000),
         radius: 2000,
-        particleCount: 1500,
-        type: 'irregular',
+        type: 'photo',
+        texture: 'textures/deep-sky/smc.jpg',
+        width: 4500,
+        height: 3980,
         color: { r: 0.7, g: 0.85, b: 1.0 },
+        tone: 'irregular',
         zone: 'A'
     },
     andromeda: {
-        position: new THREE.Vector3(-120000, 10000, 80000),
+        position: new THREE.Vector3(-120000, 18000, 80000),
         radius: 22000,
         type: 'photo',
         texture: 'textures/deep-sky/andromeda_m31.jpg',
@@ -997,20 +1020,18 @@ const galaxyRenderConfigs = {
         zone: 'A'
     },
     triangulum: {
-        position: new THREE.Vector3(-100000, -5000, 120000),
-        radius: 12000,
-        particleCount: 8000,
-        type: 'spiral',
-        arms: 3,
-        tightness: 0.42,
-        armWidth: 0.6,
-        hasBar: false,
+        position: new THREE.Vector3(-75000, -12000, 135000),
+        radius: 10000,
+        type: 'photo',
+        texture: 'textures/deep-sky/triangulum_m33.jpg',
+        width: 17000,
+        height: 14260,
         color: { r: 0.8, g: 0.9, b: 1.0 },
-        tilt: { x: -0.2, z: 0.4 },
+        tone: 'spiral',
         zone: 'A'
     },
     sombrero: {
-        position: new THREE.Vector3(200000, 30000, -150000),
+        position: new THREE.Vector3(215000, 28000, -160000),
         radius: 10000,
         type: 'photo',
         texture: 'textures/deep-sky/sombrero_m104.jpg',
@@ -1021,7 +1042,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     whirlpool: {
-        position: new THREE.Vector3(-180000, -20000, -200000),
+        position: new THREE.Vector3(-185000, 45000, -205000),
         radius: 12000,
         type: 'photo',
         texture: 'textures/deep-sky/whirlpool_m51.jpg',
@@ -1032,17 +1053,18 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     centaurusA: {
-        position: new THREE.Vector3(150000, -40000, 100000),
-        radius: 12000,
-        particleCount: 3000,
-        type: 'elliptical',
-        flatten: 0.78,
+        position: new THREE.Vector3(135000, -52000, 215000),
+        radius: 11000,
+        type: 'photo',
+        texture: 'textures/deep-sky/centaurus_a.jpg',
+        width: 14000,
+        height: 14740,
         color: { r: 1.0, g: 0.8, b: 0.5 },
-        dustLane: { tilt: 0.5 }, // 半人马座 A 的著名横贯尘埃带
+        tone: 'elliptical',
         zone: 'B'
     },
     antennae: {
-        position: new THREE.Vector3(-250000, 50000, 180000),
+        position: new THREE.Vector3(-265000, 60000, 120000),
         radius: 15000,
         type: 'photo',
         texture: 'textures/deep-sky/antennae.jpg',
@@ -1053,7 +1075,8 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     m87: {
-        position: new THREE.Vector3(230000, 70000, 150000),
+        // 放在室女座星系团（120000, 280000, 90000）方向上——它就是室女座的中心星系
+        position: new THREE.Vector3(110000, 240000, 85000),
         radius: 13000,
         type: 'photo',
         texture: 'textures/deep-sky/m87_black_hole.jpg',
@@ -1064,7 +1087,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     pinwheel: {
-        position: new THREE.Vector3(210000, -45000, 210000),
+        position: new THREE.Vector3(240000, -60000, 175000),
         radius: 15000,
         type: 'photo',
         texture: 'textures/deep-sky/m101_pinwheel.jpg',
@@ -1075,7 +1098,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     blackEye: {
-        position: new THREE.Vector3(-220000, 70000, 130000),
+        position: new THREE.Vector3(-255000, 95000, -45000),
         radius: 10000,
         type: 'photo',
         texture: 'textures/deep-sky/m64_black_eye.jpg',
@@ -1086,7 +1109,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     cartwheel: {
-        position: new THREE.Vector3(270000, -65000, -210000),
+        position: new THREE.Vector3(160000, -85000, -265000),
         radius: 16000,
         type: 'photo',
         texture: 'textures/deep-sky/cartwheel.jpg',
@@ -1097,7 +1120,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     hoagObject: {
-        position: new THREE.Vector3(-310000, -45000, 240000),
+        position: new THREE.Vector3(-150000, -95000, 270000),
         radius: 15000,
         type: 'photo',
         texture: 'textures/deep-sky/hoag_object.jpg',
@@ -1108,7 +1131,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     stephansQuintet: {
-        position: new THREE.Vector3(-300000, 85000, -230000),
+        position: new THREE.Vector3(-310000, 110000, -160000),
         radius: 19000,
         type: 'photo',
         texture: 'textures/deep-sky/stephans_quintet.jpg',
@@ -1119,7 +1142,7 @@ const galaxyRenderConfigs = {
         zone: 'B'
     },
     sunflower: {
-        position: new THREE.Vector3(185000, 110000, 155000),
+        position: new THREE.Vector3(45000, 135000, -290000),
         radius: 14000,
         type: 'photo',
         texture: 'textures/deep-sky/m63_sunflower.jpg',
@@ -2855,7 +2878,10 @@ function createDistantStars() {
         color: 0xffffff,
         size: 2,
         transparent: true,
-        opacity: 0.6
+        opacity: 0.6,
+        map: createGlowTexture(32, { r: 1, g: 1, b: 1 }), // 圆形光点，否则会渲染成小方块
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
     });
 
     starField = new THREE.Points(starsGeometry, starsMaterial);
@@ -2884,7 +2910,10 @@ function createCosmicStarField() {
         color: 0xffffff,
         size: 3,
         transparent: true,
-        opacity: 0.4
+        opacity: 0.4,
+        map: createGlowTexture(32, { r: 1, g: 1, b: 1 }), // 圆形光点，否则会渲染成小方块
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
     });
 
     cosmicStarField = new THREE.Points(starsGeometry, starsMaterial);
@@ -3144,7 +3173,7 @@ function createMilkyWay() {
     starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
 
     const starMat = new THREE.ShaderMaterial({
-        uniforms: { time: { value: 0 } },
+        uniforms: { time: { value: 0 }, uGlobalOpacity: { value: 1.0 } },
         vertexShader: `
             attribute float size;
             attribute vec3 color;
@@ -3157,19 +3186,24 @@ function createMilkyWay() {
             }
         `,
         fragmentShader: `
+            uniform float uGlobalOpacity;
             varying vec3 vColor;
             void main() {
                 vec2 c = gl_PointCoord - vec2(0.5);
                 float d = length(c);
                 float alpha = 1.0 - smoothstep(0.0, 0.5, d);
-                gl_FragColor = vec4(vColor, alpha * 0.6);
+                gl_FragColor = vec4(vColor, alpha * 0.6 * uGlobalOpacity);
             }
         `,
         transparent: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
-    milkyWay.add(new THREE.Points(starGeo, starMat));
+    const overlayPoints = new THREE.Points(starGeo, starMat);
+    overlayPoints.name = 'milkyWayStarOverlay';
+    milkyWay.add(overlayPoints);
+    milkyWay.diskMesh = diskMesh;
+    milkyWay.starOverlay = overlayPoints;
 
     scene.add(milkyWay);
 }
@@ -3180,7 +3214,8 @@ function createMilkyWayGlow() {
         map: createGlowTexture(256, { r: 0.9, g: 0.85, b: 0.7 }),
         transparent: true,
         blending: THREE.AdditiveBlending,
-        opacity: 0.8
+        opacity: 0.8,
+        depthWrite: false // 不写深度，否则方形精灵会把背后的星系团粒子遮成黑方块
     });
 
     milkyWayGlow = new THREE.Sprite(spriteMaterial);
@@ -3211,6 +3246,95 @@ function createGlowTexture(size, color) {
 
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
+}
+
+// ============ 创建恒星星芒纹理（哈勃照片风格：白亮核+有色辉光+衍射星芒）============
+// 替代旧的 BackSide Fresnel 球壳光晕（看起来像洋葱圈），
+// 让恒星呈现和天文照片/纪录片一致的"亮核+柔光+十字星芒"效果。
+const starFlareTextureCache = new Map();
+
+function createStarFlareTexture(colorHex) {
+    if (starFlareTextureCache.has(colorHex)) return starFlareTextureCache.get(colorHex);
+
+    const size = 256;
+    const half = size / 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    const c = new THREE.Color(colorHex);
+    const r = Math.round(c.r * 255);
+    const g = Math.round(c.g * 255);
+    const b = Math.round(c.b * 255);
+
+    // 1. 外层有色柔光（大而淡）
+    const outer = ctx.createRadialGradient(half, half, 0, half, half, half);
+    outer.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.55)`);
+    outer.addColorStop(0.25, `rgba(${r}, ${g}, ${b}, 0.22)`);
+    outer.addColorStop(0.55, `rgba(${r}, ${g}, ${b}, 0.06)`);
+    outer.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = outer;
+    ctx.fillRect(0, 0, size, size);
+
+    // 2. 衍射星芒（主十字长芒 + 斜向短芒），两端尖中间宽的菱形渐变
+    const drawSpike = (angle, length, width, alpha) => {
+        ctx.save();
+        ctx.translate(half, half);
+        ctx.rotate(angle);
+        const grad = ctx.createLinearGradient(0, -length, 0, length);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        grad.addColorStop(0.5, `rgba(255, 255, 255, ${alpha})`);
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, -length);
+        ctx.quadraticCurveTo(width, 0, 0, length);
+        ctx.quadraticCurveTo(-width, 0, 0, -length);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    };
+    drawSpike(0, half * 0.96, half * 0.045, 0.85);             // 竖向主芒
+    drawSpike(Math.PI / 2, half * 0.96, half * 0.045, 0.85);   // 横向主芒
+    drawSpike(Math.PI / 4, half * 0.4, half * 0.03, 0.35);     // 斜向短芒
+    drawSpike(-Math.PI / 4, half * 0.4, half * 0.03, 0.35);
+
+    // 3. 中间色过渡（颜色更浓的小辉光，衔接白核与外层柔光）
+    const mid = ctx.createRadialGradient(half, half, 0, half, half, half * 0.22);
+    mid.addColorStop(0, `rgba(${Math.min(255, r + 110)}, ${Math.min(255, g + 110)}, ${Math.min(255, b + 110)}, 0.9)`);
+    mid.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.5)`);
+    mid.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = mid;
+    ctx.fillRect(0, 0, size, size);
+
+    // 4. 白色亮核（真实照片里恒星中心总是过曝成白色）
+    const core = ctx.createRadialGradient(half, half, 0, half, half, half * 0.09);
+    core.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    core.addColorStop(0.6, 'rgba(255, 255, 255, 0.85)');
+    core.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = core;
+    ctx.fillRect(0, 0, size, size);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    starFlareTextureCache.set(colorHex, texture);
+    return texture;
+}
+
+function makeStarFlareSprite(colorHex, scale, opacity = 0.95) {
+    const material = new THREE.SpriteMaterial({
+        map: createStarFlareTexture(colorHex),
+        transparent: true,
+        opacity,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+    material.userData.baseOpacity = opacity;
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(scale, scale, 1);
+    sprite.name = 'starFlare';
+    sprite.userData.baseScale = scale;
+    return sprite;
 }
 
 // ============ 创建银心黑洞材质 ============
@@ -3420,31 +3544,9 @@ function createSolarSystemMarker() {
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     solarSystem.add(sun);
 
-    // 太阳光晕
-    const sunGlowGeometry = new THREE.SphereGeometry(25, 32, 32);
-    const sunGlowMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                vec3 color = vec3(1.0, 0.8, 0.2) * intensity;
-                gl_FragColor = vec4(color, intensity);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide
-    });
-    const sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
-    solarSystem.add(sunGlow);
+    // 太阳星芒光效（照片风格），替代旧的球壳光晕
+    const sunFlare = makeStarFlareSprite('#ffd75e', 110, 0.95);
+    solarSystem.add(sunFlare);
 
     // "你在这里"标记环
     const ringGeometry = new THREE.RingGeometry(40, 50, 64);
@@ -3556,6 +3658,8 @@ function createOortCloud() {
         vertexColors: true,
         transparent: true,
         opacity: 0.4,
+        map: createGlowTexture(32, { r: 1, g: 1, b: 1 }), // 圆形光点，否则会渲染成小方块
+        depthWrite: false,
         blending: THREE.AdditiveBlending
     });
 
@@ -3592,12 +3696,12 @@ function createLocalGroupBoundary() {
     shell.scale.set(1.0, 0.75, 1.1);
     group.add(shell);
 
-    // 网格线（明显轮廓）
-    const wireGeom = new THREE.SphereGeometry(180000, 28, 18);
+    // 网格线（淡淡的轮廓提示，太亮会像铁丝网罩住星空）
+    const wireGeom = new THREE.SphereGeometry(180000, 24, 14);
     const wireMat = new THREE.MeshBasicMaterial({
         color: 0xa78bfa,
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.03,
         wireframe: true,
         depthWrite: false
     });
@@ -3606,7 +3710,7 @@ function createLocalGroupBoundary() {
     group.add(wire);
 
     // 边缘高亮粒子（让球壳更"具体"）
-    const beadCount = 1800;
+    const beadCount = 700;
     const beadPositions = new Float32Array(beadCount * 3);
     const beadColors = new Float32Array(beadCount * 3);
     const beadSizes = new Float32Array(beadCount);
@@ -3621,9 +3725,9 @@ function createLocalGroupBoundary() {
         beadColors[i * 3] = cool < 0.72 ? 0.72 : 1.0;
         beadColors[i * 3 + 1] = cool < 0.72 ? 0.55 : 0.82;
         beadColors[i * 3 + 2] = cool < 0.72 ? 1.0 : 0.62;
-        beadSizes[i] = 4 + Math.random() * 7;
+        beadSizes[i] = 3 + Math.random() * 4;
     }
-    const beads = buildGalaxyParticles(beadPositions, beadColors, beadSizes, { opacity: 0.82 });
+    const beads = buildGalaxyParticles(beadPositions, beadColors, beadSizes, { opacity: 0.5 });
     group.add(beads);
 
     // 内部稀疏成员星系，让远景看起来不只是空球壳
@@ -3663,16 +3767,17 @@ function createVirgoCluster() {
     const center = new THREE.Vector3(120000, 280000, 90000);
     group.position.copy(center);
 
+    // 参考照片承担主要视觉，粒子只做点缀（粒子太多看起来像雪花噪点）
     const reference = makeDeepSkyReferenceSprite(
         STRUCTURE_REFERENCE_TEXTURES.virgo,
         168000,
         88400,
-        0.26,
+        0.55,
         { position: new THREE.Vector3(21000, 5000, -36000) }
     );
     if (reference) group.add(reference);
 
-    const memberCount = 1900;
+    const memberCount = 850;
     const positions = new Float32Array(memberCount * 3);
     const colors = new Float32Array(memberCount * 3);
     const sizes = new Float32Array(memberCount);
@@ -3704,13 +3809,13 @@ function createVirgoCluster() {
             colors[i * 3 + 1] = 0.58;
             colors[i * 3 + 2] = 1.0;
         }
-        sizes[i] = inCore ? 18 + Math.random() * 20 : 10 + Math.random() * 15;
+        sizes[i] = inCore ? 16 + Math.random() * 18 : 10 + Math.random() * 12;
     }
 
-    const particles = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.88 });
+    const particles = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.95 });
     group.add(particles);
 
-    const mistCount = 1800;
+    const mistCount = 500;
     const mistPositions = new Float32Array(mistCount * 3);
     const mistColors = new Float32Array(mistCount * 3);
     const mistSizes = new Float32Array(mistCount);
@@ -3725,9 +3830,9 @@ function createVirgoCluster() {
         mistColors[i * 3] = cool ? 0.88 : 1.0;
         mistColors[i * 3 + 1] = cool ? 0.94 : 0.82 + Math.random() * 0.12;
         mistColors[i * 3 + 2] = cool ? 1.0 : 0.72 + Math.random() * 0.18;
-        mistSizes[i] = 24 + Math.random() * 34;
+        mistSizes[i] = 16 + Math.random() * 18;
     }
-    group.add(buildGalaxyParticles(mistPositions, mistColors, mistSizes, { opacity: 0.24 }));
+    group.add(buildGalaxyParticles(mistPositions, mistColors, mistSizes, { opacity: 0.14 }));
 
     // 外围亮斑，模拟截图里粉紫、橙黄的大型成员星系
     const brightMembers = [
@@ -3746,10 +3851,10 @@ function createVirgoCluster() {
     });
 
     // 中央 M87（巨型椭圆，超大质量黑洞所在）
-    const clusterMist = makeStructureGlowSphere(68000, 0xdde7ff, 0.035, { x: 1.25, y: 0.72, z: 1.0 });
+    const clusterMist = makeStructureGlowSphere(68000, 0xdde7ff, 0.018, { x: 1.25, y: 0.72, z: 1.0 });
     group.add(clusterMist);
 
-    const m87 = makeAccentSprite('universeGlow', 28000, 0.74);
+    const m87 = makeAccentSprite('universeGlow', 20000, 0.5);
     group.add(m87);
 
     // 大尺度发光（远视角看像一个星系团）
@@ -3757,7 +3862,7 @@ function createVirgoCluster() {
         map: createGlowTexture(256, { r: 1.0, g: 0.85, b: 0.6 }),
         transparent: true,
         blending: THREE.AdditiveBlending,
-        opacity: 0.36,
+        opacity: 0.26,
         depthWrite: false
     });
     const halo = new THREE.Sprite(haloMat);
@@ -3823,23 +3928,24 @@ function createLaniakeaSupercluster() {
     basinCore.position.set(-260000, -80000, -210000);
     group.add(basinCore);
 
+    // 参考照片承担主要视觉，纤维丝粒子只做点缀
     const reference = makeDeepSkyReferenceSprite(
         STRUCTURE_REFERENCE_TEXTURES.laniakea,
         620000,
         384000,
-        0.28,
+        0.4,
         { position: new THREE.Vector3(-90000, -24000, -180000) }
     );
     if (reference) group.add(reference);
 
     addLaniakeaGravityFlow(group);
 
-    // 画纤维丝（粒子流）
+    // 画纤维丝（粒子流）——每条连接 2 束，太多会糊成噪点
     for (const [aIdx, bIdx] of filaments) {
         const a = nodes[aIdx].pos;
         const b = nodes[bIdx].pos;
 
-        for (let strand = 0; strand < 4; strand++) {
+        for (let strand = 0; strand < 2; strand++) {
             // 曲线加不同 wobble，让每条连接像星系流束，而不是一根单线
             const mid = a.clone().add(b).multiplyScalar(0.5);
             let perp = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3(0, 1, 0));
@@ -3847,11 +3953,11 @@ function createLaniakeaSupercluster() {
             perp.normalize();
             const side = new THREE.Vector3().crossVectors(perp, new THREE.Vector3().subVectors(b, a).normalize()).normalize();
             mid.add(perp.multiplyScalar((Math.random() - 0.5) * 120000));
-            mid.add(side.multiplyScalar((strand - 1.5) * 24000 + (Math.random() - 0.5) * 24000));
+            mid.add(side.multiplyScalar((strand - 0.5) * 24000 + (Math.random() - 0.5) * 24000));
             mid.y += (Math.random() - 0.5) * 90000;
 
             const curve = new THREE.CatmullRomCurve3([a, mid, b]);
-            const samples = 390;
+            const samples = 240;
             const positions = new Float32Array(samples * 3);
             const colors = new Float32Array(samples * 3);
             const sizes = new Float32Array(samples);
@@ -3870,15 +3976,15 @@ function createLaniakeaSupercluster() {
                 colors[i * 3] = Math.min(1, (0.82 + warm) * lum);
                 colors[i * 3 + 1] = Math.min(1, (0.86 + warm * 0.6) * lum);
                 colors[i * 3 + 2] = 1.0 * lum;
-                sizes[i] = 14 + Math.random() * 16;
+                sizes[i] = 10 + Math.random() * 12;
             }
-            group.add(buildGalaxyParticles(positions, colors, sizes, { opacity: strand === 1 || strand === 2 ? 0.72 : 0.48 }));
-            group.add(makeCosmicFilamentLine(linePoints, strand === 1 || strand === 2 ? 0xffe3a1 : 0x9fc8ff, strand === 1 || strand === 2 ? 0.2 : 0.1));
+            group.add(buildGalaxyParticles(positions, colors, sizes, { opacity: strand === 1 ? 0.55 : 0.36 }));
+            group.add(makeCosmicFilamentLine(linePoints, strand === 1 ? 0xffe3a1 : 0x9fc8ff, strand === 1 ? 0.12 : 0.06));
         }
     }
 
-    // 远处背景星系，补出截图那种“密密麻麻铺满空间”的底层颗粒
-    const backgroundCount = 7600;
+    // 远处背景星系，稀疏点缀即可，密了会像电视雪花
+    const backgroundCount = 3000;
     const bgPositions = new Float32Array(backgroundCount * 3);
     const bgColors = new Float32Array(backgroundCount * 3);
     const bgSizes = new Float32Array(backgroundCount);
@@ -3893,15 +3999,15 @@ function createLaniakeaSupercluster() {
         bgColors[i * 3] = roll < 0.48 ? 1.0 : 0.76 + Math.random() * 0.2;
         bgColors[i * 3 + 1] = roll < 0.48 ? 0.82 + Math.random() * 0.14 : 0.84 + Math.random() * 0.14;
         bgColors[i * 3 + 2] = roll < 0.48 ? 0.62 + Math.random() * 0.24 : 1.0;
-        bgSizes[i] = 7 + Math.random() * 12;
+        bgSizes[i] = 5 + Math.random() * 8;
     }
-    group.add(buildGalaxyParticles(bgPositions, bgColors, bgSizes, { opacity: 0.32 }));
+    group.add(buildGalaxyParticles(bgPositions, bgColors, bgSizes, { opacity: 0.2 }));
 
     // 节点处的星系密集团 + 标签
     for (const node of nodes) {
         if (node.isLocal) continue; // 本群和室女座已单独绘制
 
-        const clumpCount = 210;
+        const clumpCount = 150;
         const positions = new Float32Array(clumpCount * 3);
         const colors = new Float32Array(clumpCount * 3);
         const sizes = new Float32Array(clumpCount);
@@ -3918,9 +4024,9 @@ function createLaniakeaSupercluster() {
             } else {
                 colors[i * 3] = 0.85; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0;
             }
-            sizes[i] = 14 + Math.random() * 18;
+            sizes[i] = 10 + Math.random() * 12;
         }
-        const cluster = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.82 });
+        const cluster = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.65 });
         group.add(cluster);
 
         // 节点中央光晕
@@ -3994,7 +4100,7 @@ function addLaniakeaGravityFlow(group) {
 
     flowPaths.forEach((points, pathIndex) => {
         const curve = new THREE.CatmullRomCurve3(points);
-        const samples = 620;
+        const samples = 380;
         const positions = new Float32Array(samples * 3);
         const colors = new Float32Array(samples * 3);
         const sizes = new Float32Array(samples);
@@ -4015,11 +4121,11 @@ function addLaniakeaGravityFlow(group) {
             colors[i * 3] = Math.min(1, 1.0 * glow);
             colors[i * 3 + 1] = Math.min(1, (0.72 + Math.random() * 0.18) * glow);
             colors[i * 3 + 2] = Math.min(1, (0.36 + Math.random() * 0.16) * glow);
-            sizes[i] = 18 + Math.random() * 22;
+            sizes[i] = 12 + Math.random() * 14;
         }
 
-        group.add(buildGalaxyParticles(positions, colors, sizes, { opacity: pathIndex === 2 ? 0.78 : 0.52 }));
-        group.add(makeCosmicFilamentLine(linePoints, 0xffd47a, pathIndex === 2 ? 0.28 : 0.16));
+        group.add(buildGalaxyParticles(positions, colors, sizes, { opacity: pathIndex === 2 ? 0.55 : 0.36 }));
+        group.add(makeCosmicFilamentLine(linePoints, 0xffd47a, pathIndex === 2 ? 0.16 : 0.08));
     });
 }
 
@@ -4029,8 +4135,8 @@ function createObservableUniverseShell() {
     const innerR = 780000;
     const outerR = 1000000;
 
-    // 外层高密度球壳，做成视频截图里那种近乎发白的巨大球体边界
-    const shellCount = 30000;
+    // 外层球壳：密度和粒径都要克制，否则整屏都是雪花噪点
+    const shellCount = 9000;
     const positions = new Float32Array(shellCount * 3);
     const colors = new Float32Array(shellCount * 3);
     const sizes = new Float32Array(shellCount);
@@ -4054,19 +4160,19 @@ function createObservableUniverseShell() {
             colors[i * 3 + 1] = 0.9 + Math.random() * 0.1;
             colors[i * 3 + 2] = 1.0;
         }
-        sizes[i] = 18 + Math.random() * 22;
+        sizes[i] = 10 + Math.random() * 10;
     }
 
-    const shellParticles = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.72 });
+    const shellParticles = buildGalaxyParticles(positions, colors, sizes, { opacity: 0.45 });
     group.add(shellParticles);
 
     // 内部较暗的星系海，让球体不是空壳，而是一个密集的可观测范围
-    const interiorCount = 13000;
+    const interiorCount = 4500;
     const interiorPositions = new Float32Array(interiorCount * 3);
     const interiorColors = new Float32Array(interiorCount * 3);
     const interiorSizes = new Float32Array(interiorCount);
     for (let i = 0; i < interiorCount; i++) {
-        const r = Math.pow(Math.random(), 0.42) * innerR;
+        const r = Math.pow(Math.random(), 0.75) * innerR; // 分布更均匀，避免中心结成"毛球"
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
         interiorPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
@@ -4076,9 +4182,9 @@ function createObservableUniverseShell() {
         interiorColors[i * 3] = warm ? 1.0 : 0.82 + Math.random() * 0.12;
         interiorColors[i * 3 + 1] = warm ? 0.78 + Math.random() * 0.12 : 0.86 + Math.random() * 0.12;
         interiorColors[i * 3 + 2] = warm ? 0.62 + Math.random() * 0.16 : 1.0;
-        interiorSizes[i] = 8 + Math.random() * 14;
+        interiorSizes[i] = 6 + Math.random() * 8;
     }
-    group.add(buildGalaxyParticles(interiorPositions, interiorColors, interiorSizes, { opacity: 0.24 }));
+    group.add(buildGalaxyParticles(interiorPositions, interiorColors, interiorSizes, { opacity: 0.12 }));
 
     // 微薄宇宙微波背景式的弱光球壳（半透 mesh）
     const fillGeom = new THREE.SphereGeometry(outerR * 0.99, 48, 32);
@@ -4094,11 +4200,12 @@ function createObservableUniverseShell() {
     const fill = new THREE.Mesh(fillGeom, fillMat);
     group.add(fill);
 
+    // 宇宙网参考照片承担主要视觉
     const reference = makeDeepSkyReferenceSprite(
         STRUCTURE_REFERENCE_TEXTURES.observableUniverse,
         outerR * 1.48,
         outerR * 1.48,
-        0.045,
+        0.12,
         { position: new THREE.Vector3(0, outerR * 0.03, -outerR * 0.08) }
     );
     if (reference) group.add(reference);
@@ -4107,19 +4214,7 @@ function createObservableUniverseShell() {
     rim.position.set(0, outerR * 0.18, 0);
     group.add(rim);
 
-    const outerWire = new THREE.Mesh(
-        new THREE.SphereGeometry(outerR, 64, 36),
-        new THREE.MeshBasicMaterial({
-            color: 0xdde6ff,
-            transparent: true,
-            opacity: 0.045,
-            wireframe: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending
-        })
-    );
-    outerWire.material.userData.baseOpacity = outerWire.material.opacity;
-    group.add(outerWire);
+    // （不再绘制球壳线框——从内部看会变成铺满全屏的网纹，破坏星空感）
 
     // 远处标签
     const label = makeStructureLabel('可观测宇宙', 'Observable Universe', 130000);
@@ -4138,8 +4233,8 @@ function makeStructureLabel(cn, en, scale) {
     canvas.height = 220;
     const ctx = canvas.getContext('2d');
 
-    // 背景
-    ctx.fillStyle = 'rgba(8, 6, 24, 0.6)';
+    // 背景（够浅，避免在星空里变成一块黑色色块）
+    ctx.fillStyle = 'rgba(8, 6, 24, 0.3)';
     const padX = 12, padY = 12, radius = 22;
     const w = canvas.width - padX * 2, h = canvas.height - padY * 2;
     ctx.beginPath();
@@ -4185,14 +4280,51 @@ function makeStructureLabel(cn, en, scale) {
 
 // ============ 真实照片名胜渲染 ============
 function getDeepSkyTexture(texturePath) {
-    if (!texturePath || !textureLoader) return null;
+    if (!texturePath) return null;
 
     if (!deepSkyTextureCache.has(texturePath)) {
-        const texture = textureLoader.load(texturePath);
+        // 图片加载后画进 canvas 并做椭圆羽化：边缘 alpha 渐隐到 0，
+        // 消除照片的矩形硬边，让星系/星云自然融进星空背景。
+        const texture = new THREE.Texture();
         texture.encoding = THREE.sRGBEncoding;
-        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.minFilter = THREE.LinearFilter; // canvas 多为非2幂尺寸，禁用 mipmap
         texture.magFilter = THREE.LinearFilter;
         texture.anisotropy = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
+
+        const img = new Image();
+        img.onload = () => {
+            const maxDim = 1600;
+            const ratio = Math.min(1, maxDim / Math.max(img.width, img.height));
+            const w = Math.max(2, Math.round(img.width * ratio));
+            const h = Math.max(2, Math.round(img.height * ratio));
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // 椭圆羽化遮罩（destination-in：只保留遮罩覆盖区域）
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.save();
+            ctx.translate(w / 2, h / 2);
+            ctx.scale(1, h / w);
+            const r = w / 2;
+            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.62, 'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.88, 'rgba(255, 255, 255, 0.45)');
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+            // 缩放坐标系下 y 轴被压缩了 h/w，(-r,-r,2r,2r) 正好覆盖整张画布
+            ctx.fillRect(-r, -r, r * 2, r * 2);
+            ctx.restore();
+            ctx.globalCompositeOperation = 'source-over';
+
+            texture.image = canvas;
+            texture.needsUpdate = true;
+        };
+        img.src = texturePath;
+
         deepSkyTextureCache.set(texturePath, texture);
     }
 
@@ -4227,7 +4359,8 @@ function createPhotoLandmark(key, config) {
     const radius = config.radius || Math.max(config.width || 1000, config.height || 1000) * 0.5;
     const texture = getDeepSkyTexture(config.texture);
 
-    const glow = makeAccentSprite('blueCluster', Math.max(config.width, config.height) * 1.25, 0.2);
+    // 背景微光（弱化到几乎不可见，只留一点环境氛围，避免出现假光环）
+    const glow = makeAccentSprite('blueCluster', Math.max(config.width, config.height) * 1.25, 0.08);
     group.add(glow);
 
     const material = new THREE.SpriteMaterial({
@@ -4486,7 +4619,7 @@ function createInlineCigar(cfg) {
 }
 
 // ============ 通用粒子着色器 ============
-// 距离衰减做了下限限制，避免远距离星系（仙女座等）粒子缩成 1 像素几乎不可见
+// 远处粒子要明显缩小：最小缩放下限太高会让十几万个粒子在远视角糊成满屏"雪花噪点"
 const GALAXY_PARTICLE_VERTEX = `
     attribute float size;
     attribute vec3 color;
@@ -4495,9 +4628,9 @@ const GALAXY_PARTICLE_VERTEX = `
     void main() {
         vColor = color;
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        float scale = max(1.2, 12000.0 / -mvPosition.z * 1.6);
+        float scale = max(0.35, 12000.0 / -mvPosition.z * 1.6);
         gl_PointSize = size * scale;
-        gl_PointSize = clamp(gl_PointSize, 2.0, 22.0);
+        gl_PointSize = clamp(gl_PointSize, 1.0, 14.0);
         gl_Position = projectionMatrix * mvPosition;
     }
 `;
@@ -5251,8 +5384,8 @@ function createInteractingGalaxies(key, config) {
 // ============ 创建银河系尺度恒星系统 ============
 function createGalacticStarSystems() {
     for (const [key, config] of Object.entries(galacticStarConfigs)) {
-        // 计算场景位置：太阳系位置 + 方向偏移 * (距离/5)
-        const sceneDistance = config.distanceLY / 5;
+        // 计算场景位置：太阳系位置 + 方向偏移 * 压缩后的视觉距离
+        const sceneDistance = compressGalacticDistance(config.distanceLY);
         const offset = config.offset;
         const position = SOLAR_SYSTEM_POS.clone().add(
             new THREE.Vector3(
@@ -5297,68 +5430,14 @@ function createGalacticStar(key, config, position) {
     const star = new THREE.Mesh(starGeometry, starMaterial);
     group.add(star);
 
-    // 内层辉光
-    const glowGeometry = new THREE.SphereGeometry(starSize * 1.8, 32, 32);
-    const glowMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            glowColor: { value: new THREE.Color(config.color) }
-        },
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform vec3 glowColor;
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                gl_FragColor = vec4(glowColor, intensity * 0.8);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide
-    });
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    group.add(glow);
-
-    // 超巨星/特超巨星：添加脉动辉光层
+    // 星芒光效（照片风格：亮核+柔光+衍射星芒），替代旧的球壳光晕
+    const flareScale = config.size === 'hypergiant' ? starSize * 6.5
+        : (config.size === 'supergiant' ? starSize * 6 : starSize * 7);
+    const flare = makeStarFlareSprite(config.color, flareScale, 0.95);
     if (config.size === 'supergiant' || config.size === 'hypergiant') {
-        const pulseGlowGeometry = new THREE.SphereGeometry(starSize * 3, 32, 32);
-        const pulseGlowMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                glowColor: { value: new THREE.Color(config.color) },
-                time: { value: 0 }
-            },
-            vertexShader: `
-                varying vec3 vNormal;
-                void main() {
-                    vNormal = normalize(normalMatrix * normal);
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 glowColor;
-                uniform float time;
-                varying vec3 vNormal;
-                void main() {
-                    float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
-                    float pulse = 0.5 + 0.5 * sin(time * 1.5);
-                    gl_FragColor = vec4(glowColor, intensity * 0.4 * pulse);
-                }
-            `,
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            side: THREE.BackSide,
-            depthWrite: false
-        });
-        const pulseGlow = new THREE.Mesh(pulseGlowGeometry, pulseGlowMaterial);
-        pulseGlow.name = 'supergiantGlow';
-        group.add(pulseGlow);
+        flare.name = 'supergiantFlare'; // 动画循环里会做缓慢的呼吸脉动
     }
+    group.add(flare);
 
     // 如果有行星，添加绿色脉冲环
     if (config.hasPlanets) {
@@ -5398,12 +5477,12 @@ function createGalacticStarLabel(parent, text, x, y, z, key, config) {
     canvas.width = 512;
     canvas.height = 128;
 
-    context.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
+    // 无底色，用阴影描边保证可读性（黑色底块在星空里太突兀）
     context.font = 'bold 28px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+    context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    context.shadowBlur = 8;
     context.fillStyle = config.color;
 
     const lines = text.split('\n');
@@ -5435,8 +5514,8 @@ function createGalacticStarLabel(parent, text, x, y, z, key, config) {
 function createNeighborhoodStarSystems() {
     for (const [key, config] of Object.entries(neighborhoodStarConfigs)) {
         // 计算恒星在邻域视图中的位置
-        // 使用球坐标：距离*比例尺，方位角，仰角
-        const radius = config.distanceLY * NEIGHBORHOOD_SCALE;
+        // 使用球坐标：压缩后的视觉距离，方位角，仰角
+        const radius = compressNeighborhoodDistance(config.distanceLY);
         const x = radius * Math.cos(config.elevation) * Math.cos(config.angle);
         const y = radius * Math.sin(config.elevation);
         const z = radius * Math.cos(config.elevation) * Math.sin(config.angle);
@@ -5466,63 +5545,15 @@ function createNeighborhoodSun() {
     sunGroup.position.copy(SOLAR_SYSTEM_POS);
     sunGroup.name = 'neighborhoodSun';
 
-    // 太阳核心（适中大小）
-    const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
+    // 太阳核心（球体偏小，发光主要靠星芒）
+    const sunGeometry = new THREE.SphereGeometry(3.5, 64, 64);
     const sunMaterial = createStarSurfaceMaterial('#ffdd00', 'sun');
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     sunGroup.add(sun);
 
-    // 太阳光晕（较小）
-    const glowGeometry = new THREE.SphereGeometry(10, 32, 32);
-    const glowMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                vec3 color = vec3(1.0, 0.9, 0.4) * intensity * 0.6;
-                gl_FragColor = vec4(color, intensity * 0.6);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide
-    });
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    sunGroup.add(glow);
-
-    // 外层光晕（较小）
-    const outerGlowGeometry = new THREE.SphereGeometry(15, 32, 32);
-    const outerGlowMaterial = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.4 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
-                vec3 color = vec3(1.0, 0.7, 0.2) * intensity * 0.5;
-                gl_FragColor = vec4(color, intensity * 0.2);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide
-    });
-    const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
-    sunGroup.add(outerGlow);
+    // 太阳星芒光效（照片风格），替代旧的双层球壳光晕
+    const sunFlare = makeStarFlareSprite('#ffd75e', 52, 0.95);
+    sunGroup.add(sunFlare);
 
     // "太阳" 标签
     const canvas = document.createElement('canvas');
@@ -5530,12 +5561,12 @@ function createNeighborhoodSun() {
     canvas.width = 256;
     canvas.height = 96;
 
-    context.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
+    // 无底色，用阴影描边保证可读性
     context.font = 'bold 24px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+    context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    context.shadowBlur = 6;
     context.fillStyle = '#ffdd00';
     context.fillText('☀️ 太阳', canvas.width / 2, 35);
     context.font = '16px Noto Sans SC';
@@ -5568,39 +5599,19 @@ function addNeighborhoodStarComponent(parent, component) {
     componentGroup.position.set(position.x || 0, position.y || 0, position.z || 0);
     componentGroup.starSystemKey = component.key || null;
 
-    const starGeometry = new THREE.SphereGeometry(radius, 32, 32);
+    // 球体偏小，发光主要靠星芒，避免远看像一颗"行星"
+    const starGeometry = new THREE.SphereGeometry(radius * 0.62, 32, 32);
     const starMaterial = createStarSurfaceMaterial(component.color || '#ffffff', component.textureProfile);
     const star = new THREE.Mesh(starGeometry, starMaterial);
     componentGroup.add(star);
 
-    const glowGeometry = new THREE.SphereGeometry(radius * (component.glowScale || 1.8), 32, 32);
-    const glowMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            glowColor: { value: starColor },
-            glowOpacity: { value: component.glowOpacity || 0.8 }
-        },
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform vec3 glowColor;
-            uniform float glowOpacity;
-            varying vec3 vNormal;
-            void main() {
-                float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                gl_FragColor = vec4(glowColor, intensity * glowOpacity);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide
-    });
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    componentGroup.add(glow);
+    // 星芒光效（照片风格），替代旧的球壳光晕
+    const flare = makeStarFlareSprite(
+        component.color || '#ffffff',
+        radius * (component.glowScale || 1.8) * 4.2,
+        Math.min(1, (component.glowOpacity || 0.8) + 0.25)
+    );
+    componentGroup.add(flare);
 
     if (component.label) {
         const labelOffsetY = component.labelOffsetY !== undefined ? component.labelOffsetY : radius * 2.4;
@@ -5665,12 +5676,12 @@ function createNeighborhoodComponentLabel(parent, text, x, y, z, color) {
     canvas.width = 192;
     canvas.height = 64;
 
-    context.fillStyle = 'rgba(0, 0, 0, 0.45)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
+    // 无底色，用阴影描边保证可读性
     context.font = 'bold 18px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+    context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    context.shadowBlur = 5;
     context.fillStyle = color;
     context.fillText(text, canvas.width / 2, canvas.height / 2);
 
@@ -5704,39 +5715,15 @@ function createNeighborhoodStar(key, config, position) {
             addNeighborhoodStarComponent(group, component);
         }
     } else {
-        // 主星
-        const starGeometry = new THREE.SphereGeometry(starSize, 32, 32);
+        // 主星（球体偏小，发光主要靠星芒，避免远看像一颗"行星"）
+        const starGeometry = new THREE.SphereGeometry(starSize * 0.62, 32, 32);
         const starMaterial = createStarSurfaceMaterial(config.color, config.textureProfile);
         const star = new THREE.Mesh(starGeometry, starMaterial);
         group.add(star);
 
-        // 光晕
-        const glowGeometry = new THREE.SphereGeometry(starSize * 1.8, 32, 32);
-        const glowMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                glowColor: { value: new THREE.Color(config.color) }
-            },
-            vertexShader: `
-                varying vec3 vNormal;
-                void main() {
-                    vNormal = normalize(normalMatrix * normal);
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 glowColor;
-                varying vec3 vNormal;
-                void main() {
-                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                    gl_FragColor = vec4(glowColor, intensity * 0.8);
-                }
-            `,
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            side: THREE.BackSide
-        });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-        group.add(glow);
+        // 星芒光效（照片风格），替代旧的球壳光晕
+        const flare = makeStarFlareSprite(config.color, starSize * 10, 0.95);
+        group.add(flare);
     }
 
     const systemRadius = config.systemRadius || starSize * 3;
@@ -5799,12 +5786,12 @@ function createNeighborhoodStarLabel(parent, text, x, y, z, key) {
     canvas.width = 256;
     canvas.height = 96;
 
-    context.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
+    // 无底色，用阴影描边保证可读性（黑色底块在星空里太突兀）
     context.font = 'bold 20px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+    context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    context.shadowBlur = 6;
     context.fillStyle = '#ffffff';
 
     const lines = text.split('\n');
@@ -5869,39 +5856,20 @@ function createGalaxyLabel(parent, info, x, y, z, key) {
     canvas.width = 512;
     canvas.height = 160;
 
-    // 半透明背景圆角条
-    context.fillStyle = 'rgba(0, 0, 0, 0.55)';
-    const padX = 8;
-    const padY = 8;
-    const radius = 16;
-    const w = canvas.width - padX * 2;
-    const h = canvas.height - padY * 2;
-    context.beginPath();
-    context.moveTo(padX + radius, padY);
-    context.lineTo(padX + w - radius, padY);
-    context.quadraticCurveTo(padX + w, padY, padX + w, padY + radius);
-    context.lineTo(padX + w, padY + h - radius);
-    context.quadraticCurveTo(padX + w, padY + h, padX + w - radius, padY + h);
-    context.lineTo(padX + radius, padY + h);
-    context.quadraticCurveTo(padX, padY + h, padX, padY + h - radius);
-    context.lineTo(padX, padY + radius);
-    context.quadraticCurveTo(padX, padY, padX + radius, padY);
-    context.closePath();
-    context.fill();
-
+    // 无底色，用深色阴影描边保证可读性（黑色底块在星空里太突兀）
     context.textAlign = 'center';
     context.textBaseline = 'middle';
 
     // 中文（大字号）
     context.font = '700 56px "Noto Sans SC", sans-serif';
     context.fillStyle = '#ffffff';
-    context.shadowColor = 'rgba(139, 92, 246, 0.8)';
-    context.shadowBlur = 12;
+    context.shadowColor = 'rgba(0, 0, 0, 0.95)';
+    context.shadowBlur = 10;
     context.fillText(cn, canvas.width / 2, en ? 60 : canvas.height / 2);
 
     // 英文（小字号、青色、斜体）
     if (en) {
-        context.shadowBlur = 0;
+        context.shadowBlur = 6;
         context.font = 'italic 500 26px "Orbitron", "Noto Sans SC", sans-serif';
         context.fillStyle = '#9bd6ff';
         context.fillText(en, canvas.width / 2, 115);
@@ -5942,12 +5910,12 @@ function createLabel(parent, text, x, y, z) {
     canvas.width = 256;
     canvas.height = 128;
 
-    context.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
+    // 无底色，用阴影描边保证可读性
     context.font = 'bold 24px Noto Sans SC';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+    context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    context.shadowBlur = 6;
     context.fillStyle = '#00ffff';
 
     const lines = text.split('\n');
@@ -6093,7 +6061,10 @@ function animate() {
         // 可见性控制
         const zoneDistance = camera.position.length();
         if (galaxy.config.zone === 'MILKY_WAY') {
-            galaxy.visible = zoneDistance > 450 && zoneDistance < 60000;
+            // 只在中近距离显示银河系内名胜照片；
+            // 拉远看全景时隐藏（避免"贴纸"漂浮感），进入太阳系邻域时也隐藏（专注看恒星邻居）
+            galaxy.visible = zoneDistance > 450 && zoneDistance < 10000
+                && distToSolarSystem > NEIGHBORHOOD_THRESHOLD * 1.2;
         } else if (galaxy.config.zone === 'LOCAL') {
             // 银河系卫星（如 Sgr dSph）始终可见，但仅近距离显粒子
             galaxy.visible = true;
@@ -6459,10 +6430,12 @@ function updateStarSystems(elapsed, distance, solarPosition) {
             planetRing.material.opacity = (0.4 + Math.sin(elapsed * 2) * 0.2) * opacity;
         }
 
-        // 红超巨星脉动
-        const supergiantGlow = starSystem.getObjectByName('supergiantGlow');
-        if (supergiantGlow && supergiantGlow.material.uniforms) {
-            supergiantGlow.material.uniforms.time.value = elapsed;
+        // 红超巨星星芒呼吸脉动
+        const supergiantFlare = starSystem.getObjectByName('supergiantFlare');
+        if (supergiantFlare && supergiantFlare.userData.baseScale) {
+            const pulse = 1 + Math.sin(elapsed * 1.2) * 0.08;
+            const base = supergiantFlare.userData.baseScale;
+            supergiantFlare.scale.set(base * pulse, base * pulse, 1);
         }
     }
 }
@@ -6498,6 +6471,37 @@ function updateNeighborhoodView(elapsed, distance, solarPosition) {
         transitionFactor = 1 - (distToSolarSystem - NEIGHBORHOOD_THRESHOLD) / (NEIGHBORHOOD_THRESHOLD * 0.5);
     }
 
+    // 进入邻域时淡出银盘纹理和粒子雾，否则恒星会被"蓝色雾气"淹没
+    if (milkyWay) {
+        const milkyFade = 1 - transitionFactor * 0.85;
+        if (milkyWay.diskMesh) {
+            milkyWay.diskMesh.material.opacity = 0.95 * milkyFade;
+        }
+        if (milkyWay.starOverlay && milkyWay.starOverlay.material.uniforms) {
+            milkyWay.starOverlay.material.uniforms.uGlobalOpacity.value = milkyFade;
+        }
+    }
+
+    // 日球层/奥尔特云是银河尺度的放大示意标记（按真实比例它们远小于一光年），
+    // 在邻域视图里会把整个恒星邻居圈罩住，所以进入邻域时淡出
+    if (heliopause) {
+        heliopause.visible = transitionFactor < 0.5;
+    }
+    if (oortCloud) {
+        oortCloud.visible = transitionFactor < 0.7;
+        oortCloud.material.opacity = 0.4 * (1 - transitionFactor);
+    }
+
+    // 邻域视图里银心方向的辉光收敛一些，避免画面角落一团过曝的白光
+    // （updateGalacticCenterAppearance 每帧都会重设基准透明度，这里再做衰减是安全的）
+    if (galacticCenter && transitionFactor > 0) {
+        galacticCenter.traverse(child => {
+            if (child.material && child.material.opacity !== undefined && child.name !== 'blackHoleCard') {
+                child.material.opacity *= (1 - transitionFactor * 0.55);
+            }
+        });
+    }
+
     // 更新邻域恒星系统
     for (const starSystem of neighborhoodStarSystems) {
         // 设置可见性
@@ -6508,7 +6512,8 @@ function updateNeighborhoodView(elapsed, distance, solarPosition) {
             starSystem.traverse(child => {
                 if (child.material && child.material.opacity !== undefined) {
                     if (child.name !== 'planetRing' && child.name !== 'clickTarget') {
-                        child.material.opacity = transitionFactor * 0.8;
+                        const base = child.material.userData?.baseOpacity ?? 0.8;
+                        child.material.opacity = transitionFactor * base;
                     }
                 }
             });
@@ -6519,12 +6524,12 @@ function updateNeighborhoodView(elapsed, distance, solarPosition) {
                 starSystem.distanceLine.material.opacity = transitionFactor * 0.25;
             }
 
-            // 行星脉冲环动画
+            // 行星脉冲环动画（亮度收敛一些，做提示即可，不要喧宾夺主）
             const planetRing = starSystem.getObjectByName('planetRing');
             if (planetRing) {
                 const scale = 1 + Math.sin(elapsed * 2) * 0.15;
                 planetRing.scale.set(scale, scale, 1);
-                planetRing.material.opacity = (0.4 + Math.sin(elapsed * 2) * 0.2) * transitionFactor;
+                planetRing.material.opacity = (0.22 + Math.sin(elapsed * 2) * 0.1) * transitionFactor;
             }
         } else {
             // 隐藏距离线
