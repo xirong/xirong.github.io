@@ -6616,7 +6616,7 @@ function onCanvasClick(event) {
 
             const hit = getStarSystemHit(starSystem);
             if (hit) {
-                focusControlsOnObject(hit.focusObject, { immediate: true });
+                // 点击只弹介绍+语音，不移动镜头（跳转到屏幕中央太突兀）；想飞过去用底部 dock
                 showStarSystemPopup(hit.key, event.clientX, event.clientY);
                 return;
             }
@@ -6629,7 +6629,6 @@ function onCanvasClick(event) {
 
         const hit = getStarSystemHit(starSystem);
         if (hit) {
-            focusControlsOnObject(hit.focusObject, { immediate: true });
             showStarSystemPopup(hit.key, event.clientX, event.clientY);
             return;
         }
@@ -6641,7 +6640,6 @@ function onCanvasClick(event) {
 
         const intersects = raycaster.intersectObject(galaxy.clickTarget);
         if (intersects.length > 0) {
-            focusControlsOnObject(galaxy, { immediate: true });
             showGalaxyPopup(galaxy.key, event.clientX, event.clientY);
             return;
         }
