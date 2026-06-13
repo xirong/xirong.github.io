@@ -50,6 +50,17 @@ const BLACK_HOLE_BODY_CONFIGS = {
         color: 0xff9f55,
         pickerName: 'TON 618',
         description: 'TON 618 是非常夸张的超大质量黑洞，质量超过太阳的600亿倍，适合作为黑洞尺度对比里的终极大个子。'
+    },
+    phoenixABlackHole: {
+        nameCN: '凤凰座A星中心黑洞',
+        shortName: 'Phoenix A*',
+        nameEN: 'Phoenix A*',
+        type: '超大质量黑洞',
+        massSolar: 100000000000,
+        massPrefix: '模型估算约',
+        color: 0xff7a3d,
+        pickerName: '凤凰座A*',
+        description: '凤凰座A星中心黑洞 Phoenix A* 位于凤凰星系团中央，模型估算质量约为太阳的1000亿倍，可能比 TON 618 还要巨大。'
     }
 };
 const BLACK_HOLE_BODY_KEYS = Object.keys(BLACK_HOLE_BODY_CONFIGS);
@@ -327,6 +338,7 @@ const planetData = {
     m31BlackHole: createBlackHolePlanetData('m31BlackHole'),
     s50014BlackHole: createBlackHolePlanetData('s50014BlackHole'),
     ton618BlackHole: createBlackHolePlanetData('ton618BlackHole'),
+    phoenixABlackHole: createBlackHolePlanetData('phoenixABlackHole'),
     mercury: {
         name: '水星',
         nameCN: '水星',
@@ -1227,6 +1239,7 @@ const planetAudioNarration = {
     m31BlackHole: '仙女座中心黑洞，M31 star。它位于仙女座星系中央，质量大约是太阳的1.4亿倍，是银河系中心黑洞的30多倍。',
     s50014BlackHole: 'S5 0014+81。它是遥远类星体里的巨型黑洞，常见估算约为太阳质量的400亿倍，比仙女座中心黑洞还要大很多。',
     ton618BlackHole: 'TON 618。它是非常夸张的超大质量黑洞，质量超过太阳的600亿倍，适合作为黑洞尺度对比里的终极大个子。',
+    phoenixABlackHole: '凤凰座A星中心黑洞，Phoenix A star。它位于凤凰星系团中央，模型估算质量约为太阳的1000亿倍，可能比 TON 618 还要巨大。',
     mercury: '水星，Mercury，距离太阳0.4个天文单位。自转转完一整圈，约等于58.6个地球天。绕太阳公转一整圈，约等于0.24个地球年。',
     venus: '金星，Venus，距离太阳0.7个天文单位。自转转完一整圈，约等于243个地球天。绕太阳公转一整圈，约等于0.62个地球年。',
     earth: '地球，Earth，距离太阳1个天文单位。自转转完一整圈，约等于1个地球天。绕太阳公转一整圈，约等于1个地球年。',
@@ -1721,6 +1734,7 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     m31BlackHole: BLACK_HOLE_TEXTURE_PATH,
     s50014BlackHole: BLACK_HOLE_TEXTURE_PATH,
     ton618BlackHole: BLACK_HOLE_TEXTURE_PATH,
+    phoenixABlackHole: BLACK_HOLE_TEXTURE_PATH,
     proximaCentauri: STAR_SURFACE_TEXTURES.proximaCentauri,
     alphaCentauri: STAR_SURFACE_TEXTURES.alphaCentauri,
     betaCentauri: STAR_SURFACE_TEXTURES.betaCentauri,
