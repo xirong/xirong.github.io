@@ -18,6 +18,7 @@ let clock;
 let textureLoader;
 let raycaster, mouse;
 let externalGalaxies = []; // 外部星系对象数组
+let galaxyBlackHoles = []; // 各星系中心 / 独立超大质量黑洞对象数组
 let galaxyLabels = []; // 星系名称标签
 let currentZoomLevel = 5; // 当前缩放层级
 let starSystems = []; // 恒星系统对象数组（银河系尺度）
@@ -89,6 +90,7 @@ const starSystemData = {
         spectralType: 'G2V + K1V + M5.5Ve',
         distance: '4.37光年',
         brightness: '视星等 -0.27',
+        diameter: '主星约为太阳的1.2倍',
         planets: 1,
         description: '距离太阳系最近的恒星系统，由三颗恒星组成：半人马座α A、B和比邻星，画面里更亮的黄白色主星是A，旁边偏橙的是B，更远处的小红星就是比邻星。',
         funFact: '比邻星是距离我们最近的恒星，它周围发现了一颗可能宜居的行星——比邻星b！'
@@ -144,6 +146,7 @@ const starSystemData = {
         spectralType: 'A1V + DA2',
         distance: '8.6光年',
         brightness: '视星等 -1.46',
+        diameter: '主星约为太阳的1.7倍',
         planets: 0,
         description: '夜空中最亮的恒星，由一颗蓝白色主序星和一颗白矮星组成。',
         funFact: '天狼星B是人类发现的第一颗白矮星，它的密度是水的100万倍！'
@@ -188,6 +191,7 @@ const starSystemData = {
         spectralType: 'M1-M2 Ia-ab',
         distance: '约550光年',
         brightness: '视星等 0.5',
+        diameter: '约为太阳的700倍',
         planets: 0,
         description: '猎户座的"肩膀"，一颗走到生命晚期的红超巨星，将来会以超新星的方式结束一生。',
         funFact: '参宿四非常巨大，如果放在太阳位置，它的外层会伸到火星轨道附近！'
@@ -254,6 +258,7 @@ const starSystemData = {
         spectralType: 'K0IIIb',
         distance: '33.8光年',
         brightness: '视星等 1.15',
+        diameter: '约为太阳的9倍',
         planets: 1,
         description: '北河三是双子座最亮的恒星，已经从主序星演化成橙色巨星。它是银河系里的恒星，不是行星，也不是另一个星系。',
         funFact: '北河三周围已经确认有一颗巨行星，质量大约是木星的几倍，绕着这颗橙巨星运行。'
@@ -276,6 +281,7 @@ const starSystemData = {
         spectralType: 'B7III',
         distance: '134光年',
         brightness: '视星等 1.65',
+        diameter: '约为太阳的4倍',
         planets: 0,
         description: '五车五也叫金牛座β星，位在金牛座和御夫座交界附近，是一颗很亮的蓝白色巨星。它属于银河系里的恒星，不是行星。',
         funFact: '五车五的亮度约为太阳的数百倍，中文星名来自古代星官“五车”。'
@@ -900,6 +906,102 @@ const galaxyData = {
         stars: '数千亿颗',
         description: 'M81 是宏伟的螺旋星系，M82（雪茄星系）则因受 M81 引力扰动正在剧烈爆发恒星形成。',
         funFact: 'M81 与 M82 在数亿年前曾近距离相擦，扰动至今未平息！'
+    },
+    // ===== 银河系本身（dock 总览入口）=====
+    milkyWay: {
+        name: '银河系',
+        nameEn: 'Milky Way',
+        type: '棒旋星系',
+        distance: '我们就住在里面',
+        diameter: '约10万光年',
+        stars: '约1000亿到4000亿颗',
+        description: '银河系是太阳系所在的大星系，有一条明亮的银盘和盘旋的旋臂，太阳就住在其中一条旋臂上。',
+        funFact: '夏天夜空里那条朦胧的光带，就是我们从内部看到的银河系侧面！'
+    },
+    // ===== 各星系中心的超大质量黑洞 =====
+    andromedaBlackHole: {
+        name: '仙女座中心黑洞',
+        nameEn: 'Andromeda Black Hole',
+        type: '超大质量黑洞',
+        isBlackHole: true,
+        host: '仙女座星系的最中心',
+        distance: '约254万光年',
+        diameter: '事件视界直径约8亿公里',
+        diameterLabel: '视界大小',
+        stars: '约太阳的1.4亿倍',
+        starsLabel: '质量',
+        description: '它藏在仙女座星系的正中央，是离我们最近的大星系的中心黑洞。',
+        funFact: '它比银河系中心的黑洞重几十倍，连光都逃不出它的事件视界。'
+    },
+    sombreroBlackHole: {
+        name: '草帽星系中心黑洞',
+        nameEn: 'Sombrero Black Hole',
+        type: '超大质量黑洞',
+        isBlackHole: true,
+        host: '草帽星系明亮核心的最里面',
+        distance: '约2900万光年',
+        diameter: '事件视界直径约60亿公里',
+        diameterLabel: '视界大小',
+        stars: '约太阳的10亿倍',
+        starsLabel: '质量',
+        description: '草帽星系中间特别亮，是因为里面有一颗非常重的超大质量黑洞。',
+        funFact: '它的质量约是太阳的10亿倍，是星系中心黑洞里的大个子之一。'
+    },
+    whirlpoolBlackHole: {
+        name: '漩涡星系中心黑洞',
+        nameEn: 'Whirlpool Black Hole',
+        type: '超大质量黑洞',
+        isBlackHole: true,
+        host: '漩涡星系旋臂卷向的正中心',
+        distance: '约3100万光年',
+        diameter: '事件视界直径约1800万公里',
+        diameterLabel: '视界大小',
+        stars: '约太阳的几百万倍',
+        starsLabel: '质量',
+        description: '漩涡星系的旋臂一圈圈卷向中心，最里面就是它的中心黑洞。',
+        funFact: '它周围有两道交叉的暗尘埃，像给黑洞画了一个大叉号。'
+    },
+    m87BlackHole: {
+        name: 'M87 中心黑洞',
+        nameEn: 'M87* (EHT)',
+        type: '超大质量黑洞',
+        isBlackHole: true,
+        host: 'M87 巨型椭圆星系的中心',
+        distance: '约5500万光年',
+        diameter: '事件视界直径约380亿公里',
+        diameterLabel: '视界大小',
+        stars: '约太阳的65亿倍',
+        starsLabel: '质量',
+        description: '人类拍到的第一张黑洞照片，拍的就是它——一圈橙色光环围着中间的黑影。',
+        funFact: '它一个黑洞就比整个太阳系还大，质量约是太阳的65亿倍！'
+    },
+    ton618: {
+        name: 'TON 618 黑洞',
+        nameEn: 'TON 618',
+        type: '超大质量黑洞',
+        isBlackHole: true,
+        host: '一个遥远类星体的中心',
+        distance: '约104亿光年',
+        diameter: '事件视界直径约4000亿公里',
+        diameterLabel: '视界大小',
+        stars: '约太阳的660亿倍',
+        starsLabel: '质量',
+        description: 'TON 618 是宇宙里已知最大的黑洞之一，它一边吞东西一边发出耀眼的光，是个类星体。',
+        funFact: '它的事件视界比整个太阳系还大很多，质量约是太阳的660亿倍！'
+    },
+    phoenixA: {
+        name: '凤凰座A星黑洞',
+        nameEn: 'Phoenix A',
+        type: '超大质量黑洞',
+        isBlackHole: true,
+        host: '凤凰星系团的最中心',
+        distance: '约59亿光年',
+        diameter: '事件视界直径约6000亿公里',
+        diameterLabel: '视界大小',
+        stars: '模型估算约太阳的1000亿倍',
+        starsLabel: '质量',
+        description: '凤凰座A星黑洞位于凤凰星系团中央，是科学家估算出的超级大黑洞。',
+        funFact: '它可能比 TON 618 还要大，是目前估算质量最大的黑洞之一！'
     }
 };
 
@@ -1266,6 +1368,7 @@ const galaxyRenderConfigs = {
 // ============ 星系 Dock 配置 ============
 const galaxyDockItems = [
     { section: '银河系内' },
+    { key: 'milkyWay', name: '银河系', shortName: '银河', tone: 'spiral' },
     { key: 'galacticCenter', name: '银河系中心黑洞', shortName: '黑洞', tone: 'black-hole' },
     { key: 'orionNebula', shortName: '猎户', tone: 'nebula' },
     { key: 'eagleNebula', shortName: '鹰状', tone: 'nebula' },
@@ -1290,7 +1393,14 @@ const galaxyDockItems = [
     { key: 'hoagObject', shortName: '霍格', tone: 'ring' },
     { key: 'stephansQuintet', shortName: '五重', tone: 'interacting' },
     { key: 'sunflower', shortName: '向日', tone: 'spiral' },
-    { key: 'antennae', shortName: '触须' }
+    { key: 'antennae', shortName: '触须' },
+    { section: '超大质量黑洞' },
+    { key: 'andromedaBlackHole', shortName: '仙女', tone: 'black-hole', kind: 'blackhole' },
+    { key: 'sombreroBlackHole', shortName: '草帽', tone: 'black-hole', kind: 'blackhole' },
+    { key: 'whirlpoolBlackHole', shortName: '漩涡', tone: 'black-hole', kind: 'blackhole' },
+    { key: 'm87BlackHole', shortName: 'M87', tone: 'black-hole', kind: 'blackhole' },
+    { key: 'ton618', shortName: 'TON', tone: 'black-hole', kind: 'blackhole' },
+    { key: 'phoenixA', shortName: '凤凰', tone: 'black-hole', kind: 'blackhole' }
 ];
 
 // ============ 宇宙尺度滑尺数据 ============
@@ -2087,26 +2197,40 @@ function stopGalaxyAudio() {
 
 function getGalaxyNarrationText(key) {
     if (key === 'galacticCenter') {
-        return '银河系中心黑洞，人马座A星。它位于银河系正中央，是一个超大质量黑洞。它的质量约为400万个太阳，周围的恒星会围着它高速绕行。这里是银河系最深处的核心区域。';
+        return '银河系中心黑洞，人马座A星，Sagittarius A star。它位于银河系正中央，是一个超大质量黑洞。它的质量约为400万个太阳，事件视界直径约2400万公里。周围的恒星会围着它高速绕行，这里是银河系最深处的核心区域。';
     }
 
     const data = galaxyData[key];
     if (!data) return '';
 
+    const en = data.nameEn ? `，${data.nameEn}` : '';
+
+    // 银河系总览：距离用专门措辞，避免"距离我们我们就住在里面"
+    if (key === 'milkyWay') {
+        return `${data.name}${en}。它是${data.type}，${data.distance}，直径${data.diameter}，恒星数量${data.stars}。${data.description}${data.funFact}`;
+    }
+
+    // 超大质量黑洞：围绕质量与事件视界来讲
+    if (data.isBlackHole) {
+        return `${data.name}${en}。它是一个${data.type}，就藏在${data.host}，距离我们${data.distance}。它的质量${data.stars}，${data.diameter}。${data.description}${data.funFact}`;
+    }
+
     const diameterLabel = data.diameterLabel || '直径';
     const starsLabel = data.starsLabel || '恒星数量';
-    return `${data.name}。它是${data.type}，距离我们${data.distance}，${diameterLabel}${data.diameter}，${starsLabel}${data.stars}。${data.description}${data.funFact}`;
+    return `${data.name}${en}。它是${data.type}，距离我们${data.distance}，${diameterLabel}${data.diameter}，${starsLabel}${data.stars}。${data.description}${data.funFact}`;
 }
 
 function getStarSystemNarrationText(key) {
     const data = starSystemData[key];
     if (!data) return '';
 
+    const en = data.nameEn ? `，${data.nameEn}` : '';
+    const diameterText = data.diameter ? `它的直径${data.diameter}。` : '';
     const planetText = data.planets > 0
         ? `已经发现${data.planets}颗行星。`
         : '目前还没有确认发现行星。';
 
-    return `${data.name}。它是${data.type}，光谱型是${data.spectralType}，距离我们${data.distance}，亮度是${data.brightness}。${planetText}${data.description}${data.funFact}`;
+    return `${data.name}${en}。它是${data.type}，光谱型是${data.spectralType}，距离我们${data.distance}，亮度是${data.brightness}。${diameterText}${planetText}${data.description}${data.funFact}`;
 }
 
 function playGalaxyAudio(key) {
@@ -2503,6 +2627,25 @@ function selectGalaxyDockTarget(key, button) {
         return;
     }
 
+    if (key === 'milkyWay') {
+        focusMilkyWayOverviewFromDock();
+        if (button) {
+            const rect = button.getBoundingClientRect();
+            showGalaxyPopup('milkyWay', rect.left + rect.width / 2, rect.top);
+        }
+        return;
+    }
+
+    const blackHole = galaxyBlackHoles.find(item => item.key === key);
+    if (blackHole) {
+        focusDockObject(blackHole, getBlackHoleDockViewDistance(blackHole));
+        if (button) {
+            const rect = button.getBoundingClientRect();
+            showGalaxyPopup(key, rect.left + rect.width / 2, rect.top);
+        }
+        return;
+    }
+
     const star = findDockStarTarget(key);
     if (star) {
         focusDockObject(star, getStarDockViewDistance(star));
@@ -2567,6 +2710,21 @@ function focusGalacticBlackHoleFromDock() {
         setControlsFocus(targetPoint, { immediate: true });
         updateScaleIndicator();
     });
+}
+
+// 飞到银河系总览：拉远到能看见整条银盘和旋臂的距离
+function focusMilkyWayOverviewFromDock() {
+    const targetPoint = GALACTIC_CENTER.clone();
+    animateCameraToPoint(targetPoint, 7200, () => {
+        setControlsFocus(targetPoint, { immediate: true });
+        updateScaleIndicator();
+    });
+}
+
+// 黑洞 dock 飞行视距：按吸积盘尺寸给出合适的观看距离
+function getBlackHoleDockViewDistance(blackHole) {
+    const diskSize = blackHole.config?.diskSize || 8000;
+    return Math.max(diskSize * 3.2, 12000);
 }
 
 function animateCameraToPoint(targetPoint, viewDistance, onComplete) {
@@ -2742,6 +2900,7 @@ function init() {
     createHeliopause();
     createOortCloud();
     createExternalGalaxies();
+    createGalaxyBlackHoles(); // 各星系中心 + TON618 / 凤凰座A 超大质量黑洞
     createCosmicStructures(); // 本星系群/室女座/拉尼亚凯亚/可观测宇宙
     createNeighborhoodStarSystems(); // 创建太阳系邻域视图的恒星
     createGalacticStarSystems(); // 创建银河系尺度的著名恒星
@@ -3530,6 +3689,146 @@ function updateGalacticCenterAppearance(distance, elapsed) {
         coreShadow.material.opacity = reveal * (0.62 + Math.sin(elapsed * 0.5) * 0.02);
         const shadowScale = 0.55 + reveal * 0.45;
         coreShadow.scale.setScalar(shadowScale);
+    }
+}
+
+// ============ 各星系中心 / 独立超大质量黑洞 ============
+// diskSize：吸积盘卡片在世界坐标里的宽度
+// position：黑洞所在位置（附着型 = 宿主星系中心；独立型 = 深空坐标）
+// zone：附着型沿用宿主星系的可见性 zone（A/B）；独立型用 standalone + revealZoneDistance
+const galaxyBlackHoleConfigs = {
+    andromedaBlackHole: {
+        position: new THREE.Vector3(-120000, 18000, 80000),
+        diskSize: 9000,
+        zone: 'A',
+        glowColor: '#ffd9a0'
+    },
+    sombreroBlackHole: {
+        position: new THREE.Vector3(215000, 28000, -160000),
+        diskSize: 5600,
+        zone: 'B',
+        glowColor: '#ffcf8a'
+    },
+    whirlpoolBlackHole: {
+        position: new THREE.Vector3(-185000, 45000, -205000),
+        diskSize: 5600,
+        zone: 'B',
+        glowColor: '#ffd9a0'
+    },
+    m87BlackHole: {
+        position: new THREE.Vector3(110000, 240000, 85000),
+        diskSize: 7200,
+        zone: 'B',
+        glowColor: '#ff9f55'
+    },
+    ton618: {
+        position: new THREE.Vector3(300000, -200000, 280000),
+        diskSize: 15000,
+        standalone: true,
+        revealZoneDistance: 60000,
+        glowColor: '#ffb866',
+        quasar: true
+    },
+    phoenixA: {
+        position: new THREE.Vector3(-280000, 230000, 320000),
+        diskSize: 17000,
+        standalone: true,
+        revealZoneDistance: 60000,
+        glowColor: '#ff9a55',
+        quasar: true
+    }
+};
+
+function createBlackHoleObject(key, config) {
+    const group = new THREE.Group();
+    group.position.copy(config.position);
+    group.renderOrder = 28;
+
+    const diskSize = config.diskSize;
+
+    // 背景辉光：附着型用柔和暖光；独立类星体用更亮的星芒
+    const glow = makeStarFlareSprite(
+        config.glowColor || '#ffd9a0',
+        diskSize * (config.quasar ? 1.7 : 1.25),
+        config.quasar ? 0.75 : 0.5
+    );
+    glow.renderOrder = 27;
+    group.add(glow);
+    group.glow = glow;
+
+    // 吸积盘卡片（复用银心黑洞的 Gargantua 风格 shader），始终面向相机
+    const card = new THREE.Mesh(
+        new THREE.PlaneGeometry(diskSize, diskSize * 0.66),
+        createGalacticBlackHoleMaterial()
+    );
+    card.material.uniforms.reveal.value = 1;
+    card.renderOrder = 30;
+    group.add(card);
+    group.card = card;
+
+    // 透明点击球，方便点中黑洞而不是后面的星系照片
+    const clickTarget = createGalaxyClickTarget(new THREE.Vector3(0, 0, 0), diskSize * 0.55);
+    group.add(clickTarget);
+    group.clickTarget = clickTarget;
+
+    // 双语标签
+    const label = createGalaxyLabel(group, galaxyData[key], 0, diskSize * 0.62, 0, key);
+    if (label) {
+        const labelW = THREE.MathUtils.clamp(diskSize * 1.2, 4000, 22000);
+        label.scale.set(labelW, labelW * 0.31, 1);
+        label.userData.baseLabelW = labelW;
+    }
+
+    group.key = key;
+    group.config = config;
+    group.pulsePhase = Object.keys(galaxyBlackHoleConfigs).indexOf(key) * 1.7;
+
+    scene.add(group);
+    galaxyBlackHoles.push(group);
+    return group;
+}
+
+function createGalaxyBlackHoles() {
+    for (const [key, config] of Object.entries(galaxyBlackHoleConfigs)) {
+        createBlackHoleObject(key, config);
+    }
+}
+
+function updateGalaxyBlackHoles(distance, elapsed) {
+    if (!galaxyBlackHoles.length) return;
+
+    const zoneDistance = camera.position.length();
+
+    for (const bh of galaxyBlackHoles) {
+        const config = bh.config;
+
+        // 可见性：独立型按深空阈值；附着型跟随宿主星系所在 zone
+        let visible;
+        if (config.standalone) {
+            visible = zoneDistance > (config.revealZoneDistance || 80000);
+        } else if (config.zone === 'A') {
+            visible = zoneDistance > 18000;
+        } else {
+            visible = zoneDistance > 130000;
+        }
+        bh.visible = visible;
+        if (!visible) continue;
+
+        // 吸积盘始终面向相机 + 轻微呼吸脉动
+        if (bh.card) {
+            bh.card.quaternion.copy(camera.quaternion);
+            const pulse = 1 + Math.sin(elapsed * 0.8 + bh.pulsePhase) * 0.03;
+            bh.card.scale.set(pulse, pulse, 1);
+            if (bh.card.material.uniforms) {
+                bh.card.material.uniforms.time.value = elapsed;
+                bh.card.material.uniforms.reveal.value = 1;
+            }
+        }
+
+        // 辉光缓慢旋转，类星体更明显
+        if (bh.glow) {
+            bh.glow.material.rotation += (config.quasar ? 0.0016 : 0.0008);
+        }
     }
 }
 
@@ -6012,6 +6311,9 @@ function animate() {
     // 远景显示明亮银核，拉近后才逐渐显出中心黑洞
     updateGalacticCenterAppearance(distance, elapsed);
 
+    // 各星系中心 + 独立超大质量黑洞
+    updateGalaxyBlackHoles(distance, elapsed);
+
     // 更新日球层
     if (heliopause && heliopause.material.uniforms) {
         heliopause.material.uniforms.time.value = elapsed;
@@ -6331,13 +6633,26 @@ function updateGalaxyHover() {
 
     let found = null;
 
-    for (const galaxy of externalGalaxies) {
-        if (!galaxy.visible || !galaxy.clickTarget) continue;
+    // 黑洞优先（叠在星系照片之上）
+    for (const bh of galaxyBlackHoles) {
+        if (!bh.visible || !bh.clickTarget) continue;
 
-        const intersects = raycaster.intersectObject(galaxy.clickTarget);
+        const intersects = raycaster.intersectObject(bh.clickTarget);
         if (intersects.length > 0) {
-            found = galaxy;
+            found = bh;
             break;
+        }
+    }
+
+    if (!found) {
+        for (const galaxy of externalGalaxies) {
+            if (!galaxy.visible || !galaxy.clickTarget) continue;
+
+            const intersects = raycaster.intersectObject(galaxy.clickTarget);
+            if (intersects.length > 0) {
+                found = galaxy;
+                break;
+            }
         }
     }
 
@@ -6630,6 +6945,17 @@ function onCanvasClick(event) {
         const hit = getStarSystemHit(starSystem);
         if (hit) {
             showStarSystemPopup(hit.key, event.clientX, event.clientY);
+            return;
+        }
+    }
+
+    // 检测星系中心黑洞点击（优先于星系照片，点击只弹介绍+语音，不移动镜头）
+    for (const bh of galaxyBlackHoles) {
+        if (!bh.visible || !bh.clickTarget) continue;
+
+        const intersects = raycaster.intersectObject(bh.clickTarget);
+        if (intersects.length > 0) {
+            showGalaxyPopup(bh.key, event.clientX, event.clientY);
             return;
         }
     }
