@@ -19,6 +19,7 @@ let textureLoader;
 let raycaster, mouse;
 let externalGalaxies = []; // 外部星系对象数组
 let galaxyBlackHoles = []; // 各星系中心 / 独立超大质量黑洞对象数组
+let cameraGlide = null; // 点击天体后平滑滑行到眼前的动画状态
 let galaxyLabels = []; // 星系名称标签
 let currentZoomLevel = 5; // 当前缩放层级
 let starSystems = []; // 恒星系统对象数组（银河系尺度）
@@ -41,6 +42,7 @@ const BLACK_HOLE_FULL_REVEAL_DISTANCE = 1700;
 const tempSolarSystemPosition = new THREE.Vector3();
 const tempFocusedWorldPosition = new THREE.Vector3();
 const tempLineEndPosition = new THREE.Vector3();
+const tempGlideOffset = new THREE.Vector3();
 const SOLAR_ORBIT_SETTINGS = {
     speedFactor: 0.97 * GALACTIC_LANDMARK_SPEED_SCALE,
     bobAmplitude: 8,
@@ -6285,8 +6287,12 @@ function animate() {
         controls.zoomSpeed = 1.0;
     }
 
-    // 更新控制目标点（远距离时渐变到原点）
-    updateControlsTarget(distance);
+    // 更新控制目标点：滑行动画进行时由它独占相机控制，避免多处抢着改 target 产生抖动
+    if (cameraGlide) {
+        updateCameraGlide();
+    } else {
+        updateControlsTarget(distance);
+    }
 
     // 银河系缓慢旋转
     // 背景星盘与著名恒星保持同向，页面默认视角下整体呈顺时针
@@ -6424,6 +6430,86 @@ function focusControlsOnObject(object, options = {}) {
 function clearControlsFocus() {
     focusedControlsTarget = null;
     focusedControlsObject = null;
+}
+
+// ============ 点击天体后：平滑滑行到眼前 ============
+// 像鼠标滚轮持续滚动那样，沿当前视线方向把镜头缓缓推到被点对象前方，
+// 用 easeInOutCubic 两端缓动，起步和收尾都很柔，绝不"弹跳/突进"。
+function startCameraGlide(object, targetPoint, viewDistance) {
+    if (!targetPoint) return;
+
+    const startPos = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const endTarget = targetPoint.clone();
+
+    // 保持当前视线方向（对象→相机的方向），这样是"沿视线推近"而不是绕到固定角度
+    const offsetDir = startPos.clone().sub(endTarget);
+    if (offsetDir.lengthSq() < 1e-6) {
+        offsetDir.set(0.4, 0.3, 0.6);
+    }
+    offsetDir.normalize();
+
+    const vd = THREE.MathUtils.clamp(
+        viewDistance,
+        controls.minDistance * 1.5,
+        controls.maxDistance * 0.9
+    );
+    const endPos = endTarget.clone().add(offsetDir.clone().multiplyScalar(vd));
+
+    // 移动越远，时间越长，但有上下限——始终从容平稳
+    const moveDist = startPos.distanceTo(endPos);
+    const duration = THREE.MathUtils.clamp(1500 + moveDist * 0.004, 1600, 3200);
+
+    clearControlsFocus();
+    cameraGlide = {
+        object: object || null,
+        startPos,
+        endPos,
+        startTarget,
+        endTarget,
+        offsetDir,
+        viewDistance: vd,
+        startTime: Date.now(),
+        duration
+    };
+}
+
+// 读取被点对象的世界坐标并发起平滑滑行
+function glideToClickedObject(object, viewDistance) {
+    if (!object) return;
+    const targetPoint = new THREE.Vector3();
+    object.getWorldPosition(targetPoint);
+    startCameraGlide(object, targetPoint, viewDistance);
+}
+
+function updateCameraGlide() {
+    const g = cameraGlide;
+    if (!g) return;
+
+    const t = Math.min((Date.now() - g.startTime) / g.duration, 1);
+    // easeInOutCubic：两端缓、中间快，最接近"滚轮缓缓滚到眼前"的手感
+    const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    // 对象可能在缓慢运动，每帧重新锁定它的真实位置，落点不偏
+    if (g.object) {
+        g.object.getWorldPosition(g.endTarget);
+        g.endPos.copy(g.endTarget).add(tempGlideOffset.copy(g.offsetDir).multiplyScalar(g.viewDistance));
+    }
+
+    camera.position.lerpVectors(g.startPos, g.endPos, e);
+    controls.target.lerpVectors(g.startTarget, g.endTarget, e);
+    controls.update();
+
+    if (t >= 1) {
+        // 落定后把缩放焦点锁到对象上，之后滚轮缩放会围绕它
+        if (g.object) {
+            focusControlsOnObject(g.object, { immediate: true });
+        } else {
+            setControlsFocus(g.endTarget, { immediate: true });
+        }
+        cameraGlide = null;
+        updateScaleIndicator();
+    }
 }
 
 // ============ 更新控制目标点 ============
@@ -6931,8 +7017,9 @@ function onCanvasClick(event) {
 
             const hit = getStarSystemHit(starSystem);
             if (hit) {
-                // 点击只弹介绍+语音，不移动镜头（跳转到屏幕中央太突兀）；想飞过去用底部 dock
+                // 点击：弹介绍+语音，并平滑滑行到眼前（像滚轮缓缓滚近，不突兀）
                 showStarSystemPopup(hit.key, event.clientX, event.clientY);
+                glideToClickedObject(hit.focusObject, getStarDockViewDistance(starSystem));
                 return;
             }
         }
@@ -6945,17 +7032,19 @@ function onCanvasClick(event) {
         const hit = getStarSystemHit(starSystem);
         if (hit) {
             showStarSystemPopup(hit.key, event.clientX, event.clientY);
+            glideToClickedObject(hit.focusObject, getStarDockViewDistance(starSystem));
             return;
         }
     }
 
-    // 检测星系中心黑洞点击（优先于星系照片，点击只弹介绍+语音，不移动镜头）
+    // 检测星系中心黑洞点击（优先于星系照片）
     for (const bh of galaxyBlackHoles) {
         if (!bh.visible || !bh.clickTarget) continue;
 
         const intersects = raycaster.intersectObject(bh.clickTarget);
         if (intersects.length > 0) {
             showGalaxyPopup(bh.key, event.clientX, event.clientY);
+            glideToClickedObject(bh, getBlackHoleDockViewDistance(bh));
             return;
         }
     }
@@ -6967,6 +7056,7 @@ function onCanvasClick(event) {
         const intersects = raycaster.intersectObject(galaxy.clickTarget);
         if (intersects.length > 0) {
             showGalaxyPopup(galaxy.key, event.clientX, event.clientY);
+            glideToClickedObject(galaxy, getGalaxyDockViewDistance(galaxy));
             return;
         }
     }
