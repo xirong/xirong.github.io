@@ -3578,12 +3578,17 @@ function makeStarFlareSprite(colorHex, scale, opacity = 0.95) {
 }
 
 // ============ 创建银心黑洞材质 ============
-function createGalacticBlackHoleMaterial() {
+function createGalacticBlackHoleMaterial(texturePath = GALACTIC_BLACK_HOLE_TEXTURE_PATH) {
+    const blackHoleTexture = textureLoader.load(texturePath);
+    if (THREE.sRGBEncoding) {
+        blackHoleTexture.encoding = THREE.sRGBEncoding;
+    }
+
     return new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
             reveal: { value: 0 },
-            blackHoleMap: { value: textureLoader.load(GALACTIC_BLACK_HOLE_TEXTURE_PATH) }
+            blackHoleMap: { value: blackHoleTexture }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -3800,14 +3805,16 @@ const galaxyBlackHoleConfigs = {
         position: new THREE.Vector3(110000, 240000, 85000),
         diskSize: 7200,
         zone: 'B',
-        glowColor: '#ff9f55'
+        glowColor: '#b982ff',
+        texturePath: 'textures/deep-sky/m87-black-hole-real.jpg'
     },
     ton618: {
         position: new THREE.Vector3(300000, -200000, 280000),
         diskSize: 15000,
         standalone: true,
         revealZoneDistance: 60000,
-        glowColor: '#ffb866',
+        glowColor: '#ff6b2e',
+        texturePath: 'textures/deep-sky/ton618-quasar.png',
         quasar: true
     },
     phoenixA: {
@@ -3815,7 +3822,8 @@ const galaxyBlackHoleConfigs = {
         diskSize: 17000,
         standalone: true,
         revealZoneDistance: 60000,
-        glowColor: '#ff9a55',
+        glowColor: '#ffb36d',
+        texturePath: 'textures/deep-sky/phoenix-a-black-hole-real.png',
         quasar: true
     }
 };
@@ -3840,7 +3848,7 @@ function createBlackHoleObject(key, config) {
     // 吸积盘卡片（复用银心黑洞的 Gargantua 风格 shader），始终面向相机
     const card = new THREE.Mesh(
         new THREE.PlaneGeometry(diskSize, diskSize * 0.66),
-        createGalacticBlackHoleMaterial()
+        createGalacticBlackHoleMaterial(config.texturePath)
     );
     card.material.uniforms.reveal.value = 1;
     card.renderOrder = 30;
