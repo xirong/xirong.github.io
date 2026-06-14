@@ -150,9 +150,30 @@
             border-color: var(--accent-cyan);
         }
 
+        .home-btn {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
         .info-panel {
             position: fixed;
-            bottom: 30px;
+            bottom: 84px;
             left: 30px;
             z-index: 100;
             background: var(--glass-bg);
@@ -1706,6 +1727,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="galaxy.js?v=20260613-glide"></script>
+    <a href="../index.html" class="home-btn">🏠 首页</a>
 </body>
 
 </html>
