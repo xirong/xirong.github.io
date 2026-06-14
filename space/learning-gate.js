@@ -332,6 +332,10 @@
         }
 
         container.hidden = false;
+        const revealButtonId = `learningGateRevealHint-${question.sessionId || question.id || 'current'}`;
+        container.classList.add('is-covered');
+        container.setAttribute('aria-describedby', revealButtonId);
+
         const steps = document.createElement('div');
         steps.className = 'learning-gate-visual-steps';
 
@@ -339,7 +343,22 @@
             steps.appendChild(createVisualStep(step, index, model.steps.length));
         });
 
-        container.appendChild(steps);
+        const cover = document.createElement('div');
+        cover.className = 'learning-gate-visual-cover';
+        cover.innerHTML = `
+            <div class="learning-gate-visual-cover-card">
+                <div class="learning-gate-visual-cover-title">先心算一下</div>
+                <div class="learning-gate-visual-cover-text">想不出来时，再打开星球提示</div>
+                <button class="learning-gate-visual-reveal" id="${revealButtonId}" type="button" aria-label="打开星球提示">打开提示</button>
+            </div>
+        `;
+
+        cover.querySelector('.learning-gate-visual-reveal').addEventListener('click', () => {
+            container.classList.remove('is-covered');
+            container.removeAttribute('aria-describedby');
+        });
+
+        container.append(steps, cover);
     }
 
     function buildMathVisualModel(question) {
