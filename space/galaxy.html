@@ -523,9 +523,8 @@
             gap: 8px;
             overflow-x: auto;
             overflow-y: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
-            padding: 2px 4px 10px;
+            scrollbar-width: none;
+            padding: 2px 4px 4px;
         }
 
         .galaxy-dock-section {
@@ -539,12 +538,32 @@
         }
 
         .galaxy-dock-track::-webkit-scrollbar {
-            height: 4px;
+            display: none;
         }
 
-        .galaxy-dock-track::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.24);
+        .galaxy-dock-scrollbar {
+            height: 12px;
+            margin: 8px 8px 0;
             border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .galaxy-dock-scrollbar-thumb {
+            width: 80px;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.72), rgba(255, 214, 102, 0.86));
+            border-radius: 999px;
+            box-shadow: 0 0 14px rgba(255, 214, 102, 0.34);
+            cursor: grab;
+            transform: translateX(0);
+            touch-action: none;
+        }
+
+        .galaxy-dock-scrollbar-thumb.dragging {
+            cursor: grabbing;
         }
 
         .galaxy-dock-dot {
@@ -1630,6 +1649,9 @@
     <!-- 宇宙名胜 Dock -->
     <div class="galaxy-dock" id="galaxyDock" aria-label="宇宙名胜快捷入口">
         <div class="galaxy-dock-track" id="galaxyDockTrack"></div>
+        <div class="galaxy-dock-scrollbar" id="galaxyDockScrollbar" aria-hidden="true">
+            <div class="galaxy-dock-scrollbar-thumb" id="galaxyDockScrollbarThumb"></div>
+        </div>
     </div>
 
     <!-- 星系信息弹窗 -->
@@ -1726,7 +1748,7 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="galaxy.js?v=20260613-glide"></script>
+    <script src="galaxy.js?v=20260614-dock-scroll"></script>
     <a href="../index.html" class="home-btn">🏠 首页</a>
 </body>
 

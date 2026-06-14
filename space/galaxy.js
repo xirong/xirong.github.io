@@ -2298,6 +2298,8 @@ function renderGalaxyDock() {
 function setupGalaxyDock() {
     const track = document.getElementById('galaxyDockTrack');
     if (!track) return;
+    const scrollbar = document.getElementById('galaxyDockScrollbar');
+    const thumb = document.getElementById('galaxyDockScrollbarThumb');
 
     track.addEventListener('click', event => {
         const button = event.target.closest('.galaxy-dock-dot');
@@ -2305,6 +2307,83 @@ function setupGalaxyDock() {
 
         event.stopPropagation();
         selectGalaxyDockTarget(button.dataset.galaxyKey, button);
+    });
+
+    document.addEventListener('wheel', event => {
+        if (!event.target.closest('#galaxyDockTrack')) return;
+        if (track.scrollWidth <= track.clientWidth) return;
+        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+        event.preventDefault();
+        track.scrollLeft += event.deltaY;
+    }, { passive: false, capture: true });
+
+    if (!scrollbar || !thumb) return;
+
+    let thumbWidth = 0;
+    let dragStartX = 0;
+    let dragStartScrollLeft = 0;
+
+    const updateDockScrollbar = () => {
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        if (maxScroll <= 0) {
+            scrollbar.style.display = 'none';
+            return;
+        }
+
+        scrollbar.style.display = 'block';
+        thumbWidth = Math.max(56, scrollbar.clientWidth * (track.clientWidth / track.scrollWidth));
+        const maxThumbLeft = Math.max(1, scrollbar.clientWidth - thumbWidth);
+        const thumbLeft = (track.scrollLeft / maxScroll) * maxThumbLeft;
+
+        thumb.style.width = `${thumbWidth}px`;
+        thumb.style.transform = `translateX(${thumbLeft}px)`;
+    };
+
+    const scrollToClientX = clientX => {
+        const rect = scrollbar.getBoundingClientRect();
+        const maxThumbLeft = Math.max(1, scrollbar.clientWidth - thumbWidth);
+        const nextThumbLeft = Math.min(
+            Math.max(0, clientX - rect.left - thumbWidth / 2),
+            maxThumbLeft
+        );
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        track.scrollLeft = (nextThumbLeft / maxThumbLeft) * maxScroll;
+    };
+
+    track.addEventListener('scroll', updateDockScrollbar, { passive: true });
+    window.addEventListener('resize', updateDockScrollbar);
+    requestAnimationFrame(updateDockScrollbar);
+
+    scrollbar.addEventListener('pointerdown', event => {
+        if (event.target === thumb) return;
+        scrollToClientX(event.clientX);
+    });
+
+    thumb.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        dragStartX = event.clientX;
+        dragStartScrollLeft = track.scrollLeft;
+        thumb.classList.add('dragging');
+        thumb.setPointerCapture(event.pointerId);
+    });
+
+    thumb.addEventListener('pointermove', event => {
+        if (!thumb.classList.contains('dragging')) return;
+
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        const maxThumbLeft = Math.max(1, scrollbar.clientWidth - thumbWidth);
+        track.scrollLeft = dragStartScrollLeft + ((event.clientX - dragStartX) / maxThumbLeft) * maxScroll;
+    });
+
+    thumb.addEventListener('pointerup', event => {
+        thumb.classList.remove('dragging');
+        thumb.releasePointerCapture(event.pointerId);
+    });
+
+    thumb.addEventListener('pointercancel', event => {
+        thumb.classList.remove('dragging');
+        thumb.releasePointerCapture(event.pointerId);
     });
 }
 
