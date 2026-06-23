@@ -196,7 +196,31 @@ const starSystemData = {
         diameter: '约为太阳的700倍',
         planets: 0,
         description: '猎户座的"肩膀"，一颗走到生命晚期的红超巨星，将来会以超新星的方式结束一生。',
-        funFact: '参宿四非常巨大，如果放在太阳位置，它的外层会伸到火星轨道附近！'
+        funFact: '参宿四非常巨大，如果放在太阳位置，它的外层会伸到木星轨道附近！'
+    },
+    rigel: {
+        name: '参宿七',
+        nameEn: 'Rigel',
+        type: '蓝超巨星',
+        spectralType: 'B8 Ia',
+        distance: '约860光年',
+        brightness: '视星等 0.13',
+        diameter: '约为太阳的79倍',
+        planets: 0,
+        description: '参宿七是猎户座脚边最明亮的蓝白色恒星，也是猎户座里实际最亮的恒星。',
+        funFact: '参宿七比太阳热得多、亮得多，蓝白色光芒来自它很高的表面温度。'
+    },
+    alnitak: {
+        name: '参宿一',
+        nameEn: 'Alnitak',
+        type: '蓝超巨星三合星系统',
+        spectralType: 'O9.5 Iab + B1 IV + B0 III',
+        distance: '约1260光年',
+        brightness: '视星等 1.77',
+        diameter: '主星约为太阳的20倍',
+        planets: 0,
+        description: '参宿一是猎户腰带东侧的亮星，肉眼看像一颗，实际上是由多颗炽热蓝色恒星组成的系统。',
+        funFact: '参宿一旁边就是马头星云和火焰星云所在的区域，很适合把恒星和星云放在一起认识。'
     },
     vega: {
         name: '织女星',
@@ -494,6 +518,24 @@ const galacticStarConfigs = {
         size: 'supergiant',
         hasPlanets: false,
         offset: { x: 0.6, y: 0.2, z: -0.8 }
+    },
+    rigel: {
+        distanceLY: 860,
+        zone: 'A',
+        color: '#9fc8ff',
+        textureProfile: 'blueWhite',
+        size: 'giant',
+        hasPlanets: false,
+        offset: { x: 0.78, y: -0.16, z: -0.56 }
+    },
+    alnitak: {
+        distanceLY: 1260,
+        zone: 'A',
+        color: '#8bbdff',
+        textureProfile: 'blueWhite',
+        size: 'giant',
+        hasPlanets: false,
+        offset: { x: 0.45, y: 0.05, z: -0.9 }
     },
     antares: {
         distanceLY: 550,
@@ -1379,7 +1421,9 @@ const galaxyDockItems = [
     { key: 'pleiades', shortName: '昴星', tone: 'cluster' },
     { key: 'm13Cluster', shortName: 'M13', tone: 'cluster' },
     { key: 'carinaNebula', shortName: '船底', tone: 'nebula' },
-    { key: 'betelgeuse', shortName: '参宿', tone: 'star', kind: 'star' },
+    { key: 'betelgeuse', shortName: '参四', tone: 'star', kind: 'star' },
+    { key: 'rigel', shortName: '参七', tone: 'star', kind: 'star' },
+    { key: 'alnitak', shortName: '参一', tone: 'star', kind: 'star' },
     { key: 'sirius', shortName: '天狼', tone: 'star', kind: 'star' },
     { key: 'alphaCentauri', shortName: '半α', tone: 'star', kind: 'star' },
     { key: 'pollux', shortName: '北河', tone: 'star', kind: 'star' },
@@ -1697,6 +1741,18 @@ const cosmicScaleItems = [
         note: '北河三是一颗橙巨星，已经膨胀到比太阳大很多，旁边还确认有巨行星。'
     },
     {
+        key: 'alnitak',
+        name: '参宿一',
+        nameEn: 'Alnitak',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 20,
+        displaySize: '约太阳的20倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/blue_white_star_surface.jpg') center/cover",
+        glow: 'rgba(122, 182, 255, 0.42)',
+        note: '参宿一是猎户腰带东侧的蓝超巨星系统，肉眼看像一颗，其实有多个炽热伙伴。'
+    },
+    {
         key: 'arcturus',
         name: '大角星',
         nameEn: 'Arcturus',
@@ -1706,6 +1762,18 @@ const cosmicScaleItems = [
         kind: 'sphere',
         visual: "url('textures/stars/orange_star_surface.jpg') center/cover",
         note: '大角星是一颗红巨星，太阳放到它旁边就会明显小下去。'
+    },
+    {
+        key: 'rigel',
+        name: '参宿七',
+        nameEn: 'Rigel',
+        section: 'stellar',
+        diameterKm: SOLAR_DIAMETER_KM * 79,
+        displaySize: '约太阳的79倍',
+        kind: 'sphere',
+        visual: "url('textures/stars/blue_white_star_surface.jpg') center/cover",
+        glow: 'rgba(142, 196, 255, 0.46)',
+        note: '参宿七是猎户座明亮的蓝超巨星，虽然没有红超巨星那么膨胀，却比太阳热得多、亮得多。'
     },
     {
         key: 'antares',
@@ -1727,7 +1795,7 @@ const cosmicScaleItems = [
         displaySize: '约太阳的887倍',
         kind: 'sphere',
         visual: "url('textures/stars/generated/betelgeuse_custom.png') center/cover",
-        note: '参宿四是猎户座的红超巨星，已经大到能吞掉内侧行星轨道。'
+        note: '参宿四是猎户座的红超巨星，如果放到太阳的位置，外层会伸到木星轨道附近。'
     },
     {
         key: 'vyCanisMajoris',
