@@ -107,6 +107,8 @@ const STAR_SURFACE_TEXTURES = {
     antares: 'textures/stars/generated/antares_custom.jpg',
     pistolStar: 'textures/stars/blue_white_star_surface.jpg',
     betelgeuse: 'textures/stars/generated/betelgeuse_custom.png',
+    rigel: 'textures/stars/generated/rigel_custom.png',
+    alnitak: 'textures/stars/generated/alnitak_custom.png',
     vyCanisMajoris: 'textures/stars/generated/vy_canis_majoris_custom.png',
     uyScuti: 'textures/stars/generated/uy_scuti_custom.png'
 };
@@ -296,9 +298,43 @@ const planetData = {
         rotationPeriod: 0,
         color: 0xff6d3a,
         emissive: 0xc72c1f,
-        description: '参宿四是猎户座肩膀位置的红超巨星，如果放到太阳的位置，它的外层会大到接近火星轨道。',
+        description: '参宿四是猎户座肩膀位置的红超巨星，如果放到太阳的位置，它的外层会大到接近木星轨道。',
         relativeSize: 96948.12,
         texturePath: STAR_SURFACE_TEXTURES.betelgeuse
+    },
+    rigel: {
+        name: '参宿七',
+        nameCN: '参宿七',
+        nameEN: 'Rigel',
+        type: '蓝超巨星',
+        diameter: 110023300, // km，约 79 R☉
+        mass: 41771100, // 10²⁴ kg，约 21 M☉
+        category: 'star',
+        distance: 8139000000000000, // km，约 860 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0x9fc8ff,
+        emissive: 0x5f96ff,
+        description: '参宿七是猎户座脚边明亮的蓝超巨星，比太阳热得多、亮得多。',
+        relativeSize: 8634.7,
+        texturePath: STAR_SURFACE_TEXTURES.rigel
+    },
+    alnitak: {
+        name: '参宿一',
+        nameCN: '参宿一',
+        nameEN: 'Alnitak',
+        type: '蓝超巨星三合星系统',
+        diameter: 27854000, // km，主星约 20 R☉
+        mass: 65640300, // 10²⁴ kg，主星约 33 M☉
+        category: 'star',
+        distance: 11920000000000000, // km，约 1260 光年
+        orbitPeriod: 0,
+        rotationPeriod: 0,
+        color: 0x7fb2ff,
+        emissive: 0x4c86ff,
+        description: '参宿一是猎户腰带东侧的亮星，肉眼看像一颗，实际上是多颗炽热蓝色恒星组成的系统。',
+        relativeSize: 2186,
+        texturePath: STAR_SURFACE_TEXTURES.alnitak
     },
     vyCanisMajoris: {
         name: '大犬座VY',
@@ -1232,7 +1268,9 @@ const planetAudioNarration = {
     sirius: '天狼星，Sirius A。它是夜空中最亮的恒星，主星比太阳更大、更亮，旁边还有一颗很小但密度极高的白矮星。',
     arcturus: '大角星，Arcturus。它是一颗红巨星，直径大约是太阳的25倍，用来理解恒星变老后会膨胀很直观。',
     antares: '心宿二，Antares。它是天蝎座的红超巨星，名字有火星的对手的意思，因为它看起来也带着醒目的红色。',
-    betelgeuse: '参宿四，Betelgeuse。它是猎户座肩膀位置的红超巨星，如果放到太阳的位置，它的外层会大到接近火星轨道。',
+    betelgeuse: '参宿四，Betelgeuse。它是猎户座肩膀位置的红超巨星，如果放到太阳的位置，它的外层会大到接近木星轨道。',
+    rigel: '参宿七，Rigel。它是猎户座脚边明亮的蓝超巨星，直径约为太阳的79倍，质量约为太阳的21倍。',
+    alnitak: '参宿一，Alnitak。它是猎户腰带东侧的蓝超巨星三合星系统，主星直径约为太阳的20倍，质量约为太阳的33倍。',
     vyCanisMajoris: '大犬座VY，VY Canis Majoris。它是非常巨大的红特超巨星，太阳放到它旁边会像一个小亮点。',
     uyScuti: '盾牌座UY，UY Scuti。它曾被认为是已知体积最大的恒星之一，很适合用来感受红超巨星的夸张尺度。',
     sagittariusA: '银河系中心黑洞，Sagittarius A star。它藏在银河系中央，质量大约是太阳的430万倍，是认识超大质量黑洞的起点。',
@@ -1365,7 +1403,9 @@ const COMPARISON_BODY_KEYS = [
     'betelgeuse',
     'antares',
     'pistolStar',
+    'rigel',
     'arcturus',
+    'alnitak',
     'betaCentauri',
     'sirius',
     'alphaCentauri',
@@ -1524,6 +1564,8 @@ const currentCapacitySelections = {
     betelgeuse: 'sun',
     antares: 'sun',
     arcturus: 'sun',
+    rigel: 'sun',
+    alnitak: 'sun',
     betaCentauri: 'sun',
     sirius: 'sun',
     alphaCentauri: 'sun',
@@ -1745,6 +1787,8 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     antares: STAR_SURFACE_TEXTURES.antares,
     pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
     betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
+    rigel: STAR_SURFACE_TEXTURES.rigel,
+    alnitak: STAR_SURFACE_TEXTURES.alnitak,
     vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
     uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
     mercury: 'textures/mercury.jpg',
@@ -5543,6 +5587,8 @@ const CAPACITY_TARGET_TEXTURES = {
     antares: STAR_SURFACE_TEXTURES.antares,
     pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
     betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
+    rigel: STAR_SURFACE_TEXTURES.rigel,
+    alnitak: STAR_SURFACE_TEXTURES.alnitak,
     vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
     uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
     mercury: 'textures/mercury.jpg',
@@ -5620,6 +5666,7 @@ const CAPACITY_TARGETS = {
         objectKeys: getCapacityObjectKeys('antares')
     },
     pistolStar: createCapacityTarget('pistolStar'),
+    rigel: createCapacityTarget('rigel'),
     arcturus: {
         key: 'arcturus',
         nameCN: '大角星',
@@ -5627,6 +5674,7 @@ const CAPACITY_TARGETS = {
         color: '#ff8f45',
         objectKeys: getCapacityObjectKeys('arcturus')
     },
+    alnitak: createCapacityTarget('alnitak'),
     betaCentauri: {
         key: 'betaCentauri',
         nameCN: '半人马座β星',
@@ -6078,7 +6126,9 @@ function renderCapacityTargetPicker(container) {
         { key: 'betelgeuse', icon: '⭐', name: '参宿四' },
         { key: 'antares', icon: '⭐', name: '心宿二' },
         { key: 'pistolStar', icon: '⭐', name: '手枪星' },
+        { key: 'rigel', icon: '⭐', name: '参宿七' },
         { key: 'arcturus', icon: '⭐', name: '大角星' },
+        { key: 'alnitak', icon: '⭐', name: '参宿一' },
         { key: 'betaCentauri', icon: '⭐', name: '半人马座β星' },
         { key: 'pollux', icon: '⭐', name: '北河三' },
         { key: 'elnath', icon: '⭐', name: '五车五' },
@@ -6669,6 +6719,8 @@ function generateSizeComparison(mode) {
         antares: STAR_SURFACE_TEXTURES.antares,
         pistolStar: STAR_SURFACE_TEXTURES.pistolStar,
         betelgeuse: STAR_SURFACE_TEXTURES.betelgeuse,
+        rigel: STAR_SURFACE_TEXTURES.rigel,
+        alnitak: STAR_SURFACE_TEXTURES.alnitak,
         vyCanisMajoris: STAR_SURFACE_TEXTURES.vyCanisMajoris,
         uyScuti: STAR_SURFACE_TEXTURES.uyScuti,
         jupiter: 'textures/jupiter.jpg',
