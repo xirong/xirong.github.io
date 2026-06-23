@@ -523,7 +523,7 @@ const galacticStarConfigs = {
         distanceLY: 860,
         zone: 'A',
         color: '#9fc8ff',
-        textureProfile: 'blueWhite',
+        textureProfile: 'rigel',
         size: 'giant',
         hasPlanets: false,
         offset: { x: 0.78, y: -0.16, z: -0.56 }
@@ -532,7 +532,7 @@ const galacticStarConfigs = {
         distanceLY: 1260,
         zone: 'A',
         color: '#8bbdff',
-        textureProfile: 'blueWhite',
+        textureProfile: 'alnitak',
         size: 'giant',
         hasPlanets: false,
         offset: { x: 0.45, y: 0.05, z: -0.9 }
@@ -602,6 +602,8 @@ const starTextureProfiles = {
     blueWhite: 'textures/stars/blue_white_star_surface.jpg',
     white: 'textures/stars/white_star_surface.jpg',
     betelgeuse: 'textures/stars/generated/betelgeuse_custom.png',
+    rigel: 'textures/stars/generated/rigel_custom.png',
+    alnitak: 'textures/stars/generated/alnitak_custom.png',
     antares: 'textures/stars/generated/antares_custom.jpg',
     vyCanisMajoris: 'textures/stars/generated/vy_canis_majoris_custom.png',
     uyScuti: 'textures/stars/generated/uy_scuti_custom.png',
@@ -1748,7 +1750,7 @@ const cosmicScaleItems = [
         diameterKm: SOLAR_DIAMETER_KM * 20,
         displaySize: '约太阳的20倍',
         kind: 'sphere',
-        visual: "url('textures/stars/blue_white_star_surface.jpg') center/cover",
+        visual: "url('textures/stars/generated/alnitak_custom.png') center/cover",
         glow: 'rgba(122, 182, 255, 0.42)',
         note: '参宿一是猎户腰带东侧的蓝超巨星系统，肉眼看像一颗，其实有多个炽热伙伴。'
     },
@@ -1771,7 +1773,7 @@ const cosmicScaleItems = [
         diameterKm: SOLAR_DIAMETER_KM * 79,
         displaySize: '约太阳的79倍',
         kind: 'sphere',
-        visual: "url('textures/stars/blue_white_star_surface.jpg') center/cover",
+        visual: "url('textures/stars/generated/rigel_custom.png') center/cover",
         glow: 'rgba(142, 196, 255, 0.46)',
         note: '参宿七是猎户座明亮的蓝超巨星，虽然没有红超巨星那么膨胀，却比太阳热得多、亮得多。'
     },

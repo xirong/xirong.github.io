@@ -11,4 +11,6 @@
   source: https://www.eso.org/public/images/eso1726a/
 - `antares_surface.jpg`: derived from ESO public image `eso1726a`, credit `ESO/K. Ohnaka`
   source: https://www.eso.org/public/images/eso1726a/
+- `generated/rigel_custom.png`: cropped from user-provided Rigel comparison image for the galaxy page
+- `generated/alnitak_custom.png`: cropped from user-provided Alnitak comparison image for the galaxy page
 - proxy textures (`yellow`, `orange`, `red_dwarf`, `blue_white`, `white`): generated locally from the repository `sun.jpg` to give unresolved stars a textured surface instead of a flat solid color
