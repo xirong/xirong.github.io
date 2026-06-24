@@ -1445,6 +1445,8 @@ const DIAMETER_COMPARISON_BODY_KEYS = [
 const DIAMETER_START_KEYS = [
     'oortCloud',
     DIAMETER_BLACK_HOLE_KEY,
+    'uyScuti',
+    'pistolStar',
     'sun',
     'proximaCentauri',
     'jupiter',
@@ -1530,7 +1532,7 @@ function expandDiameterBlackHoleKeys(keys) {
 
 function buildDiameterDetailProfiles() {
     const baseSequence = getDiameterBaseSequenceKeys();
-    const startProfiles = DIAMETER_START_KEYS
+    return DIAMETER_START_KEYS
         .map(startKey => {
             const startIndex = baseSequence.indexOf(startKey);
             if (startIndex < 0) return null;
@@ -1543,14 +1545,6 @@ function buildDiameterDetailProfiles() {
             };
         })
         .filter(Boolean);
-    return [
-        ...startProfiles,
-        {
-            label: '手枪星专题',
-            subtitle: '手枪星、银河系黑洞和仙女座黑洞的专门对比',
-            isPistolStarFeature: true
-        }
-    ];
 }
 
 const DIAMETER_DETAIL_PROFILES = buildDiameterDetailProfiles();
@@ -6667,9 +6661,11 @@ function generateSizeComparison(mode) {
 
     const container = document.getElementById('comparisonRow');
     container.innerHTML = '';
+    container.scrollLeft = 0;
     container.classList.remove('compact-diameter-mode');
     container.classList.remove('compact-mass-mode');
     container.classList.remove('diameter-detail-mode');
+    container.classList.remove('diameter-feature-mode');
 
     const subtitle = document.getElementById('comparisonSubtitle');
 
@@ -6826,11 +6822,7 @@ function generateSizeComparison(mode) {
             detailTabs.style.display = 'block';
             detailTabs.innerHTML = '';
             const mainTabRow = document.createElement('div');
-            mainTabRow.style.display = 'flex';
-            mainTabRow.style.flexWrap = 'wrap';
-            mainTabRow.style.justifyContent = 'center';
-            mainTabRow.style.gap = '8px';
-            mainTabRow.style.width = '100%';
+            mainTabRow.className = 'diameter-detail-main-tabs';
             DIAMETER_DETAIL_PROFILES.forEach((profile, index) => {
                 const tabBtn = document.createElement('button');
                 tabBtn.className = 'diameter-detail-tab';
@@ -6883,6 +6875,7 @@ function generateSizeComparison(mode) {
                         ></iframe>
                     </div>
                 `;
+                scheduleComparisonScrollbarRefresh();
                 return;
             }
             const isBlackHoleDetailProfile = profile && profile.isBlackHoleProfile;
@@ -6944,6 +6937,7 @@ function generateSizeComparison(mode) {
                 `;
                 container.appendChild(div);
             });
+            scheduleComparisonScrollbarRefresh();
             return;
         }
 
@@ -7150,6 +7144,7 @@ function generateSizeComparison(mode) {
         cancelDragVolumeAnimation();
         generateDragBlackHoleComparison(container, subtitle, currentDragBlackHoleScope);
     }
+    scheduleComparisonScrollbarRefresh();
 }
 
 // ============ 太阳能装多少个 ============
@@ -7196,6 +7191,51 @@ function generateDragVolumeComparison(container, subtitle) {
 
 function generateDragBlackHoleComparison(container, subtitle, targetKey = 'blackHoleEventHorizon') {
     return renderDragCapacityComparison(container, subtitle, targetKey);
+}
+
+function setupComparisonHorizontalScrollbar() {
+    const row = document.getElementById('comparisonRow');
+    const scrollbar = document.getElementById('comparisonScrollbar');
+    const range = document.getElementById('comparisonScrollRange');
+    if (!row || !scrollbar || !range) return;
+
+    const maxScroll = Math.max(0, Math.round(row.scrollWidth - row.clientWidth));
+    const shouldShow = maxScroll > 4 && (currentComparisonTab === 'diameter' || currentComparisonTab === 'mass');
+    scrollbar.classList.toggle('visible', shouldShow);
+    scrollbar.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+    range.max = String(maxScroll);
+    range.value = String(Math.min(maxScroll, Math.round(row.scrollLeft)));
+
+    if (!range.dataset.comparisonScrollBound) {
+        range.addEventListener('input', () => {
+            const activeRow = document.getElementById('comparisonRow');
+            if (activeRow) {
+                activeRow.scrollLeft = Number(range.value);
+            }
+        });
+        range.dataset.comparisonScrollBound = 'true';
+    }
+
+    if (row._comparisonScrollHandler) {
+        row.removeEventListener('scroll', row._comparisonScrollHandler);
+    }
+    row._comparisonScrollHandler = () => {
+        range.value = String(Math.min(Number(range.max), Math.round(row.scrollLeft)));
+    };
+    row.addEventListener('scroll', row._comparisonScrollHandler, { passive: true });
+
+    if (!window._comparisonScrollbarResizeBound) {
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(setupComparisonHorizontalScrollbar);
+        });
+        window._comparisonScrollbarResizeBound = true;
+    }
+}
+
+function scheduleComparisonScrollbarRefresh() {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(setupComparisonHorizontalScrollbar);
+    });
 }
 
 // 把 #rrggbb 转 'r, g, b'，用于做 rgba 渐变

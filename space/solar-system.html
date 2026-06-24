@@ -2343,9 +2343,47 @@
             justify-content: center;
             gap: 8px;
             margin: 0 auto 16px;
+            width: min(100%, 1420px);
+            max-width: 100%;
+        }
+
+        .diameter-detail-main-tabs {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            gap: 8px;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 8px 10px;
+            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 212, 255, 0.75) rgba(255, 255, 255, 0.08);
+        }
+
+        .diameter-detail-main-tabs::-webkit-scrollbar,
+        .planets-row.diameter-detail-mode::-webkit-scrollbar,
+        .planets-row.compact-mass-mode::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .diameter-detail-main-tabs::-webkit-scrollbar-track,
+        .planets-row.diameter-detail-mode::-webkit-scrollbar-track,
+        .planets-row.compact-mass-mode::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+        }
+
+        .diameter-detail-main-tabs::-webkit-scrollbar-thumb,
+        .planets-row.diameter-detail-mode::-webkit-scrollbar-thumb,
+        .planets-row.compact-mass-mode::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, var(--accent-cyan), #7c3aed);
+            border-radius: 999px;
         }
 
         .diameter-detail-tab {
+            flex: 0 0 auto;
             padding: 8px 16px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -2363,6 +2401,71 @@
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.9), rgba(124, 58, 237, 0.9));
             border-color: transparent;
             color: #fff;
+        }
+
+        .comparison-scrollbar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            width: min(100%, 1320px);
+            max-width: 100%;
+            margin: 0 auto 4px;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+
+        .comparison-scrollbar.visible {
+            display: flex;
+        }
+
+        .comparison-scrollbar span {
+            flex: 0 0 auto;
+            color: rgba(255, 255, 255, 0.58);
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .comparison-scrollbar input {
+            flex: 1 1 auto;
+            min-width: 120px;
+            height: 28px;
+            margin: 0;
+            background: transparent;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .comparison-scrollbar input::-webkit-slider-runnable-track {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-scrollbar input::-webkit-slider-thumb {
+            appearance: none;
+            width: 52px;
+            height: 18px;
+            margin-top: -6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent-cyan), #7c3aed);
+            box-shadow: 0 0 14px rgba(0, 212, 255, 0.35);
+        }
+
+        .comparison-scrollbar input::-moz-range-track {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-scrollbar input::-moz-range-thumb {
+            width: 52px;
+            height: 18px;
+            border: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent-cyan), #7c3aed);
+            box-shadow: 0 0 14px rgba(0, 212, 255, 0.35);
         }
 
         .comparison-metric-toggle .tab-btn {
@@ -3848,6 +3951,11 @@
         <div class="planets-row" id="comparisonRow">
             <!-- 动态生成 -->
         </div>
+        <div class="comparison-scrollbar" id="comparisonScrollbar" aria-hidden="true">
+            <span aria-hidden="true">‹</span>
+            <input id="comparisonScrollRange" type="range" min="0" max="0" value="0" aria-label="横向滑动条">
+            <span aria-hidden="true">›</span>
+        </div>
     </div>
 
     <!-- 宇宙能量补给 -->
@@ -3922,7 +4030,7 @@
         }
     </script>
 
-    <script src="app.js?v=20260624-orion-capacity-stars"></script>
+    <script src="app.js?v=20260624-diameter-scrollbar"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 
