@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智天宇宙魔法学院 - 地球村第 1 天</title>
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #050713;
+            --panel: rgba(8, 17, 38, 0.78);
+            --panel-solid: #0d1730;
+            --line: rgba(154, 205, 255, 0.22);
+            --text: #f4fbff;
+            --muted: rgba(226, 241, 255, 0.72);
+            --blue: #4bb8ff;
+            --cyan: #67f1ff;
+            --gold: #ffd86b;
+            --green: #82f0a3;
+            --red: #ff8b8b;
+            --purple: #bda0ff;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+        }
+
+        body {
+            width: 100vw;
+            min-height: 100vh;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(46, 143, 255, 0.24), transparent 32%),
+                radial-gradient(circle at 82% 12%, rgba(255, 216, 107, 0.16), transparent 30%),
+                linear-gradient(145deg, #04050d 0%, #081634 48%, #02030a 100%);
+            color: var(--text);
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            user-select: none;
+        }
+
+        #scene {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .app {
+            position: relative;
+            z-index: 5;
+            display: grid;
+            grid-template-columns: minmax(360px, 1fr) minmax(380px, 480px);
+            gap: 24px;
+            height: 100vh;
+            padding: 18px;
+            pointer-events: none;
+        }
+
+        .left-hud,
+        .mission-panel,
+        .reward-dock,
+        .beacon-layer,
+        .modal,
+        .toast {
+            pointer-events: auto;
+        }
+
+        .left-hud {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 0;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            max-width: 520px;
+        }
+
+        .brand h1 {
+            font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+            font-size: clamp(1.35rem, 2.4vw, 2.7rem);
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: 0;
+            color: var(--text);
+            text-shadow: 0 0 28px rgba(75, 184, 255, 0.35);
+        }
+
+        .brand p {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.98rem;
+            line-height: 1.45;
+        }
+
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: rgba(5, 12, 28, 0.62);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-strip {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(46px, 1fr));
+            gap: 10px;
+            max-width: 680px;
+            margin-top: 18px;
+        }
+
+        .progress-node {
+            min-height: 58px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(6, 18, 40, 0.66);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: var(--muted);
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .progress-node.active {
+            border-color: rgba(103, 241, 255, 0.78);
+            color: var(--text);
+            background: rgba(24, 91, 137, 0.58);
+            transform: translateY(-2px);
+        }
+
+        .progress-node.done {
+            border-color: rgba(130, 240, 163, 0.72);
+            color: var(--green);
+            background: rgba(18, 78, 58, 0.54);
+        }
+
+        .node-symbol {
+            font-size: 1.15rem;
+        }
+
+        .node-label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .beacon-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .beacon {
+            position: absolute;
+            display: none;
+            width: 74px;
+            height: 74px;
+            border: 1px solid rgba(103, 241, 255, 0.7);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(103, 241, 255, 0.9), rgba(75, 184, 255, 0.12) 56%, transparent 72%);
+            box-shadow: 0 0 28px rgba(103, 241, 255, 0.6);
+            color: #04111f;
+            font-weight: 900;
+            font-size: 1.55rem;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            cursor: pointer;
+            animation: beaconPulse 1.8s ease-in-out infinite;
+        }
+
+        .beacon.visible {
+            display: flex;
+        }
+
+        .beacon.done {
+            background: radial-gradient(circle, rgba(130, 240, 163, 0.9), rgba(130, 240, 163, 0.08) 58%, transparent 74%);
+            color: #062414;
+            border-color: rgba(130, 240, 163, 0.8);
+            animation: none;
+        }
+
+        .beacon:nth-child(1) { left: 18%; top: 44%; }
+        .beacon:nth-child(2) { left: 37%; top: 31%; }
+        .beacon:nth-child(3) { left: 52%; top: 50%; }
+
+        @keyframes beaconPulse {
+            0%, 100% {
+                opacity: 0.82;
+                box-shadow: 0 0 24px rgba(103, 241, 255, 0.48);
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 42px rgba(103, 241, 255, 0.82);
+            }
+        }
+
+        .reward-dock {
+            align-self: start;
+            width: min(680px, 100%);
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(6, 14, 32, 0.72);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .reward-dock h2 {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--cyan);
+            margin-bottom: 10px;
+        }
+
+        .reward-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(52px, 1fr));
+            gap: 9px;
+        }
+
+        .reward-chip {
+            min-height: 70px;
+            border-radius: 8px;
+            border: 1px solid rgba(154, 205, 255, 0.14);
+            background: rgba(255, 255, 255, 0.045);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: rgba(244, 251, 255, 0.45);
+            filter: grayscale(1);
+        }
+
+        .reward-chip.earned {
+            color: var(--text);
+            filter: none;
+            border-color: rgba(255, 216, 107, 0.55);
+            background: rgba(255, 216, 107, 0.12);
+        }
+
+        .reward-orb {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffffff, #4bb8ff 35%, #0b3f8f);
+            box-shadow: 0 0 18px rgba(75, 184, 255, 0.42);
+        }
+
+        .reward-orb.star {
+            background: radial-gradient(circle, #fff8c7, #ffd86b 44%, #ff9f4b);
+        }
+
+        .reward-name {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .mission-panel {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 18px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(103, 241, 255, 0.08), transparent);
+        }
+
+        .panel-head h2 {
+            font-size: 1.35rem;
+            line-height: 1.18;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .panel-head p {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.94rem;
+            line-height: 1.45;
+        }
+
+        .mission-body {
+            min-height: 0;
+            flex: 1;
+            overflow: auto;
+            padding: 18px;
+        }
+
+        .mission-card {
+            display: none;
+        }
+
+        .mission-card.active {
+            display: block;
+        }
+
+        .story-lines {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .story-line,
+        .word-card,
+        .english-word,
+        .math-question,
+        .star-compare {
+            border: 1px solid rgba(154, 205, 255, 0.18);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.055);
+            padding: 14px;
+        }
+
+        .story-line {
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .word-card {
+            display: grid;
+            grid-template-columns: 116px 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .big-char {
+            width: 116px;
+            height: 116px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #07111f;
+            background: radial-gradient(circle at 30% 22%, #ffffff, var(--gold));
+            box-shadow: 0 0 38px rgba(255, 216, 107, 0.35);
+        }
+
+        .word-detail h3,
+        .english-word h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: var(--cyan);
+        }
+
+        .word-detail p,
+        .english-word p {
+            color: var(--muted);
+            line-height: 1.55;
+            margin-top: 5px;
+        }
+
+        .english-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .english-word {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .word-main {
+            font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--gold);
+        }
+
+        .sentence {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .rocket-meter {
+            height: 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin: 14px 0 18px;
+        }
+
+        .rocket-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--green), var(--cyan), var(--gold));
+            transition: width 0.35s ease;
+        }
+
+        .math-question {
+            margin-bottom: 14px;
+        }
+
+        .math-question h3 {
+            font-size: 1.05rem;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .expression {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 84px;
+            min-height: 40px;
+            border-radius: 8px;
+            background: rgba(103, 241, 255, 0.12);
+            color: var(--cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .option-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            border: 0;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .primary-btn,
+        .secondary-btn,
+        .sound-btn,
+        .option-btn {
+            min-height: 46px;
+            border-radius: 8px;
+            font-weight: 900;
+            transition: transform 0.18s ease, filter 0.18s ease, border-color 0.18s ease;
+        }
+
+        .primary-btn {
+            width: 100%;
+            margin-top: 16px;
+            color: #07111f;
+            background: linear-gradient(135deg, var(--gold), var(--green));
+            box-shadow: 0 12px 34px rgba(255, 216, 107, 0.22);
+        }
+
+        .secondary-btn,
+        .sound-btn,
+        .option-btn {
+            color: var(--text);
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .sound-btn {
+            width: 48px;
+            height: 48px;
+            font-size: 1.15rem;
+        }
+
+        .primary-btn:hover,
+        .secondary-btn:hover,
+        .sound-btn:hover,
+        .option-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+
+        .option-btn.correct {
+            background: rgba(130, 240, 163, 0.24);
+            border-color: rgba(130, 240, 163, 0.75);
+            color: var(--green);
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 139, 139, 0.18);
+            border-color: rgba(255, 139, 139, 0.72);
+            color: var(--red);
+        }
+
+        .feedback {
+            min-height: 28px;
+            color: var(--gold);
+            font-weight: 800;
+            line-height: 1.45;
+            margin-top: 8px;
+        }
+
+        .star-compare {
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .star-stage {
+            position: relative;
+            height: 240px;
+            margin: 12px 0;
+            border-radius: 8px;
+            background: radial-gradient(circle at center, rgba(103, 241, 255, 0.12), rgba(255, 255, 255, 0.035));
+            overflow: hidden;
+        }
+
+        .giant-star {
+            position: absolute;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            left: calc(50% - 85px);
+            top: 32px;
+            background: radial-gradient(circle at 36% 26%, #ffffff, #7fb4ff 28%, #3468ff 68%, #14235d);
+            box-shadow: 0 0 70px rgba(80, 130, 255, 0.72);
+        }
+
+        .sun-dot {
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #ffd86b;
+            box-shadow: 0 0 12px rgba(255, 216, 107, 0.8);
+            opacity: 0;
+        }
+
+        .star-stage.launched .sun-dot {
+            animation: sunPop 1.15s ease forwards;
+        }
+
+        @keyframes sunPop {
+            0% {
+                left: 50%;
+                top: 88%;
+                opacity: 0;
+                transform: scale(0.2);
+            }
+            35% {
+                opacity: 1;
+            }
+            100% {
+                left: var(--x);
+                top: var(--y);
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .star-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 900;
+            color: var(--gold);
+            margin-top: 10px;
+        }
+
+        .complete-card {
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(130, 240, 163, 0.55);
+            background: rgba(18, 78, 58, 0.28);
+            text-align: center;
+        }
+
+        .complete-card h3 {
+            color: var(--green);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .panel-foot {
+            padding: 14px 18px;
+            border-top: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(4, 8, 18, 0.45);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.42);
+            padding: 20px;
+        }
+
+        .modal.visible {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(420px, 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 216, 107, 0.5);
+            background: linear-gradient(160deg, rgba(13, 23, 48, 0.98), rgba(8, 13, 28, 0.98));
+            box-shadow: var(--shadow);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .reward-preview {
+            width: 116px;
+            height: 116px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #fff, #4bb8ff 38%, #0a3b8a);
+            box-shadow: 0 0 50px rgba(75, 184, 255, 0.48);
+        }
+
+        .reward-preview.star {
+            background: radial-gradient(circle, #fff8ca, #ffd86b 42%, #ff9f4b);
+        }
+
+        .modal-card h3 {
+            color: var(--gold);
+            font-size: 1.45rem;
+            margin-bottom: 8px;
+        }
+
+        .modal-card p {
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            z-index: 30;
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 216, 107, 0.46);
+            background: rgba(9, 16, 34, 0.95);
+            color: var(--gold);
+            font-weight: 900;
+            padding: 12px 16px;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 900px) {
+            body {
+                overflow: auto;
+            }
+
+            .app {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: 100vh;
+                padding: 14px;
+            }
+
+            .beacon-layer {
+                position: relative;
+                inset: auto;
+                width: calc(100% - 28px);
+                min-height: 78px;
+                margin: 14px;
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                background: rgba(5, 12, 28, 0.88);
+                box-shadow: var(--shadow);
+                backdrop-filter: blur(16px);
+            }
+
+            .mission-panel {
+                min-height: 620px;
+            }
+
+            .beacon {
+                position: static;
+                width: 58px;
+                height: 58px;
+            }
+
+            .beacon:not(.visible) {
+                display: none;
+            }
+
+            .word-card {
+                grid-template-columns: 1fr;
+            }
+
+            .big-char {
+                width: 100%;
+            }
+
+            .reward-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .panel-foot,
+            .option-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="scene" aria-hidden="true"></div>
+
+    <div class="beacon-layer" id="beaconLayer">
+        <button class="beacon" data-beacon="0" aria-label="点亮信标 1">1</button>
+        <button class="beacon" data-beacon="1" aria-label="点亮信标 2">2</button>
+        <button class="beacon" data-beacon="2" aria-label="点亮信标 3">3</button>
+    </div>
+
+    <main class="app">
+        <section class="left-hud">
+            <div>
+                <div class="topbar">
+                    <div class="brand">
+                        <h1>智天宇宙魔法学院</h1>
+                        <p>地球村第 1 天，点亮天空和太阳，完成火箭补给，收集星球卡和恒星比较星。</p>
+                    </div>
+                    <a class="home-link" href="../index.html" aria-label="返回首页">⌂</a>
+                </div>
+                <div class="progress-strip" id="progressStrip"></div>
+            </div>
+
+            <aside class="reward-dock" aria-label="奖励收藏">
+                <h2>地球村奖励册</h2>
+                <div class="reward-grid" id="rewardGrid"></div>
+            </aside>
+        </section>
+
+        <section class="mission-panel" aria-label="第一天任务">
+            <div class="panel-head">
+                <h2 id="missionTitle">地球村欢迎日</h2>
+                <p id="missionInstruction">点亮 3 颗蓝色信标，唤醒地球村。</p>
+            </div>
+
+            <div class="mission-body" id="missionBody"></div>
+
+            <div class="panel-foot">
+                <button class="secondary-btn" id="listenBtn">听一听</button>
+                <button class="secondary-btn" id="resetBtn">重玩第 1 天</button>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="rewardModal" role="dialog" aria-modal="true" aria-label="获得奖励">
+        <div class="modal-card">
+            <div class="reward-preview" id="rewardPreview"></div>
+            <h3 id="rewardTitle">获得奖励</h3>
+            <p id="rewardDesc"></p>
+            <button class="primary-btn" id="rewardContinueBtn">继续任务</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="magic-academy-data.js"></script>
+    <script src="magic-academy.js"></script>
+</body>
+
+</html>
