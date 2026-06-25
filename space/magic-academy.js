@@ -388,7 +388,10 @@ function renderEnglishMission(mission) {
 }
 
 function renderMathMission(mission) {
-    currentMathIndex = Math.min(currentMathIndex, mission.questions.length - 1);
+    const nextUnansweredIndex = findNextMathIndex(mission);
+    currentMathIndex = nextUnansweredIndex === -1
+        ? mission.questions.length - 1
+        : nextUnansweredIndex;
     const question = mission.questions[currentMathIndex];
     const options = question.options.map(value => `
         <button class="option-btn" data-answer="${value}">${value}</button>
@@ -524,7 +527,7 @@ function handleMathAnswer(mission, button) {
         saveState();
         updateRocketFill(mission);
         if (feedback) feedback.textContent = '答对啦，火箭能量增加。';
-        playAudio(`${audioBaseForMath(question.id)}.mp3`, `${question.question}，答对啦。`);
+        stopAudio();
 
         setTimeout(() => {
             if (state.mathCorrect.length >= mission.questions.length) {
@@ -533,6 +536,7 @@ function handleMathAnswer(mission, button) {
             }
             currentMathIndex = findNextMathIndex(mission);
             renderCurrentMission();
+            playCurrentMathQuestion();
         }, 650);
         return;
     }
@@ -561,6 +565,12 @@ function updateRocketFill(mission) {
 
 function findNextMathIndex(mission) {
     return mission.questions.findIndex(question => !state.mathCorrect.includes(question.id));
+}
+
+function getCurrentMathQuestion() {
+    const mission = getCurrentMission();
+    if (!mission || mission.type !== 'math') return null;
+    return mission.questions[currentMathIndex] || null;
 }
 
 function completeMission(mission) {
@@ -684,13 +694,24 @@ function playMissionAudio(mission) {
     if (mission.lines) text = mission.lines.join('。');
     if (mission.type === 'hanzi') text = `${mission.char}，${mission.pinyin}，${mission.words}。${mission.sentence}`;
     if (mission.type === 'english') text = mission.words.map(item => `${item.word}. ${item.sentence}`).join(' ');
-    if (mission.type === 'math') text = '火箭补给站，完成五道十以内加减法。';
+    if (mission.type === 'math') {
+        playCurrentMathQuestion();
+        return;
+    }
     if (mission.type === 'star-size') text = mission.sentence;
 
     playAudio(mission.audio, text);
 }
 
+function playCurrentMathQuestion() {
+    const question = getCurrentMathQuestion();
+    if (!question) return;
+    playAudio(`${audioBaseForMath(question.id)}.mp3`, `${question.question}。${question.expression} 等于几？`);
+}
+
 function playAudio(path, fallbackText) {
+    stopAudio();
+
     if (!path) {
         speak(fallbackText);
         return;
@@ -707,9 +728,20 @@ function playAudio(path, fallbackText) {
     audio.play().catch(() => speak(fallbackText));
 }
 
+function stopAudio() {
+    Object.values(audioCache).forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+
 function speak(text) {
     if (!text || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    stopAudio();
     const utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
     utterance.lang = /[a-zA-Z]/.test(text) ? 'zh-CN' : 'zh-CN';
     utterance.rate = 0.88;
