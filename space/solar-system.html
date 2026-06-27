@@ -2954,6 +2954,14 @@
             color: var(--text-secondary);
         }
 
+        .mass-size-hint {
+            max-width: 300px;
+            margin: 10px auto 0;
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            line-height: 1.55;
+        }
+
         /* 拖进太阳 tab */
         .drag-volume-container {
             width: 100%;
@@ -3931,7 +3939,7 @@
             <button class="tab-btn active" data-tab="diameter">📏 按直径</button>
             <button class="tab-btn" data-tab="mass">⚖️ 按质量</button>
             <button class="tab-btn" data-tab="volumeCapacity" data-capacity-metric="diameter">📦 按体积装</button>
-            <button class="tab-btn" data-tab="massCapacity" data-capacity-metric="mass">🧮 按质量装</button>
+            <button class="tab-btn" data-tab="massCapacity" data-capacity-metric="mass">🧮 按质量等于</button>
             <button class="tab-btn" data-tab="widthCapacity" data-capacity-metric="width">↔️ 按宽度装</button>
         </div>
 
@@ -4030,7 +4038,7 @@
         }
     </script>
 
-    <script src="app.js?v=20260624-diameter-scrollbar"></script>
+    <script src="app.js?v=20260627-mass-capacity-logic"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 

@@ -6004,6 +6004,31 @@ function getCapacityUnitText(targetKey, selected) {
     return `${selected.label}个${selected.nameCN}才能填满${targetName}`;
 }
 
+function formatDiameterRatioText(value) {
+    if (!Number.isFinite(value) || value <= 0) return '';
+    if (value >= 10000) return formatCapacityLabel(value);
+    if (value >= 100) return formatNumber(Math.round(value));
+    if (value >= 10) return value.toFixed(1);
+    return value.toFixed(2);
+}
+
+function getMassSizeHint(targetKey, selected) {
+    if (!selected) {
+        return '质量模式只比较质量，不表示真的能装进去。';
+    }
+    const targetName = getCapacityTargetDisplayName(targetKey);
+    const targetDiameter = getCapacityTargetValue(targetKey, 'diameter');
+    const objectDiameter = planetData[selected.key]?.diameter;
+    if (!targetDiameter || !objectDiameter) {
+        return `${selected.label}个${selected.nameCN}只表示质量相等，不表示能装下这么多个${selected.nameCN}。`;
+    }
+    const ratio = targetDiameter / objectDiameter;
+    const sizeText = ratio >= 1
+        ? `${targetName}直径约为${selected.nameCN}的 ${formatDiameterRatioText(ratio)} 倍`
+        : `${selected.nameCN}直径约为${targetName}的 ${formatDiameterRatioText(1 / ratio)} 倍`;
+    return `底部小图按真实直径画：${sizeText}；${selected.label}个${selected.nameCN}只表示质量相等，不表示能装下这么多个。`;
+}
+
 function getCapacityNote(targetKey) {
     const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
     if (blackHoleDescriptor) {
@@ -6026,7 +6051,7 @@ function getCapacityNote(targetKey) {
         const solarDiameterRatio = targetBody.diameter / planetData.sun.diameter;
         const solarMassRatio = targetBody.mass / planetData.sun.mass;
         if (currentComparisonMetric === 'mass') {
-            return `按质量测算：${targetBody.nameCN}质量约为太阳的 ${solarMassRatio.toFixed(solarMassRatio < 1 ? 4 : 1)} 倍，数量 = 恒星质量 / 天体质量。`;
+            return `按质量测算：${targetBody.nameCN}质量约为太阳的 ${solarMassRatio.toFixed(solarMassRatio < 1 ? 4 : 1)} 倍，数量 = 恒星质量 / 天体质量；这不是体积能装数量。`;
         }
         if (currentComparisonMetric === 'width') {
             return `按宽度测算：${targetBody.nameCN}直径约 ${formatNumber(targetBody.diameter)} 公里，数量 = 恒星直径 / 天体直径。`;
@@ -6043,7 +6068,7 @@ function getCapacityNote(targetKey) {
     }
 
     return currentComparisonMetric === 'mass'
-        ? '当前页签使用质量相除，只展示至少能等于 1 个的天体。'
+        ? '当前页签使用质量相除，只展示至少能等于 1 个的天体；数量不是体积能装数量。'
         : '当前页签按直径折算体积，数量 ≈ (目标直径 / 天体直径)³，只展示至少能装下 1 个的天体。';
 }
 
@@ -6250,9 +6275,10 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     const includeBarChart = !!options.includeBarChart;
     const isStellarTarget = !isBlackHole && planetData[targetKey]?.category === 'star';
     const isWidthMode = currentComparisonMetric === 'width';
+    const isMassMode = currentComparisonMetric === 'mass';
 
     subtitle.textContent = currentComparisonMetric === 'mass'
-        ? `拖拽天体放入${targetDisplayName}，按质量看看相当于多少个`
+        ? `拖拽天体和${targetDisplayName}比质量，看看质量约等于多少个`
         : currentComparisonMetric === 'width'
             ? `拖拽天体放到${targetDisplayName}的赤道线上，按直径看看横向约等于多少个`
             : `拖拽天体放入${targetDisplayName}，按直径折算体积看看能装多少个`;
@@ -6413,6 +6439,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                         <span>${targetDisplayName}</span>
                         <span data-planet-ref-label>${initialPlanetName}</span>
                     </div>
+                    ${isMassMode ? `<p class="mass-size-hint" data-mass-size-hint>${getMassSizeHint(targetKey, initialSelected)}</p>` : ''}
                 </div>
             `;
         barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}${sizeCompareHTML}</div>`;
@@ -6426,17 +6453,20 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     const initialToggleLabel = isGlassDragMode() ? realisticLabel : '🪟 切换为玻璃球';
     const initial3DLabel = isDrag3DMode() ? '🟢 切回 2D' : '🎲 切换 3D';
     const mainAreaClass = `drag-main-area${includeBarChart ? ' drag-main-area--with-bars' : ''}`;
-    const show3DCanvas = !isWidthMode && isDrag3DMode();
-    const toolButtonsHTML = isWidthMode
+    const show3DCanvas = !isWidthMode && !isMassMode && isDrag3DMode();
+    const toolButtonsHTML = isWidthMode || isMassMode
         ? ''
         : `
                 <button class="drag-style-toggle" type="button" aria-pressed="${isGlassDragMode()}">${initialToggleLabel}</button>
                 <button class="drag-3d-toggle" type="button" aria-pressed="${isDrag3DMode()}">${initial3DLabel}</button>
                 <canvas class="drag-sun-canvas-3d" width="${canvasWidth * dpr}" height="${canvasHeight * dpr}" style="width:${canvasWidth}px; height:${canvasHeight}px; ${show3DCanvas ? '' : 'display:none;'}"></canvas>
         `;
+    const dragInstructionText = isMassMode
+        ? `👆 拖拽天体和${targetDisplayName}比质量，看它质量约等于多少个！`
+        : `👆 拖拽天体放入${targetDisplayName}，看它${isWidthMode ? '沿赤道横向约等于多少个' : '能装多少个'}！`;
 
     wrapper.innerHTML = `
-        <div class="drag-instruction">👆 拖拽天体放入${target.nameCN}，看它${currentComparisonMetric === 'mass' ? '质量相当于多少个' : currentComparisonMetric === 'width' ? '沿赤道横向约等于多少个' : '能装多少个'}！</div>
+        <div class="drag-instruction">${dragInstructionText}</div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
         <div class="${mainAreaClass}">
             <div class="drag-sun-area" style="width:${canvasWidth}px; height:${canvasHeight}px;">
@@ -6471,6 +6501,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         if (trayItem) trayItem.classList.add('active');
         const planetRef = wrapper.querySelector('[data-planet-ref]');
         const planetRefLabel = wrapper.querySelector('[data-planet-ref-label]');
+        const massSizeHint = wrapper.querySelector('[data-mass-size-hint]');
         if (planetRef) {
             const sz = computePlanetRefSize(item);
             planetRef.style.width = sz + 'px';
@@ -6481,6 +6512,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         const widthFitRow = wrapper.querySelector('[data-width-fit-row]');
         if (widthFitRow) widthFitRow.innerHTML = renderWidthFitRow(item);
         if (planetRefLabel) planetRefLabel.textContent = item.nameCN;
+        if (massSizeHint) massSizeHint.textContent = getMassSizeHint(targetKey, item);
     }
 
     if (initialSelected) {
@@ -6501,7 +6533,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 ctx2.setTransform(1, 0, 0, 1, 0, 0);
                 ctx2.scale(dpr, dpr);
                 clearDragResultState();
-                const startAnim = isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation);
+                const startAnim = isMassMode ? startMassComparisonAnimation : (isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation));
                 const animConfig = {
                     resultLabel: currentComparisonMetric === 'mass'
                         ? `${targetDisplayName}质量约等于`
@@ -6520,7 +6552,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     }
 
     function drawIdle() {
-        if (isWidthMode) {
+        if (isMassMode) {
+            drawIdleMassComparison(ctx, canvasWidth, canvasHeight, targetKey, initialSelected);
+        } else if (isWidthMode) {
             drawIdleWidthContainer(ctx, canvasWidth, canvasHeight, targetKey, {
                 blackHoleScopeLabel
             });
@@ -6624,7 +6658,7 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     };
 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
-        startAnimation: isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation),
+        startAnimation: isMassMode ? startMassComparisonAnimation : (isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation)),
         ghostMaxSize: isBlackHole ? 70 : 64,
         resultLabel: currentComparisonMetric === 'mass'
             ? `${targetDisplayName}质量约等于`
@@ -8042,6 +8076,149 @@ function setupDragInteraction(wrapper, canvas, canvasSize, dpr, dragData, target
             }
         });
     });
+}
+
+function getMassComparisonBodyKey(targetKey) {
+    const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
+    if (blackHoleDescriptor) return blackHoleDescriptor.bodyKey;
+    return targetKey === SATURN_RING_CAPACITY_KEY ? 'saturn' : targetKey;
+}
+
+function getMassComparisonDiameter(targetKey) {
+    const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
+    if (blackHoleDescriptor) {
+        return getBlackHoleScopeDiameterKm(blackHoleDescriptor.bodyKey, blackHoleDescriptor.scopeKey);
+    }
+    return planetData[targetKey]?.diameter || getCapacityTargetValue(targetKey, 'diameter');
+}
+
+function getMassComparisonBodyColor(key, fallback = '#888888') {
+    const data = planetData[key];
+    return data?.color
+        ? '#' + data.color.toString(16).padStart(6, '0')
+        : fallback;
+}
+
+function getMassComparisonRadii(targetKey, objectKey, maxRadius = 112) {
+    const targetDiameter = getMassComparisonDiameter(targetKey);
+    const objectDiameter = planetData[objectKey]?.diameter;
+    if (!targetDiameter || !objectDiameter) {
+        return { targetRadius: maxRadius, objectRadius: Math.round(maxRadius * 0.42) };
+    }
+    if (targetDiameter >= objectDiameter) {
+        return {
+            targetRadius: maxRadius,
+            objectRadius: Math.max(7, maxRadius * objectDiameter / targetDiameter)
+        };
+    }
+    return {
+        targetRadius: Math.max(7, maxRadius * targetDiameter / objectDiameter),
+        objectRadius: maxRadius
+    };
+}
+
+function drawMassComparisonScene(ctx, width, height, targetKey, item, progress = 1, options = {}) {
+    const targetBodyKey = getMassComparisonBodyKey(targetKey);
+    const targetName = getCapacityTargetDisplayName(targetKey);
+    const objectKey = item?.key || 'earth';
+    const objectName = item?.nameCN || planetData[objectKey]?.nameCN || '';
+    const { targetRadius, objectRadius } = getMassComparisonRadii(targetKey, objectKey, Math.min(112, width * 0.24));
+    const targetX = width * 0.29;
+    const objectX = width * 0.71;
+    const centerY = height * 0.42;
+    const countLabel = options.countLabel || item?.label || '';
+    const objectColor = item?.color || getMassComparisonBodyColor(objectKey);
+    const targetColor = getMassComparisonBodyColor(targetBodyKey, CAPACITY_TARGETS[targetKey]?.color || '#888888');
+
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.36)';
+    ctx.setLineDash([8, 10]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(width * 0.47, centerY);
+    ctx.lineTo(width * 0.53, centerY);
+    ctx.stroke();
+    ctx.restore();
+
+    drawTexturedMiniPlanet(ctx, targetX, centerY, targetRadius * (0.92 + progress * 0.08), targetBodyKey, targetColor);
+    drawTexturedMiniPlanet(ctx, objectX, centerY, objectRadius * (0.92 + progress * 0.08), objectKey, objectColor);
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+    ctx.font = '700 16px "Noto Sans SC", sans-serif';
+    ctx.fillText(targetName, targetX, centerY + targetRadius + 26);
+    ctx.fillText(objectName, objectX, centerY + objectRadius + 26);
+
+    if (countLabel) {
+        ctx.font = `900 34px ${TEACHING_NUMBER_FONT}`;
+        ctx.fillStyle = '#ffe45e';
+        ctx.shadowColor = 'rgba(255, 210, 64, 0.45)';
+        ctx.shadowBlur = 14;
+        ctx.fillText(countLabel, width / 2, height - 78);
+        ctx.shadowBlur = 0;
+        ctx.font = '600 14px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.fillText(`个${objectName}的质量`, width / 2, height - 48);
+    } else {
+        ctx.font = '600 18px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.74)';
+        ctx.fillText('拖到这里比质量', width / 2, height - 62);
+    }
+    ctx.restore();
+}
+
+function drawIdleMassComparison(ctx, width, height, targetKey, item) {
+    drawMassComparisonScene(ctx, width, height, targetKey, item, 1, {
+        countLabel: item?.label
+    });
+}
+
+function startMassComparisonAnimation(ctx, size, data, animationConfig = {}) {
+    const width = animationConfig.canvasWidth || size;
+    const height = animationConfig.canvasHeight || size;
+    const targetKey = animationConfig.targetKey || 'sun';
+    const targetCount = data.count;
+    const duration = 1800;
+    playVolumeFillCollisionSound(targetCount, isBlackHoleTargetType(targetKey) ? 'blackHole' : 'sun', duration);
+
+    const startTime = performance.now();
+    let resultShown = false;
+    let lastFrameTime = 0;
+
+    function animate(now) {
+        lastFrameTime = now;
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const ease = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const displayCount = Math.max(1, Math.round(targetCount * ease));
+        const countLabel = progress >= 0.98 ? data.label : formatCapacityLabel(displayCount);
+
+        drawMassComparisonScene(ctx, width, height, targetKey, data, ease, {
+            countLabel
+        });
+
+        if (progress < 1) {
+            dragVolumeAnimationId = requestAnimationFrame(animate);
+        } else {
+            dragVolumeAnimationId = null;
+            if (!resultShown) {
+                showDragResult(data.label, data.nameCN, animationConfig.resultLabel || '质量约等于');
+                resultShown = true;
+            }
+        }
+    }
+
+    if (animationConfig.wrapper) {
+        animationConfig.wrapper._dragRedraw = () => animate(lastFrameTime || performance.now());
+    }
+    dragVolumeAnimationId = requestAnimationFrame(animate);
 }
 
 function startWidthFitAnimation(ctx, size, data, animationConfig = {}) {
