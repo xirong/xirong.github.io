@@ -640,6 +640,22 @@ const planetData = {
         description: '天卫一是天王星系统里较大的卫星，拥有巨大的断裂谷和亮暗相间地形。',
         relativeSize: 0.1238 // 1578/12742
     },
+    miranda: {
+        name: '天卫五',
+        nameCN: '天卫五',
+        nameEN: 'Miranda',
+        type: '卫星',
+        diameter: 471.6, // km
+        mass: 0.0000659, // 10²⁴ kg
+        category: 'moon',
+        distance: 2870, // 百万 km（随天王星）
+        orbitPeriod: 1.41, // 天
+        rotationPeriod: 1.41,
+        color: 0x9f968d,
+        emissive: 0x3b352f,
+        description: '天卫五是 Miranda，是天王星的一颗小卫星，表面有巨大断崖、沟槽和拼贴状地形，像被重新拼起来的冰岩世界。',
+        relativeSize: 0.0370 // 471.6/12742
+    },
     charon: {
         name: '冥卫一',
         nameCN: '冥卫一',
@@ -1132,7 +1148,8 @@ const solarGuideTextureMap = {
     pluto: 'textures/pluto.jpg',
     haumea: 'textures/haumea.jpg',
     makemake: 'textures/makemake.jpg',
-    eris: 'textures/eris.jpg'
+    eris: 'textures/eris.jpg',
+    miranda: 'textures/miranda.jpg'
 };
 
 // ============ 全局变量 ============
@@ -1293,6 +1310,7 @@ const planetAudioNarration = {
     deimos: '火卫二，Deimos，火星的外侧卫星，体积更小更暗，轨道离得更远、更平稳，像颗安静、细小的伴星。',
     triton: '海卫一，Triton，海王星的最大卫星，轨道是逆行的，说明它很可能不是原生形成，而是后来被俘获，表面有年轻的地质痕迹。',
     titania: '天卫一，Titania，天王星系统里体积较大的卫星之一，表面有巨型断谷和亮暗相间地形，内部可能藏有历史上复杂的构造痕迹。',
+    miranda: '天卫五，Miranda，天王星的一颗小卫星，表面有巨大的断崖、沟槽和拼贴状地形。它像一块被撞击和内部活动反复改造过的冰岩世界。',
     charon: '冥卫一，Charon，冥王星最大的卫星，大小接近冥王星的一半。它和冥王星互相潮汐锁定，像一对很特别的双人舞伙伴。',
     nix: '冥卫二，Nix，冥王星的一颗小卫星，形状不规则，和冥卫三一样大约只有几十公里宽。它来自遥远的柯伊伯带，很适合观察小冰岩天体。',
     hydra: '冥卫三，Hydra，冥王星外侧的小卫星之一，形状细长，表面反光较亮。它和冥卫二都是新视野号重点拍到的小卫星。',
@@ -1324,6 +1342,7 @@ const satelliteDockItems = [
     { key: 'deimos', nameCN: '火卫二', nameShort: '火卫二', accent: 0x6e7280, texture: 'textures/deimos.jpg' },
     { key: 'triton', nameCN: '海卫一', nameShort: '海卫一', accent: 0x7cc8ff, texture: 'textures/triton.jpg' },
     { key: 'titania', nameCN: '天卫一', nameShort: '天卫一', accent: 0x88b999, texture: 'textures/titania.jpg' },
+    { key: 'miranda', nameCN: '天卫五', nameShort: '天卫五', accent: 0x9f968d, texture: 'textures/miranda.jpg' },
     { key: 'charon', nameCN: '冥卫一', nameShort: '冥卫一', accent: 0xb8b1a7, texture: 'textures/moon.jpg' },
     { key: 'nix', nameCN: '冥卫二', nameShort: '冥卫二', accent: 0xaeb6c8, texture: 'textures/deimos.jpg' },
     { key: 'hydra', nameCN: '冥卫三', nameShort: '冥卫三', accent: 0xc8d2de, texture: 'textures/phobos_clean.jpg' },
@@ -1345,6 +1364,7 @@ const moonKeyToName = {
     deimos: '火卫二',
     triton: '海卫一',
     titania: '天卫一',
+    miranda: '天卫五',
     charon: '冥卫一',
     nix: '冥卫二',
     hydra: '冥卫三',
@@ -1811,6 +1831,7 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     deimos: 'textures/deimos.jpg',
     triton: 'textures/triton.jpg',
     titania: 'textures/titania.jpg',
+    miranda: 'textures/miranda.jpg',
     oberon: 'textures/oberon.jpg'
 };
 const dragVolumeTextureCache = {};
@@ -2460,6 +2481,7 @@ const moonsData = {
     ],
     // 天王星的卫星
     uranus: [
+        { name: '天卫五', nameCN: '天卫五', diameter: 471.6, orbitRadius: 5.2, orbitSpeed: 0.07, color: 0x9f968d, desc: '天卫五（Miranda）是天王星系统中最奇特的小卫星之一，表面有巨大断崖、沟槽和拼贴状地形，很适合观察冰岩卫星被撞击和内部活动改造后的样子。', texturePath: 'textures/miranda.jpg', brightness: 1.18, fresnelColor: 'vec3(0.82, 0.8, 0.75)', fresnelIntensity: 0.1, segments: 48 },
         { name: '天卫一', nameCN: '天卫一', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '天卫一（Titania）是天王星系统中较大的卫星，拥有巨大的断裂谷和古老平原，显示它有复杂的内部演化历史。', texturePath: 'textures/titania.jpg', brightness: 1.14, fresnelColor: 'vec3(0.82, 0.88, 0.94)', fresnelIntensity: 0.08, segments: 48 },
         { name: '天卫四', nameCN: '天卫四', diameter: 1523, orbitRadius: 9, orbitSpeed: 0.04, color: 0x99aaaa, desc: '奥伯龙', texturePath: 'textures/oberon.jpg', brightness: 1.14, fresnelColor: 'vec3(0.8, 0.84, 0.9)', fresnelIntensity: 0.08, segments: 48 }
     ],
@@ -5609,6 +5631,7 @@ const CAPACITY_TARGET_TEXTURES = {
     deimos: 'textures/deimos.jpg',
     triton: 'textures/triton.jpg',
     titania: 'textures/titania.jpg',
+    miranda: 'textures/miranda.jpg',
     charon: 'textures/moon.jpg',
     nix: 'textures/deimos.jpg',
     hydra: 'textures/phobos_clean.jpg',
@@ -5780,6 +5803,7 @@ const CAPACITY_TARGETS = {
     rhea: createCapacityTarget('rhea'),
     makemake: createCapacityTarget('makemake'),
     titania: createCapacityTarget('titania'),
+    miranda: createCapacityTarget('miranda'),
     ceres: createCapacityTarget('ceres'),
     enceladus: createCapacityTarget('enceladus'),
     phobos: createCapacityTarget('phobos'),
@@ -6134,6 +6158,7 @@ function renderCapacityTargetPicker(container) {
         { key: 'rhea', icon: '🌙', name: '土卫五' },
         { key: 'makemake', icon: '🧊', name: '鸟神星' },
         { key: 'titania', icon: '🌙', name: '天卫一' },
+        { key: 'miranda', icon: '🌙', name: '天卫五' },
         { key: 'ceres', icon: '🧊', name: '谷神星' },
         { key: 'enceladus', icon: '🌙', name: '土卫二' },
         { key: 'phobos', icon: '🌙', name: '火卫一' },
@@ -6777,6 +6802,7 @@ function generateSizeComparison(mode) {
         deimos: 'textures/deimos.jpg',
         triton: 'textures/triton.jpg',
         titania: 'textures/titania.jpg',
+        miranda: 'textures/miranda.jpg',
         charon: 'textures/moon.jpg',
         hiiaka: 'textures/moon.jpg',
         dysnomia: 'textures/moon.jpg',
