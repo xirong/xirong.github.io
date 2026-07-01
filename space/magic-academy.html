@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智天宇宙魔法学院 - 地球村第 1 天</title>
+    <title>智天宇宙魔法学院 - 太阳系新生区</title>
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
     <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
@@ -122,7 +122,7 @@
 
         .progress-strip {
             display: grid;
-            grid-template-columns: repeat(6, minmax(46px, 1fr));
+            grid-template-columns: repeat(8, minmax(46px, 1fr));
             gap: 10px;
             max-width: 680px;
             margin-top: 18px;
@@ -140,6 +140,11 @@
             gap: 4px;
             color: var(--muted);
             transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        button.progress-node {
+            width: 100%;
+            color: inherit;
         }
 
         .progress-node.active {
@@ -163,6 +168,12 @@
             font-size: 0.76rem;
             font-weight: 700;
             text-align: center;
+        }
+
+        .node-count {
+            font-size: 0.62rem;
+            color: rgba(226, 241, 255, 0.62);
+            font-weight: 800;
         }
 
         .beacon-layer {
@@ -237,7 +248,7 @@
 
         .reward-grid {
             display: grid;
-            grid-template-columns: repeat(6, minmax(52px, 1fr));
+            grid-template-columns: repeat(5, minmax(52px, 1fr));
             gap: 9px;
         }
 
@@ -337,7 +348,9 @@
         .word-card,
         .english-word,
         .math-question,
-        .star-compare {
+        .star-compare,
+        .task-section,
+        .badge-hero {
             border: 1px solid rgba(154, 205, 255, 0.18);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.055);
@@ -386,6 +399,226 @@
         .english-list {
             display: grid;
             gap: 12px;
+        }
+
+        .badge-mission {
+            display: grid;
+            gap: 14px;
+        }
+
+        .badge-hero {
+            display: grid;
+            grid-template-columns: 112px 1fr;
+            gap: 16px;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 216, 107, 0.08), rgba(103, 241, 255, 0.06));
+        }
+
+        .badge-planet {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 0 38px rgba(103, 241, 255, 0.34);
+        }
+
+        .badge-copy h3 {
+            color: var(--text);
+            font-size: 1.35rem;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .badge-copy h3 span {
+            color: var(--gold);
+            font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+            font-size: 0.92rem;
+        }
+
+        .badge-copy p {
+            color: var(--muted);
+            line-height: 1.48;
+            margin-top: 5px;
+        }
+
+        .badge-kicker {
+            color: var(--cyan);
+            font-size: 0.74rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .inline-link {
+            display: inline-flex;
+            margin-top: 10px;
+            color: var(--gold);
+            font-size: 0.86rem;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .badge-meters {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .badge-meter {
+            border: 1px solid rgba(154, 205, 255, 0.14);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.045);
+            padding: 10px;
+        }
+
+        .meter-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 0.76rem;
+            font-weight: 900;
+            margin-bottom: 7px;
+        }
+
+        .meter-label strong {
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .meter-track {
+            height: 7px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--green), var(--cyan), var(--gold));
+        }
+
+        .task-section {
+            display: grid;
+            gap: 12px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .section-title h3,
+        .observe-task h3 {
+            color: var(--cyan);
+            font-size: 1rem;
+        }
+
+        .section-title span {
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+
+        .hanzi-grid,
+        .english-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .hanzi-tile,
+        .english-tile {
+            min-height: 86px;
+            border-radius: 8px;
+            border: 1px solid rgba(154, 205, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            display: grid;
+            place-items: center;
+            gap: 2px;
+            padding: 8px 6px;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .hanzi-tile:hover,
+        .english-tile:hover {
+            transform: translateY(-1px);
+            border-color: rgba(103, 241, 255, 0.55);
+        }
+
+        .hanzi-tile.learned,
+        .english-tile.learned {
+            border-color: rgba(130, 240, 163, 0.72);
+            background: rgba(18, 78, 58, 0.28);
+        }
+
+        .hanzi-char {
+            font-size: 2rem;
+            line-height: 1;
+            color: var(--gold);
+            font-weight: 900;
+        }
+
+        .hanzi-pinyin,
+        .english-cn {
+            font-size: 0.74rem;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .hanzi-words {
+            max-width: 100%;
+            color: rgba(244, 251, 255, 0.78);
+            font-size: 0.68rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .english-main {
+            max-width: 100%;
+            color: var(--gold);
+            font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 900;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .math-meta {
+            color: var(--gold);
+            font-size: 0.78rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .option-row.wide {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .complete-math p,
+        .observe-task p {
+            color: var(--muted);
+            line-height: 1.48;
+            margin-top: 5px;
+        }
+
+        .observe-task {
+            display: grid;
+            grid-template-columns: 1fr minmax(118px, 140px);
+            align-items: center;
+            gap: 12px;
+        }
+
+        .observe-task.done {
+            border-color: rgba(130, 240, 163, 0.62);
+            background: rgba(18, 78, 58, 0.24);
         }
 
         .english-word {
@@ -475,6 +708,14 @@
             color: #07111f;
             background: linear-gradient(135deg, var(--gold), var(--green));
             box-shadow: 0 12px 34px rgba(255, 216, 107, 0.22);
+        }
+
+        .primary-btn:disabled,
+        .secondary-btn:disabled,
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.62;
+            transform: none;
         }
 
         .secondary-btn,
@@ -735,8 +976,26 @@
             }
 
             .panel-foot,
-            .option-row {
+            .option-row,
+            .option-row.wide,
+            .badge-meters,
+            .observe-task {
                 grid-template-columns: 1fr;
+            }
+
+            .progress-strip,
+            .hanzi-grid,
+            .english-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .badge-hero {
+                grid-template-columns: 1fr;
+            }
+
+            .badge-planet {
+                width: 96px;
+                height: 96px;
             }
         }
     </style>
@@ -757,7 +1016,7 @@
                 <div class="topbar">
                     <div class="brand">
                         <h1>智天宇宙魔法学院</h1>
-                        <p>地球村第 1 天，点亮天空和太阳，完成火箭补给，收集星球卡和恒星比较星。</p>
+                        <p>太阳系新生区，认 10 个汉字，读 10 个英文，完成 10 道能量题，收集第一批太阳系勋章。</p>
                     </div>
                     <a class="home-link" href="../index.html" aria-label="返回首页">⌂</a>
                 </div>
@@ -765,22 +1024,22 @@
             </div>
 
             <aside class="reward-dock" aria-label="奖励收藏">
-                <h2>地球村奖励册</h2>
+                <h2>太阳系新生勋章册</h2>
                 <div class="reward-grid" id="rewardGrid"></div>
             </aside>
         </section>
 
-        <section class="mission-panel" aria-label="第一天任务">
+        <section class="mission-panel" aria-label="太阳系新生区任务">
             <div class="panel-head">
-                <h2 id="missionTitle">地球村欢迎日</h2>
-                <p id="missionInstruction">点亮 3 颗蓝色信标，唤醒地球村。</p>
+                <h2 id="missionTitle">太阳勋章</h2>
+                <p id="missionInstruction">认识太阳、光和热，点亮第一枚太阳系勋章。</p>
             </div>
 
             <div class="mission-body" id="missionBody"></div>
 
             <div class="panel-foot">
                 <button class="secondary-btn" id="listenBtn">听一听</button>
-                <button class="secondary-btn" id="resetBtn">重玩第 1 天</button>
+                <button class="secondary-btn" id="resetBtn">重玩新生区</button>
             </div>
         </section>
     </main>
@@ -798,8 +1057,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="magic-academy-data.js"></script>
-    <script src="magic-academy.js"></script>
+    <script src="magic-academy-data.js?v=20260701-solar-rookie"></script>
+    <script src="magic-academy.js?v=20260701-solar-rookie"></script>
 </body>
 
 </html>
