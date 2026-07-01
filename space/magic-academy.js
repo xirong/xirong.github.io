@@ -224,6 +224,7 @@ function renderCurrentMission() {
         bindMissionEvents(null);
         renderProgress();
         updateAcademyBodyState();
+        setLearningStageComplete();
         return;
     }
 
@@ -233,6 +234,7 @@ function renderCurrentMission() {
     bindMissionEvents(mission);
     renderProgress();
     updateAcademyBodyState();
+    setLearningStageForMission(mission);
 }
 
 function renderMission(mission) {
@@ -418,6 +420,7 @@ function handleCharClick(mission, char) {
     saveState();
     playAudio(item.audio, `${item.char}，${item.pinyin}。${item.words}。${item.sentence}`);
     renderCurrentMission();
+    setLearningStageForChar(item, mission);
 }
 
 function handleEnglishClick(mission, item) {
@@ -427,6 +430,7 @@ function handleEnglishClick(mission, item) {
     saveState();
     playAudio(item.audio, `${item.word}. ${item.sentence}`);
     renderCurrentMission();
+    setLearningStageForEnglish(item, mission);
 }
 
 function handleBadgeMathAnswer(mission, button) {
@@ -445,14 +449,20 @@ function handleBadgeMathAnswer(mission, button) {
         button.classList.add('correct');
         if (feedback) feedback.textContent = '答对啦，能量增加。';
         playAudio(question.audio, `${question.question}，答对啦。`);
+        setLearningStageForMath(question, true);
 
-        setTimeout(() => renderCurrentMission(), 650);
+        setTimeout(() => {
+            renderCurrentMission();
+            const nextQuestion = getCurrentBadgeMathQuestion(mission);
+            if (nextQuestion) setLearningStageForMath(nextQuestion, false);
+        }, 650);
         return;
     }
 
     button.classList.add('wrong');
     if (feedback) feedback.textContent = question.hint || '再想一想，先不要急着点。';
     playAudio('', question.hint || '再试一次，智天可以的。');
+    setLearningStageForMath(question, false);
 
     setTimeout(() => {
         optionButtons.forEach(item => {
@@ -596,6 +606,102 @@ function updateAcademyBodyState() {
 
 function getCurrentMission() {
     return academyData.missions[state.currentMissionIndex] || null;
+}
+
+// ============ 左侧学习剧场 ============
+function setLearningStageForMission(mission) {
+    if (!mission) return;
+    setLearningStage({
+        theme: getVisualThemeForText(`${mission.targetName}${mission.targetNameEn}`),
+        title: `${mission.targetName} ${mission.targetNameEn}`,
+        subtitle: '先点右侧的汉字、英文和算式，左侧会跟着演示。',
+        chip: mission.shortTitle || '章'
+    });
+}
+
+function setLearningStageForChar(item, mission) {
+    const theme = getVisualThemeForText(`${item.char}${item.words}${item.sentence}`);
+    setLearningStage({
+        theme,
+        title: `${item.char}  ${item.pinyin}`,
+        subtitle: `${item.words}。${item.sentence}`,
+        chip: item.char
+    });
+}
+
+function setLearningStageForEnglish(item, mission) {
+    const theme = getVisualThemeForText(`${item.word}${item.cn}${item.sentence}${mission?.targetName || ''}`);
+    setLearningStage({
+        theme,
+        title: `${item.word}`,
+        subtitle: `${item.cn}。${item.sentence}`,
+        chip: item.word.slice(0, 2)
+    });
+}
+
+function setLearningStageForMath(question, isCorrect) {
+    const visual = renderMathVisual(question.expression);
+    setLearningStage({
+        theme: 'math',
+        title: isCorrect ? '答对啦，能量进来了' : question.expression,
+        subtitle: question.question,
+        chip: isCorrect ? '对' : '算',
+        visual
+    });
+}
+
+function setLearningStageComplete() {
+    setLearningStage({
+        theme: 'light',
+        title: '太阳系新生区完成',
+        subtitle: academyData.completionText,
+        chip: '章'
+    });
+}
+
+function setLearningStage({ theme, title, subtitle, chip, visual }) {
+    const stage = document.getElementById('learningStage');
+    if (!stage) return;
+
+    stage.className = `learning-stage scene-${theme || 'sunrise'}`;
+    stage.innerHTML = `
+        <div class="learning-stage-head">
+            <div>
+                <div class="learning-stage-title">${escapeHtml(title)}</div>
+                <div class="learning-stage-subtitle">${escapeHtml(subtitle)}</div>
+            </div>
+            <div class="learning-stage-chip">${escapeHtml(chip)}</div>
+        </div>
+        <div class="learning-visual" aria-hidden="true">${visual || ''}</div>
+    `;
+}
+
+function getVisualThemeForText(text) {
+    if (/[月]|Moon/i.test(text)) return 'moon';
+    if (/[水海雨]|Ocean|Water|Rain|Neptune|Uranus/i.test(text)) return 'water';
+    if (/[热火炎温]|Heat|Hot|Fire|Mars|Venus/i.test(text)) return 'heat';
+    if (/[光明亮白星]|Light|Bright|Star|Energy/i.test(text)) return 'light';
+    return 'sunrise';
+}
+
+function renderMathVisual(expression) {
+    const parts = String(expression).match(/\d+|[+-]/g) || [];
+    let orbIndex = 0;
+    const html = parts.map((part, index) => {
+        if (part === '+' || part === '-') return `<span class="math-op">${part}</span>`;
+
+        const previous = parts[index - 1];
+        const count = Math.max(0, Math.min(10, Number(part)));
+        const takeAway = previous === '-';
+        const orbs = Array.from({ length: count }, () => {
+            const current = orbIndex;
+            orbIndex += 1;
+            return `<span class="math-orb${takeAway ? ' take-away' : ''}" style="--i:${current}"></span>`;
+        }).join('');
+        return `<span class="math-visual-group">${orbs}</span>`;
+    }).join('');
+
+    return `<div class="math-visual-row">${html}</div>`;
 }
 
 function getBadgeProgress(missionId) {

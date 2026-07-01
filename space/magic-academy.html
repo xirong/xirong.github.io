@@ -291,6 +291,220 @@
             text-align: center;
         }
 
+        .learning-stage {
+            width: min(680px, 100%);
+            min-height: 270px;
+            margin-top: 18px;
+            border: 1px solid rgba(154, 205, 255, 0.22);
+            border-radius: 8px;
+            background:
+                radial-gradient(circle at 50% 44%, rgba(255, 216, 107, 0.12), transparent 34%),
+                rgba(5, 13, 31, 0.68);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            overflow: hidden;
+            position: relative;
+            pointer-events: auto;
+        }
+
+        .learning-stage-head {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px 0;
+        }
+
+        .learning-stage-title {
+            color: var(--text);
+            font-size: 1.15rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .learning-stage-subtitle {
+            color: var(--muted);
+            font-size: 0.86rem;
+            line-height: 1.45;
+            margin-top: 5px;
+        }
+
+        .learning-stage-chip {
+            min-width: 60px;
+            min-height: 60px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: #07111f;
+            background: radial-gradient(circle at 30% 22%, #ffffff, var(--gold));
+            font-size: 2rem;
+            font-weight: 900;
+            box-shadow: 0 0 28px rgba(255, 216, 107, 0.36);
+        }
+
+        .learning-visual {
+            position: relative;
+            height: 194px;
+            margin: 6px 14px 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(8, 24, 58, 0.74), rgba(3, 7, 18, 0.92));
+        }
+
+        .learning-visual::before,
+        .learning-visual::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .scene-sunrise .learning-visual {
+            background: linear-gradient(180deg, #102b63 0%, #e97832 54%, #162b31 55%, #05111f 100%);
+        }
+
+        .scene-sunrise .learning-visual::before {
+            width: 118px;
+            height: 118px;
+            left: calc(50% - 59px);
+            top: 76px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff8ce 0%, #ffd86b 36%, #ff8a22 70%, rgba(255, 138, 34, 0) 72%);
+            box-shadow: 0 0 58px rgba(255, 216, 107, 0.84);
+            animation: sunriseLift 2.4s ease-in-out infinite alternate;
+        }
+
+        .scene-sunrise .learning-visual::after {
+            top: 106px;
+            background:
+                linear-gradient(90deg, transparent, rgba(255, 248, 206, 0.72), transparent),
+                radial-gradient(ellipse at center, rgba(255, 216, 107, 0.28), transparent 58%);
+            transform-origin: center;
+            animation: lightSweep 2.2s ease-in-out infinite alternate;
+        }
+
+        .scene-light .learning-visual {
+            background: radial-gradient(circle at 50% 48%, rgba(255, 248, 206, 0.18), rgba(8, 18, 42, 0.92) 62%);
+        }
+
+        .scene-light .learning-visual::before {
+            left: 22%;
+            top: -24%;
+            width: 56%;
+            height: 150%;
+            background: linear-gradient(90deg, transparent, rgba(255, 248, 206, 0.86), transparent);
+            transform: rotate(24deg);
+            animation: beamTravel 1.8s ease-in-out infinite;
+        }
+
+        .scene-light .learning-visual::after {
+            background:
+                radial-gradient(circle at 26% 30%, rgba(255, 255, 255, 0.9) 0 2px, transparent 3px),
+                radial-gradient(circle at 66% 44%, rgba(255, 216, 107, 0.9) 0 2px, transparent 3px),
+                radial-gradient(circle at 48% 70%, rgba(103, 241, 255, 0.8) 0 2px, transparent 3px);
+            animation: sparklePulse 1.3s ease-in-out infinite alternate;
+        }
+
+        .scene-heat .learning-visual {
+            background: linear-gradient(180deg, #351018, #7c2b1a 52%, #130911);
+        }
+
+        .scene-heat .learning-visual::before {
+            inset: 18% 8%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(ellipse at center, rgba(255, 216, 107, 0.2) 0 8px, rgba(255, 139, 77, 0) 9px 18px);
+            filter: blur(1px);
+            animation: heatWave 1.4s ease-in-out infinite;
+        }
+
+        .scene-heat .learning-visual::after {
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 70%;
+            background:
+                radial-gradient(ellipse at 20% 90%, rgba(255, 216, 107, 0.9), transparent 22%),
+                radial-gradient(ellipse at 50% 88%, rgba(255, 98, 58, 0.8), transparent 28%),
+                radial-gradient(ellipse at 78% 90%, rgba(255, 216, 107, 0.72), transparent 20%);
+            animation: flameDance 1.1s ease-in-out infinite alternate;
+        }
+
+        .scene-water .learning-visual {
+            background: linear-gradient(180deg, #0c2c63, #0b7484 54%, #05213a);
+        }
+
+        .scene-water .learning-visual::before {
+            top: 52%;
+            height: 42%;
+            background: repeating-radial-gradient(ellipse at 50% 50%, rgba(103, 241, 255, 0.28) 0 8px, transparent 9px 24px);
+            animation: waveMove 1.8s linear infinite;
+        }
+
+        .scene-moon .learning-visual {
+            background: radial-gradient(circle at 50% 52%, rgba(200, 216, 255, 0.16), #050b1e 62%);
+        }
+
+        .scene-moon .learning-visual::before {
+            width: 96px;
+            height: 96px;
+            right: 24%;
+            top: 34px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffffff, #aeb8c6 56%, #6d7480);
+            box-shadow: 0 0 40px rgba(200, 216, 255, 0.45);
+            animation: moonFloat 2s ease-in-out infinite alternate;
+        }
+
+        .scene-math .learning-visual {
+            display: grid;
+            align-items: center;
+            padding: 22px;
+            background: radial-gradient(circle at 50% 50%, rgba(103, 241, 255, 0.12), rgba(8, 18, 42, 0.92) 68%);
+        }
+
+        .math-visual-row {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .math-visual-group {
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            max-width: 150px;
+        }
+
+        .math-orb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 24%, #ffffff, #67f1ff 42%, #2469ff);
+            box-shadow: 0 0 18px rgba(103, 241, 255, 0.5);
+            animation: orbPop 0.5s ease both;
+            animation-delay: calc(var(--i) * 0.05s);
+        }
+
+        .math-orb.take-away {
+            background: radial-gradient(circle at 30% 24%, #ffffff, #ff8b8b 42%, #a82424);
+            animation: orbFade 1.2s ease-in-out infinite alternate;
+        }
+
+        .math-op {
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0 4px;
+        }
+
         .mission-panel {
             min-height: 0;
             display: flex;
@@ -919,6 +1133,57 @@
             transform: translateX(-50%) translateY(0);
         }
 
+        @keyframes sunriseLift {
+            from { transform: translateY(20px) scale(0.92); }
+            to { transform: translateY(-26px) scale(1.04); }
+        }
+
+        @keyframes lightSweep {
+            from { transform: scaleX(0.82); opacity: 0.55; }
+            to { transform: scaleX(1.12); opacity: 0.92; }
+        }
+
+        @keyframes beamTravel {
+            0% { transform: translateX(-44%) rotate(24deg); opacity: 0.18; }
+            45%, 70% { opacity: 0.84; }
+            100% { transform: translateX(44%) rotate(24deg); opacity: 0.24; }
+        }
+
+        @keyframes sparklePulse {
+            from { opacity: 0.45; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1.04); }
+        }
+
+        @keyframes heatWave {
+            from { transform: translateY(8px) scaleX(0.96); opacity: 0.48; }
+            to { transform: translateY(-8px) scaleX(1.04); opacity: 0.8; }
+        }
+
+        @keyframes flameDance {
+            from { transform: translateY(10px) scaleY(0.92); }
+            to { transform: translateY(-8px) scaleY(1.08); }
+        }
+
+        @keyframes waveMove {
+            from { transform: translateX(-18px); }
+            to { transform: translateX(18px); }
+        }
+
+        @keyframes moonFloat {
+            from { transform: translateY(8px); }
+            to { transform: translateY(-10px); }
+        }
+
+        @keyframes orbPop {
+            from { transform: translateY(16px) scale(0.2); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes orbFade {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.35; transform: scale(0.78); }
+        }
+
         @media (max-width: 900px) {
             body {
                 overflow: auto;
@@ -997,6 +1262,14 @@
                 width: 96px;
                 height: 96px;
             }
+
+            .learning-stage {
+                min-height: 240px;
+            }
+
+            .learning-visual {
+                height: 162px;
+            }
         }
     </style>
 </head>
@@ -1022,6 +1295,17 @@
                 </div>
                 <div class="progress-strip" id="progressStrip"></div>
             </div>
+
+            <section class="learning-stage scene-sunrise" id="learningStage" aria-live="polite">
+                <div class="learning-stage-head">
+                    <div>
+                        <div class="learning-stage-title">太阳系新生区</div>
+                        <div class="learning-stage-subtitle">点击右侧汉字、英文或算式，这里会把它演出来。</div>
+                    </div>
+                    <div class="learning-stage-chip">日</div>
+                </div>
+                <div class="learning-visual" aria-hidden="true"></div>
+            </section>
 
             <aside class="reward-dock" aria-label="奖励收藏">
                 <h2>太阳系新生勋章册</h2>
@@ -1057,8 +1341,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="magic-academy-data.js?v=20260701-solar-rookie"></script>
-    <script src="magic-academy.js?v=20260701-solar-rookie"></script>
+    <script src="magic-academy-data.js?v=20260701-learning-stage"></script>
+    <script src="magic-academy.js?v=20260701-learning-stage"></script>
 </body>
 
 </html>
