@@ -9,11 +9,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 
 VOICE = "zh-CN-XiaoxiaoNeural"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "audio", "galaxy")
+PROXY_URL = os.environ.get("https_proxy") or os.environ.get("http_proxy") or os.environ.get("all_proxy")
 
 
 GALAXY_AUDIO_TEXTS = {
@@ -46,7 +48,7 @@ GALAXY_AUDIO_TEXTS = {
     "arcturus": "大角星，Arcturus。它是北天最亮的恒星，也是牧夫座的主星，距离我们约36.7光年，是一颗直径约为太阳25倍的红巨星。",
     "elnath": "五车五，Elnath，也叫金牛座β星。它距离我们约134光年，直径约为太阳的4倍，是一颗很亮的蓝白色巨星，位在金牛座和御夫座交界附近。五车五属于银河系里的恒星，不是行星。它的亮度约为太阳的数百倍，中文星名来自古代星官五车。",
     "antares": "心宿二，Antares。它是天蝎座的心脏，一颗巨大的红超巨星，距离我们约550光年。名字的意思是火星的对手，因为它的红色与火星相似。",
-    "vyCanisMajoris": "大犬座VY，VY Canis Majoris。它曾被认为是已知最大的恒星之一，是一颗极其巨大的红特超巨星，正在快速丧失质量。",
+    "vyCanisMajoris": "大犬座VY，VY Canis Majoris。它曾被认为是已知最大的恒星之一，是一颗极其巨大的红特超巨星，直径约为太阳的1420倍，正在快速丧失质量。",
     "uyScuti": "盾牌座UY，UY Scuti。它曾被认为是已知体积最大的恒星，位于银河系中心方向的盾牌座。",
     "pistolStar": "手枪星，Pistol Star。它是银河系中最明亮的恒星之一，位于银河系中心附近，亮度大约是太阳的160万倍。",
     "m87": "M87星系，Messier 87。它距离我们约5500万光年，直径约13万光年，是室女座星系团里的巨型椭圆星系。人类第一张黑洞照片，拍到的就是M87中心的超大质量黑洞。它的质量约为太阳的65亿倍，比银河系中心黑洞大得多。",
@@ -86,30 +88,121 @@ GALAXY_AUDIO_TEXTS = {
 }
 
 
+FINAL_SIZE_SENTENCES = {
+    "galacticCenter": "最后记住，它的事件视界直径约2400万公里。",
+    "orionNebula": "最后记住，它的大小约24光年。",
+    "eagleNebula": "最后记住，它的大小约70×55光年。",
+    "crabNebula": "最后记住，它的大小约10光年。",
+    "horseheadNebula": "最后记住，它的马头结构约3光年。",
+    "pleiades": "最后记住，它的大小约13光年。",
+    "m13Cluster": "最后记住，它的大小约145光年。",
+    "carinaNebula": "最后记住，它的大小约200光年以上。",
+    "betelgeuse": "最后记住，它的直径约为太阳的700倍。",
+    "rigel": "最后记住，它的直径约为太阳的79倍。",
+    "alnitak": "最后记住，它的主星直径约为太阳的20倍。",
+    "sirius": "最后记住，它的主星直径约为太阳的1.7倍。",
+    "alphaCentauri": "最后记住，它的主星直径约为太阳的1.2倍。",
+    "alphaCentauriA": "最后记住，它的直径约为太阳的1.22倍。",
+    "alphaCentauriB": "最后记住，它的直径约为太阳的0.86倍。",
+    "proximaCentauri": "最后记住，它的直径约为太阳的0.154倍。",
+    "barnardStar": "最后记住，它的直径约为太阳的0.20倍。",
+    "epsilonEridani": "最后记住，它的直径约为太阳的0.74倍。",
+    "trappist1": "最后记住，它的直径约为太阳的0.12倍。",
+    "kepler452": "最后记住，它的直径约为太阳的1.11倍。",
+    "vega": "最后记住，它的直径约为太阳的2.36倍。",
+    "ross154": "最后记住，它的直径约为太阳的0.17倍。",
+    "lacaille9352": "最后记住，它的直径约为太阳的0.47倍。",
+    "tauCeti": "最后记住，它的直径约为太阳的0.79倍。",
+    "procyon": "最后记住，它的主星直径约为太阳的2倍。",
+    "pollux": "最后记住，它的直径约为太阳的9倍。",
+    "arcturus": "最后记住，它的直径约为太阳的25倍。",
+    "elnath": "最后记住，它的直径约为太阳的4倍。",
+    "antares": "最后记住，它的直径约为太阳的680倍。",
+    "vyCanisMajoris": "最后记住，它的直径约为太阳的1420倍。",
+    "uyScuti": "最后记住，它的直径约为太阳的1700倍。",
+    "pistolStar": "最后记住，它的直径约为太阳的306倍。",
+    "m87": "最后记住，它的直径约13万光年。",
+    "pinwheel": "最后记住，它的直径约17万光年。",
+    "blackEye": "最后记住，它的直径约5万4千光年。",
+    "cartwheel": "最后记住，它的大小约15万光年。",
+    "hoagObject": "最后记住，它的大小约12万光年。",
+    "stephansQuintet": "最后记住，它的空间范围横跨数十万光年。",
+    "sunflower": "最后记住，它的直径约9万8千光年。",
+    "lmc": "最后记住，它的直径1.4万光年。",
+    "smc": "最后记住，它的直径7000光年。",
+    "andromeda": "最后记住，它的直径约22万光年。",
+    "triangulum": "最后记住，它的直径6万光年。",
+    "sombrero": "最后记住，它的直径约5万光年。",
+    "whirlpool": "最后记住，它的直径约6万光年。",
+    "centaurusA": "最后记住，它的直径6万光年。",
+    "antennae": "最后记住，它的直径共约10万光年。",
+    "sgrDsph": "最后记住，它的直径1万光年。",
+    "sculptorDwarf": "最后记住，它的直径约3000光年。",
+    "leoI": "最后记住，它的直径约2000光年。",
+    "ngc6822": "最后记住，它的直径约7000光年。",
+    "ic10": "最后记住，它的直径约5000光年。",
+    "ic1613": "最后记住，它的直径约1万光年。",
+    "m32": "最后记住，它的直径约6500光年。",
+    "m110": "最后记住，它的直径约1.7万光年。",
+    "ngc253": "最后记住，它的直径约9万光年。",
+    "m81m82": "最后记住，它的直径合计约15万光年。",
+    "milkyWay": "最后记住，它的直径约10万光年。",
+    "andromedaBlackHole": "最后记住，它的事件视界直径约8亿公里。",
+    "sombreroBlackHole": "最后记住，它的事件视界直径约60亿公里。",
+    "whirlpoolBlackHole": "最后记住，它的事件视界直径约1800万公里。",
+    "m87BlackHole": "最后记住，它的事件视界直径约380亿公里。",
+    "ton618": "最后记住，它的事件视界直径约4000亿公里。",
+    "phoenixA": "最后记住，它的事件视界直径约6000亿公里。",
+}
+
+
+def build_audio_text(key, text):
+    final_size = FINAL_SIZE_SENTENCES.get(key)
+    if not final_size:
+        raise SystemExit(f"缺少最终大小文案：{key}")
+    return text if text.rstrip().endswith(final_size) else f"{text}{final_size}"
+
+
 def generate_audio(edge_tts_bin, key, text):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, f"{key}.mp3")
+    temp_output_path = f"{output_path}.tmp"
 
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".txt", delete=False) as temp_file:
         temp_file.write(text)
         temp_text_path = temp_file.name
 
     try:
-        subprocess.run(
-            [
-                edge_tts_bin,
-                "--voice",
-                VOICE,
-                "--file",
-                temp_text_path,
-                "--write-media",
-                output_path,
-            ],
-            check=True,
-        )
+        command = [
+            edge_tts_bin,
+            "--voice",
+            VOICE,
+            "--file",
+            temp_text_path,
+            "--write-media",
+            temp_output_path,
+        ]
+        if PROXY_URL:
+            command.extend(["--proxy", PROXY_URL])
+        last_error = None
+        for attempt in range(1, 4):
+            try:
+                subprocess.run(command, check=True)
+                last_error = None
+                break
+            except subprocess.CalledProcessError as error:
+                last_error = error
+                if attempt < 3:
+                    print(f"重试 {key}：第 {attempt} 次失败，准备重试")
+                    time.sleep(2 * attempt)
+        if last_error:
+            raise last_error
+        os.replace(temp_output_path, output_path)
         print(f"✓ Generated: {output_path}")
     finally:
         os.unlink(temp_text_path)
+        if os.path.exists(temp_output_path):
+            os.unlink(temp_output_path)
 
 
 def main():
@@ -123,9 +216,12 @@ def main():
         unknown = [k for k in requested_keys if k not in GALAXY_AUDIO_TEXTS]
         if unknown:
             raise SystemExit(f"未知的音频 key：{', '.join(unknown)}")
-        items = [(k, GALAXY_AUDIO_TEXTS[k]) for k in requested_keys]
+        items = [(k, build_audio_text(k, GALAXY_AUDIO_TEXTS[k])) for k in requested_keys]
     else:
-        items = list(GALAXY_AUDIO_TEXTS.items())
+        missing_size = sorted(set(GALAXY_AUDIO_TEXTS) - set(FINAL_SIZE_SENTENCES))
+        if missing_size:
+            raise SystemExit(f"缺少最终大小文案：{', '.join(missing_size)}")
+        items = [(k, build_audio_text(k, text)) for k, text in GALAXY_AUDIO_TEXTS.items()]
 
     print(f"准备生成 {len(items)} 个银河系 Dock 语音文件...\n")
     for key, text in items:

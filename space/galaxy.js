@@ -104,6 +104,7 @@ const starSystemData = {
         spectralType: 'G2V',
         distance: '4.37光年',
         brightness: '视星等 -0.01',
+        diameter: '约为太阳的1.22倍',
         planets: 0,
         description: '半人马座α A星是这个三合星系统里最亮、最大的一颗主星，颜色偏黄白，和太阳很像，但比太阳稍大、稍重、也稍亮。',
         funFact: '如果把它单独放到夜空里，它会是一颗非常明亮的近邻恒星，很适合拿来和太阳做对比。'
@@ -115,6 +116,7 @@ const starSystemData = {
         spectralType: 'K1V',
         distance: '4.37光年',
         brightness: '视星等 1.33',
+        diameter: '约为太阳的0.86倍',
         planets: 0,
         description: '半人马座α B星是A星旁边偏橙色的伙伴，比太阳小一点、暗一点，也更冷一点。它和A星互相绕着共同的重心运行。',
         funFact: 'A星和B星像一对相互牵引的双星伙伴，一圈绕行大约需要近80年。'
@@ -126,6 +128,7 @@ const starSystemData = {
         spectralType: 'M5.5Ve',
         distance: '4.24光年',
         brightness: '视星等 11.13',
+        diameter: '约为太阳的0.154倍',
         planets: 2,
         description: '比邻星是离太阳最近的恒星，比A星和B星小得多、暗得多，是一颗容易爆发耀斑的红矮星。它在画面里是更远处的小红星。',
         funFact: '比邻星周围发现了行星，比邻星b常被拿来讨论“离我们最近的系外行星世界”。'
@@ -137,6 +140,7 @@ const starSystemData = {
         spectralType: 'M4Ve',
         distance: '6光年',
         brightness: '视星等 9.5',
+        diameter: '约为太阳的0.20倍',
         planets: 1,
         description: '第二近的恒星系统，是一颗古老的红矮星，运动速度极快。',
         funFact: '巴纳德星是天空中自行运动最快的恒星，每年移动10.3角秒！'
@@ -160,6 +164,7 @@ const starSystemData = {
         spectralType: 'K2V',
         distance: '10.5光年',
         brightness: '视星等 3.73',
+        diameter: '约为太阳的0.74倍',
         planets: 2,
         description: '一颗年轻的类太阳恒星，拥有尘埃盘和至少两颗行星。',
         funFact: '天苑四是科幻作品中的热门目的地，《星际迷航》中的瓦肯星就设定在这里！'
@@ -171,6 +176,7 @@ const starSystemData = {
         spectralType: 'M8V',
         distance: '39光年',
         brightness: '视星等 18.8',
+        diameter: '约为太阳的0.12倍',
         planets: 7,
         description: '一个拥有7颗类地行星的恒星系统，其中3颗位于宜居带！',
         funFact: '这7颗行星都比地球到月球的距离还近，站在其中一颗上可以清晰看到其他行星的地貌！'
@@ -182,6 +188,7 @@ const starSystemData = {
         spectralType: 'G2V',
         distance: '1400光年',
         brightness: '视星等 13.4',
+        diameter: '约为太阳的1.11倍',
         planets: 1,
         description: '拥有"地球2.0"——开普勒-452b的恒星，与太阳非常相似。',
         funFact: '开普勒-452b的公转周期是385天，与地球的365天非常接近！'
@@ -229,6 +236,7 @@ const starSystemData = {
         spectralType: 'A0V',
         distance: '25光年',
         brightness: '视星等 0.03',
+        diameter: '约为太阳的2.36倍',
         planets: 0,
         description: '夏季大三角之一，北半球夜空中第二亮的恒星，拥有尘埃盘。',
         funFact: '织女星曾是北极星，约12000年后它将再次成为北极星！'
@@ -240,6 +248,7 @@ const starSystemData = {
         spectralType: 'M3.5Ve',
         distance: '9.7光年',
         brightness: '视星等 10.4',
+        diameter: '约为太阳的0.17倍',
         planets: 0,
         description: '距离太阳系较近的红矮星之一，是一颗耀星，会发生强烈的耀斑。',
         funFact: '罗斯154的耀斑可以在几分钟内让它的亮度增加数倍！'
@@ -251,6 +260,7 @@ const starSystemData = {
         spectralType: 'M1V',
         distance: '10.7光年',
         brightness: '视星等 7.34',
+        diameter: '约为太阳的0.47倍',
         planets: 0,
         description: '最亮的近距离红矮星之一，位于南天的显微镜座。',
         funFact: '这颗恒星是以法国天文学家拉卡伊命名的，他在1751年编目了这颗星！'
@@ -262,6 +272,7 @@ const starSystemData = {
         spectralType: 'G8.5V',
         distance: '11.9光年',
         brightness: '视星等 3.49',
+        diameter: '约为太阳的0.79倍',
         planets: 5,
         description: '最接近太阳的类太阳恒星之一，可能拥有5颗行星的系统。',
         funFact: '鲸鱼座τ是SETI项目最早的搜索目标之一，因为它与太阳如此相似！'
@@ -273,6 +284,7 @@ const starSystemData = {
         spectralType: 'F5IV-V + DQZ',
         distance: '11.5光年',
         brightness: '视星等 0.34',
+        diameter: '主星约为太阳的2倍',
         planets: 0,
         description: '冬季大三角的成员之一，由一颗亚巨星和一颗白矮星组成。',
         funFact: '南河三的名字源自希腊语"狗前面的"，因为它在天狼星（大犬座α）之前升起！'
@@ -296,6 +308,7 @@ const starSystemData = {
         spectralType: 'K1.5 IIIpe',
         distance: '36.7光年',
         brightness: '视星等 -0.05',
+        diameter: '约为太阳的25倍',
         planets: 0,
         description: '北天最亮的恒星，牧夫座的主星。它是一颗红巨星，直径约为太阳的25倍。',
         funFact: '大角星是1933年芝加哥世博会的"明星"——它的光被用来触发开幕式的灯光！这道光走了40年才到达地球。'
@@ -319,6 +332,7 @@ const starSystemData = {
         spectralType: 'M1.5Iab-Ib',
         distance: '~550光年',
         brightness: '视星等 1.06',
+        diameter: '约为太阳的680倍',
         planets: 0,
         description: '天蝎座的心脏，一颗巨大的红超巨星。名字的意思是"火星的对手"，因为它的红色与火星相似。',
         funFact: '心宿二的直径是太阳的680倍，如果放在太阳位置，它会吞没火星的轨道！'
@@ -330,9 +344,10 @@ const starSystemData = {
         spectralType: 'M3-M4.5',
         distance: '~3,900光年',
         brightness: '视星等 7.95',
+        diameter: '约为太阳的1420倍',
         planets: 0,
         description: '曾被认为是已知最大的恒星之一，是一颗极其巨大的红特超巨星，正在快速丧失质量。',
-        funFact: '大犬座VY的直径是太阳的1,400倍！如果它替代太阳，它的表面会延伸到土星轨道附近！'
+        funFact: '大犬座VY的直径约为太阳的1420倍！如果它替代太阳，它的表面会延伸到土星轨道附近！'
     },
     uyScuti: {
         name: '盾牌座UY',
@@ -341,6 +356,7 @@ const starSystemData = {
         spectralType: 'M4Ia',
         distance: '~9,500光年',
         brightness: '视星等 11.2',
+        diameter: '约为太阳的1700倍',
         planets: 0,
         description: '曾被认为是已知体积最大的恒星，位于银河系中心方向的盾牌座。',
         funFact: '盾牌座UY的直径是太阳的1,700倍，光绕它一圈需要7个小时，绕太阳只需14.5秒！'
@@ -352,6 +368,7 @@ const starSystemData = {
         spectralType: 'LBV',
         distance: '~25,000光年',
         brightness: '绝对星等 -11.8',
+        diameter: '约为太阳的306倍',
         planets: 0,
         description: '银河系中最明亮的恒星之一，位于银河系中心附近。它的亮度是太阳的160万倍！',
         funFact: '手枪星在4~6千年前的一次大爆发中释放了约10个太阳质量的物质，形成了手枪星云！'
@@ -2269,27 +2286,47 @@ function stopGalaxyAudio() {
 
 function getGalaxyNarrationText(key) {
     if (key === 'galacticCenter') {
-        return '银河系中心黑洞，人马座A星，Sagittarius A star。它位于银河系正中央，是一个超大质量黑洞。它的质量约为400万个太阳，事件视界直径约2400万公里。周围的恒星会围着它高速绕行，这里是银河系最深处的核心区域。';
+        return '银河系中心黑洞，人马座A星，Sagittarius A star。它位于银河系正中央，是一个超大质量黑洞。它的质量约为400万个太阳，事件视界直径约2400万公里。周围的恒星会围着它高速绕行，这里是银河系最深处的核心区域。最后记住，它的事件视界直径约2400万公里。';
     }
 
     const data = galaxyData[key];
     if (!data) return '';
 
     const en = data.nameEn ? `，${data.nameEn}` : '';
+    const finalSizeText = getGalaxyFinalSizeSentence(data);
 
     // 银河系总览：距离用专门措辞，避免"距离我们我们就住在里面"
     if (key === 'milkyWay') {
-        return `${data.name}${en}。它是${data.type}，${data.distance}，直径${data.diameter}，恒星数量${data.stars}。${data.description}${data.funFact}`;
+        return `${data.name}${en}。它是${data.type}，${data.distance}，直径${data.diameter}，恒星数量${data.stars}。${data.description}${data.funFact}${finalSizeText}`;
     }
 
     // 超大质量黑洞：围绕质量与事件视界来讲
     if (data.isBlackHole) {
-        return `${data.name}${en}。它是一个${data.type}，就藏在${data.host}，距离我们${data.distance}。它的质量${data.stars}，${data.diameter}。${data.description}${data.funFact}`;
+        return `${data.name}${en}。它是一个${data.type}，就藏在${data.host}，距离我们${data.distance}。它的质量${data.stars}，${data.diameter}。${data.description}${data.funFact}${finalSizeText}`;
     }
 
     const diameterLabel = data.diameterLabel || '直径';
     const starsLabel = data.starsLabel || '恒星数量';
-    return `${data.name}${en}。它是${data.type}，距离我们${data.distance}，${diameterLabel}${data.diameter}，${starsLabel}${data.stars}。${data.description}${data.funFact}`;
+    return `${data.name}${en}。它是${data.type}，距离我们${data.distance}，${diameterLabel}${data.diameter}，${starsLabel}${data.stars}。${data.description}${data.funFact}${finalSizeText}`;
+}
+
+function getGalaxyFinalSizeSentence(data) {
+    if (!data || !data.diameter) return '';
+
+    const label = data.isBlackHole
+        ? '事件视界直径'
+        : data.diameterLabel === '范围'
+            ? '空间范围'
+            : data.diameterLabel || '直径';
+    const value = data.diameter
+        .replace(/^事件视界直径/, '')
+        .replace(/^直径/, '')
+        .trim();
+
+    if (label === '空间范围') {
+        return `最后记住，它的${label}是${value}。`;
+    }
+    return `最后记住，它的${label}${value}。`;
 }
 
 function getStarSystemNarrationText(key) {
@@ -2297,12 +2334,22 @@ function getStarSystemNarrationText(key) {
     if (!data) return '';
 
     const en = data.nameEn ? `，${data.nameEn}` : '';
-    const diameterText = data.diameter ? `它的直径${data.diameter}。` : '';
+    const diameterText = getStarFinalSizeSentence(data);
     const planetText = data.planets > 0
         ? `已经发现${data.planets}颗行星。`
         : '目前还没有确认发现行星。';
 
-    return `${data.name}${en}。它是${data.type}，光谱型是${data.spectralType}，距离我们${data.distance}，亮度是${data.brightness}。${diameterText}${planetText}${data.description}${data.funFact}`;
+    return `${data.name}${en}。它是${data.type}，光谱型是${data.spectralType}，距离我们${data.distance}，亮度是${data.brightness}。${planetText}${data.description}${data.funFact}${diameterText}`;
+}
+
+function getStarFinalSizeSentence(data) {
+    if (!data || !data.diameter) return '';
+
+    if (data.diameter.startsWith('主星')) {
+        const value = data.diameter.replace(/^主星/, '').trim();
+        return `最后记住，它的主星直径${value}。`;
+    }
+    return `最后记住，它的直径${data.diameter}。`;
 }
 
 function playGalaxyAudio(key) {

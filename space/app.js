@@ -1278,7 +1278,7 @@ function playVolumeFillCollisionSound(targetCount, targetType = 'sun', durationM
 
 // 每个天体的语音介绍文本（用于 MP3 和 TTS 降级）
 const planetAudioNarration = {
-    sun: '太阳，Sun，太阳系的中心恒星。自转转完一整圈，约等于25.4个地球天。',
+    sun: '太阳，Sun，太阳系的中心恒星。自转转完一整圈，约等于25.4个地球天。直径约为1392700公里。',
     proximaCentauri: '比邻星，Proxima Centauri。它是离太阳最近的恒星，是一颗又小又暗的红矮星，直径大约是太阳的0.154倍。',
     alphaCentauri: '半人马座α星，Alpha Centauri A。它是距离太阳系最近的恒星系统中最亮的主星，大小和太阳很接近，但比太阳稍大、稍重。',
     betaCentauri: '半人马座β星，Beta Centauri。它是一颗明亮的蓝白色巨星，南半球常把它和半人马座α星一起当作指向南十字座的指针星。',
