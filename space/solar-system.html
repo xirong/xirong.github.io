@@ -550,6 +550,23 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 1.2rem;
             font-weight: 600;
+            margin: 0;
+        }
+
+        .planet-name-block {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .planet-name-en {
+            color: var(--accent-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.58rem;
+            letter-spacing: 0.35px;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
         }
 
         .planet-info-header .planet-type {
@@ -3847,9 +3864,14 @@
         </div>
         <div class="planet-dot" data-planet="satelliteHub" data-name="卫星" style="background: radial-gradient(circle, #c5d8ff, #84a2f5); font-size: 0.58rem;">🛰️
         </div>
+        <div class="planet-dot" data-planet="artificialSatelliteHub" data-name="人造卫星 Artificial Satellites" style="background: radial-gradient(circle, #ffe9a6, #d66a4d); font-size: 0.58rem;">🚀
+        </div>
     </div>
     <div class="satellite-strip" id="satelliteStrip" aria-label="卫星快捷行">
         <div class="satellite-strip-track" id="satelliteStripTrack"></div>
+    </div>
+    <div class="satellite-strip" id="artificialSatelliteStrip" aria-label="人造卫星快捷行">
+        <div class="satellite-strip-track" id="artificialSatelliteStripTrack"></div>
     </div>
 
     <!-- 行星信息面板 -->
@@ -3859,24 +3881,27 @@
         <div class="planet-info-content">
             <div class="planet-info-header">
                 <div class="planet-color-dot" id="planetColorDot"></div>
-                <h2 id="planetName">地球</h2>
+                <div class="planet-name-block">
+                    <h2 id="planetName">地球</h2>
+                    <span class="planet-name-en" id="planetNameEN">Earth</span>
+                </div>
                 <span class="planet-type" id="planetType">类地行星</span>
             </div>
             <div class="planet-stats">
                 <div class="stat-item">
-                    <div class="stat-label">直径</div>
+                    <div class="stat-label" id="planetDiameterLabel">直径</div>
                     <div class="stat-value" id="planetDiameter">12,742 km</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">与太阳距离</div>
+                    <div class="stat-label" id="planetDistanceLabel">与太阳距离</div>
                     <div class="stat-value" id="planetDistance">1.5亿 km</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">公转周期</div>
+                    <div class="stat-label" id="planetOrbitPeriodLabel">公转周期</div>
                     <div class="stat-value" id="planetOrbitPeriod">365.25 地球日，约等于 1 年</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">相对地球大小</div>
+                    <div class="stat-label" id="planetRelativeSizeLabel">相对地球大小</div>
                     <div class="stat-value" id="planetRelativeSize">1x</div>
                 </div>
             </div>
@@ -4038,7 +4063,7 @@
         }
     </script>
 
-    <script src="app.js?v=20260702-size-narration"></script>
+    <script src="app.js?v=20260811-artificial-satellites"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 

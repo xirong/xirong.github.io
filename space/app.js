@@ -1179,7 +1179,7 @@ function playPlanetAudio(planetKey) {
     }
     window.speechSynthesis && window.speechSynthesis.cancel();
 
-    const data = planetData[planetKey];
+    const data = planetData[planetKey] || artificialSatelliteData[planetKey];
     const fallbackText = data?.nameCN
         ? `${data.nameCN}，${data.nameEN}`
         : planetAudioNarration[planetKey];
@@ -1328,7 +1328,15 @@ const planetAudioNarration = {
     haumea: '妊神星，Haumea，距离太阳43.1个天文单位。自转转完一整圈，约等于0.16个地球天。绕太阳公转一整圈，约等于285个地球年。直径约为1632公里。',
     makemake: '鸟神星，Makemake，距离太阳45.8个天文单位。自转转完一整圈，约等于0.94个地球天。绕太阳公转一整圈，约等于305个地球年。直径约为1430公里。',
     eris: '阋神星，Eris，距离太阳67.7个天文单位。自转转完一整圈，约等于1.08个地球天。绕太阳公转一整圈，约等于559个地球年。直径约为2326公里。',
-    oortCloud: '奥尔特云，Oort Cloud。它是太阳系最遥远的边疆，是一个巨大的球形云团，包裹着整个太阳系，由数万亿颗冰冻天体组成。'
+    oortCloud: '奥尔特云，Oort Cloud。它是太阳系最遥远的边疆，是一个巨大的球形云团，包裹着整个太阳系，由数万亿颗冰冻天体组成。',
+    iss: '国际空间站，International Space Station，缩写 ISS。它是多个国家合作建造的载人空间实验室，运行在近地轨道，宇航员在里面生活、工作，开展微重力实验。它大约九十分钟绕地球一圈，太阳翼为实验室提供电力。',
+    tiangong: '天宫空间站，Tiangong Space Station。它是中国的近地轨道空间实验室，由天和核心舱、问天实验舱和梦天实验舱组成，可以支持航天员长期驻留和空间科学实验。',
+    hubble: '哈勃空间望远镜，Hubble Space Telescope。它在地球低轨道上运行，用可见光、紫外线和近红外线观察宇宙。它的主镜直径约二点四米，帮助人类看见遥远星系、恒星和行星。',
+    webb: '詹姆斯·韦布空间望远镜，James Webb Space Telescope。它在太阳和地球之间的第二拉格朗日点附近运行，主要观测红外光。它有十八块六边形镜片和巨大的遮阳板，用来寻找早期星系和研究行星大气。',
+    chandra: '钱德拉 X 射线天文台，Chandra X-ray Observatory。它在太空中观测 X 射线，能够研究超新星遗迹、黑洞周围的高温物质和星系团。',
+    kepler: '开普勒太空望远镜，Kepler Space Telescope。它曾经专门寻找太阳系外的行星，通过观察恒星亮度微小的下降，发现行星从恒星前方经过。',
+    gps: '全球定位系统卫星，Global Positioning System，简称 GPS。它们组成中地球轨道卫星群，通过精确的时间信号帮助地面设备定位、导航和授时。',
+    beidou: '北斗卫星导航系统，BeiDou Navigation Satellite System，简称 BDS。它由多种轨道上的卫星组成，为世界各地提供定位、导航、授时和短报文等服务。'
 };
 
 const satelliteDockItems = [
@@ -1352,6 +1360,117 @@ const satelliteDockItems = [
     { key: 'mk2', nameCN: '鸟卫一', nameShort: '鸟卫一', accent: 0x5a4b43, texture: 'textures/deimos.jpg' },
     { key: 'dysnomia', nameCN: '阋卫一', nameShort: '阋卫一', accent: 0xbfc5cf, texture: 'textures/moon.jpg' }
 ];
+
+// ============ 人造卫星阅读数据 ==========
+const artificialSatelliteDockItems = [
+    { key: 'iss', nameCN: '国际空间站', nameShort: 'ISS', accent: 0xd9e8ff, texture: 'textures/artificial/iss.jpg' },
+    { key: 'tiangong', nameCN: '天宫空间站', nameShort: '天宫', accent: 0xffd36e, texture: 'textures/artificial/tiangong.jpg' },
+    { key: 'hubble', nameCN: '哈勃空间望远镜', nameShort: '哈勃', accent: 0xb9c7ff, texture: 'textures/artificial/hubble.jpg' },
+    { key: 'webb', nameCN: '詹姆斯·韦布望远镜', nameShort: '韦布', accent: 0xffd04c, texture: 'textures/artificial/webb.jpg' },
+    { key: 'chandra', nameCN: '钱德拉 X 射线天文台', nameShort: '钱德拉', accent: 0x9ddcff, texture: 'textures/artificial/chandra.png' },
+    { key: 'kepler', nameCN: '开普勒太空望远镜', nameShort: '开普勒', accent: 0xffc86e, texture: 'textures/artificial/kepler.png' },
+    { key: 'gps', nameCN: 'GPS 卫星系统', nameShort: 'GPS', accent: 0x7cff9c, texture: 'textures/artificial/gps.jpg' },
+    { key: 'beidou', nameCN: '北斗卫星导航系统', nameShort: '北斗', accent: 0xff6688, texture: 'textures/artificial/beidou.jpg' }
+];
+
+const artificialSatelliteData = {
+    iss: {
+        nameCN: '国际空间站',
+        nameEN: 'International Space Station',
+        type: '载人空间站',
+        size: '约 109 m × 73 m',
+        orbit: '地球近地轨道，约 400 km 高',
+        period: '约 90 分钟绕地球一周',
+        mission: '微重力实验室',
+        color: 0xd9e8ff,
+        texturePath: 'textures/artificial/iss.jpg',
+        description: '国际空间站（International Space Station，ISS）是多个国家合作建造的载人空间实验室。宇航员在这里长期生活、工作和做微重力实验，太阳翼为整个空间站提供电力。'
+    },
+    tiangong: {
+        nameCN: '天宫空间站',
+        nameEN: 'Tiangong Space Station',
+        type: '载人空间站',
+        size: '模块化组合体',
+        orbit: '地球近地轨道，约 400 km 高',
+        period: '约 90 分钟绕地球一周',
+        mission: '空间科学实验',
+        color: 0xffd36e,
+        texturePath: 'textures/artificial/tiangong.jpg',
+        description: '天宫空间站（Tiangong Space Station）是中国的近地轨道空间实验室，由天和核心舱、问天实验舱和梦天实验舱组成，可以支持航天员长期驻留和空间科学实验。'
+    },
+    hubble: {
+        nameCN: '哈勃空间望远镜',
+        nameEN: 'Hubble Space Telescope',
+        type: '空间望远镜',
+        size: '长约 13.2 m，主镜 2.4 m',
+        orbit: '地球低轨道，约 483 km 高',
+        period: '约 95 分钟绕地球一周',
+        mission: '可见光、紫外线和近红外观测',
+        color: 0xb9c7ff,
+        texturePath: 'textures/artificial/hubble.jpg',
+        description: '哈勃空间望远镜（Hubble Space Telescope）在地球低轨道上运行，避开大气层的扰动，用可见光、紫外线和近红外线观察宇宙。它拍下了许多遥远星系、恒星和行星的影像。'
+    },
+    webb: {
+        nameCN: '詹姆斯·韦布空间望远镜',
+        nameEN: 'James Webb Space Telescope',
+        type: '红外空间望远镜',
+        size: '主镜约 6.5 m，遮阳板约 21 m',
+        orbit: '太阳—地球 L2 点附近，距地球约 150 万 km',
+        period: '跟随地球绕太阳运行',
+        mission: '观测红外宇宙和系外行星',
+        color: 0xffd04c,
+        texturePath: 'textures/artificial/webb.jpg',
+        description: '詹姆斯·韦布空间望远镜（James Webb Space Telescope）主要观测红外光。它的十八块六边形镜片负责收集微弱星光，巨大的遮阳板则把望远镜保持在低温环境，用来研究早期星系和行星大气。'
+    },
+    chandra: {
+        nameCN: '钱德拉 X 射线天文台',
+        nameEN: 'Chandra X-ray Observatory',
+        type: 'X 射线空间望远镜',
+        size: '长约 13.8 m',
+        orbit: '地球高椭圆轨道',
+        period: '绕地球运行',
+        mission: '观测高能 X 射线',
+        color: 0x9ddcff,
+        texturePath: 'textures/artificial/chandra.png',
+        description: '钱德拉 X 射线天文台（Chandra X-ray Observatory）专门观测来自高温宇宙的 X 射线。它能帮助科学家研究超新星遗迹、黑洞周围的高温物质和星系团。'
+    },
+    kepler: {
+        nameCN: '开普勒太空望远镜',
+        nameEN: 'Kepler Space Telescope',
+        type: '系外行星探测器',
+        size: '主镜口径约 1 m',
+        orbit: '日心轨道，跟随地球绕太阳运行',
+        period: '约 373 天绕太阳一周',
+        mission: '寻找太阳系外行星',
+        color: 0xffc86e,
+        texturePath: 'textures/artificial/kepler.png',
+        description: '开普勒太空望远镜（Kepler Space Telescope）曾经专门寻找太阳系外的行星。它盯住大量恒星，寻找行星从恒星前方经过时造成的微小变暗，为系外行星研究发现了大量线索。'
+    },
+    gps: {
+        nameCN: 'GPS 卫星系统',
+        nameEN: 'Global Positioning System',
+        type: '导航卫星系统',
+        size: '不同型号大小不同',
+        orbit: '中地球轨道，约 20,200 km 高',
+        period: '约 12 小时绕地球一周',
+        mission: '定位、导航与授时',
+        color: 0x7cff9c,
+        texturePath: 'textures/artificial/gps.jpg',
+        description: 'GPS（Global Positioning System）不是一颗卫星，而是一组导航卫星。它们向地面发送精确的时间信号，手机、汽车和飞行器把多个卫星的信号放在一起，就能算出自己的位置。'
+    },
+    beidou: {
+        nameCN: '北斗卫星导航系统',
+        nameEN: 'BeiDou Navigation Satellite System',
+        type: '导航卫星系统',
+        size: '不同型号大小不同',
+        orbit: '中地球轨道、倾斜同步轨道和地球静止轨道',
+        period: '不同轨道周期不同',
+        mission: '定位、导航、授时与短报文',
+        color: 0xff6688,
+        texturePath: 'textures/artificial/beidou.jpg',
+        description: '北斗卫星导航系统（BeiDou Navigation Satellite System，BDS）由多种轨道上的卫星组成，为世界各地提供定位、导航和授时服务，还能在特定场景下发送短报文。'
+    }
+};
 
 const moonKeyToName = {
     io: '木卫一',
@@ -1397,6 +1516,7 @@ let showLabels = true;
 let isRealScale = false;
 let selectedPlanet = null;
 let isSatelliteStripOpen = false;
+let isArtificialSatelliteStripOpen = false;
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
@@ -4834,6 +4954,11 @@ function onMouseMove(event) {
 
 // ============ 选择行星 ============
 function selectPlanet(name) {
+    if (artificialSatelliteData[name]) {
+        selectArtificialSatellite(name);
+        return;
+    }
+
     const data = planetData[name];
     const isMoon = !data;
 
@@ -4841,7 +4966,8 @@ function selectPlanet(name) {
     if (isMoon && !targetMesh) return;
 
     selectedPlanet = name;
-    hideSatelliteStrip();
+    hideAllSatelliteStrips();
+    setPlanetInfoLabels();
 
     if (!data && targetMesh) {
         const moonData = targetMesh.userData || {};
@@ -4850,6 +4976,7 @@ function selectPlanet(name) {
             : '';
 
         document.getElementById('planetName').textContent = moonData.nameCN || name;
+        document.getElementById('planetNameEN').textContent = moonData.nameEN || '';
         document.getElementById('planetType').textContent = parentPlanet ? `${parentPlanet}卫星` : '天然卫星';
         document.getElementById('planetDiameter').textContent = moonData.diameter ? formatNumber(moonData.diameter) + ' km' : '-';
         document.getElementById('planetDistance').textContent = parentPlanet ? `围绕${parentPlanet}轨道运行` : '-';
@@ -4902,6 +5029,7 @@ function selectPlanet(name) {
 
     // 更新UI
     document.getElementById('planetName').textContent = data.nameCN;
+    document.getElementById('planetNameEN').textContent = data.nameEN || '';
     document.getElementById('planetType').textContent = data.type;
     document.getElementById('planetDiameter').textContent = formatNumber(data.diameter) + ' km';
     document.getElementById('planetDistance').textContent = data.distance === 0 ? '-' : formatDistance(data.distance);
@@ -4963,11 +5091,103 @@ function selectPlanet(name) {
     }
 }
 
+// ============ 设置详情面板字段 ==========
+function setPlanetInfoLabels(labels = {}) {
+    const defaults = {
+        size: '直径',
+        distance: '与太阳距离',
+        period: '公转周期',
+        relative: '相对地球大小'
+    };
+    const values = { ...defaults, ...labels };
+    const labelMap = {
+        size: 'planetDiameterLabel',
+        distance: 'planetDistanceLabel',
+        period: 'planetOrbitPeriodLabel',
+        relative: 'planetRelativeSizeLabel'
+    };
+
+    Object.entries(labelMap).forEach(([key, elementId]) => {
+        const element = document.getElementById(elementId);
+        if (element) element.textContent = values[key];
+    });
+}
+
+// ============ 选择人造卫星 ==========
+function selectArtificialSatellite(key) {
+    const data = artificialSatelliteData[key];
+    if (!data) return;
+
+    selectedPlanet = key;
+    hideAllSatelliteStrips();
+    setPlanetInfoLabels({
+        size: '尺寸',
+        distance: '运行位置',
+        period: '运行周期',
+        relative: '核心任务'
+    });
+
+    document.getElementById('planetName').textContent = data.nameCN;
+    document.getElementById('planetNameEN').textContent = data.nameEN;
+    document.getElementById('planetType').textContent = data.type;
+    document.getElementById('planetDiameter').textContent = data.size;
+    document.getElementById('planetDistance').textContent = data.orbit;
+    document.getElementById('planetOrbitPeriod').textContent = data.period;
+    document.getElementById('planetRelativeSize').textContent = data.mission;
+    document.getElementById('planetDescription').textContent = data.description;
+
+    const moonsDiv = document.getElementById('planetMoons');
+    moonsDiv.style.display = 'none';
+
+    document.getElementById('exploreBtn').classList.remove('visible');
+    updatePlanetVideoCard(key);
+    setPlanetInfoDot(key, data);
+    document.getElementById('planetInfo').classList.add('visible');
+    playPlanetAudio(key);
+
+    document.querySelectorAll('.planet-dot').forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.planet === key);
+    });
+
+    // 人造卫星都围绕地球的示意轨道运行，阅读时把镜头带回地球附近。
+    const earth = planets.earth;
+    if (earth) {
+        const targetPosition = new THREE.Vector3();
+        earth.getWorldPosition(targetPosition);
+        const targetSize = earth.userData?.size || 1;
+        const distance = targetSize * 8;
+        const cameraTarget = new THREE.Vector3(
+            targetPosition.x + distance,
+            targetPosition.y + distance * 0.5,
+            targetPosition.z + distance
+        );
+        animateCamera(cameraTarget, targetPosition);
+    }
+}
+
 function renderSatelliteDock() {
     const track = document.getElementById('satelliteStripTrack');
     if (!track) return;
 
     track.innerHTML = satelliteDockItems.map(item => {
+        const baseColor = toRgba(item.accent, 0.34);
+        const softGlow = toRgba(item.accent, 0.16);
+        const rimGlow = toRgba(item.accent, 0.7);
+        const texture = item.texture ? `url('${item.texture}')` : 'none';
+
+        return `
+            <div class="planet-dot satellite-dot" data-planet="${item.key}" data-name="${item.nameCN}" style="--satellite-base:${baseColor}; --satellite-soft:${softGlow}; --satellite-rim:${rimGlow}; --satellite-texture:${texture};">
+                <span class="satellite-dot-label">${item.nameShort}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderArtificialSatelliteDock() {
+    const track = document.getElementById('artificialSatelliteStripTrack');
+    if (!track) return;
+
+    track.innerHTML = artificialSatelliteDockItems.map(item => {
         const baseColor = toRgba(item.accent, 0.34);
         const softGlow = toRgba(item.accent, 0.16);
         const rimGlow = toRgba(item.accent, 0.7);
@@ -5021,7 +5241,8 @@ function getBodyTexturePath(key, bodyData = {}) {
     if (bodyData.texturePath) return bodyData.texturePath;
 
     const satelliteItem = satelliteDockItems.find(item => item.key === key);
-    return satelliteItem?.texture || solarGuideTextureMap[key] || null;
+    const artificialSatelliteItem = artificialSatelliteDockItems.find(item => item.key === key);
+    return satelliteItem?.texture || artificialSatelliteItem?.texture || solarGuideTextureMap[key] || null;
 }
 
 function setPlanetInfoDot(key, bodyData = {}) {
@@ -5056,6 +5277,7 @@ function showSatelliteStrip() {
     const hub = document.querySelector('.planet-dot[data-planet="satelliteHub"]');
 
     if (!strip) return;
+    hideArtificialSatelliteStrip();
     strip.classList.add('visible');
     isSatelliteStripOpen = true;
     if (hub) {
@@ -5075,12 +5297,50 @@ function hideSatelliteStrip() {
     }
 }
 
+function showArtificialSatelliteStrip() {
+    const strip = document.getElementById('artificialSatelliteStrip');
+    const hub = document.querySelector('.planet-dot[data-planet="artificialSatelliteHub"]');
+
+    if (!strip) return;
+    hideSatelliteStrip();
+    strip.classList.add('visible');
+    isArtificialSatelliteStripOpen = true;
+    if (hub) {
+        hub.classList.add('active');
+    }
+}
+
+function hideArtificialSatelliteStrip() {
+    const strip = document.getElementById('artificialSatelliteStrip');
+    const hub = document.querySelector('.planet-dot[data-planet="artificialSatelliteHub"]');
+
+    if (!strip) return;
+    strip.classList.remove('visible');
+    isArtificialSatelliteStripOpen = false;
+    if (hub) {
+        hub.classList.remove('active');
+    }
+}
+
+function hideAllSatelliteStrips() {
+    hideSatelliteStrip();
+    hideArtificialSatelliteStrip();
+}
+
 function toggleSatelliteStrip() {
     if (isSatelliteStripOpen) {
         hideSatelliteStrip();
         return;
     }
     showSatelliteStrip();
+}
+
+function toggleArtificialSatelliteStrip() {
+    if (isArtificialSatelliteStripOpen) {
+        hideArtificialSatelliteStrip();
+        return;
+    }
+    showArtificialSatelliteStrip();
 }
 
 // ============ 相机动画 ============
@@ -5190,14 +5450,14 @@ function setupControls() {
         const targetLookAt = new THREE.Vector3(0, 0, 0);
         animateCamera(targetPosition, targetLookAt);
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
-        hideSatelliteStrip();
+        hideAllSatelliteStrips();
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
     });
 
     // 关闭行星信息面板
     document.getElementById('closePlanetInfo').addEventListener('click', function () {
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
-        hideSatelliteStrip();
+        hideAllSatelliteStrips();
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
         selectedPlanet = null;
     });
@@ -5235,6 +5495,7 @@ function setupControls() {
 
     // 卫星分组行
     renderSatelliteDock();
+    renderArtificialSatelliteDock();
 
     // 行星选择器
     document.querySelectorAll('.planet-dot').forEach(dot => {
@@ -5244,8 +5505,12 @@ function setupControls() {
                 toggleSatelliteStrip();
                 return;
             }
+            if (target === 'artificialSatelliteHub') {
+                toggleArtificialSatelliteStrip();
+                return;
+            }
             if (!target) return;
-            hideSatelliteStrip();
+            hideAllSatelliteStrips();
             selectPlanet(target);
         });
     });
@@ -5275,7 +5540,7 @@ function setupControls() {
         if (e.key === 'Escape') {
             closePlanetGuidePanel();
             closeSizeComparisonPanel();
-            hideSatelliteStrip();
+            hideAllSatelliteStrips();
         }
     });
 }
