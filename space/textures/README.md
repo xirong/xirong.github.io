@@ -1,5 +1,18 @@
 # Space Texture Credits
 
+## Storm comparison images
+
+- `great-red-spot.jpg`: Jupiter's Great Red Spot in true color, JunoCam observation on July 10, 2017 (PIA21775).
+  source: https://www.jpl.nasa.gov/images/pia21775-jupiters-great-red-spot-in-true-color/
+  credit: NASA/JPL-Caltech/SwRI/MSSS; image processing by Björn Jónsson.
+  license: CC-NC-SA, as credited by the source; used for this noncommercial educational project.
+- `great-dark-spot.jpg`: Neptune's Great Dark Spot, Voyager 2 observation in August 1989 (PIA00052).
+  source: https://www.jpl.nasa.gov/images/pia00052-neptune-great-dark-spot-in-high-resolution/
+  credit: NASA/JPL.
+  license: NASA/JPL public-domain image; attribution retained.
+
+These are photographs of atmospheric features, not planetary surface maps. Applying them to the comparison sphere is an illustrative visualization only. The comparison uses an imagined sphere with the storm's historical long-axis width as its diameter, not the measured volume of a storm.
+
 - `milkyway.jpg`: artist's impression of the Milky Way structure, credit NASA/JPL-Caltech/ESO/R. Hurt, resized locally to 2048px
   source: https://commons.wikimedia.org/wiki/File:Artist%E2%80%99s_impression_of_the_Milky_Way.jpg
   license: public domain in the United States for NASA material, with ESO Creative Commons Attribution 4.0 terms noted on the source page

@@ -1691,6 +1691,30 @@ const DIAMETER_DETAIL_PROFILES = buildDiameterDetailProfiles();
 const SATURN_RING_CAPACITY_KEY = 'saturnRing';
 const SATURN_RING_EARTH_CAPACITY = 218;
 const SATURN_RING_EQUIVALENT_DIAMETER = planetData.earth.diameter * Math.cbrt(SATURN_RING_EARTH_CAPACITY);
+const STORM_CAPACITY_TARGETS = {
+    greatRedSpot: {
+        key: 'greatRedSpot',
+        nameCN: '大红斑',
+        parentKey: 'jupiter',
+        diameter: 16000,
+        observedAt: '2017年4月3日',
+        texture: 'textures/great-red-spot.jpg',
+        sourceName: 'NASA JPL',
+        sourceUrl: 'https://www.jpl.nasa.gov/news/nasas-juno-probes-the-depths-of-jupiters-great-red-spot/',
+        photoUrl: 'https://www.jpl.nasa.gov/images/pia21775-jupiters-great-red-spot-in-true-color/'
+    },
+    greatDarkSpot: {
+        key: 'greatDarkSpot',
+        nameCN: '大暗斑',
+        parentKey: 'neptune',
+        diameter: 13000,
+        observedAt: '1989年',
+        texture: 'textures/great-dark-spot.jpg',
+        sourceName: 'NASA Science',
+        sourceUrl: 'https://science.nasa.gov/missions/hubble/hubble-tracks-the-lifecycle-of-giant-storms-on-neptune/',
+        photoUrl: 'https://www.jpl.nasa.gov/images/pia00052-neptune-great-dark-spot-in-high-resolution/'
+    }
+};
 let currentCapacityView = 'sun';
 const currentCapacitySelections = {
     uyScuti: 'sun',
@@ -1705,10 +1729,12 @@ const currentCapacitySelections = {
     alphaCentauri: 'sun',
     sun: 'earth',
     jupiter: 'earth',
+    greatRedSpot: 'earth',
     saturn: 'earth',
     saturnRing: 'earth',
     uranus: 'earth',
     neptune: 'earth',
+    greatDarkSpot: 'earth',
     earth: 'venus',
     venus: 'mars',
     mars: 'ganymede',
@@ -1932,10 +1958,12 @@ const DRAG_VOLUME_TEXTURE_PATHS = {
     mars: 'textures/mars.jpg',
     ceres: 'textures/ceres.jpg',
     jupiter: 'textures/jupiter.jpg',
+    greatRedSpot: 'textures/great-red-spot.jpg',
     saturn: 'textures/saturn.jpg',
     saturnRing: 'textures/saturn_ring.png',
     uranus: 'textures/uranus.jpg',
     neptune: 'textures/neptune.jpg',
+    greatDarkSpot: 'textures/great-dark-spot.jpg',
     pluto: 'textures/pluto.jpg',
     eris: 'textures/eris.jpg',
     haumea: 'textures/haumea.jpg',
@@ -6006,6 +6034,11 @@ const CAPACITY_TARGETS = {
         color: '#d8ca9d',
         objectKeys: getCapacityObjectKeys('jupiter')
     },
+    greatRedSpot: {
+        ...STORM_CAPACITY_TARGETS.greatRedSpot,
+        color: '#c86b4a',
+        objectKeys: getCapacityObjectKeys('greatRedSpot')
+    },
     saturn: {
         key: 'saturn',
         nameCN: '土星',
@@ -6033,6 +6066,11 @@ const CAPACITY_TARGETS = {
         texture: 'textures/neptune.jpg',
         color: '#5b5ddf',
         objectKeys: getCapacityObjectKeys('neptune')
+    },
+    greatDarkSpot: {
+        ...STORM_CAPACITY_TARGETS.greatDarkSpot,
+        color: '#4655b8',
+        objectKeys: getCapacityObjectKeys('greatDarkSpot')
     },
     earth: {
         key: 'earth',
@@ -6135,6 +6173,10 @@ const CAPACITY_COUNT_OVERRIDES = {
 };
 
 function getCapacityTargetValue(targetKey, metric) {
+    const stormTarget = STORM_CAPACITY_TARGETS[targetKey];
+    if (stormTarget) {
+        return metric === 'mass' ? 0 : stormTarget.diameter;
+    }
     const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
     if (blackHoleDescriptor) {
         if (metric === 'mass') return planetData[blackHoleDescriptor.bodyKey].mass;
@@ -6144,6 +6186,7 @@ function getCapacityTargetValue(targetKey, metric) {
         return metric === 'mass' ? 0 : SATURN_RING_EQUIVALENT_DIAMETER;
     }
     const target = planetData[targetKey];
+    if (!target) return 0;
     return metric === 'mass' ? target.mass : target.diameter;
 }
 
@@ -6319,6 +6362,13 @@ function getMassSizeHint(targetKey, selected) {
 }
 
 function getCapacityNote(targetKey) {
+    const stormTarget = STORM_CAPACITY_TARGETS[targetKey];
+    if (stormTarget) {
+        if (targetKey === 'greatDarkSpot') {
+            return `${stormTarget.observedAt}，旅行者2号看到的大暗斑约 13,000 × 6,600 公里；这里仅取长轴 13,000 公里作为想象球直径。到1994年，这个斑已经消失。<a href="${stormTarget.sourceUrl}" target="_blank" rel="noopener noreferrer">查看 ${stormTarget.sourceName} 测量来源</a>`;
+        }
+        return `${stormTarget.observedAt}，大红斑宽约 16,000 公里，而且仍在变化、缩小；这里仅把 16,000 公里作为想象球直径。<a href="${stormTarget.sourceUrl}" target="_blank" rel="noopener noreferrer">查看 ${stormTarget.sourceName} 测量来源</a>`;
+    }
     const blackHoleDescriptor = getBlackHoleTargetDescriptor(targetKey);
     if (blackHoleDescriptor) {
         const scopeLabel = getBlackHoleScopeLabel(targetKey);
@@ -6401,12 +6451,18 @@ function renderCapacityTargetPicker(container) {
     const targetOptions = [
         { key: 'sun', icon: '☀️', name: '太阳' },
         { key: 'jupiter', icon: '🪐', name: '木星' },
+        ...(currentComparisonTab === 'volumeCapacity'
+            ? [{ key: 'greatRedSpot', icon: '🌀', name: '大红斑' }]
+            : []),
         { key: 'saturn', icon: '🪐', name: '土星' },
         ...(currentComparisonMetric === 'diameter'
             ? [{ key: SATURN_RING_CAPACITY_KEY, icon: '💍', name: '土星光环' }]
             : []),
         { key: 'uranus', icon: '🪐', name: '天王星' },
         { key: 'neptune', icon: '🪐', name: '海王星' },
+        ...(currentComparisonTab === 'volumeCapacity'
+            ? [{ key: 'greatDarkSpot', icon: '🌀', name: '大暗斑' }]
+            : []),
         { key: 'earth', icon: '🌍', name: '地球' },
         { key: 'venus', icon: '🟡', name: '金星' },
         { key: 'mars', icon: '🔴', name: '火星' },
@@ -6525,6 +6581,10 @@ function renderBlackHoleScopePicker(container, mode = 'capacity', options = {}) 
 }
 
 function renderCapacityMode(container, subtitle) {
+    const selectedStorm = STORM_CAPACITY_TARGETS[currentCapacityView];
+    if (selectedStorm && currentComparisonMetric !== 'diameter') {
+        currentCapacityView = selectedStorm.parentKey;
+    }
     if (currentCapacityView === SATURN_RING_CAPACITY_KEY && currentComparisonMetric !== 'diameter') {
         currentCapacityView = 'saturn';
     }
@@ -6558,16 +6618,23 @@ function renderCapacityMode(container, subtitle) {
 
 function renderDragCapacityComparison(container, subtitle, targetKey, options = {}) {
     const target = CAPACITY_TARGETS[targetKey];
+    const stormTarget = STORM_CAPACITY_TARGETS[targetKey];
     const isBlackHole = isBlackHoleTargetType(targetKey);
     const blackHoleScopeLabel = isBlackHole ? getBlackHoleScopeLabel(targetKey) : '';
     const capacityData = getCapacityData(targetKey);
-    const targetDisplayName = isBlackHole ? getCapacityTargetDisplayName(targetKey) : target.nameCN;
+    const targetDisplayName = stormTarget
+        ? `${target.nameCN}想象比较球`
+        : isBlackHole
+            ? getCapacityTargetDisplayName(targetKey)
+            : target.nameCN;
     const includeBarChart = !!options.includeBarChart;
     const isStellarTarget = !isBlackHole && planetData[targetKey]?.category === 'star';
     const isWidthMode = currentComparisonMetric === 'width';
     const isMassMode = currentComparisonMetric === 'mass';
 
-    subtitle.textContent = currentComparisonMetric === 'mass'
+    subtitle.textContent = stormTarget
+        ? `把${stormTarget.diameter.toLocaleString('zh-CN')}公里当作想象球直径，比较体积大小`
+        : currentComparisonMetric === 'mass'
         ? `拖拽天体和${targetDisplayName}比质量，看看质量约等于多少个`
         : currentComparisonMetric === 'width'
             ? `拖拽天体放到${targetDisplayName}的赤道线上，按直径看看横向约等于多少个`
@@ -6735,7 +6802,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
         barChartHTML = `<div class="drag-bar-chart-side">${barInnerHTML}${sizeCompareHTML}</div>`;
     }
 
-    const realisticLabel = isBlackHole
+    const realisticLabel = stormTarget
+        ? '🌀 显示想象比较球'
+        : isBlackHole
         ? '🌑 还原黑洞'
         : isStellarTarget
             ? `⭐ 还原${target.nameCN}`
@@ -6751,11 +6820,26 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 <button class="drag-3d-toggle" type="button" aria-pressed="${isDrag3DMode()}">${initial3DLabel}</button>
                 <canvas class="drag-sun-canvas-3d" width="${canvasWidth * dpr}" height="${canvasHeight * dpr}" style="width:${canvasWidth}px; height:${canvasHeight}px; ${show3DCanvas ? '' : 'display:none;'}"></canvas>
         `;
-    const dragInstructionText = isMassMode
+    const dragInstructionText = stormTarget
+        ? `👆 拖拽天体和${targetDisplayName}比较体积！`
+        : isMassMode
         ? `👆 拖拽天体和${targetDisplayName}比质量，看它质量约等于多少个！`
         : `👆 拖拽天体放入${targetDisplayName}，看它${isWidthMode ? '沿赤道横向约等于多少个' : '能装多少个'}！`;
 
     wrapper.innerHTML = `
+        ${stormTarget ? `
+            <div class="storm-capacity-explainer" role="note">
+                <a class="storm-photo-card" href="${stormTarget.photoUrl}" target="_blank" rel="noopener noreferrer">
+                    <img src="${stormTarget.texture}" alt="${stormTarget.nameCN}航天器观测图">
+                    <span>风暴观测图<br><small>点击查看 NASA 原图</small></span>
+                </a>
+                <div class="storm-capacity-copy">
+                    <strong>这是想象比较</strong>
+                    <span>想象一个和风暴一样宽的球，比较它的体积；风暴本身不是球，数字不是真实风暴容量。</span>
+                    <small>左侧圆球会把这张真实观测图包在想象球上，只用于体积演示。</small>
+                </div>
+            </div>
+        ` : ''}
         <div class="drag-instruction">${dragInstructionText}</div>
         <div class="black-hole-note">${getCapacityNote(targetKey)}</div>
         <div class="${mainAreaClass}">
@@ -6825,7 +6909,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 clearDragResultState();
                 const startAnim = isMassMode ? startMassComparisonAnimation : (isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation));
                 const animConfig = {
-                    resultLabel: currentComparisonMetric === 'mass'
+                    resultLabel: stormTarget
+                        ? `${target.nameCN}想象球体积约等于`
+                        : currentComparisonMetric === 'mass'
                         ? `${targetDisplayName}质量约等于`
                         : currentComparisonMetric === 'width'
                             ? `${targetDisplayName}宽度约等于`
@@ -6854,7 +6940,10 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
                 blackHoleTextureImage.onload = () => drawIdleBlackHole(ctx, canvasSize, 0, true, blackHoleScopeLabel);
             }
         } else {
-            drawIdleContainer(ctx, canvasSize, targetKey, { blackHoleScopeLabel });
+            drawIdleContainer(ctx, canvasSize, targetKey, {
+                blackHoleScopeLabel,
+                hintText: stormTarget ? '想象比较球' : ''
+            });
         }
     }
     wrapper._dragRedraw = drawIdle;
@@ -6950,7 +7039,9 @@ function renderDragCapacityComparison(container, subtitle, targetKey, options = 
     setupDragInteraction(wrapper, canvas, canvasSize, dpr, capacityData, {
         startAnimation: isMassMode ? startMassComparisonAnimation : (isWidthMode ? startWidthFitAnimation : (isBlackHole ? startBlackHoleFillAnimation : startFillAnimation)),
         ghostMaxSize: isBlackHole ? 70 : 64,
-        resultLabel: currentComparisonMetric === 'mass'
+        resultLabel: stormTarget
+            ? `${target.nameCN}想象球体积约等于`
+            : currentComparisonMetric === 'mass'
             ? `${targetDisplayName}质量约等于`
             : currentComparisonMetric === 'width'
                 ? `${targetDisplayName}宽度约等于`
@@ -6975,6 +7066,10 @@ function generateSizeComparison(mode) {
     }
     if (!mode) mode = currentComparisonTab;
     mode = normalizeComparisonMode(mode);
+    const selectedStorm = STORM_CAPACITY_TARGETS[currentCapacityView];
+    if (selectedStorm && mode !== 'volumeCapacity') {
+        currentCapacityView = selectedStorm.parentKey;
+    }
     currentComparisonTab = mode;
     if (mode === 'diameter' || mode === 'mass') {
         currentComparisonMetric = mode;
@@ -7783,6 +7878,7 @@ function drawIdleContainer(ctx, size, targetKey, options = {}) {
     const cx = size / 2, cy = size / 2;
     const sizeScale = size / 260;
     const hintFontPx = Math.max(14, Math.round(14 * sizeScale));
+    const hintText = options.hintText || '拖到这里';
     ctx.clearRect(0, 0, size, size);
     if (isGlassDragMode()) {
         drawGlassContainerBack(ctx, size, 10);
@@ -7791,7 +7887,7 @@ function drawIdleContainer(ctx, size, targetKey, options = {}) {
         ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('拖到这里', cx, cy);
+        ctx.fillText(hintText, cx, cy);
         return;
     }
     if (isSaturnRingCapacityTarget(targetKey)) {
@@ -7812,7 +7908,7 @@ function drawIdleContainer(ctx, size, targetKey, options = {}) {
     ctx.font = `600 ${hintFontPx}px "Noto Sans SC"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('拖到这里', cx, cy);
+    ctx.fillText(hintText, cx, cy);
     // 纹理还在加载时延迟重绘
     const img = getDragVolumeTexture(targetKey);
     if (img && !img.complete) {

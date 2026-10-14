@@ -2856,6 +2856,76 @@
             text-align: center;
         }
 
+        .black-hole-note a {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-underline-offset: 3px;
+        }
+
+        .storm-capacity-explainer {
+            width: min(760px, 100%);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 214, 92, 0.48);
+            border-radius: 16px;
+            background: rgba(255, 196, 54, 0.13);
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.65;
+        }
+
+        .storm-photo-card {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            text-decoration: none;
+        }
+
+        .storm-photo-card img {
+            width: 82px;
+            height: 66px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .storm-photo-card small {
+            color: var(--accent-cyan);
+        }
+
+        .storm-capacity-copy {
+            display: grid;
+            gap: 3px;
+            font-size: 0.88rem;
+        }
+
+        .storm-capacity-copy strong {
+            color: var(--accent-gold);
+            font-size: 1rem;
+        }
+
+        .storm-capacity-copy small {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 620px) {
+            .storm-capacity-explainer {
+                align-items: stretch;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .storm-photo-card {
+                justify-content: center;
+            }
+        }
+
         .black-hole-ref {
             width: 80px;
             height: 80px;
@@ -4063,7 +4133,7 @@
         }
     </script>
 
-    <script src="app.js?v=20260811-artificial-satellites"></script>
+    <script src="app.js?v=20261014-storm-capacity"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 
