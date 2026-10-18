@@ -1596,6 +1596,8 @@ const DIAMETER_START_KEYS = [
     'earth',
     'mars',
     'ganymede',
+    'pluto',
+    'ceres',
     'phobos'
 ];
 
