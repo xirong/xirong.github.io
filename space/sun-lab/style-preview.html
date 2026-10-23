@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <meta name="robots" content="noindex">
+  <title>太阳 · 样式预览</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style-preview.css">
+</head>
+<body>
+  <header class="masthead">
+    <a href="../../index.html" class="back" aria-label="返回学习乐园"><span aria-hidden="true">←</span> 智天的宇宙</a>
+    <span class="preview-label">样式预览</span>
+  </header>
+  <main>
+    <section class="observation" aria-label="太阳观测画面">
+      <div class="view-heading"><span id="view-label">太阳全貌</span><span class="photo-label"><i></i> 真实观测</span></div>
+      <figure class="image-area">
+        <img id="observation-image" src="assets/sdo-ultraviolet.jpg" alt="NASA SDO 拍摄的太阳极紫外全貌，金色为科学配色，图中保留观测时间" width="2048" height="2048" fetchpriority="high">
+        <p id="image-error" hidden>画面暂时没有加载出来。<button id="retry">重新加载</button></p>
+      </figure>
+      <div class="image-caption"><span id="instrument">NASA / SDO · AIA 171 Å</span><p id="image-note">极紫外观测，金色为科学配色；不是肉眼看到的颜色。</p></div>
+      <nav class="view-switch" aria-label="选择观察内容">
+        <button type="button" data-view="sun" aria-pressed="true"><span class="view-number" aria-hidden="true">01</span> 看太阳<span class="selection-mark" aria-hidden="true"></span></button>
+        <button type="button" data-view="sunspot" aria-pressed="false"><span class="view-number" aria-hidden="true">02</span> 看黑子<span class="selection-mark" aria-hidden="true"></span></button>
+      </nav>
+    </section>
+    <article class="knowledge" aria-live="polite" aria-atomic="true">
+      <div class="chapter" id="chapter">认识一颗恒星</div>
+      <h1 id="topic-title">太阳</h1>
+      <p class="lead" id="topic-lead">我们每天的光和温暖，<br>来自这颗恒星。</p>
+      <dl id="facts">
+        <div><dt>为什么会发光？</dt><dd>中心的氢原子核结合成氦，释放出能量。这叫<strong>核聚变</strong>。</dd></div>
+        <div><dt>能站在上面吗？</dt><dd>不能。太阳由极热的物质组成，<strong>没有坚硬的地面</strong>。</dd></div>
+        <div><dt>阳光要走多久？</dt><dd>离开太阳的光，大约要走<strong>8 分 20 秒</strong>，才能到地球。</dd></div>
+      </dl>
+      <a id="science-source" class="source-link" href="https://science.nasa.gov/sun/facts/" target="_blank" rel="noopener">科学依据 · NASA <span aria-hidden="true">↗</span></a>
+    </article>
+  </main>
+  <footer>
+    <p>先看布局与操作。复用已有观测照片，暂不制作新图片、三维模型或语音。</p>
+    <a href="CREDITS.md" target="_blank" rel="noopener">素材来源 ↗</a>
+  </footer>
+  <script src="style-preview.js"></script>
+</body>
+</html>
