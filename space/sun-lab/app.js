@@ -20,14 +20,14 @@
       if(!('speechSynthesis' in window)){toast('语音暂时不可用，右侧仍可阅读完整讲解。');return;}
       const utterance=new SpeechSynthesisUtterance(entry.text);utterance.lang='zh-CN';utterance.rate=.9;
       const voice=speechSynthesis.getVoices().find(v=>v.lang.startsWith('zh'));if(voice)utterance.voice=voice;
-      $('audio-source').textContent='旁白：浏览器语音 '+(voice?voice.name:'中文');
+      $('audio-source').textContent='正在使用备用中文讲解';
       utterance.onend=()=>{if(serial===audioSerial)$('narrate').textContent='▷ 再听一遍';};
       utterance.onerror=()=>{if(serial===audioSerial)$('narrate').textContent='▷ 重试语音';};
       speechSynthesis.speak(utterance);
     };
     $('narrate').textContent='Ⅱ 停止讲解';
     if(!entry.audio){fallback();return;}
-    $('audio-source').textContent='旁白：小晓 · edge-tts · '+Object.values(NARRATION).filter(x=>x.audio).length+' 条';
+    $('audio-source').textContent='小晓为你讲解太阳的故事';
     narrator.src=entry.audio;narrator.onerror=fallback;
     narrator.onended=()=>{if(serial===audioSerial)$('narrate').textContent='▷ 再听一遍';};
     narrator.play().catch(fallback);
@@ -218,7 +218,7 @@
       $('journey-close').addEventListener('click',()=>{state.journey=-1;stopAudio();renderStage();});
       $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.querySelector('.stage').requestFullscreen)await document.querySelector('.stage').requestFullscreen();else toast('这个浏览器暂不支持全屏，可以横屏获得更大的画面。');}catch(_){toast('当前环境无法进入全屏，可以横屏观看。');}});
       const match=location.hash.match(/^#(observe|interior|measure)\/([a-z]+)$/);if(match&&itemsFor(match[1]).some(x=>x.id===match[2]))changeMode(match[1],match[2]);else changeMode('observe');
-      $('audio-source').textContent='旁白：小晓 · edge-tts · '+Object.values(NARRATION).filter(x=>x.audio).length+' 条';
+      $('audio-source').textContent='小晓为你讲解太阳的故事';
       requestAnimationFrame(flightLoop);
       // 只读的验收入口，用于检查当前状态和画布，不修改教学状态。
       window.solarLab={getState:()=>({...state,paused:solar.paused,cut:solar.cut,drawCalls:solar.renderer.info.render.calls,triangles:solar.renderer.info.render.triangles,magnetic:solar.magneticGroup.visible,audio:{paused:narrator.paused,time:narrator.currentTime,src:narrator.currentSrc}}),scene:solar};
