@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080b10">
+  <meta name="description" content="智天的太阳探索实验室：转动太阳、打开剖面、进入核心，跟随能量认识我们的恒星。">
+  <title>太阳探索实验室 · 智天的宇宙</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffb65c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="lab.css">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="../../index.html" aria-label="返回学习乐园"><span class="brand-sun" aria-hidden="true"></span><span>智天的宇宙<small>一个可以亲手探索的世界</small></span></a>
+    <nav class="mode-tabs" aria-label="探索模式">
+      <button class="active" data-mode="observe" aria-pressed="true"><span>01</span> 看太阳</button>
+      <button data-mode="interior" aria-pressed="false"><span>02</span> 去内部</button>
+      <button data-mode="measure" aria-pressed="false"><span>03</span> 比大小</button>
+    </nav>
+    <div class="header-tools"><button id="sound" class="icon-button" aria-pressed="true" title="开启或关闭语音">◖♪ <span>语音开</span></button><button id="sources" class="icon-button" title="资料与画面说明">资料 ↗</button></div>
+  </header>
+
+  <main class="workspace">
+    <aside class="explorer">
+      <div class="eyebrow">OUR NEAREST STAR</div>
+      <h1>走进<span>太阳</span></h1>
+      <p class="intro">从一束阳光，<br>找到一颗恒星的心脏。</p>
+      <div class="section-heading"><span id="explorer-title">选择一个发现</span><span id="explorer-count">01 / 04</span></div>
+      <div id="explore-list" class="explore-list" aria-label="探索内容"></div>
+      <button id="journey" class="journey-button"><span class="journey-icon">↝</span><span>跟着能量去旅行<small>从核心出发，到达地球</small></span><span>→</span></button>
+      <div class="discovery"><span class="discovery-dot"></span><span id="discovery-count">今天，从一个新发现开始</span></div>
+    </aside>
+
+    <section class="stage" aria-label="太阳三维探索画布">
+      <div id="canvas-host"></div>
+      <div id="loading" class="loading"><div class="loading-orbit"></div><p>正在点亮我们的恒星…</p></div>
+      <div id="render-error" class="render-error" hidden><h2>暂时无法打开三维画面</h2><p id="error-message">请使用支持 WebGL 的浏览器重试。</p><button id="reload">重新加载</button></div>
+      <div class="stage-top"><span id="view-badge" class="view-badge"><i></i> 外观合成 · 特殊波段配色</span><button id="home-view" class="quiet-button">↺ 回到全景</button></div>
+      <div id="observation-switch" class="segmented"><button data-spectrum="euv" class="active" aria-pressed="true">活动太阳</button><button data-spectrum="visible" aria-pressed="false">可见光外观</button></div>
+      <div class="stage-caption"><span id="stage-kicker">一颗恒星，也是一切的开始</span><strong id="stage-title">你好，太阳。</strong></div>
+      <div id="scene-labels" class="scene-labels" aria-hidden="true"></div>
+      <button id="cut-handle" class="cut-handle" role="slider" aria-label="拖动太阳上的剖面把手" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70" hidden><span>↔</span><small>拖我打开</small></button>
+      <div id="minimap" class="minimap" hidden><svg viewBox="0 0 100 100" aria-label="当前所在层级"><circle cx="50" cy="50" r="44" fill="#6d271b"/><circle cx="50" cy="50" r="31" fill="#b95423"/><circle cx="50" cy="50" r="11" fill="#ffe5a5"/><circle id="map-ring" cx="50" cy="50" r="11" fill="none" stroke="#fff2c4" stroke-width="2" stroke-dasharray="3 3"/></svg><span id="map-label">核心 · 局部</span><button id="exit-detail">返回剖面 ↗</button></div>
+      <div id="slice-control" class="slice-control" hidden><div><label for="cut">拉开太阳的观察窗口</label><output id="cut-value" for="cut">打开 70%</output></div><input id="cut" type="range" min="0" max="100" value="70" aria-label="剖面打开程度"><div class="range-ends"><span>完整太阳</span><span>看见内部</span></div></div>
+      <div id="measure-control" class="measure-control" hidden><label for="measure-range" id="measure-label">拉动尺子，量一量太阳</label><input id="measure-range" type="range" min="0" max="100" value="100" aria-label="测量进度"><output id="measure-output"></output></div>
+      <div class="stage-bottom"><span id="gesture-hint">拖动旋转 · 滚轮或双指缩放</span><div><button id="pause" class="quiet-button" aria-pressed="false">Ⅱ 暂停</button><button id="fullscreen" class="quiet-button" aria-label="全屏画布">⛶ 全屏</button></div></div>
+      <div id="journey-player" class="journey-player" hidden><div class="journey-progress"><span id="journey-progress-fill"></span></div><div class="journey-player-row"><button id="journey-prev" aria-label="旅行上一步">←</button><div><small id="journey-step"></small><strong id="journey-title"></strong></div><button id="journey-next" aria-label="旅行下一步">→</button><button id="journey-close" aria-label="结束旅行">×</button></div><p id="journey-description"></p></div>
+    </section>
+
+    <aside class="knowledge" aria-label="当前发现">
+      <div class="knowledge-top"><span id="card-index">观察笔记 / 01</span><span class="live-dot"></span></div>
+      <div id="card-symbol" class="card-symbol" aria-hidden="true">☉</div>
+      <div id="card-category" class="eyebrow">THE SUN</div>
+      <h2 id="card-title">我们的太阳</h2>
+      <p id="card-summary" class="card-summary"></p>
+      <div class="stat"><span id="stat-label"></span><div><strong id="stat-value"></strong><span id="stat-unit"></span></div><small id="stat-note"></small></div>
+      <div id="temperature" class="temperature" hidden><div class="temperature-bar"><i id="temperature-marker"></i></div><div><span>约 5,500℃</span><span>约 1,500 万℃</span></div><small>颜色与刻度为教学示意，不是等距温标</small></div>
+      <div id="fact" class="fact"><span>✧</span><p id="card-fact"></p></div>
+      <button id="primary-action" class="primary-action">打开太阳，看看里面 <span>↗</span></button>
+      <button id="narrate" class="narrate">▷ 听小晓讲一讲</button>
+      <div id="audio-source" class="audio-source">旁白：小晓 · 预生成语音</div>
+      <details class="learn-more"><summary>再讲一点 <span>＋</span></summary><p id="card-more"></p><a id="card-source" href="https://science.nasa.gov/sun/facts/" target="_blank" rel="noopener">科学资料 · NASA ↗</a></details>
+      <button id="photo-open" class="photo-open">看看真实观测影像 ↗</button>
+    </aside>
+  </main>
+  <footer class="footer"><span>SOLAR EXPLORER <i>·</i> 太阳探索实验室</span><span id="science-note">模型用于探索 · 亮度和时间经过调整 · 请勿直视现实中的太阳</span><span>为好奇心而造 <span class="footer-star">✦</span></span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="info-dialog"><div class="dialog-header"><span id="dialog-eyebrow">OBSERVATION ARCHIVE</span><button id="dialog-close" aria-label="关闭资料">×</button></div><div id="dialog-content"></div></dialog>
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/OrbitControls.js"></script>
+  <script src="narration.js"></script>
+  <script src="data.js"></script>
+  <script src="scene.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
