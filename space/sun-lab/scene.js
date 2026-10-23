@@ -82,7 +82,7 @@ window.SolarScene = class SolarScene {
     else{this.camera.position.copy(position);this.controls.target.copy(target);this.controls.update();this.cameraMove=null;}
   }
   setLabels(items){
-    this.labelHost.replaceChildren();this.labels=items.map(item=>{
+    this.labelHost.replaceChildren();this.labels=items.filter(item=>item.text).map(item=>{
       const el=document.createElement('span');el.className='scene-label';el.textContent=item.text;this.labelHost.appendChild(el);
       return{...item,el};
     });
@@ -96,7 +96,7 @@ window.SolarScene = class SolarScene {
       label.el.hidden=p.z>1||p.z< -1||Math.abs(p.x)>.95||Math.abs(p.y)>.9;
     }
     const handle=document.getElementById('cut-handle');
-    if(handle&&!handle.hidden){const p=new THREE.Vector3(Math.sin(this.cut)*this.R,0,Math.cos(this.cut)*this.R).project(this.camera);handle.style.left=THREE.MathUtils.clamp((p.x+1)*w/2,32,w-32)+'px';handle.style.top=THREE.MathUtils.clamp((-p.y+1)*h/2,120,h-180)+'px';}
+    if(handle&&!handle.hidden){const p=new THREE.Vector3(Math.sin(this.cut)*this.R,0,Math.cos(this.cut)*this.R).project(this.camera);handle.style.left=THREE.MathUtils.clamp((p.x+1)*w/2,32,w-32)+'px';handle.style.top=THREE.MathUtils.clamp((-p.y+1)*h/2,120,h-120)+'px';}
   }
 
   // ============ 太阳外观与真实三维剖面 ============
@@ -247,7 +247,7 @@ window.SolarScene = class SolarScene {
     this.detail=true;this.selected=id;this.sunGroup.visible=false;this.measureGroup.visible=false;this.detailGroup.visible=true;this.stars.visible=false;
     Object.entries(this.details).forEach(([key,g])=>g.visible=key===id);
     const V=(x,y,z)=>new THREE.Vector3(x,y,z);
-    const labels={core:[{text:'氢核汇聚 · 核聚变净结果示意',position:V(0,-3.4,0)}],radiative:[{text:'吸收、再发射与散射',position:V(0,-3.4,0)}],convection:[{text:'较热物质上升 ↑',position:V(2.5,2.7,0)},{text:'冷却后下沉 ↓',position:V(-2.3,-2.8,0)}],photosphere:[{text:'真实观测：米粒组织与黑子',position:V(0,-3.3,0)}],sunspot:[{text:'本影 · 较暗的中心',position:V(1.25,0,.2)},{text:'半影 · 外围丝状结构',position:V(1.7,1.8,.2)}],chromosphere:[{text:'喷流的运动示意 · 尺度已放大',position:V(0,2.8,0)}],transition:[{text:'色球',position:V(-3.7,-2.2,0)},{text:'日冕',position:V(3.7,2.4,0)}],corona:[{text:'稀薄的日冕物质沿结构分布',position:V(0,2.7,0)}],prominence:[{text:'被磁场支撑和引导的太阳物质',position:V(0,2.7,0)}]};
+    const labels={core:[{text:'能量诞生啦 ✨',position:V(0,-3.4,0)}],radiative:[{text:'绕弯弯 〰',position:V(0,-3.4,0)}],convection:[{text:'热 ↑',position:V(2.5,2.7,0)},{text:'凉 ↓',position:V(-2.3,-2.8,0)}],photosphere:[{text:'小颗粒',position:V(0,-3.3,0)}],sunspot:[{text:'黑点点',position:V(1.25,0,.2)},{text:'细细的纹路',position:V(1.7,1.8,.2)}],chromosphere:[{text:'向上喷 ↑',position:V(0,2.8,0)}],transition:[{text:'色球',position:V(-3.7,-2.2,0)},{text:'日冕',position:V(3.7,2.4,0)}],corona:[{text:'弯弯的光',position:V(0,2.7,0)}],prominence:[{text:'弯弯桥',position:V(0,2.7,0)}]};
     this.setLabels(labels[id]||[]);this.updaters.forEach(fn=>fn(this.time,0));this.resetCamera();this.updateVisibility();
   }
   toggleMagnetic(){this.magneticGroup.visible=!this.magneticGroup.visible;return this.magneticGroup.visible;}
@@ -290,13 +290,13 @@ window.SolarScene = class SolarScene {
     this.setMeasureProgress(mode==='measure'&&id==='distance'?0:1);
     const V=(x,y,z)=>new THREE.Vector3(x,y,z);
     let labels=[];
-    if(mode==='interior')labels=[{text:'核心',position:V(.45,-.3,1.3)},{text:'辐射区',position:V(1.9,.6,.8)},{text:'对流区',position:V(3.5,1,.5)}];
-    if(mode==='observe'&&id==='sun')labels=[{text:'拖动，换一个角度看太阳',position:V(0,-5.1,0)}];
+    if(mode==='interior')labels=[{text:'中心',position:V(.45,-.3,1.3)},{text:'绕弯弯',position:V(1.9,.6,.8)},{text:'转圈圈',position:V(3.5,1,.5)}];
+    if(mode==='observe'&&id==='sun')labels=[{text:'',position:V(0,-5.1,0)}];
     if(mode==='measure'){
-      if(id==='radius')labels=[{text:'半径 69.57 万千米',position:V(2.1,.45,0)},{text:'直径 139.14 万千米',position:V(-1.5,-1.7,0)}];
-      if(id==='earths')labels=[{text:'每一颗小球都是一个同尺度的地球',position:V(0,-5.2,1)}];
+      if(id==='radius')labels=[{text:'半径',position:V(2.1,.45,0)},{text:'直径',position:V(-1.5,-1.7,0)}];
+      if(id==='earths')labels=[{text:'',position:V(0,-5.2,1)}];
       if(id==='volume')labels=[{text:'地球',position:V(-4.8,-2.5,2)}];
-      if(id==='mass')labels=[{text:'1 个太阳的质量',position:V(-2.6,-2,0)},{text:'每个光点 = 3,329 个地球的质量',position:V(2.4,2.6,0)}];
+      if(id==='mass')labels=[{text:'☀',position:V(-2.6,-2,0)},{text:'✨ 物质的份额',position:V(2.4,2.6,0)}];
       if(id==='distance')labels=[{text:'太阳',position:V(-4.1,-1.6,0)},{text:'地球',position:V(4.3,-1.1,0)}];
     }
     this.setLabels(labels);this.updateVisibility();this.resetCamera();

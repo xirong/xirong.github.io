@@ -44,7 +44,7 @@ async def main(force=False):
 
     await asyncio.gather(*(generate(key, text) for key, text in NARRATION.items()))
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
-    browser = {key: {"text": text, "audio": f"audio/{key}.mp3" if key in manifest else None} for key, text in NARRATION.items()}
+    browser = {key: {"text": text, "audio": f"audio/{key}.mp3?v={manifest[key][:12]}" if key in manifest else None} for key, text in NARRATION.items()}
     (ROOT / "narration.js").write_text("// 由 generate-audio.py 生成，请修改 narration.py。\nwindow.NARRATION = " + json.dumps(browser, ensure_ascii=False, indent=2) + ";\n")
     print(f"旁白就绪 {len(manifest)}，失败 {len(failed)}。", flush=True)
     if failed:
