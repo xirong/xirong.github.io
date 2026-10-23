@@ -1,0 +1,80 @@
+/* ============ 基础 ============ */
+:root {
+  --ink: #fff7ea;
+  --muted: rgba(255, 240, 220, .62);
+  --glass: rgba(18, 14, 12, .55);
+  --line: rgba(255, 220, 170, .18);
+  --accent: #ffc56b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #000; color: var(--ink); font-family: "Noto Sans SC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#scene:active { cursor: grabbing; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+/* ============ 顶栏 ============ */
+.top { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(14px, env(safe-area-inset-top)) 16px 0; pointer-events: none; }
+.top > * { pointer-events: auto; }
+.round, .pill { border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--ink); text-decoration: none; display: inline-grid; place-items: center; }
+.round { width: 48px; height: 48px; border-radius: 50%; font-size: 22px; }
+.pill { height: 40px; padding: 0 16px; border-radius: 20px; font-size: 15px; white-space: nowrap; }
+.top-right { display: flex; gap: 10px; align-items: center; }
+.title { text-align: center; pointer-events: none; }
+.title h1 { margin: 0; font-size: 22px; font-weight: 900; letter-spacing: .12em; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+.title p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+/* ============ 加载 ============ */
+.loading { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; color: var(--muted); font-size: 16px; transition: opacity .8s; }
+.loading.done { opacity: 0; pointer-events: none; }
+.spinner { width: 42px; height: 42px; border-radius: 50%; border: 4px solid rgba(255,200,120,.2); border-top-color: var(--accent); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ 字幕 ============ */
+.caption { position: fixed; left: 50%; bottom: calc(132px + env(safe-area-inset-bottom)); transform: translate(-50%, 10px); width: min(680px, calc(100% - 32px)); margin: 0; padding: 14px 20px; border-radius: 18px; background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--line); font-size: 18px; line-height: 1.6; text-align: center; opacity: 0; transition: opacity .5s, transform .5s; pointer-events: none; }
+.caption.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ============ 眼镜底栏 ============ */
+.dock { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-radius: 26px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); max-width: calc(100% - 16px); overflow-x: auto; scrollbar-width: none; }
+.dock::-webkit-scrollbar { display: none; }
+.dock-gap { width: 1px; align-self: stretch; margin: 6px 4px; background: var(--line); flex: none; }
+.lens, .action { flex: none; width: 76px; border: 0; background: none; padding: 4px 0; display: grid; justify-items: center; gap: 6px; font-size: 13px; color: var(--muted); border-radius: 16px; transition: color .2s, background .2s; }
+.lens i { width: 52px; height: 52px; border-radius: 50%; display: block; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.75), transparent 28%), radial-gradient(circle, var(--lens) 0 58%, color-mix(in srgb, var(--lens) 55%, #000) 100%); box-shadow: 0 0 0 3px rgba(255,255,255,.08), 0 0 0 0 var(--lens); transition: box-shadow .3s, transform .2s; }
+.lens i.mag { background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.6), transparent 28%), linear-gradient(90deg, #f5f5f5 0 50%, #1d1d1d 50%); }
+.lens.active { color: var(--ink); }
+.lens.active i { box-shadow: 0 0 0 3px #fff, 0 0 22px 2px var(--lens); transform: scale(1.06); }
+.action b { width: 52px; height: 52px; display: grid; place-items: center; font-size: 26px; border-radius: 50%; background: rgba(255,255,255,.07); transition: background .2s, box-shadow .2s; }
+.action.on { color: var(--ink); }
+.action.on b { background: rgba(255,197,107,.25); box-shadow: 0 0 0 3px var(--accent); }
+.lens:active i, .action:active b { transform: scale(.94); }
+
+/* ============ 小问题 ============ */
+.ask { position: fixed; right: 16px; bottom: calc(140px + env(safe-area-inset-bottom)); height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-size: 15px; }
+.caption.show ~ .ask { opacity: 0; pointer-events: none; }
+
+/* ============ 家长看 ============ */
+.parent { width: min(640px, calc(100% - 24px)); max-height: 86vh; border: 1px solid var(--line); border-radius: 20px; padding: 22px 24px; background: #17110d; color: var(--ink); line-height: 1.65; }
+.parent::backdrop { background: rgba(0,0,0,.6); }
+.parent h2 { margin: 0 32px 8px 0; font-size: 20px; }
+.parent h3 { margin: 18px 0 6px; font-size: 16px; color: var(--accent); }
+.parent .lead { color: var(--muted); margin: 0 0 12px; }
+.parent table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.parent th, .parent td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.parent th { color: var(--muted); font-weight: 400; }
+.facts { margin: 0; padding-left: 20px; font-size: 14px; }
+.credit { font-size: 12px; color: var(--muted); margin-top: 16px; }
+.close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: none; }
+
+/* ============ 窄屏 ============ */
+@media (max-width: 640px) {
+  .title h1 { font-size: 18px; }
+  .title p { font-size: 10px; }
+  .round { width: 42px; height: 42px; font-size: 19px; }
+  .pill { height: 36px; padding: 0 12px; font-size: 13px; }
+  .top-right { gap: 6px; }
+  .dock { flex-wrap: wrap; justify-content: center; row-gap: 4px; overflow: visible; width: calc(100% - 16px); }
+  .dock-gap { display: none; }
+  .lens, .action { width: 62px; font-size: 12px; }
+  .lens i, .action b { width: 44px; height: 44px; font-size: 22px; }
+  .caption { font-size: 16px; bottom: calc(196px + env(safe-area-inset-bottom)); }
+  .ask { bottom: calc(200px + env(safe-area-inset-bottom)); }
+}

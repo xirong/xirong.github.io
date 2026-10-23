@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="用 NASA 太阳动力学天文台的真实照片做成的 3D 太阳：拖一拖、凑近看、换眼镜、看日全食。">
+  <title>真实的太阳 · 智天的宇宙</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffb65c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
+  <link rel="stylesheet" href="sun3d.css">
+</head>
+<body>
+  <canvas id="scene" aria-label="可以拖动和缩放的 3D 太阳"></canvas>
+
+  <header class="top">
+    <a class="round" href="../../index.html" aria-label="返回学习乐园">🏠</a>
+    <div class="title">
+      <h1>真实的太阳</h1>
+      <p id="photo-date">卫星照片</p>
+    </div>
+    <div class="top-right">
+      <button id="btn-sound" class="round" aria-label="关闭声音">🔊</button>
+      <button id="btn-parent" class="pill">家长看</button>
+    </div>
+  </header>
+
+  <div id="loading" class="loading"><span class="spinner"></span><span>正在搬来真实的太阳…</span></div>
+
+  <p id="caption" class="caption" aria-live="polite"></p>
+
+  <nav class="dock" aria-label="换眼镜">
+    <button class="lens active" data-mode="visible" style="--lens:#ffd27a"><i></i><span>普通眼镜</span></button>
+    <button class="lens" data-mode="uv304" style="--lens:#ff5a2a"><i></i><span>红色眼镜</span></button>
+    <button class="lens" data-mode="uv171" style="--lens:#e8b400"><i></i><span>金色眼镜</span></button>
+    <button class="lens" data-mode="magnetic" style="--lens:#d9d9d9"><i class="mag"></i><span>磁力眼镜</span></button>
+    <span class="dock-gap"></span>
+    <button class="action" id="btn-eclipse"><b>🌑</b><span>日全食</span></button>
+    <button class="action" id="btn-rotate"><b>🔄</b><span>转圈圈</span></button>
+    <button class="action" id="btn-zoom"><b>🔍</b><span>凑近看</span></button>
+  </nav>
+
+  <button id="btn-limb" class="ask" hidden>❓ 边上为什么暗？</button>
+
+  <dialog id="parent" class="parent">
+    <form method="dialog"><button class="close" aria-label="关闭">✕</button></form>
+    <h2>家长看 · 第一期：逼真外观</h2>
+    <p class="lead">太阳表面全部来自 NASA 太阳动力学天文台（SDO）的真实照片。四个时间点的日面图按自转拼成一整颗球，背面也是真的，只是拍摄日期早几天。</p>
+    <table>
+      <tr><th>眼镜</th><th>看到什么</th><th>代表温度</th></tr>
+      <tr><td>普通（HMI 可见光）</td><td>光球、太阳黑子</td><td>约 5,500℃；黑子约 3,500～4,500℃</td></tr>
+      <tr><td>红色（AIA 304 Å）</td><td>色球、日珥</td><td>约 5 万℃ 的氦</td></tr>
+      <tr><td>金色（AIA 171 Å）</td><td>日冕磁环</td><td>约 60 万～100 万℃</td></tr>
+      <tr><td>磁力（HMI 磁图）</td><td>磁场的南北极</td><td>白 = 指向我们，黑 = 背向我们</td></tr>
+    </table>
+    <h3>太阳名片</h3>
+    <ul class="facts">
+      <li>半径约 69.6 万 km，约 109 个地球排成一排</li>
+      <li>体积约 130 万个地球，质量约 33 万个地球（占太阳系 99.86%）</li>
+      <li>年龄约 46 亿年；成分约 73% 氢、25% 氦</li>
+      <li>自转：赤道约 25 天一圈，两极附近约 35 天（较差自转）</li>
+      <li>米粒组织每粒约 1,000 km，寿命约 10 分钟</li>
+    </ul>
+    <h3>画面里哪些是处理过的</h3>
+    <ul class="facts">
+      <li>紫外和磁图的颜色是 NASA 的伪彩，不是肉眼颜色。</li>
+      <li>临边昏暗（边缘变暗）、辉光、米粒“翻涌”是按物理规律加的光照和动画。凑近时的米粒细节来自 Hinode 卫星的真实观测，平铺在球面上。</li>
+      <li>自转被加速了，旋转演示里约 12 秒转完一圈。</li>
+      <li>日全食的日冕是 2017 年美国日全食的真实照片。</li>
+    </ul>
+    <p class="credit">图像：NASA/SDO 与 AIA、HMI 科学团队；NASA/Carla Thomas；Hinode/NASA SVS。详见 CREDITS.md。</p>
+  </dialog>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/OrbitControls.js"></script>
+  <script src="vendor/CopyShader.js"></script>
+  <script src="vendor/LuminosityHighPassShader.js"></script>
+  <script src="vendor/EffectComposer.js"></script>
+  <script src="vendor/RenderPass.js"></script>
+  <script src="vendor/ShaderPass.js"></script>
+  <script src="vendor/UnrealBloomPass.js"></script>
+  <script src="assets/frames.js"></script>
+  <script src="narration.js"></script>
+  <script src="sun3d.js"></script>
+</body>
+</html>
