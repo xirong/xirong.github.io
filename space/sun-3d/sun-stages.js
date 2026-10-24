@@ -149,29 +149,73 @@ window.SunStages = (() => {
 
     S.size_fill = api => {
       api.fly([0, 0.6, 4]);
-      const N = 500, pos = new Float32Array(N * 3), seeds = [];
-      for (let i = 0; i < N; i++) seeds.push({ dir: V(Math.random() - .5, Math.random() * .8 + .3, Math.random() - .5).normalize(), off: Math.random() });
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x5aa8ff, size: 0.045, sizeAttenuation: true }));
-      pts.visible = false;
-      api.root.add(pts);
-      let t0 = 0;
+      lights(api.root, [3, 5, 6], 0.65);
+      // 用真实地球贴图的小球按同心球壳紧密排布，组成完整的太阳球体轮廓
+      const OUTER_R = 0.935, EARTH_R = 0.065, SHELL_STEP = EARTH_R * Math.sqrt(8 / 3);
+      const shells = [];
+      for (let r = EARTH_R; r < OUTER_R - SHELL_STEP * 0.5; r += SHELL_STEP) shells.push(r);
+      shells.push(OUTER_R);
+      const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+      const slots = [{ target: V(0, 0, 0), radius: 0 }];
+      shells.forEach((radius, shellIndex) => {
+        const count = Math.max(6, Math.round(3.63 * (radius / EARTH_R) ** 2));
+        for (let i = 0; i < count; i++) {
+          const y = 1 - 2 * (i + 0.5) / count;
+          const ringR = Math.sqrt(Math.max(0, 1 - y * y));
+          const angle = i * GOLDEN_ANGLE + shellIndex * 0.7;
+          slots.push({ target: V(Math.cos(angle) * ringR * radius, y * radius, Math.sin(angle) * ringR * radius), radius });
+        }
+      });
+      const FALL_TIME = 1.1, FILL_TIME = 5.2;
+      slots.forEach((slot, i) => {
+        slot.delay = slot.radius / OUTER_R * FILL_TIME + Math.random() * 0.4;
+        slot.start = slot.radius > 1e-6 ? slot.target.clone().multiplyScalar(3.2 / slot.radius) : V(0, 3.2, 0);
+        slot.turn = i * GOLDEN_ANGLE;
+      });
+      const earths = new THREE.InstancedMesh(
+        new THREE.SphereGeometry(EARTH_R, 12, 10),
+        withTex(new THREE.MeshLambertMaterial(), '../textures/earth_daymap.jpg'), slots.length);
+      earths.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion();
+      const yAxis = V(0, 1, 0);
+      const scale = new THREE.Vector3(), position = new THREE.Vector3();
+      const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+      const resetEarths = () => {
+        for (let i = 0; i < slots.length; i++) earths.setMatrixAt(i, hiddenMatrix);
+        earths.instanceMatrix.needsUpdate = true;
+      };
+      resetEarths();
+      const filledSun = new THREE.Group();
+      filledSun.add(glow(0xff9a3c, 2.4, { strength: 0.45 }), earths);   // 从小球缝隙透出太阳火光
+      filledSun.visible = false;
+      api.root.add(filledSun);
+      let t0 = 0, settled = false;
       api.live('点“往里装”，把地球倒进太阳里');
       return {
-        action() { t0 = now(); pts.visible = true; },
-        update() {
+        action() {
+          hideSun();   // 不透明太阳和光晕会挡住地球球；切换场景时 stage.js 的 reset() 会恢复
+          filledSun.visible = true;
+          t0 = now(); settled = false; resetEarths();
+        },
+        update(t, dt) {
+          filledSun.rotation.y += dt * 0.04;
           if (!t0) return;
-          const t = (now() - t0) / 1000;
-          seeds.forEach((s, i) => {
-            const k = (t * 0.8 + s.off) % 1;           // 从外面落进太阳中心
-            const p = s.dir.clone().multiplyScalar(2.6 * (1 - k));
-            pos.set([p.x, p.y, p.z], i * 3);
-          });
-          geo.attributes.position.needsUpdate = true;
-          const done = ease(clamp(t / 7, 0, 1));
+          const seconds = (now() - t0) / 1000;
+          if (!settled) {
+            let allSettled = true;
+            slots.forEach((slot, i) => {
+              const k = clamp((seconds - slot.delay) / FALL_TIME, 0, 1);
+              if (k < 1) allSettled = false;
+              position.lerpVectors(slot.start, slot.target, ease(k));
+              rotation.setFromAxisAngle(yAxis, slot.turn);
+              matrix.compose(position, rotation, scale.setScalar(Math.min(1, k * 3)));
+              earths.setMatrixAt(i, matrix);
+            });
+            earths.instanceMatrix.needsUpdate = true;
+            settled = allSettled;   // 装满后停止改矩阵，小球会一直留在太阳轮廓里
+          }
+          const done = ease(clamp(seconds / 7, 0, 1));
           api.live(`🫙 已经装了 <b>${wan(1300000 * done)}</b> 个地球${done >= 1 ? ' —— 装满啦！' : ''}`);
-          if (done >= 1 && t > 8) pts.visible = false;
         },
       };
     };
@@ -200,15 +244,33 @@ window.SunStages = (() => {
       const sun = sunBall(0.75);
       sun.mesh.position.y = -0.5;
       pans[0].add(sun.mesh);
-      const earthGeo = new THREE.SphereGeometry(0.07, 12, 8);
-      const heap = new THREE.InstancedMesh(earthGeo, withTex(new THREE.MeshLambertMaterial(), '../textures/earth_daymap.jpg'), 220);
-      const m = new THREE.Matrix4();
-      for (let i = 0; i < 220; i++) {   // 堆成小山
-        const layer = Math.floor(Math.sqrt(i)), a = i * 2.4;
-        const rr = 0.75 * (1 - layer / 16) * Math.sqrt(Math.random());
-        m.setPosition(Math.cos(a) * rr, -1.2 + layer * 0.07, Math.sin(a) * rr);
-        heap.setMatrixAt(i, m);
+      const earthR = 0.07, panTop = -1.26;
+      const earthGeo = new THREE.SphereGeometry(earthR, 12, 8);
+      const heapPositions = [];
+      const rowStep = Math.sqrt(3) * earthR, layerStep = Math.sqrt(8 / 3) * earthR;
+      const addPackedLayer = (radius, y, shiftX = 0, shiftZ = 0) => {
+        for (let row = -8; row <= 8; row++) {
+          const z = row * rowStep + shiftZ;
+          const rowOffset = Math.abs(row) % 2 * earthR;
+          for (let col = -8; col <= 8; col++) {
+            const x = col * earthR * 2 + rowOffset + shiftX;
+            if (Math.hypot(x, z) <= radius + 1e-6) heapPositions.push(V(x, y, z));
+          }
+        }
+      };
+      addPackedLayer(0.82, panTop + earthR);                              // 121 个，贴着盘面铺满底层
+      addPackedLayer(0.58, panTop + earthR + layerStep, earthR, rowStep / 3); // 63 个
+      addPackedLayer(0.38, panTop + earthR + layerStep * 2);              // 31 个
+      for (let i = 0; i < 5; i++) {                                      // 收拢成稳定的小山顶
+        const angle = i / 5 * Math.PI * 2;
+        heapPositions.push(V(Math.cos(angle) * 0.12, panTop + earthR + layerStep * 3, Math.sin(angle) * 0.12));
       }
+      const heap = new THREE.InstancedMesh(earthGeo, withTex(new THREE.MeshLambertMaterial(), '../textures/earth_daymap.jpg'), heapPositions.length);
+      const m = new THREE.Matrix4();
+      heapPositions.forEach((p, i) => {
+        m.setPosition(p);
+        heap.setMatrixAt(i, m);
+      });
       heap.count = 0;
       pans[1].add(heap);
       const tagS = label('太阳'), tagE = label('地球');
@@ -223,7 +285,7 @@ window.SunStages = (() => {
           const k = t0 ? ease(clamp((now() - t0) / 6000, 0, 1)) : 0;
           beam.rotation.z = 0.32 * (1 - k);
           pans.forEach(p => { p.rotation.z = -beam.rotation.z; });   // 秤盘保持水平
-          heap.count = Math.round(220 * k);
+          heap.count = Math.round(heapPositions.length * k);
           if (t0) api.live(`⚖️ 放了 <b>${wan(333000 * k)}</b> 个地球${k >= 1 ? ' —— 平啦！' : ''}`);
         },
       };
