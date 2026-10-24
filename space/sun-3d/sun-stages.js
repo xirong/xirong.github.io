@@ -166,14 +166,18 @@ window.SunStages = (() => {
           slots.push({ target: V(Math.cos(angle) * ringR * radius, y * radius, Math.sin(angle) * ringR * radius), radius });
         }
       });
-      // 最终球位保持不变；按高度分层，从上方竖直落下，底层落稳后再装上一层
-      const FALL_TIME = 0.4, LAYER_TIME = 0.48, LAYER_HEIGHT = EARTH_R * 2;
+      // 连续散流：每颗球独立出发，优先填低处和中间，形成略有起伏的堆积面
+      const POUR_TIME = 10, BOUNCE_TIME = 0.16;
       slots.forEach((slot, i) => {
-        const layer = Math.floor((slot.target.y + OUTER_R) / LAYER_HEIGHT);
-        slot.delay = layer * LAYER_TIME + (i % 5) * 0.01;
-        slot.start = V(slot.target.x, 1.8, slot.target.z);
+        slot.priority = slot.target.y + 0.28 * Math.hypot(slot.target.x, slot.target.z) + (Math.random() - 0.5) * 0.16;
+        slot.start = V(slot.target.x * 0.7 + (Math.random() - 0.5) * 0.18, 1.85 + Math.random() * 0.2, slot.target.z * 0.7 + (Math.random() - 0.5) * 0.18);
+        slot.fallTime = Math.sqrt(2 * (slot.start.y - slot.target.y) / 7.5);
         slot.turn = i * GOLDEN_ANGLE;
+        slot.spin = (Math.random() - 0.5) * 5;
+        slot.sway = (Math.random() - 0.5) * 0.05;
       });
+      slots.sort((a, b) => a.priority - b.priority);
+      slots.forEach((slot, i) => { slot.delay = (i + Math.random() * 0.8) / slots.length * POUR_TIME; });
       const earths = new THREE.InstancedMesh(
         new THREE.SphereGeometry(EARTH_R, 12, 10),
         withTex(new THREE.MeshLambertMaterial(), '../textures/earth_daymap.jpg'), slots.length);
@@ -208,15 +212,19 @@ window.SunStages = (() => {
             let allSettled = true;
             let landed = 0;
             slots.forEach((slot, i) => {
-              const k = clamp((seconds - slot.delay) / FALL_TIME, 0, 1);
-              if (k < 1) allSettled = false;
+              const age = seconds - slot.delay;
+              const k = clamp(age / slot.fallTime, 0, 1);
+              const bounce = clamp((age - slot.fallTime) / BOUNCE_TIME, 0, 1);
+              if (bounce < 1) allSettled = false;
               else landed++;
               if (seconds < slot.delay) {
                 earths.setMatrixAt(i, hiddenMatrix);
                 return;
               }
               position.lerpVectors(slot.start, slot.target, k * k);
-              rotation.setFromAxisAngle(yAxis, slot.turn);
+              position.x += Math.sin(k * Math.PI) * slot.sway;
+              position.y += Math.sin(bounce * Math.PI) * EARTH_R * 0.35;
+              rotation.setFromAxisAngle(yAxis, slot.turn + slot.spin * Math.min(age, slot.fallTime));
               matrix.compose(position, rotation, scale.setScalar(1));
               earths.setMatrixAt(i, matrix);
             });
