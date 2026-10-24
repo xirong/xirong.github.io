@@ -166,10 +166,12 @@ window.SunStages = (() => {
           slots.push({ target: V(Math.cos(angle) * ringR * radius, y * radius, Math.sin(angle) * ringR * radius), radius });
         }
       });
-      const FALL_TIME = 1.1, FILL_TIME = 5.2;
+      // 最终球位保持不变；按高度分层，从上方竖直落下，底层落稳后再装上一层
+      const FALL_TIME = 0.4, LAYER_TIME = 0.48, LAYER_HEIGHT = EARTH_R * 2;
       slots.forEach((slot, i) => {
-        slot.delay = slot.radius / OUTER_R * FILL_TIME + Math.random() * 0.4;
-        slot.start = slot.radius > 1e-6 ? slot.target.clone().multiplyScalar(3.2 / slot.radius) : V(0, 3.2, 0);
+        const layer = Math.floor((slot.target.y + OUTER_R) / LAYER_HEIGHT);
+        slot.delay = layer * LAYER_TIME + (i % 5) * 0.01;
+        slot.start = V(slot.target.x, 1.8, slot.target.z);
         slot.turn = i * GOLDEN_ANGLE;
       });
       const earths = new THREE.InstancedMesh(
@@ -195,27 +197,34 @@ window.SunStages = (() => {
         action() {
           hideSun();   // 不透明太阳和光晕会挡住地球球；切换场景时 stage.js 的 reset() 会恢复
           filledSun.visible = true;
+          filledSun.rotation.y = 0;
           t0 = now(); settled = false; resetEarths();
         },
         update(t, dt) {
-          filledSun.rotation.y += dt * 0.04;
+          if (settled) filledSun.rotation.y += dt * 0.04;
           if (!t0) return;
           const seconds = (now() - t0) / 1000;
           if (!settled) {
             let allSettled = true;
+            let landed = 0;
             slots.forEach((slot, i) => {
               const k = clamp((seconds - slot.delay) / FALL_TIME, 0, 1);
               if (k < 1) allSettled = false;
-              position.lerpVectors(slot.start, slot.target, ease(k));
+              else landed++;
+              if (seconds < slot.delay) {
+                earths.setMatrixAt(i, hiddenMatrix);
+                return;
+              }
+              position.lerpVectors(slot.start, slot.target, k * k);
               rotation.setFromAxisAngle(yAxis, slot.turn);
-              matrix.compose(position, rotation, scale.setScalar(Math.min(1, k * 3)));
+              matrix.compose(position, rotation, scale.setScalar(1));
               earths.setMatrixAt(i, matrix);
             });
             earths.instanceMatrix.needsUpdate = true;
             settled = allSettled;   // 装满后停止改矩阵，小球会一直留在太阳轮廓里
+            const done = landed / slots.length;
+            api.live(`🫙 已经装了 <b>${wan(1300000 * done)}</b> 个地球${settled ? ' —— 装满啦！' : ''}`);
           }
-          const done = ease(clamp(seconds / 7, 0, 1));
-          api.live(`🫙 已经装了 <b>${wan(1300000 * done)}</b> 个地球${done >= 1 ? ' —— 装满啦！' : ''}`);
         },
       };
     };
