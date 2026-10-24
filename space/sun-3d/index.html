@@ -8,7 +8,7 @@
   <title>真实的太阳 · 智天的宇宙</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffb65c'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
-  <link rel="stylesheet" href="../explorer/explorer.css?v=dive1">
+  <link rel="stylesheet" href="../explorer/explorer.css?v=stage7">
 </head>
 <body>
   <canvas id="scene" aria-label="可以拖动和缩放的 3D 太阳"></canvas>
@@ -31,7 +31,18 @@
   <dialog id="parent" class="parent">
     <form method="dialog"><button class="close" aria-label="关闭">✕</button></form>
     <h2>家长看</h2>
-    <p class="lead">点左上角“知识地图”切换模块。已开放：长什么样、里面是什么；闯关复习会跳到网站里的“太阳探险家”。</p>
+    <p class="lead">点左上角“知识地图”切换模块。九格都已开放，“闯关复习”会跳到网站里的“太阳探险家”。每个知识点都有“🤔 考考我”，答对的题会在步骤图标上亮星星（只存在这台设备上）。</p>
+
+    <h3>六个知识模块（共 24 个知识点）</h3>
+    <ul class="facts">
+      <li><b>有多大多重</b>：109 个地球排直径、装 130 万个地球、天平称 33 万个地球、“我在太阳上有多重”（引力约 28 倍，月球约 1/6）、阳光 8 分 20 秒到地球（坐飞机约 19 年）</li>
+      <li><b>怎么动</b>：较差自转、八大行星公转（可以关掉引力看行星飞走）、太阳绕银河系一圈两亿多年</li>
+      <li><b>会发生什么</b>：11 年活动周期（2019 与 2024 年真实照片对比）、耀斑、太阳风与极光、彗星尾巴背对太阳</li>
+      <li><b>和我们的关系</b>：白天黑夜（可以关掉太阳看地球结冰）、食物链能量来自太阳、三棱镜分出七色光、护眼与防晒</li>
+      <li><b>一生的故事</b>：星云收缩诞生、现在 46 亿岁、约 50 亿年后变红巨星、最后成为白矮星和行星状星云（不会变成黑洞）</li>
+      <li><b>谁去研究过</b>：日晷与古代黑子记录、SDO、羲和号与夸父一号、帕克太阳探测器</li>
+    </ul>
+    <p class="lead">行星距离和大小、红巨星大小等场景都不是真实比例，场景里会注明。帕克探测器的距离和速度读数是按真实近日点（离球心约 690 万公里）和远日点换算的近似值。</p>
 
     <h3>长什么样：全部是真实照片</h3>
     <p class="lead">太阳表面来自 NASA 太阳动力学天文台（SDO）。四个时间点的日面图按自转拼成一整颗球，背面也是真的，只是拍摄日期早几天。</p>
@@ -79,12 +90,14 @@
   <script src="../explorer/vendor/RenderPass.js"></script>
   <script src="../explorer/vendor/ShaderPass.js"></script>
   <script src="../explorer/vendor/UnrealBloomPass.js"></script>
-  <script src="../explorer/engine.js?v=dive1"></script>
-  <script src="../explorer/dive.js?v=dive1"></script>
+  <script src="../explorer/engine.js?v=stage7"></script>
+  <script src="../explorer/dive.js?v=stage7"></script>
+  <script src="../explorer/stage.js?v=stage7"></script>
   <script src="assets/frames.js"></script>
-  <script src="narration.js?v=dive1"></script>
-  <script src="sun-data.js?v=dive1"></script>
-  <script src="sun-look.js?v=dive1"></script>
-  <script>Explorer.start({ body: window.BODY, setup: SunLook.setup });</script>
+  <script src="narration.js?v=stage7"></script>
+  <script src="sun-data.js?v=stage7"></script>
+  <script src="sun-look.js?v=stage7"></script>
+  <script src="sun-stages.js?v=stage7"></script>
+  <script>Explorer.start({ body: window.BODY, setup: ctx => SunLook.setup(ctx).then(() => SunStages.setup(ctx)) });</script>
 </body>
 </html>

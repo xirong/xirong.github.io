@@ -8,6 +8,8 @@
 |---|---|---|
 | `explorer/engine.js` | 渲染器、镜头、辉光、星空、知识地图、模块切换、小晓旁白、字幕、家长看 | 共用 |
 | `explorer/dive.js` | “里面是什么”：剖开、深度条、温度计、逐层介绍 | 共用 |
+| `explorer/stage.js` | 场景模块：知识点卡片、步骤图标、动手按钮、滑块、照片、“考考我”、星星 | 共用 |
+| `xxx-3d/xxx-stages.js` | 每个知识点的 3D 场景（`ctx.hooks.stages[场景 id]`） | ✅ |
 | `explorer/explorer.css` | 全部界面样式 | 共用 |
 | `xxx-3d/xxx-data.js` | `window.BODY`：知识地图、钻进去的停靠点、剖面分层 | ✅ |
 | `xxx-3d/xxx-look.js` | 星球外观（真实贴图 + shader）和“长什么样”模块 | ✅ |
@@ -21,6 +23,18 @@
 长什么样 · 里面是什么 · 有多大多重 · 怎么动 · 会发生什么 · 和我们的关系 · 一生的故事 · 谁去研究过 · 闯关复习
 
 每格三种状态：`module`（已做好的模块）、`href`（链接到网站里已有的页面）、都不写（显示“快来啦”）。
+
+`module: 'stage'` 的格子从 `BODY.stages[格子 id]` 读知识点列表，每个知识点：
+
+```js
+{ id, icon, title, sub,                        // 讲解文字放在 narration.py 的 NARRATION[id]
+  photo: { src, credit },                      // 可选：真实照片，点一下放大
+  actions: [{ id, label }],                    // 可选：动手按钮，按下时说 NARRATION[id_按钮id]
+  slider: { min, max, value, label, unit },    // 可选：滑块
+  quiz: { options: [...], answer: 下标 } }     // 题目是 NARRATION['q_' + id]
+```
+
+3D 场景函数 `api => ({ update, action(id), slider(v), exit })`，`api.root` 里的东西切换时自动清掉；`api.fly(位置, 看向)`、`api.live(html)` 实时读数、`api.extra(html)` 卡片插图。真实太阳可用 `ctx.hooks.sun.setVisible(false)` 藏起来。
 
 ## 写一个外观脚本
 
@@ -51,7 +65,7 @@ dive: {
 }
 ```
 
-旁白 key：`map`、`soon`、`look`、`dive_intro`，以及每站的 `dive_<站 id>`。
+旁白 key：`map`、`soon`、`look`、`dive_intro`、每站的 `dive_<站 id>`、`quiz_right`、`quiz_try`，以及每个场景的 `<场景 id>`、`<场景 id>_<按钮 id>`、`q_<场景 id>`。
 
 ## 调试
 

@@ -29,6 +29,22 @@ NASA 太阳动力学天文台（SDO）公开图库 https://sdo.gsfc.nasa.gov/ass
 
 Hinode/SOT 2007-01-05 G 波段米粒组织观测，NASA/GSFC Scientific Visualization Studio（Tom Bridgman），https://svs.gsfc.nasa.gov/4061/ 。裁掉一个小孔和日期文字后做成无缝平铺贴图，凑近时叠加在球面上。
 
+## 场景模块里的照片（`assets/photos/`）
+
+全部来自 NASA 公开图库，缩小后保存：
+
+| 文件 | 内容 | 来源 |
+|---|---|---|
+| `cycle-2019.jpg`、`cycle-2024.jpg` | 活动低谷 2019-12-15 与高峰 2024-08-08 的 HMI 日面 | NASA/SDO 图库 browse 目录 |
+| `flare-2024.jpg` | 2024-05-14 16:55 UT AIA 131 Å，X8.7 级耀斑 | NASA/SDO |
+| `aurora-iss.jpg` | 2024-10-30 国际空间站拍的极光（iss072e159172） | NASA |
+| `comet-neowise.jpg` | 2020-07-12 新智彗星（NHQ202007120001，裁剪提亮） | NASA/Bill Ingalls |
+| `sdo-art.jpg` | SDO 艺术想象图（PIA18169） | NASA/GSFC |
+| `parker-launch.jpg` | 2018-08-12 帕克探测器发射（NHQ201808120013） | NASA/Bill Ingalls |
+| `helix-nebula.jpg` | 螺旋星云紫外图（PIA15658） | NASA/JPL-Caltech GALEX |
+
+另外复用了 `../textures/` 里的行星贴图（Solar System Scope，CC BY 4.0）、`deep-sky/m101_pinwheel.jpg`、`deep-sky/orion_m42.jpg`（哈勃，NASA/ESA）和 `stars/red_supergiant_surface.jpg`（由 ESO 参宿四观测图派生，ESO/M. Montargès et al.）。
+
 ## 复用素材
 
 - `../textures/starfield.jpg`、`../textures/moon.jpg`：Solar System Scope，CC BY 4.0。

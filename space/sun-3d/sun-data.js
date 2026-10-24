@@ -12,12 +12,12 @@ window.BODY = {
   map: [
     { id: 'look',     icon: '🔭', name: '长什么样',   module: 'look' },
     { id: 'inside',   icon: '⛏️', name: '里面是什么', module: 'dive' },
-    { id: 'size',     icon: '⚖️', name: '有多大多重' },
-    { id: 'motion',   icon: '🌀', name: '怎么动' },
-    { id: 'activity', icon: '⚡', name: '会发生什么' },
-    { id: 'life',     icon: '🌱', name: '和我们的关系' },
-    { id: 'story',    icon: '⏳', name: '一生的故事' },
-    { id: 'probe',    icon: '🚀', name: '谁去研究过' },
+    { id: 'size',     icon: '⚖️', name: '有多大多重',   module: 'stage' },
+    { id: 'motion',   icon: '🌀', name: '怎么动',       module: 'stage' },
+    { id: 'activity', icon: '⚡', name: '会发生什么',   module: 'stage' },
+    { id: 'life',     icon: '🌱', name: '和我们的关系', module: 'stage' },
+    { id: 'story',    icon: '⏳', name: '一生的故事',   module: 'stage' },
+    { id: 'probe',    icon: '🚀', name: '谁去研究过',   module: 'stage' },
     { id: 'quiz',     icon: '⭐', name: '闯关复习', href: '../sun.html' },
   ],
 
@@ -44,6 +44,48 @@ window.BODY = {
       { id: 'core',       r0: 0,    r1: 0.25, c0: '#ffe9a6', c1: '#ffbd48', pattern: 3 },
       { id: 'radiative',  r0: 0.25, r1: 0.70, c0: '#ffb648', c1: '#f57a26', pattern: 2 },
       { id: 'convection', r0: 0.70, r1: 1.0,  c0: '#ec6a1e', c1: '#b8340c', pattern: 1 },
+    ],
+  },
+
+  // ============ 场景模块：每格几个知识点 ============
+  // 讲解文字在 narration.py（键名 = 场景 id），题目在 'q_' + 场景 id，3D 场景在 sun-stages.js
+  stages: {
+    size: [
+      { id: 'size_line',   icon: '🌍', title: '109 个地球排一排', sub: '直径约 139 万公里', actions: [{ id: 'go', label: '🌍 排排队' }], quiz: { options: ['10 个', '109 个', '1000 个'], answer: 1 } },
+      { id: 'size_fill',   icon: '🫙', title: '能装 130 万个地球', sub: '体积', actions: [{ id: 'go', label: '🫙 往里装' }], quiz: { options: ['13 个', '1300 个', '130 万个'], answer: 2 } },
+      { id: 'size_mass',   icon: '⚖️', title: '天平称一称', sub: '质量约是地球的 33 万倍', actions: [{ id: 'go', label: '⚖️ 放地球' }], quiz: { options: ['太阳', '地球', '一样重'], answer: 0 } },
+      { id: 'size_weight', icon: '🧒', title: '我在太阳上有多重', sub: '引力约是地球的 28 倍', slider: { min: 10, max: 40, value: 20, label: '我的体重', unit: ' 公斤' },
+        actions: [{ id: 'moon', label: '🌙 站到月球' }, { id: 'earth', label: '🌍 站到地球' }, { id: 'sun', label: '☀️ 站到太阳' }], quiz: { options: ['更轻', '更重', '不变'], answer: 1 } },
+      { id: 'size_far',    icon: '💡', title: '阳光跑到地球', sub: '约 1.5 亿公里', actions: [{ id: 'go', label: '💡 出发' }], quiz: { options: ['8 秒', '8 分钟', '8 天'], answer: 1 } },
+    ],
+    motion: [
+      { id: 'motion_spin',   icon: '🔄', title: '太阳也会自转', sub: '赤道约 25 天，两极约 35 天', actions: [{ id: 'go', label: '🔁 再排一次' }], quiz: { options: ['中间的赤道', '两头'], answer: 0 } },
+      { id: 'motion_family', icon: '🪐', title: '八大行星绕着太阳转', sub: '距离和大小都不是真实比例', actions: [{ id: 'off', label: '🚫 关掉引力' }, { id: 'on', label: '🧲 打开引力' }], quiz: { options: ['绳子', '引力', '风'], answer: 1 } },
+      { id: 'motion_galaxy', icon: '🌌', title: '太阳在银河系里转圈', sub: '转一圈要两亿多年', actions: [{ id: 'go', label: '⏩ 转起来' }], quiz: { options: ['一年', '一百年', '两亿多年'], answer: 2 } },
+    ],
+    activity: [
+      { id: 'act_cycle', icon: '🔢', title: '黑子多了又少：11 年周期', sub: '左 2019 年 · 右 2024 年', quiz: { options: ['2019 年', '2024 年'], answer: 1 } },
+      { id: 'act_flare', icon: '⚡', title: '耀斑：太阳闪了一下', sub: '磁力打结又断开', photo: { src: 'assets/photos/flare-2024.jpg', credit: 'NASA/SDO AIA 131Å · 2024-05-14 的大耀斑（右边最亮处）' }, actions: [{ id: 'go', label: '⚡ 闪一下' }], quiz: { options: ['太阳突然变亮', '太阳上的洞'], answer: 0 } },
+      { id: 'act_wind',  icon: '🌬️', title: '太阳风和极光', sub: '地球磁场像盾牌', photo: { src: 'assets/photos/aurora-iss.jpg', credit: 'NASA · 2024-10-30 国际空间站拍到的极光' }, actions: [{ id: 'go', label: '💥 喷一大团' }], quiz: { options: ['太阳风', '月亮', '云'], answer: 0 } },
+      { id: 'act_comet', icon: '☄️', title: '彗星的尾巴背对太阳', sub: '是太阳光和太阳风吹出来的', photo: { src: 'assets/photos/comet-neowise.jpg', credit: 'NASA/Bill Ingalls · 2020 年的新智彗星' }, actions: [{ id: 'go', label: '⏩ 飞快一点' }], quiz: { options: ['朝着太阳', '背着太阳'], answer: 1 } },
+    ],
+    life: [
+      { id: 'life_light',   icon: '🌗', title: '白天和黑夜', sub: '太阳送来光和热', actions: [{ id: 'off', label: '🌑 关掉太阳' }, { id: 'on', label: '☀️ 打开太阳' }], quiz: { options: ['冰球', '火球', '没变化'], answer: 0 } },
+      { id: 'life_food',    icon: '🍚', title: '我们吃的饭也来自太阳', sub: '能量一站一站传下去', actions: [{ id: 'go', label: '➡️ 下一站' }], quiz: { options: ['阳光', '糖果', '电视'], answer: 0 } },
+      { id: 'life_rainbow', icon: '🌈', title: '阳光藏着七种颜色', sub: '三棱镜和彩虹', actions: [{ id: 'go', label: '🔺 放三棱镜' }], quiz: { options: ['3 种', '7 种', '10 种'], answer: 1 } },
+      { id: 'life_safe',    icon: '🕶️', title: '保护眼睛和皮肤', sub: '安全第一', quiz: { options: ['可以', '不可以'], answer: 1 } },
+    ],
+    story: [
+      { id: 'story_nebula', icon: '☁️', title: '一团星云', sub: '约 46 亿年前', actions: [{ id: 'go', label: '🌀 缩起来' }], quiz: { options: ['星云', '大海', '鸡蛋'], answer: 0 } },
+      { id: 'story_now',    icon: '☀️', title: '现在的太阳', sub: '46 亿岁，正当壮年', quiz: { options: ['46 岁', '46 亿岁'], answer: 1 } },
+      { id: 'story_giant',  icon: '🔴', title: '变成红巨星', sub: '大约 50 亿年以后', actions: [{ id: 'go', label: '🎈 变大' }], quiz: { options: ['红巨星', '黑洞', '月亮'], answer: 0 } },
+      { id: 'story_dwarf',  icon: '⚪', title: '最后变成白矮星', sub: '更久更久以后', photo: { src: 'assets/photos/helix-nebula.jpg', credit: 'NASA/JPL-Caltech GALEX · 螺旋星云（行星状星云）' }, actions: [{ id: 'go', label: '💨 气体飘走' }], quiz: { options: ['白矮星', '黑洞'], answer: 0 } },
+    ],
+    probe: [
+      { id: 'probe_ancient', icon: '🕰️', title: '古人看太阳：日晷', sub: '两千多年前就记录了黑子', actions: [{ id: 'go', label: '🌅 让太阳走' }], quiz: { options: ['影子', '声音'], answer: 0 } },
+      { id: 'probe_sdo',     icon: '🛰️', title: 'SDO：拍下这些照片的卫星', sub: '2010 年发射', photo: { src: 'assets/photos/sdo-art.jpg', credit: 'NASA/GSFC · SDO 艺术想象图' }, quiz: { options: ['卫星', '画家'], answer: 0 } },
+      { id: 'probe_china',   icon: '🇨🇳', title: '羲和号和夸父一号', sub: '中国的太阳卫星', quiz: { options: ['夸父一号', '嫦娥一号'], answer: 0 } },
+      { id: 'probe_parker',  icon: '🚀', title: '帕克：飞得离太阳最近', sub: '2018 年出发', photo: { src: 'assets/photos/parker-launch.jpg', credit: 'NASA/Bill Ingalls · 2018-08-12 帕克探测器发射' }, actions: [{ id: 'go', label: '🚀 冲刺' }], quiz: { options: ['隔热盾', '冰块'], answer: 0 } },
     ],
   },
 };

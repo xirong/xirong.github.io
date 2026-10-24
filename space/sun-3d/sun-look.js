@@ -232,13 +232,25 @@ window.SunLook = (() => {
         say('eclipse');
       }
     }
-    function toggleRotate(on) {
+    function toggleRotate(on, { silent } = {}) {
       rotateDemo.on = on;
       document.getElementById('btn-rotate').classList.toggle('on', on);
-      if (on) { startRotateDemo(); say('rotate'); }
+      if (on) { startRotateDemo(); if (!silent) say('rotate'); }
       markers.forEach(m => { m.visible = on; });
       trail.visible = on;
     }
+    // 给场景模块用：藏起真实太阳（连同光晕、日冕、月亮）、打开自转演示
+    let hidden = false;
+    ctx.hooks.sun = {
+      setVisible(v) { hidden = !v; sun.visible = v; if (!v) moon.visible = false; },
+      setRotateDemo(on) { toggleRotate(on, { silent: true }); },
+      reset() {
+        this.setVisible(true);
+        if (eclipse.on) toggleEclipse(false);
+        if (rotateDemo.on) toggleRotate(false);
+        switchMode('visible');
+      },
+    };
     document.querySelectorAll('.lens').forEach(btn => btn.addEventListener('click', () => {
       if (eclipse.on) toggleEclipse(false);
       switchMode(btn.dataset.mode);
@@ -266,8 +278,13 @@ window.SunLook = (() => {
       panel: '#look-panel',
       enter({ silent } = {}) {
         controls.enabled = true;
+        controls.minDistance = 1.03;
+        controls.maxDistance = 9;
+        ctx.hooks.sun.setVisible(true);
         ctx.setSubtitle('长什么样 · ' + photoDate);
-        if (camera.position.length() < 1.3) ctx.flyDist(HOME_DIST, 1600);
+        // 从别的模块回来：镜头可能不在原位，飞回看着太阳的位置
+        const back = controls.target.lengthSq() > 1e-6 || camera.position.length() < 1.3 || camera.position.length() > 9;
+        if (back) ctx.flyTo(camera.position.clone().sub(controls.target).setLength(HOME_DIST), new THREE.Vector3(), 1600);
         if (!silent) say(mode === 'visible' ? 'look' : mode);
       },
       exit() {
@@ -308,7 +325,7 @@ window.SunLook = (() => {
         b.lookAt(camera.position);   // 正对镜头所在的位置（镜头转头看边缘时也不歪）
         b.scale.setScalar(b.userData.half * limbScale);
       });
-      halo.visible = !inside;
+      halo.visible = !inside && !hidden;
 
       const cfg = MODES[mode];
       haloMat.uniforms.color.value.lerp(new THREE.Vector3().fromArray(cfg.halo), fade);
@@ -330,7 +347,7 @@ window.SunLook = (() => {
       const totality = eclipse.on ? THREE.MathUtils.clamp(1 - eclipse.slide / 0.06, 0, 1) : 0;
 
       Object.entries(coronaMeshes).forEach(([key, mesh]) => {
-        const target = inside ? 0 : key === 'eclipse' ? totality : mesh.userData.target;
+        const target = inside || hidden ? 0 : key === 'eclipse' ? totality : mesh.userData.target;
         const op = mesh.material.opacity + (target - mesh.material.opacity) * fade;
         mesh.material.opacity = op;
         mesh.visible = op > 0.005;

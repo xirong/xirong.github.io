@@ -121,6 +121,7 @@ Explorer.registerModule('dive', ctx => {
     return new THREE.CanvasTexture(c);
   })();
   const fx = new THREE.Group();
+  fx.visible = false;   // 不在“钻进去”时，这些小光点都待在球心，要藏起来
   cut.frame.add(fx);
   const radLayer = interior.find(l => l.pattern === 2);
   const coreLayer = interior.find(l => l.pattern === 3);

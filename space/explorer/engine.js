@@ -8,7 +8,8 @@ window.Explorer = (() => {
   const factories = {};
 
   // ============ 注册模块 ============
-  // factory(ctx) 返回 { name, panel, enter(), exit(), update(now, dt) }
+  // factory(ctx, item) 返回 { panel, enter(), exit(), update(now, dt, rawDt) }
+  // 同一种模块（比如 stage）可以在地图上出现好几次，每格各建一个实例
   function registerModule(id, factory) {
     factories[id] = factory;
   }
@@ -167,18 +168,23 @@ window.Explorer = (() => {
       if (!soundOn) { narrator.pause(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
     };
 
-    // ============ 镜头飞行（沿当前方向改变距离） ============
+    // ============ 镜头飞行 ============
     let flight = null;
     const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    // 沿当前方向改变离球心的距离
     function flyDist(dist, dur = 2200) {
       flight = { from: camera.position.length(), to: dist, t0: performance.now(), dur };
+    }
+    // 飞到指定位置、看向指定点（场景模块用）
+    function flyTo(pos, target = new THREE.Vector3(), dur = 1800) {
+      flight = { p0: camera.position.clone(), p1: pos.clone(), q0: controls.target.clone(), q1: target.clone(), t0: performance.now(), dur };
     }
 
     // ============ ctx：交给星球脚本和模块使用 ============
     const frameHooks = [];
     const ctx = {
       body, scene, camera, controls, renderer, composer, bloom, cut,
-      loadTex, say, showCaption, flyDist, ease,
+      loadTex, say, showCaption, flyDist, flyTo, ease,
       onFrame: fn => frameHooks.push(fn),
       setSubtitle: text => { document.getElementById('subtitle').textContent = text; },
       hooks: {},           // 星球脚本提供，例如 setLook(眼镜)
@@ -191,8 +197,8 @@ window.Explorer = (() => {
     let current = null;
     function go(id, { silent } = {}) {
       const item = body.map.find(m => m.id === id && m.module);
-      if (!item || !modules[item.module]) return;
-      const next = modules[item.module];
+      if (!item || !modules[item.id]) return;
+      const next = modules[item.id];
       if (current === next) return;
       if (current) {
         current.exit && current.exit();
@@ -235,13 +241,21 @@ window.Explorer = (() => {
       const dt = Math.min(0.05, rawDt);
       last = now;
 
+      let flying = false;
       if (flight) {
-        const t = Math.min(1, (now - flight.t0) / flight.dur);
-        camera.position.setLength(flight.from + (flight.to - flight.from) * ease(t));
+        const t = Math.min(1, (now - flight.t0) / flight.dur), k = ease(t);
+        if (flight.p1) {
+          camera.position.lerpVectors(flight.p0, flight.p1, k);
+          controls.target.lerpVectors(flight.q0, flight.q1, k);
+          camera.lookAt(controls.target);
+          flying = true;
+        } else {
+          camera.position.setLength(flight.from + (flight.to - flight.from) * k);
+        }
         if (t >= 1) flight = null;
       }
       // 模块自己开镜头时（比如钻进去），不能让控制器把镜头推回最小距离外
-      if (controls.enabled) controls.update();
+      if (controls.enabled && !flying) controls.update();
       if (current && current.update) current.update(now, dt, rawDt);
       ctx.state.dist = camera.position.length();
 
@@ -262,7 +276,7 @@ window.Explorer = (() => {
     // ============ 星球脚本准备好后开始 ============
     Promise.resolve(setup(ctx)).then(() => {
       body.map.forEach(m => {
-        if (m.module && factories[m.module] && !modules[m.module]) modules[m.module] = factories[m.module](ctx);
+        if (m.module && factories[m.module]) modules[m.id] = factories[m.module](ctx, m);
       });
       document.getElementById('loading').classList.add('done');
       const first = location.hash.slice(1);

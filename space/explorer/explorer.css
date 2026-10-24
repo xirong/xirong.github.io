@@ -15,7 +15,7 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 /* ============ 顶栏 ============ */
 .top { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(14px, env(safe-area-inset-top)) 16px 0; pointer-events: none; }
 .top > * { pointer-events: auto; }
-.round, .pill { border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--ink); text-decoration: none; display: inline-grid; place-items: center; }
+.round, .pill { flex: none; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--ink); text-decoration: none; display: inline-grid; place-items: center; }
 .round { width: 48px; height: 48px; border-radius: 50%; font-size: 22px; }
 .pill { height: 40px; padding: 0 16px; border-radius: 20px; font-size: 15px; white-space: nowrap; }
 .top-left, .top-right { display: flex; gap: 10px; align-items: center; }
@@ -65,7 +65,7 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: none; }
 
 /* ============ 知识地图 ============ */
-.map-pill { background: rgba(255,197,107,.18); border-color: rgba(255,197,107,.45); }
+.map-pill { display: inline-flex; align-items: center; gap: 2px; background: rgba(255,197,107,.18); border-color: rgba(255,197,107,.45); }   /* grid 会把文字和 span 拆成三行 */
 .map-sheet { width: min(560px, calc(100% - 24px)); border: 1px solid var(--line); border-radius: 24px; padding: 22px; background: #17110d; color: var(--ink); text-align: center; }
 .map-sheet::backdrop { background: rgba(0,0,0,.6); }
 .map-sheet h2 { margin: 0 0 16px; font-size: 20px; }
@@ -107,10 +107,72 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .layer-where { font-size: 13px; color: var(--muted); }
 body:has(#dive-panel:not([hidden])) .caption { bottom: calc(150px + env(safe-area-inset-bottom)); }
 
+/* ============ 场景模块 ============ */
+.stage-panel[hidden] { display: none; }
+.stage-card { position: fixed; left: 16px; top: 84px; bottom: 16px; width: min(380px, calc(100% - 32px)); overflow-y: auto; padding: 16px 18px; border-radius: 22px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 10px; scrollbar-width: thin; }
+.stage-steps { display: flex; gap: 8px; flex-wrap: wrap; }
+.stage-step { position: relative; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: rgba(255,255,255,.06); font-size: 22px; }
+.stage-step.here { background: rgba(255,197,107,.25); box-shadow: 0 0 0 3px var(--accent); }
+.stage-step.star::after { content: "⭐"; position: absolute; right: -6px; top: -8px; font-size: 14px; }
+.stage-sub { margin: 4px 0 0; color: var(--accent); font-size: 14px; font-weight: 700; }
+.stage-title { margin: 0; font-size: 24px; line-height: 1.3; }
+.stage-text { margin: 0; font-size: 17px; line-height: 1.75; }
+.stage-photo { margin: 0; cursor: zoom-in; }
+.stage-photo img { width: 100%; max-height: 190px; object-fit: cover; border-radius: 14px; display: block; }
+.stage-photo figcaption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.stage-live { margin: 0; font-size: 16px; color: var(--ink); min-height: 1.5em; line-height: 1.7; }
+.stage-live:empty { display: none; }
+.stage-live b { color: var(--accent); font-size: 20px; }
+.stage-live .big { display: block; font-size: 18px; }
+.stage-slider { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+.stage-slider[hidden] { display: none; }
+.stage-slider label { flex: 1; display: grid; gap: 6px; }
+.stage-slider input { width: 100%; accent-color: var(--accent); height: 28px; }
+.stage-slider b { font-size: 20px; color: var(--accent); white-space: nowrap; }
+.stage-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-actions:empty { display: none; }
+.stage-action { min-height: 50px; padding: 0 18px; border-radius: 25px; border: 2px solid var(--accent); background: rgba(255,197,107,.18); font-size: 17px; font-weight: 700; }
+.stage-action:active { transform: scale(.96); }
+.stage-nav { display: flex; gap: 8px; margin-top: auto; padding: 8px 0 2px; position: sticky; bottom: -16px; background: linear-gradient(to bottom, transparent, rgba(18,14,12,.92) 30%); }   /* 内容长时按钮也一直看得见 */
+.stage-nav button { flex: 1; min-height: 46px; border-radius: 23px; border: 1px solid var(--line); background: rgba(255,255,255,.06); font-size: 15px; }
+.stage-nav .stage-quiz { background: rgba(120,200,255,.16); border-color: rgba(120,200,255,.5); }
+.stage-nav .stage-quiz[hidden] { display: none; }
+.quiz, .photo-big { border: 1px solid var(--line); border-radius: 24px; background: #17110d; color: var(--ink); text-align: center; padding: 22px; width: min(460px, calc(100% - 24px)); }
+.photo-big { width: min(900px, calc(100% - 24px)); }
+.photo-big img { width: 100%; border-radius: 14px; }
+.quiz::backdrop, .photo-big::backdrop { background: rgba(0,0,0,.6); }
+.quiz-q { font-size: 22px; font-weight: 900; margin: 4px 0 18px; }
+.quiz-options { display: grid; gap: 10px; }
+.quiz-option { min-height: 56px; border-radius: 18px; border: 2px solid var(--line); background: rgba(255,255,255,.06); font-size: 20px; }
+.quiz-option.right { border-color: #6be38a; background: rgba(107,227,138,.2); }
+.quiz-option.wrong { border-color: #ff7a6b; background: rgba(255,122,107,.15); animation: shake .4s; }
+.quiz-result { min-height: 1.6em; font-size: 22px; margin: 14px 0 4px; }
+.quiz-close { height: 42px; padding: 0 26px; border-radius: 21px; border: 1px solid var(--line); background: none; font-size: 15px; }
+/* 卡片里的小插图：食物链、安全提示、时间线 */
+.chain { display: grid; gap: 10px; }
+.chain-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; font-size: 16px; }
+.chain-item { padding: 6px 10px; border-radius: 14px; background: rgba(255,255,255,.06); opacity: .25; transition: opacity .4s, background .4s; }
+.chain-item.on { opacity: 1; background: rgba(255,197,107,.2); }
+.chain-arrow { font-style: normal; opacity: .2; }
+.chain-arrow.on { opacity: 1; color: var(--accent); }
+.safe-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 16px; }
+.safe-list li { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 14px; background: rgba(255,255,255,.05); }
+.safe-list b { font-size: 22px; white-space: nowrap; }
+.timeline { display: flex; align-items: center; gap: 2px; }
+.tl { display: grid; justify-items: center; font-size: 12px; color: var(--muted); text-align: center; min-width: 56px; }
+.tl b { font-size: 22px; filter: grayscale(.7); opacity: .6; }
+.tl small { font-size: 10px; }
+.tl.here { color: var(--ink); font-weight: 700; }
+.tl.here b { filter: none; opacity: 1; transform: scale(1.25); }
+.tl-line { flex: 1; height: 2px; background: var(--line); margin-bottom: 26px; }
+
+/* 卡片上已经有讲解文字，就不再弹字幕 */
+body:has(.stage-panel:not([hidden])) .caption { display: none; }
+
 /* ============ 窄屏 ============ */
 @media (max-width: 640px) {
   .title h1 { font-size: 18px; }
-  .title p { font-size: 10px; }
+  .title p { font-size: 10px; max-width: 44vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-inline: auto; }
   .round { width: 42px; height: 42px; font-size: 19px; }
   .pill { height: 36px; padding: 0 12px; font-size: 13px; }
   .top-right { gap: 6px; }
@@ -139,5 +201,11 @@ body:has(#dive-panel:not([hidden])) .caption { bottom: calc(150px + env(safe-are
   .depth-step { width: 48px; height: 48px; }
   .layer-card { width: calc(100% - 24px); padding: 10px 14px; }
   .layer-card h2 { font-size: 22px; }
+  .stage-card { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 50vh; padding: 12px 14px; gap: 8px; }
+  .stage-title { font-size: 20px; }
+  .stage-text { font-size: 15px; line-height: 1.6; }
+  .stage-photo img { max-height: 120px; }
+  .stage-step { width: 40px; height: 40px; font-size: 19px; }
+  .stage-action { min-height: 44px; font-size: 15px; padding: 0 14px; }
   .ask { bottom: calc(200px + env(safe-area-inset-bottom)); }
 }
