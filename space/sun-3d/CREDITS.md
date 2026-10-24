@@ -1,6 +1,10 @@
 # 真实的太阳：素材与做法
 
-第一期：逼真外观。太阳表面全部来自真实观测照片，代码只负责光照、动画和交互。
+太阳表面全部来自真实观测照片，代码只负责光照、动画和交互。
+
+页面结构：共用引擎在 `../explorer/`（说明见那里的 README.md），本目录只放太阳的数据（`sun-data.js`）、外观（`sun-look.js`）、贴图和旁白。
+
+“里面是什么”是科学模型示意：外面三层大气直接用对应波段的 SDO 照片从太阳边缘看；光球以下的剖面颜色、花纹和动画都是示意，分层位置和温度与 `../sun-lab/data.js` 一致。
 
 ## 球面贴图（`assets/map-*.jpg`）
 
@@ -28,7 +32,7 @@ Hinode/SOT 2007-01-05 G 波段米粒组织观测，NASA/GSFC Scientific Visualiz
 ## 复用素材
 
 - `../textures/starfield.jpg`、`../textures/moon.jpg`：Solar System Scope，CC BY 4.0。
-- `vendor/`：Three.js r128 及其 examples 里的 OrbitControls、EffectComposer、UnrealBloomPass，MIT 许可。
+- `../explorer/vendor/`：Three.js r128 及其 examples 里的 OrbitControls、EffectComposer、UnrealBloomPass，MIT 许可。
 
 ## 处理过的地方
 

@@ -18,7 +18,7 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .round, .pill { border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--ink); text-decoration: none; display: inline-grid; place-items: center; }
 .round { width: 48px; height: 48px; border-radius: 50%; font-size: 22px; }
 .pill { height: 40px; padding: 0 16px; border-radius: 20px; font-size: 15px; white-space: nowrap; }
-.top-right { display: flex; gap: 10px; align-items: center; }
+.top-left, .top-right { display: flex; gap: 10px; align-items: center; }
 .title { text-align: center; pointer-events: none; }
 .title h1 { margin: 0; font-size: 22px; font-weight: 900; letter-spacing: .12em; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
 .title p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
@@ -64,6 +64,49 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .credit { font-size: 12px; color: var(--muted); margin-top: 16px; }
 .close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: none; }
 
+/* ============ 知识地图 ============ */
+.map-pill { background: rgba(255,197,107,.18); border-color: rgba(255,197,107,.45); }
+.map-sheet { width: min(560px, calc(100% - 24px)); border: 1px solid var(--line); border-radius: 24px; padding: 22px; background: #17110d; color: var(--ink); text-align: center; }
+.map-sheet::backdrop { background: rgba(0,0,0,.6); }
+.map-sheet h2 { margin: 0 0 16px; font-size: 20px; }
+.map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.map-card { position: relative; aspect-ratio: 1; border-radius: 20px; border: 1px solid var(--line); background: rgba(255,255,255,.05); display: grid; place-content: center; justify-items: center; gap: 6px; font-size: 15px; transition: transform .15s, background .2s; }
+.map-card b { font-size: 38px; line-height: 1; }
+.map-card.active { background: rgba(255,197,107,.22); box-shadow: 0 0 0 3px var(--accent); }
+.map-card.soon { opacity: .45; }
+.map-card i { position: absolute; top: 8px; right: 8px; font-style: normal; font-size: 11px; padding: 2px 6px; border-radius: 8px; background: rgba(255,255,255,.12); }
+.map-card:active { transform: scale(.95); }
+.map-card.shake { animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.map-close { margin-top: 16px; height: 44px; padding: 0 28px; border-radius: 22px; border: 1px solid var(--line); background: none; font-size: 15px; }
+
+/* ============ 钻进去 ============ */
+#dive-panel[hidden], #look-panel[hidden] { display: none; }
+.thermo { position: fixed; left: 18px; top: 50%; transform: translateY(-50%); display: grid; justify-items: center; gap: 0; pointer-events: none; }
+.thermo-value { margin-bottom: 10px; padding: 6px 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); font-size: 20px; font-weight: 900; white-space: nowrap; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.thermo-tube { position: relative; width: 22px; height: min(46vh, 340px); border-radius: 11px 11px 0 0; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.35); border-bottom: 0; overflow: hidden; }
+.thermo-tube i { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(to top, #ff3b1f, #ff9a3c 45%, #fff1b0); transition: height .3s; }
+.thermo-bulb { width: 40px; height: 40px; margin-top: -4px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffb08a, #ff3b1f 60%); border: 2px solid rgba(255,255,255,.35); }
+
+.depth { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); display: grid; justify-items: center; gap: 10px; }
+.depth-track { position: relative; width: 8px; height: min(52vh, 400px); margin: 10px 0; border-radius: 4px; background: linear-gradient(to bottom, #6fa3ff 0%, #b98cff 14%, #ff6a3d 43%, #ffc56b 57%, #fff3c4 100%); touch-action: none; cursor: ns-resize; }
+.depth-track::before { content: ""; position: absolute; inset: -12px -36px; }   /* 加宽手指能拖的范围 */
+.depth-stop { position: absolute; right: 50%; width: 18px; height: 18px; margin: -9px -9px 0 0; border-radius: 50%; border: 3px solid rgba(255,255,255,.7); background: #1c1410; padding: 0; z-index: 1; }
+.depth-stop span { position: absolute; right: 26px; top: 50%; transform: translateY(-50%); white-space: nowrap; font-size: 14px; color: var(--muted); text-shadow: 0 1px 6px #000; }
+.depth-stop.here { border-color: var(--accent); background: var(--accent); }
+.depth-stop.here span { color: var(--ink); font-weight: 900; font-size: 16px; }
+.depth-handle { position: absolute; left: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; display: grid; place-items: center; font-size: 24px; border-radius: 50%; background: var(--glass); border: 2px solid var(--accent); box-shadow: 0 0 18px rgba(255,197,107,.5); pointer-events: none; z-index: 2; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.depth-step { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--line); background: var(--glass); font-size: 24px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.depth-step.down { background: rgba(255,197,107,.25); border-color: var(--accent); }
+
+.layer-card { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(460px, calc(100% - 220px)); padding: 12px 20px; border-radius: 20px; background: var(--glass); border: 1px solid var(--line); text-align: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.layer-card h2 { margin: 0; font-size: 26px; letter-spacing: .1em; }
+.layer-card p { margin: 4px 0 0; }
+.layer-temp { color: var(--accent); font-weight: 700; font-size: 16px; }
+.layer-fact { font-size: 16px; }
+.layer-where { font-size: 13px; color: var(--muted); }
+body:has(#dive-panel:not([hidden])) .caption { bottom: calc(150px + env(safe-area-inset-bottom)); }
+
 /* ============ 窄屏 ============ */
 @media (max-width: 640px) {
   .title h1 { font-size: 18px; }
@@ -76,5 +119,25 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
   .lens, .action { width: 62px; font-size: 12px; }
   .lens i, .action b { width: 44px; height: 44px; font-size: 22px; }
   .caption { font-size: 16px; bottom: calc(196px + env(safe-area-inset-bottom)); }
+  .map-pill { padding: 0 10px; }
+  .map-pill .long { display: none; }
+  .title h1 { white-space: nowrap; }
+  .map-card i { top: 4px; right: 4px; font-size: 10px; padding: 1px 4px; }
+  /* 钻进去时手机屏幕太挤：字幕交给语音，只留下介绍卡片 */
+  body:has(#dive-panel:not([hidden])) .caption { display: none; }
+  .thermo, .depth { top: 44%; }
+  .map-grid { gap: 8px; }
+  .map-card b { font-size: 30px; }
+  .map-card { font-size: 13px; }
+  .thermo { left: 10px; }
+  .thermo-value { font-size: 15px; padding: 4px 8px; }
+  .thermo-tube { width: 16px; height: 34vh; }
+  .thermo-bulb { width: 30px; height: 30px; }
+  .depth { right: 10px; }
+  .depth-track { height: 38vh; }
+  .depth-stop span { font-size: 12px; right: 22px; }
+  .depth-step { width: 48px; height: 48px; }
+  .layer-card { width: calc(100% - 24px); padding: 10px 14px; }
+  .layer-card h2 { font-size: 22px; }
   .ask { bottom: calc(200px + env(safe-area-inset-bottom)); }
 }

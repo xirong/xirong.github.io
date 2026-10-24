@@ -35,5 +35,49 @@ window.NARRATION = {
   "closeup": {
     "text": "凑得好近呀！这些像米粒一样的小格子叫米粒组织。每一粒都有北京到上海那么宽，是热热的气体从下面冒上来，又沉下去。",
     "audio": "audio/closeup.mp3?v=1871e05f6b49"
+  },
+  "map": {
+    "text": "这是太阳的知识地图。点一点，去看看太阳长什么样，或者钻到太阳里面去！",
+    "audio": "audio/map.mp3?v=c1ca6f511f22"
+  },
+  "soon": {
+    "text": "这一块还在建造中，很快就来啦！",
+    "audio": "audio/soon.mp3?v=9341c860149f"
+  },
+  "look": {
+    "text": "换上不同的眼镜，看看太阳不一样的样子。",
+    "audio": "audio/look.mp3?v=f4c6e482e7f4"
+  },
+  "dive_intro": {
+    "text": "准备好了吗？点右边向下的箭头，或者拖动小钻头，我们一层一层钻到太阳的最中间去！",
+    "audio": "audio/dive_intro.mp3?v=4b7a70baf918"
+  },
+  "dive_corona": {
+    "text": "这是日冕，太阳最外面的一层。它很稀薄，却有一百多万度，比太阳表面还热得多。",
+    "audio": "audio/dive_corona.mp3?v=29f14f26da0d"
+  },
+  "dive_transition": {
+    "text": "这一层叫过渡区，薄薄的。温度在这里一下子从几万度跳到一百万度，科学家还在研究这是为什么。",
+    "audio": "audio/dive_transition.mp3?v=770d994ce31f"
+  },
+  "dive_chromosphere": {
+    "text": "这是色球，在光球的上面，是一层红红的大气，像一圈跳动的小火苗。",
+    "audio": "audio/dive_chromosphere.mp3?v=9f66f852de20"
+  },
+  "dive_photosphere": {
+    "text": "到光球啦！就是我们平时看到的亮亮的表面，大约五千五百度。它不是硬的，没有地方可以站。接下来，我们要钻进太阳里面了！",
+    "audio": "audio/dive_photosphere.mp3?v=4f1743928ee2"
+  },
+  "dive_convection": {
+    "text": "这是对流区。热的气体往上冒，凉了又沉下去，像一锅煮开的粥，把热量一圈一圈搬到外面。",
+    "audio": "audio/dive_convection.mp3?v=2adaa82307d5"
+  },
+  "dive_radiative": {
+    "text": "这是辐射区，里面挤得满满的。光在这里走一步就被撞一下，绕来绕去，要好几万年才能走出去！",
+    "audio": "audio/dive_radiative.mp3?v=c943c35881ec"
+  },
+  "dive_core": {
+    "text": "到最中间啦！这是核心，大约一千五百万度，是太阳最热的地方。小小的氢原子在这里撞在一起，变成氦，放出光和热。太阳的能量，就是从这里来的！",
+    "audio": "audio/dive_core.mp3?v=7ef0f7bf9dbe"
   }
 };
