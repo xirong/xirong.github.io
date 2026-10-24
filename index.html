@@ -152,6 +152,18 @@
         .theme-english .card:hover { border-color: #00e0ff; }
         .theme-eng .card:hover { border-color: #ff9f43; }
 
+        /* 真实星球系列：紧接太阳系探索，后续星球入口统一放在这里 */
+        .real-planets {
+            grid-column: 1 / -1;
+            padding: 20px;
+            border: 1px solid rgba(255, 217, 61, 0.25);
+            border-radius: 18px;
+            background: rgba(255, 217, 61, 0.04);
+        }
+        .real-planets h3 { font-size: 1.15rem; color: #ffd93d; margin-bottom: 8px; }
+        .real-planets > p { color: rgba(255,255,255,0.6); font-size: 0.85rem; line-height: 1.6; margin-bottom: 16px; }
+        .real-planets .card:focus-visible { outline: 2px solid #ffd93d; outline-offset: 3px; }
+
         /* ============ CSS 星球图标 ============ */
         .planet-icon {
             display: block;
@@ -596,6 +608,17 @@
                         <div class="title">太阳系 3D 探索</div>
                         <div class="desc">在三维空间中探索八大行星和太阳系</div>
                     </a>
+                    <section class="real-planets" aria-labelledby="real-planets-title">
+                        <h3 id="real-planets-title">☀️ 真实的太阳系星球</h3>
+                        <p>从真实的太阳出发，用照片和 3D 互动认识太阳系。更多行星将陆续加入。</p>
+                        <div class="cards">
+                            <a class="card" href="space/sun-3d/index.html">
+                                <span class="icon" aria-hidden="true">🌞</span>
+                                <div class="title">真实的太阳</div>
+                                <div class="desc">看卫星照片、和地球比大小，一层层钻到太阳中心</div>
+                            </a>
+                        </div>
+                    </section>
                     <a class="card" href="space/galaxy.html">
                         <span class="icon">🌌</span>
                         <div class="title">银河系探索</div>
@@ -656,11 +679,6 @@
                         <span class="icon">☀️</span>
                         <div class="title">太阳探索实验室</div>
                         <div class="desc">点图片、听故事，打开太阳，和地球比大小</div>
-                    </a>
-                    <a class="card" href="space/sun-3d/index.html">
-                        <span class="icon">🌞</span>
-                        <div class="title">真实的太阳</div>
-                        <div class="desc">卫星照片做的 3D 太阳：换眼镜、看日全食，一层层钻到太阳中心</div>
                     </a>
                     <a class="card" href="space/mercury.html">
                         <span class="planet-icon planet-mercury"></span>
