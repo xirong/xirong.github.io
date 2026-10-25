@@ -1,8 +1,8 @@
 // 由 generate-audio.py 生成，请修改 narration.py。
 window.NARRATION = {
   "welcome": {
-    "text": "欢迎来到美丽的地球！这是卫星拍到的真实照片。用手指拖一拖，地球就会转；两个手指张开，就能凑近看。",
-    "audio": "audio/welcome.mp3?v=48b99039e17d"
+    "text": "欢迎来到美丽的地球！这是用卫星照片拼起来的真实地球。用手指拖一拖，地球就会转；两个手指张开，就能凑近看。",
+    "audio": "audio/welcome.mp3?v=5a50b90dc79a"
   },
   "day": {
     "text": "亮亮的一面是白天。大家晒太阳、上学、玩耍；背过去的一面是黑夜，城市的灯亮起来，人们睡觉啦。",
@@ -25,8 +25,8 @@ window.NARRATION = {
     "audio": "audio/rotate.mp3?v=7447c52b0007"
   },
   "closeup": {
-    "text": "凑近看！蓝色的都是海洋，绿色和棕色的是陆地，白白的是云朵。",
-    "audio": "audio/closeup.mp3?v=980a115a3c24"
+    "text": "凑近看！蓝色的是海洋，绿色和棕色的是陆地，白白的有云朵，也有两极的冰雪。",
+    "audio": "audio/closeup.mp3?v=5bb1ea492a7c"
   },
   "blue": {
     "text": "从太空看，地球蓝蓝的，像一颗蓝色弹珠。因为海洋占了七成，陆地只占三成。",
@@ -69,8 +69,8 @@ window.NARRATION = {
     "audio": "audio/dive_outer_core.mp3?v=4af9edf72ae1"
   },
   "dive_inner_core": {
-    "text": "到最中间啦！这是内核，是硬硬的固态铁和镍，大约五千到六千度，比太阳表面还热！因为被压得实在太厉害，它反而冻成了硬块。",
-    "audio": "audio/dive_inner_core.mp3?v=89ca768d6265"
+    "text": "到最中间啦！这是内核，是硬硬的铁和镍，大约五千多度，和太阳表面差不多热！这里的压力实在太大了，铁就算这么热也熔化不了，所以是固体。",
+    "audio": "audio/dive_inner_core.mp3?v=9192b21daab1"
   },
   "quiz_right": {
     "text": "答对啦！你真棒！",
@@ -81,16 +81,16 @@ window.NARRATION = {
     "audio": "audio/quiz_try.mp3?v=a38684dc31a1"
   },
   "size_line": {
-    "text": "地球有多大？地球的直径大约一万二千七百四十二公里，把月球一个挨一个排起来，差不多四个就和地球一样宽！",
-    "audio": "audio/size_line.mp3?v=5d919095780b"
+    "text": "地球有多宽？地球的直径大约一万二千七百公里，月球大约三千五百公里。把月球一个挨一个排起来，三个还排不满，第四个只放得进大半个。",
+    "audio": "audio/size_line.mp3?v=f13c5072e2bd"
   },
   "size_line_go": {
-    "text": "看，月球排起队来啦！一个、两个、三个、四个，和地球一样宽啦！",
-    "audio": "audio/size_line_go.mp3?v=a9e742ac1ad0"
+    "text": "看，月球排起队来啦！一个、两个、三个……第四个放不下了，多出来一点点。",
+    "audio": "audio/size_line_go.mp3?v=d000d3ad22d1"
   },
   "q_size_line": {
-    "text": "几个多月球排成一排，就和地球一样宽？",
-    "audio": "audio/q_size_line.mp3?v=186e00dfefcb"
+    "text": "几个月球排成一排，和地球一样宽？",
+    "audio": "audio/q_size_line.mp3?v=f2d1e1413458"
   },
   "size_fill": {
     "text": "地球不光宽，里面还特别大。如果把地球当成一个大口袋，往里面装月球，能装下四十九个！",
@@ -149,8 +149,8 @@ window.NARRATION = {
     "audio": "audio/q_size_far.mp3?v=db3b46099403"
   },
   "motion_spin": {
-    "text": "地球一直在自己转圈，这叫自转。转一圈是二十四小时，大约一天。对着太阳的一面是白天，背着太阳的一面是黑夜。",
-    "audio": "audio/motion_spin.mp3?v=a3b2d91463e6"
+    "text": "地球一直在自己转圈，这叫自转，转一圈大约二十四小时。它是从西往东转的，所以我们看到太阳从东边升起、西边落下。对着太阳的一面是白天，背着太阳的一面是黑夜。",
+    "audio": "audio/motion_spin.mp3?v=d5610f6ee7b6"
   },
   "motion_spin_go": {
     "text": "看，地球转起来啦！白天的一面转过去，黑夜的一面转过来。",
@@ -185,32 +185,32 @@ window.NARRATION = {
     "audio": "audio/q_motion_moon.mp3?v=ec078db5a3a6"
   },
   "act_quake": {
-    "text": "地球表面的岩石分成好多块大板块，像拼图一样挤在一起，还在慢慢地动。有时候两块板块突然撞一下、搓一下，大地就会摇晃，这就是地震。",
-    "audio": "audio/act_quake.mp3?v=a1c6c9886be4"
+    "text": "地球表面的岩石分成好多块大板块，它们在慢慢地动。可是板块的边上常常被卡住，岩石被一点点拧弯。等到卡不住的时候，岩石一下子滑开，大地就会摇晃，这就是地震。",
+    "audio": "audio/act_quake.mp3?v=01a721801ec2"
   },
   "act_quake_go": {
-    "text": "板块动啦！轰隆隆，地震来了，大地在晃。",
-    "audio": "audio/act_quake_go.mp3?v=e2cd83d59e46"
+    "text": "卡不住啦！岩石一下子滑开，路被错断了，大地在摇晃。",
+    "audio": "audio/act_quake_go.mp3?v=418c64e2d529"
   },
   "q_act_quake": {
     "text": "地震是怎么来的？",
     "audio": "audio/q_act_quake.mp3?v=644006e531e9"
   },
   "act_volcano": {
-    "text": "地下的岩石被烤得滚烫，变成红红的岩浆。压力大的时候，岩浆从地壳的裂缝里冲出来，就是火山喷发。",
-    "audio": "audio/act_volcano.mp3?v=a5082a32ad41"
+    "text": "地下深处有一个装满滚烫岩浆的地方，叫岩浆房。压力大的时候，岩浆顺着细细的通道往上冲，从火山口喷出来，就是火山喷发。",
+    "audio": "audio/act_volcano.mp3?v=4a0d88dd839c"
   },
   "act_volcano_go": {
-    "text": "轰！火山喷发啦，红红的岩浆流出来啦！",
-    "audio": "audio/act_volcano_go.mp3?v=edd2f4f32e55"
+    "text": "轰！岩浆从火山口喷出来啦！",
+    "audio": "audio/act_volcano_go.mp3?v=d527c47ff990"
   },
   "q_act_volcano": {
     "text": "火山喷发出来的红红的东西叫什么？",
     "audio": "audio/q_act_volcano.mp3?v=97481ceafb0c"
   },
   "act_typhoon": {
-    "text": "海水被太阳晒热，热空气带着水汽往上升，越转越快，转出一个大风车，就是台风。台风上岸会带来大风大雨。",
-    "audio": "audio/act_typhoon.mp3?v=72b8d9e00d7e"
+    "text": "海水被太阳晒热，热热的水汽往上升，周围的空气就旋转着补进来，越转越快，转成一个大旋涡，就是台风。在我们北半球，台风从上往下看是逆时针转的。台风上岸会带来大风大雨。",
+    "audio": "audio/act_typhoon.mp3?v=bb5beddfbee6"
   },
   "act_typhoon_go": {
     "text": "台风转起来啦！呼——呼——好大的风！",
@@ -305,8 +305,8 @@ window.NARRATION = {
     "audio": "audio/q_story_birth.mp3?v=a34acb1fea17"
   },
   "story_moon": {
-    "text": "很早很早以前，一颗和火星差不多大的行星撞上了地球，撞飞的碎片绕着地球转，聚在一起，就变成了月亮！",
-    "audio": "audio/story_moon.mp3?v=da380244d5f9"
+    "text": "科学家认为，很早很早以前，一颗和火星差不多大的行星撞上了地球。撞飞的碎片绕着地球转，慢慢聚在一起，就变成了月亮。",
+    "audio": "audio/story_moon.mp3?v=3eebcf760f89"
   },
   "story_moon_go": {
     "text": "轰！撞上去啦！碎片聚在一起，月亮出生啦！",
@@ -317,12 +317,12 @@ window.NARRATION = {
     "audio": "audio/q_story_moon.mp3?v=61974df9262a"
   },
   "story_life": {
-    "text": "地球凉下来以后，水蒸气变成雨落下来，汇成了大海。大海里最早的小生命，慢慢变成鱼、变成恐龙，又过了好多好多万年，才出现了我们人类。",
-    "audio": "audio/story_life.mp3?v=e37f6574940d"
+    "text": "地球凉下来以后，水汽变成雨，下了很久很久，汇成了大海。大约三十五亿年前，海里出现了最早的小生命，小得眼睛都看不见。又过了很久很久，才先后有了鱼、恐龙；人类是最近几十万年才出现的。",
+    "audio": "audio/story_life.mp3?v=923292ffc25b"
   },
   "story_life_go": {
-    "text": "海洋里亮起点点灯光，小生命越来越多啦！",
-    "audio": "audio/story_life_go.mp3?v=f887e887dd34"
+    "text": "地球又往前走了一大步！",
+    "audio": "audio/story_life_go.mp3?v=37a57b8cd040"
   },
   "q_story_life": {
     "text": "最早的生命出现在哪里？",
@@ -341,8 +341,8 @@ window.NARRATION = {
     "audio": "audio/q_probe_round.mp3?v=3175ea65d98f"
   },
   "probe_magellan": {
-    "text": "五百多年前，麦哲伦带着船队从西班牙出发，一直往西开，绕了地球一圈，又回到了起点，用行动证明了地球是圆的。",
-    "audio": "audio/probe_magellan.mp3?v=6b4e07b3dcdc"
+    "text": "五百多年前，麦哲伦带着五艘船从西班牙出发，一直往西开。麦哲伦自己在半路上去世了，剩下的船员接着航行，三年后终于绕地球一圈回到了西班牙，证明了一直往一个方向走，能绕回原地。",
+    "audio": "audio/probe_magellan.mp3?v=51bded8775d7"
   },
   "probe_magellan_go": {
     "text": "船队出发啦！绕地球一圈，剩下的船员最终回到了出发地！",

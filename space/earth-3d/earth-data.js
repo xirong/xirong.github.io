@@ -39,7 +39,7 @@ window.BODY = {
 
   stages: {
     size: [
-      { id: 'size_line', icon: '🌙', title: '约 4 个月球排一排', sub: '地球直径约 12,742 公里', actions: [{ id: 'go', label: '🌙 排排队' }], quiz: { options: ['约 4 个', '约 40 个', '约 400 个'], answer: 0 } },
+      { id: 'size_line', icon: '🌙', title: '3 个多月球排一排', sub: '地球直径约 12,742 公里，月球约 3,475 公里', actions: [{ id: 'go', label: '🌙 排排队' }], quiz: { options: ['不到 4 个', '约 40 个', '约 400 个'], answer: 0 } },
       { id: 'size_fill', icon: '🫙', title: '能装约 49 个月球', sub: '地球和月球比体积', actions: [{ id: 'go', label: '🫙 往里装' }], quiz: { options: ['约 5 个', '约 49 个', '约 490 个'], answer: 1 } },
       { id: 'size_mass', icon: '⚖️', title: '天平称一称', sub: '地球质量约是月球的 81 倍', actions: [{ id: 'go', label: '⚖️ 放月球' }], quiz: { options: ['约 8 个', '约 81 个', '约 810 个'], answer: 1 } },
       { id: 'size_weight', icon: '🧒', title: '换个星球有多重', sub: '比一比地球、月球和火星', slider: { min: 10, max: 40, value: 20, label: '我的体重', unit: ' 公斤' }, actions: [{ id: 'moon', label: '🌙 站到月球' }, { id: 'earth', label: '🌍 站到地球' }, { id: 'mars', label: '🔴 站到火星' }], quiz: { options: ['月球', '地球', '火星'], answer: 0 } },
@@ -51,7 +51,7 @@ window.BODY = {
       { id: 'motion_moon', icon: '🌙', title: '月球绕着地球转', sub: '一圈约 27.3 天', actions: [{ id: 'go', label: '⏩ 转一圈' }], quiz: { options: ['约 27 天', '约 1 天', '约 1 年'], answer: 0 } },
     ],
     activity: [
-      { id: 'act_quake', icon: '🧩', title: '板块慢慢动，地震突然来', sub: '地壳分成许多会移动的板块', actions: [{ id: 'go', label: '💥 模拟地震' }], quiz: { options: ['板块相互挤压错动', '地球打喷嚏', '月亮撞地球'], answer: 0 } },
+      { id: 'act_quake', icon: '🧩', title: '板块慢慢动，地震突然来', sub: '卡住、拧弯、突然滑开', actions: [{ id: 'go', label: '💥 模拟地震' }], quiz: { options: ['板块相互挤压错动', '地球打喷嚏', '月亮撞地球'], answer: 0 } },
       { id: 'act_volcano', icon: '🌋', title: '火山喷发了', sub: '岩浆沿通道来到地表', photo: { src: 'assets/photos/volcano.jpg', credit: '真实火山照片 · 来源见 CREDITS.md' }, actions: [{ id: 'go', label: '🌋 喷一次' }], quiz: { options: ['岩浆', '自来水', '云'], answer: 0 } },
       { id: 'act_typhoon', icon: '🌀', title: '台风像巨大的旋转云盘', sub: '暖海水给它能量', photo: { src: 'assets/photos/hurricane.jpg', credit: '卫星真实云系照片 · 来源见 CREDITS.md' }, actions: [{ id: 'go', label: '🌀 转起来' }], quiz: { options: ['温暖的海水', '月亮的光', '高山'], answer: 0 } },
       { id: 'act_aurora', icon: '🌈', title: '极光在两极发光', sub: '太阳风遇到地球磁场和大气', photo: { src: '../sun-3d/assets/photos/aurora-iss.jpg', credit: 'NASA · 国际空间站拍摄的极光' }, actions: [{ id: 'go', label: '✨ 点亮极光' }], quiz: { options: ['太阳风和大气粒子碰撞', '月亮反光', '海底火山'], answer: 0 } },
@@ -60,13 +60,13 @@ window.BODY = {
       { id: 'life_ocean', icon: '🌊', title: '蓝色海洋占约 71%', sub: '十分之七的表面被水覆盖', actions: [{ id: 'go', label: '🎨 涂一涂' }], quiz: { options: ['约 71%', '约 7%', '约 100%'], answer: 0 } },
       { id: 'life_land', icon: '⛰️', title: '陆地不只是平地', sub: '山地、平原、沙漠和森林', actions: [{ id: 'go', label: '🏔️ 看地形' }], quiz: { options: ['绿色和棕色的陆地', '蓝色的海洋', '白色的云'], answer: 0 } },
       { id: 'life_air', icon: '🌈', title: '大气是看不见的外衣', sub: '有空气，也让天空呈蓝色', actions: [{ id: 'go', label: '🌇 换晚霞' }], quiz: { options: ['大气散射蓝色光', '大海把天染蓝', '蓝色油漆'], answer: 0 } },
-      { id: 'life_water', icon: '💧', title: '水一直在旅行', sub: '蒸发、成云、下雨、流回大海', actions: [{ id: 'go', label: '➡️ 下一站' }], quiz: { options: ['河流和大海', '外太空', '地心'], answer: 0 } },
+      { id: 'life_water', icon: '💧', title: '水一直在旅行', sub: '蒸发、成云、下雨、流回大海', actions: [{ id: 'go', label: '🔁 再旅行一次' }], quiz: { options: ['河流和大海', '外太空', '地心'], answer: 0 } },
     ],
     story: [
       { id: 'story_nebula', icon: '☁️', title: '太阳星云里的尘埃', sub: '约 46 亿年前', actions: [{ id: 'go', label: '🌀 聚起来' }], quiz: { options: ['约 46 亿年前', '约 46 年前', '约 460 亿年前'], answer: 0 } },
       { id: 'story_birth', icon: '🔥', title: '炽热的地球宝宝', sub: '碰撞聚积，重物质沉向中心', actions: [{ id: 'go', label: '🔥 地球诞生' }], quiz: { options: ['很热', '一开始就是冰球', '没有变化'], answer: 0 } },
       { id: 'story_moon', icon: '💥', title: '一次大碰撞', sub: '科学模型：碎屑聚集形成月球', actions: [{ id: 'go', label: '💥 模拟碰撞' }], quiz: { options: ['大碰撞后的碎屑聚集', '从太阳掉下来', '云变成的'], answer: 0 } },
-      { id: 'story_life', icon: '🌱', title: '蓝色家园有了生命', sub: '冷却、海洋形成，生命慢慢出现', actions: [{ id: 'go', label: '🌱 看变化' }], quiz: { options: ['海洋里', '月球上', '人造卫星里'], answer: 0 } },
+      { id: 'story_life', icon: '🌱', title: '蓝色家园有了生命', sub: '先有海洋，再有海里的小生命', actions: [{ id: 'go', label: '🌱 看变化' }], quiz: { options: ['海洋里', '月球上', '人造卫星里'], answer: 0 } },
     ],
     probe: [
       { id: 'probe_round', icon: '🌑', title: '古人发现地球是球', sub: '月食里的地影总是圆的', actions: [{ id: 'go', label: '🌑 看月食' }], quiz: { options: ['圆圆的影子', '影子的声音', '月亮的颜色'], answer: 0 } },

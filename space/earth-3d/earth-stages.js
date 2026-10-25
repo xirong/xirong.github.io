@@ -14,9 +14,8 @@ window.EarthStages = (() => {
     const clamp = THREE.MathUtils.clamp;
     const smooth = (a, b, x) => THREE.MathUtils.smoothstep(x, a, b);
     const hideSun = () => { if (ctx.hooks.sun) ctx.hooks.sun.setVisible(false); };
-    // 月球直径约是地球的 27%（约 1/4），体积约 1/49，质量约 1/81
-    const MOON_D = 0.27;                 // 月球直径 / 地球直径
-    const MOON_M = Math.cbrt(81);        // 等质量小月球直径比 ≈ 4.33
+    // 月球直径约是地球的 27.3%，体积约 1/49，质量约 1/81
+    const MOON_D = 0.2727;               // 月球直径 / 地球直径
 
     // ============ 小工具 ============
     function withTex(mat, src, key = 'map') {
@@ -96,6 +95,11 @@ window.EarthStages = (() => {
       loadTex('../textures/earth_nightmap.jpg').then(t => { u.night.value = t; });
       return { mesh, u };
     }
+    // 经纬度 → 球面上的点（和 THREE.SphereGeometry + 等距柱状贴图的约定一致，经度 -180° 在 u = 0）
+    function lonLat(lon, lat, r) {
+      const a = (lon + 180) / 360 * Math.PI * 2, b = lat * Math.PI / 180;
+      return V(-Math.cos(a) * Math.cos(b) * r, Math.sin(b) * r, Math.sin(a) * Math.cos(b) * r);
+    }
     // 人造卫星（卫星与空间站共用的小模型）
     function satellite(color = 0xd8b04a) {
       const g = new THREE.Group();
@@ -116,44 +120,52 @@ window.EarthStages = (() => {
     const S = {};
     S.size_line = api => {
       hideSun();
-      api.fly([0, 0, 3.4]);
+      api.fly([0.75, 0, 5.4], [0.75, 0, 0]);
       lights(api.root, [3, 4, 6], 0.7);
       const earth = ball(1, '../textures/earth_daymap.jpg', { lit: true });
       api.root.add(earth);
-      // 直径参考线：从南极到北极
-      const dia = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0, -1.06, 0), V(0, 1.06, 0)]),
-        new THREE.LineBasicMaterial({ color: 0xffe9a0, transparent: true, opacity: 0.6 }));
-      const n = 4, mr = MOON_D;                       // 4 个月球排成一排 = 地球直径
-      const moonGeo = new THREE.SphereGeometry(mr, 24, 16);
+      // 月球竖着排在地球旁边（和地球离镜头一样远，大小才比得准）；两条横线标出地球的上下边
+      const COL = 1.55;
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xffe9a0, transparent: true, opacity: 0.8 });
+      [-1, 1].forEach(y => api.root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0, y, 0), V(COL + 0.5, y, 0)]), lineMat)));
+      const dia = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(COL + 0.45, -1, 0), V(COL + 0.45, 1, 0)]), lineMat);
+      // 月球用真实比例：直径约是地球的 0.273。从南极往上排，第 4 个只放得进大半个
+      const n = 4, mr = MOON_D;
+      const moonGeo = new THREE.SphereGeometry(mr, 32, 20);
       const moonMat = withTex(new THREE.MeshLambertMaterial(), '../textures/moon.jpg');
       const moons = [];
       for (let i = 0; i < n; i++) {
         const m = new THREE.Mesh(moonGeo, moonMat);
-        m.userData.target = V(0, (i - 1.5) * mr * 2, 1.15);
-        m.userData.start = m.userData.target.clone().add(V(0, 0, -2.5));
+        m.userData.target = V(COL, -1 + mr + i * mr * 2, 0);
+        m.userData.start = m.userData.target.clone().add(V(2.5, 0, 0));
         m.position.copy(m.userData.start);
         m.scale.setScalar(0.001);
         api.root.add(m);
         moons.push(m);
       }
-      const tag = label('一个月球');
-      tag.position.set(0.55, 0.62, 1.15);
-      api.root.add(dia, tag);
+      const over = label('多出来一点', { h: 0.024 });
+      over.position.set(COL - 0.2, 1.22, 0);
+      over.visible = false;
+      api.root.add(dia, over);
       let t0 = 0;
-      api.live('月球直径约 3474 公里，约为地球的 1/4。点“排排队”');
+      api.live('月球直径约 3,475 公里，地球约 12,742 公里。点“🌙 排排队”');
       return {
         action() { t0 = now(); },
         update(t, dt) {
           earth.rotation.y += dt * 0.1;
           if (!t0) return;
           const seconds = (now() - t0) / 1000;
+          let placed = 0;
           moons.forEach((m, i) => {
-            const k = ease(clamp((seconds - i * 0.45) / 0.7, 0, 1));
+            const k = ease(clamp((seconds - i * 0.6) / 0.8, 0, 1));
             m.position.lerpVectors(m.userData.start, m.userData.target, k);
             m.scale.setScalar(Math.max(0.001, k));
+            if (k >= 1) placed++;
           });
-          const done = clamp(seconds / (0.45 * 3 + 0.7), 0, 1);
-          api.live(`🌙 排了 <b>${Math.round(done * n)}</b> / ${n} 个月球${done >= 1 ? ' —— 刚好是一条直径！' : ''}`);
+          over.visible = placed === n;
+          api.live(placed < n
+            ? `🌙 排了 <b>${placed}</b> 个月球……`
+            : '🌙 3 个排不满，第 4 个只放得进大半个：地球直径 ≈ <b>3.7</b> 个月球');
         },
       };
     };
@@ -199,7 +211,7 @@ window.EarthStages = (() => {
       g.add(shellMesh, wire, moons);
       api.root.add(g);
       let t0 = 0, settled = false;
-      api.live('约 49 个月球才装得下一个地球（大小和排布仅示意）。点“往里装”');
+      api.live('约 49 个月球才装得下一个地球（大小和排布仅示意）。点“🫙 往里装”');
       return {
         action() { t0 = now(); settled = false; slots.forEach((s, i) => moons.setMatrixAt(i, hidden)); moons.instanceMatrix.needsUpdate = true; g.rotation.y = 0; },
         update(t, dt) {
@@ -251,11 +263,11 @@ window.EarthStages = (() => {
       earth.position.y = -0.72;
       pans[0].add(earth);
       // 右边堆 81 个月球
-      const mr = 0.62 / MOON_M, panTop = -1.31;
+      const mr = 0.62 * MOON_D, panTop = -1.31;   // 月球按真实大小画
       const heapPositions = [];
       const rowStep = Math.sqrt(3) * mr, layerStep = Math.sqrt(8 / 3) * mr;
-      for (let layer = 0; layer < 6 && heapPositions.length < 81; layer++) {
-        const shrink = Math.max(0.15, 0.95 - layer * 0.19), y = panTop + mr + layer * layerStep;
+      for (let layer = 0; layer < 14 && heapPositions.length < 81; layer++) {
+        const shrink = Math.max(0.2, 0.95 - layer * 0.11), y = panTop + mr + layer * layerStep;
         const shift = layer % 2 ? mr : 0;
         for (let row = -6; row <= 6; row++) {
           const z = row * rowStep;
@@ -276,7 +288,7 @@ window.EarthStages = (() => {
       api.root.add(post, base, beam, tagL, tagR);
       beam.rotation.z = 0.3;   // 一开始地球这边沉下去
       let t0 = 0;
-      api.live('一个地球 ≈ 81 个月球那么重。点“放月球”');
+      api.live('一个地球 ≈ 81 个月球那么重。点“⚖️ 放月球”');
       return {
         action() { t0 = now(); },
         update() {
@@ -342,7 +354,7 @@ window.EarthStages = (() => {
       tagE.position.set(-4, -0.8, 0); tagM.position.set(4, -0.45, 0);
       api.root.add(earth, moon, path, photon, flash, tagE, tagM);
       let t0 = 0;
-      api.live('地月距离约 38.4 万公里（画面压缩了）。点“出发”，让光跑一趟');
+      api.live('地月距离约 38.4 万公里（画面压缩了）。点“💡 出发”，让光跑一趟');
       return {
         action() { t0 = now(); photon.visible = true; },
         update(t, dt) {
@@ -359,85 +371,86 @@ window.EarthStages = (() => {
     // ============ 怎么动 ============
     S.motion_spin = api => {
       hideSun();
-      api.fly([0.4, 0.4, 4.4]);
+      api.fly([0.4, 1.2, 4.6]);
       const sunPos = V(-8, 1.5, 3);   // 太阳从侧面照过来，昼夜各一半
       const sun = sunBall(1.1);
       sun.position.copy(sunPos);
-      const { mesh: earth, u } = dayNightEarth(1.4, sunPos.clone().normalize());
-      const cityTex = glowTex;
-      const city = new THREE.Sprite(new THREE.SpriteMaterial({ map: cityTex, color: 0xff5a4a, transparent: true, depthTest: false }));
-      city.scale.setScalar(0.09);
-      api.root.add(sun, earth, city);
+      const { mesh: earth } = dayNightEarth(1.4, sunPos.clone().normalize());
+      // 北京：钉在地球上，跟着地球一起转；转到背面会被地球挡住
+      const city = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xff5a4a, transparent: true, depthWrite: false }));
+      city.scale.setScalar(0.12);
+      city.position.copy(lonLat(116.4, 39.9, 1.41));
+      const tag = label('北京', { h: 0.024 });
+      tag.material.depthTest = true;   // 转到背面时也被地球挡住
+      tag.position.copy(lonLat(116.4, 39.9, 1.6));
+      earth.add(city, tag);
+      api.root.add(sun, earth);
       const DAY_SEC = 12;               // 12 秒演示一昼夜
-      let t0 = 0, prevHour = -1;
-      api.live('地球自转一圈 = 一天（24 小时）。点“转一天”');
+      let t0 = 0, start = 0;
+      api.live('地球自西向东转，一圈约 24 小时。点“⏩ 转一天”');
       return {
-        action() { t0 = now(); earth.rotation.y = 0; prevHour = -1; },
+        action() { t0 = now(); start = earth.rotation.y; },
         update(t, dt) {
-          if (!t0) { earth.rotation.y += dt * 0.08; }
-          else {
-            const k = ((now() - t0) / 1000 / DAY_SEC) % 1;
-            earth.rotation.y = -k * Math.PI * 2;
-            const hour = Math.floor(k * 24);
-            if (hour !== prevHour) {
-              prevHour = hour;
-              api.live(`🕐 自转一圈 <b>${hour}</b> / 24 小时${hour >= 23 ? ' —— 一天过去啦，同一个城市再次迎接早晨' : ''}`);
-            }
-          }
-          // 小红点固定在地球上（东经城市），随地球一起转
-          const a = -Math.PI / 2 + earth.rotation.y;
-          city.position.set(Math.cos(a) * 1.42, 0.35, Math.sin(a) * 1.42);
+          if (!t0) { earth.rotation.y += dt * 0.08; return; }
+          const k = Math.min(1, (now() - t0) / 1000 / DAY_SEC);
+          earth.rotation.y = start + k * Math.PI * 2;   // 从北极上方看是逆时针，太阳从东边升起
+          const hour = Math.min(24, Math.floor(k * 24));
+          api.live(`🕐 转了 <b>${hour}</b> / 24 小时${k >= 1 ? ' —— 北京又转回到了原来的位置' : ''}`);
+          if (k >= 1) t0 = 0;
         },
       };
     };
 
     S.motion_year = api => {
       hideSun();
-      api.fly([0, 7, 10], [0, 0, 0]);
+      api.fly([0, 10.5, 12], [0.6, 0, 0]);
       api.root.add(new THREE.AmbientLight(0xffffff, 0.22));
-      const pl = new THREE.PointLight(0xfff2dd, 1.6, 0, 0);
-      api.root.add(pl);
-      const sun = sunBall(1);
+      api.root.add(new THREE.PointLight(0xfff2dd, 1.6, 0, 0));
+      const sun = sunBall(0.9);
       api.root.add(sun);
-      const TILT = 23.5 * Math.PI / 180, D = 4.6;
-      api.root.add(ring(D, 0xcfe3f5, 0.18));
-      // 地轴 + 地球（地轴保持 23.5° 倾斜，公转时方向不变）
+      const TILT = 23.5 * Math.PI / 180, D = 4.2;
+      api.root.add(ring(D, 0xcfe3f5, 0.25));
+      // 地轴歪 23.5°，公转时指向不变（一直指着北极星方向）。北极歪向 -x，所以地球在 +x 时北半球是夏天
       const pivot = new THREE.Group();
-      const axis = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.3, 8), new THREE.MeshBasicMaterial({ color: 0xffe9a0 }));
-      const { mesh: earth, u } = dayNightEarth(0.42, V(1, 0, 0));
+      const axis = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 1.7, 8), new THREE.MeshBasicMaterial({ color: 0xffe9a0 }));
+      const north = label('北', { h: 0.022 });
+      north.position.y = 0.95;
+      const { mesh: earth, u } = dayNightEarth(0.6, V(1, 0, 0));
       const tiltG = new THREE.Group();
       tiltG.rotation.z = TILT;
-      tiltG.add(axis, earth);
+      tiltG.add(axis, earth, north);
       pivot.add(tiltG);
       api.root.add(pivot);
-      const SEASONS = [['春', 0], ['夏', 1], ['秋', 2], ['冬', 3]];
-      SEASONS.forEach(([name, k]) => {
-        const a = k * Math.PI / 2 - Math.PI / 2;
-        const l = label(`${name}天`, { h: 0.03 });
-        l.position.set(Math.cos(a) * D, -0.55, Math.sin(a) * D);
+      // 从北极上方看，地球逆时针公转：春分 → 夏至 → 秋分 → 冬至（北半球）
+      const SEASONS = [['春分 · 3 月', Math.PI / 2], ['夏至 · 6 月', 0], ['秋分 · 9 月', -Math.PI / 2], ['冬至 · 12 月', Math.PI]];
+      SEASONS.forEach(([name, a]) => {
+        const l = label(name, { h: 0.026 });
+        l.position.set(Math.cos(a) * D, -0.9, Math.sin(a) * D);
         api.root.add(l);
       });
+      const MONTHS = ['3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月', '1 月', '2 月'];
       const YEAR_SEC = 16;              // 16 秒演示一年
-      let a = -Math.PI / 2, t0 = 0;
+      let a = Math.PI / 2, t0 = 0;
       const place = () => {
         pivot.position.set(Math.cos(a) * D, 0, Math.sin(a) * D);
-        u.sunDir.value.copy(pivot.position).multiplyScalar(-1).normalize();   // 地球 → 原点太阳的方向，公转到哪侧都对
+        u.sunDir.value.copy(pivot.position).multiplyScalar(-1).normalize();
       };
       place();
-      api.live('地轴歪着 23.5°，绕太阳一圈 = 一年，有了四季。点“过一年”');
+      api.live('地轴歪着 23.5°，而且一直指向同一个方向。点“⏩ 过一年”');
       return {
-        action() { t0 = now(); a = -Math.PI / 2; place(); },
+        action() { t0 = now(); a = Math.PI / 2; place(); },
         update(t, dt) {
-          earth.rotation.y += dt * 0.4;
+          earth.rotation.y += dt * 0.6;
           if (t0) {
             const k = clamp((now() - t0) / 1000 / YEAR_SEC, 0, 1);
-            a = -Math.PI / 2 + k * Math.PI * 2;
+            a = Math.PI / 2 - k * Math.PI * 2;
             place();
-            const month = Math.min(12, Math.floor(k * 12) + 1);
-            api.live(`📅 第 <b>${month}</b> 个月${k >= 1 ? ' —— 一年过去啦！' : ''}（16 秒演示一年）`);
+            const m = Math.min(11, Math.floor(k * 12));
+            const summer = Math.cos(a) > 0.92, winter = Math.cos(a) < -0.92;
+            api.live(`📅 北半球 <b>${MONTHS[m]}</b>${summer ? ' · 北极歪向太阳：夏天' : winter ? ' · 北极背着太阳：冬天' : ''}${k >= 1 ? ' —— 一年过去啦！' : ''}`);
             if (k >= 1) t0 = 0;
           } else {
-            a += dt * 0.05; place();
+            a -= dt * 0.05; place();
           }
         },
       };
@@ -445,31 +458,33 @@ window.EarthStages = (() => {
 
     S.motion_moon = api => {
       hideSun();
-      api.fly([0.5, 1.8, 7], [0, 0, 0]);
-      lights(api.root, [-4, 3, 5], 0.35);
-      const { mesh: earth, u } = dayNightEarth(1, V(-3, 1, 4).normalize());
+      api.fly([0.8, 6.5, 6.5], [0.8, 0, 0]);
+      const sunDir = V(-3, 1, 4).normalize();
+      const d = lights(api.root, sunDir.clone().multiplyScalar(10).toArray(), 0.12);
+      d.intensity = 1.3;
+      const { mesh: earth } = dayNightEarth(1, sunDir);
       const D = 3.2;                    // 压缩了：真实距离约 30 个地球直径
-      api.root.add(earth, ring(D, 0xcfe3f5, 0.2));
-      const moon = ball(0.27, '../textures/moon.jpg', { lit: true });
+      api.root.add(earth, ring(D, 0xcfe3f5, 0.4));
+      const moon = ball(MOON_D, '../textures/moon.jpg', { lit: true });
       api.root.add(moon);
       const MONTH_SEC = 10;             // 10 秒演示 27.3 天
       let a = 0, t0 = 0;
-      api.live('月球绕地球一圈约 27.3 天（距离压缩了）。点“转一个月”');
+      api.live('月球绕地球一圈约 27.3 天，总是同一面朝着地球（距离压缩了）。点“⏩ 转一圈”');
       return {
         action() { t0 = now(); a = 0; },
         update(t, dt) {
-          earth.rotation.y += dt * 0.06;
+          earth.rotation.y += dt * 0.25;
           if (t0) {
             const k = clamp((now() - t0) / 1000 / MONTH_SEC, 0, 1);
-            a = k * Math.PI * 2;
+            a = -k * Math.PI * 2;        // 从北极上方看逆时针
             const day = Math.min(27, Math.floor(k * 27.3) + 1);
-            api.live(`🗓️ 第 <b>${day}</b> / 27 天${k >= 1 ? ' —— 一个月过去啦！' : ''}（10 秒演示 27.3 天）`);
+            api.live(`🗓️ 第 <b>${day}</b> / 27 天${k >= 1 ? ' —— 转回来啦！月相变一轮还要再多两天，约 29.5 天' : ''}`);
             if (k >= 1) t0 = 0;
           } else {
-            a += dt * 0.12;
+            a -= dt * 0.12;
           }
           moon.position.set(Math.cos(a) * D, 0, Math.sin(a) * D);
-          moon.rotation.y = -a + Math.PI / 2;   // 潮汐锁定：永远同一面朝着地球
+          moon.rotation.y = -a - Math.PI;   // 潮汐锁定：贴图正面（月球正面）一直朝着地球
         },
       };
     };
@@ -477,101 +492,128 @@ window.EarthStages = (() => {
     // ============ 会发生什么 ============
     S.act_quake = api => {
       hideSun();
-      api.fly([0, 3.4, 8.5], [0, -0.5, 0]);
+      api.fly([0, 4.2, 7.5], [0, -0.3, 0]);
       lights(api.root, [3, 6, 5], 0.5);
-      // 两块板块：一大块地壳从中间断开
+      // 两块板块沿断层（x = 0）一前一后地错开：边上被卡住，岩石一点点被拧弯，卡不住时突然滑开
       const rock = new THREE.MeshStandardMaterial({ color: 0x8a6f4d, roughness: 0.9 });
-      const plateL = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.7, 2.4), rock);
-      plateL.position.set(-1.62, -0.35, 0);
-      const plateR = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.7, 2.4), rock);
-      plateR.position.set(1.62, -0.35, 0);
-      // 断面上的小房子
+      const grass = new THREE.MeshStandardMaterial({ color: 0x6f8a4a, roughness: 1 });
+      const plates = [-1, 1].map(side => {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(3, 0.7, 3), rock);
+        body.position.set(side * 1.52, -0.35, 0);
+        const top = new THREE.Mesh(new THREE.BoxGeometry(3, 0.04, 3), grass);
+        top.position.set(side * 1.52, 0.02, 0);
+        g.add(body, top);
+        api.root.add(g);
+        return g;
+      });
+      // 房子放在板块上，跟着板块一起动
       const houses = [];
-      [[-2.2, 0.4], [-1, -0.5], [1.1, 0.5], [2.3, -0.3]].forEach(([x, z]) => {
+      [[-2.3, 0.7, 0], [-1, -0.8, 0], [1.1, 0.8, 1], [2.3, -0.5, 1]].forEach(([x, z, p]) => {
         const h = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.24, 0.28), new THREE.MeshStandardMaterial({ color: 0xd8c9a8 }));
-        h.position.set(x, 0.12, z);
+        h.position.set(x, 0.16, z);
         const roof = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.16, 4), new THREE.MeshStandardMaterial({ color: 0xb5502e }));
         roof.position.y = 0.2; roof.rotation.y = Math.PI / 4;
         h.add(roof);
-        api.root.add(h);
+        plates[p].add(h);
         houses.push(h);
       });
-      // 地震波：一圈一圈扩散的圆环
-      const waves = [0, 1, 2].map(i => {
+      // 横穿断层的一条路：看它先被拧弯，再突然断开错位
+      // 路是一条有宽度的带子：每个截面两个点（z ± 0.09）
+      const N = 61, roadPts = [], roadIdx = [];
+      for (let i = 0; i < N; i++) { const x = -3 + 6 * i / (N - 1); roadPts.push(V(x, 0.06, -0.09), V(x, 0.06, 0.09)); }
+      for (let i = 0; i < N - 1; i++) { const a = i * 2; roadIdx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+      const roadGeo = new THREE.BufferGeometry().setFromPoints(roadPts);
+      roadGeo.setIndex(roadIdx);
+      const road = new THREE.Mesh(roadGeo, new THREE.MeshBasicMaterial({ color: 0x3b3b40, side: THREE.DoubleSide }));
+      const fault = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0, 0.05, -1.5), V(0, 0.05, 1.5)]),
+        new THREE.LineDashedMaterial({ color: 0xff6a4a, dashSize: 0.12, gapSize: 0.08 }));
+      fault.computeLineDistances();
+      const waves = [0, 1, 2].map(() => {
         const w = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 64),
           new THREE.MeshBasicMaterial({ color: 0xffd76b, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
         w.rotation.x = -Math.PI / 2;
-        w.position.y = 0.02;
+        w.position.y = 0.07;
         api.root.add(w);
         return w;
       });
-      const fault = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0, 0.02, -1.3), V(0, 0.02, 1.3)]),
-        new THREE.LineBasicMaterial({ color: 0xff8866, transparent: true, opacity: 0.8 }));
-      api.root.add(plateL, plateR, fault);
+      api.root.add(road, fault);
+      const LOAD = 4, SLIP = 0.3;        // 4 秒慢慢拧，最后错开 0.3
       let t0 = 0;
-      const L0 = plateL.position.x, R0 = plateR.position.x;
-      api.live('两块板块挤在一起。点“震一下”');
+      const drawRoad = (far, near) => {
+        // far：远处板块已经走了多少；near：断层旁边跟上了多少（卡住时为 0）
+        const p = roadGeo.attributes.position;
+        for (let i = 0; i < N; i++) {
+          const x = -3 + 6 * i / (N - 1), side = Math.sign(x) || 1;
+          const bend = Math.tanh(Math.abs(x) / 0.9);       // 离断层越远，跟着板块走得越多
+          const z = side * (near + (far - near) * bend);
+          p.setZ(i * 2, z - 0.09); p.setZ(i * 2 + 1, z + 0.09);
+        }
+        p.needsUpdate = true;
+      };
+      drawRoad(0, 0);
+      api.live('一条路横跨断层。点“💥 模拟地震”');
       return {
         action() { t0 = now(); },
         update(t, dt) {
           if (!t0) return;
           const s = (now() - t0) / 1000;
-          // 先慢慢挤（0~2.5 秒），再突然错动（2.5 秒）
-          const press = smooth(0, 2.5, s) * 0.22;
-          const jolt = s > 2.5 ? 0.3 * Math.exp(-(s - 2.5) * 2.2) : 0;
-          const lurch = s > 2.5 ? 0.24 * smooth(2.5, 3.1, s) : 0;   // 右边板块突然错动
-          plateL.position.x = L0 + press;
-          plateR.position.x = R0 - press + lurch;
-          plateR.position.z = lurch * 0.6;
-          houses.forEach((h, i) => { h.rotation.z = jolt * Math.sin(i * 1.7 + s * 20); });
+          const far = SLIP / 2 * smooth(0, LOAD, s);                    // 板块慢慢错开
+          const near = s > LOAD ? SLIP / 2 * smooth(LOAD, LOAD + 0.25, s) : 0;   // 卡不住了，一下子滑开
+          drawRoad(far, near);
+          plates[0].position.z = -near; plates[1].position.z = near;
+          const jolt = s > LOAD ? 0.25 * Math.exp(-(s - LOAD) * 2) : 0;
+          houses.forEach((h, i) => { h.rotation.z = jolt * Math.sin(i * 1.7 + s * 22); });
           waves.forEach((w, i) => {
-            const wt = (s - 2.5 - i * 0.5) / 2.2;
-            if (wt > 0 && wt < 1) {
-              w.scale.setScalar(0.3 + wt * 3.4);
-              w.material.opacity = (1 - wt) * 0.85;
-            } else w.material.opacity = 0;
+            const wt = (s - LOAD - i * 0.45) / 2.2;
+            w.material.opacity = wt > 0 && wt < 1 ? (1 - wt) * 0.85 : 0;
+            w.scale.setScalar(0.3 + clamp(wt, 0, 1) * 3.6);
           });
-          api.live(s <= 2.5 ? '🤏 板块一点一点挤紧……' : s < 5 ? '💥 错动了！地震波一圈一圈传开' : '地震波传完了。点“震一下”可以再试');
+          api.live(s <= LOAD ? '🤏 板块在慢慢错开，断层旁边卡住了，路被一点点拧弯……'
+            : s < LOAD + 3 ? '💥 卡不住了！岩石一下子滑开，路断成两截，地震波一圈圈传开'
+            : '地震过去了，路被错开了。再点“💥 模拟地震”看一次');
+          if (s > LOAD + 6) { t0 = 0; }
         },
       };
     };
 
     S.act_volcano = api => {
       hideSun();
-      api.fly([0.6, 2.2, 7], [0, -0.6, 0]);
-      lights(api.root, [4, 6, 5], 0.5);
-      // 剖面火山：切开一半，能看见里面的岩浆通道
-      const coneMat = new THREE.MeshStandardMaterial({ color: 0x6d5a44, roughness: 0.95, side: THREE.DoubleSide });
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(1.9, 2.2, 48, 1, true, 0, Math.PI), coneMat);
-      cone.position.y = 0;
-      const inner = new THREE.Mesh(new THREE.ConeGeometry(1.35, 1.9, 48, 1, true, 0, Math.PI),
-        new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 0.8, side: THREE.DoubleSide }));
-      inner.position.y = -0.1;
-      const ground = new THREE.Mesh(new THREE.CircleGeometry(4.5, 48), new THREE.MeshStandardMaterial({ color: 0x4d6b3a, roughness: 1 }));
-      ground.rotation.x = -Math.PI / 2; ground.position.y = -1.1;
-      // 岩浆通道：从地下通到火山口
-      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.3, 1.6, 16),
-        new THREE.MeshStandardMaterial({ color: 0xff8a3a, emissive: 0xff6a1a, emissiveIntensity: 1 }));
-      pipe.position.set(0, -0.5, 0.9);
+      api.fly([0.4, 1.2, 8], [0, -0.6, 0]);
+      lights(api.root, [4, 6, 5], 0.55);
+      // 火山剖面：山体是固体岩石，中间一根细细的岩浆通道，地下深处有岩浆房
+      const rockMat = new THREE.MeshStandardMaterial({ color: 0x6d5a44, roughness: 0.95, side: THREE.DoubleSide });
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(2.2, 2.2, 48, 1, true, Math.PI / 2, Math.PI), rockMat);   // 后半个山体
+      const cutMat = new THREE.MeshStandardMaterial({ color: 0x8a7458, roughness: 1, side: THREE.DoubleSide });
+      const shape = new THREE.Shape();
+      shape.moveTo(-2.2, -1.1); shape.lineTo(2.2, -1.1); shape.lineTo(0.18, 1.0); shape.lineTo(-0.18, 1.0); shape.closePath();
+      const cut = new THREE.Mesh(new THREE.ShapeGeometry(shape), cutMat);   // 正对镜头的剖面
+      // 地下：一块切开的地层，里面是岩浆房
+      const crust = new THREE.Mesh(new THREE.BoxGeometry(9, 1.6, 4), new THREE.MeshStandardMaterial({ color: 0x5b4a3a, roughness: 1 }));
+      crust.position.set(0, -1.9, -2);
+      const grass = new THREE.Mesh(new THREE.BoxGeometry(9, 0.04, 4), new THREE.MeshStandardMaterial({ color: 0x4d6b3a, roughness: 1 }));
+      grass.position.set(0, -1.1, -2);
+      const magmaMat = new THREE.MeshStandardMaterial({ color: 0xd8501a, emissive: 0xff4a10, emissiveIntensity: 0.45, side: THREE.DoubleSide });
+      const chamber = new THREE.Mesh(new THREE.CircleGeometry(1, 48), magmaMat);
+      chamber.scale.set(1.1, 0.38, 1);
+      chamber.position.set(0, -2.15, 0.01);
+      const conduit = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 3.2), magmaMat);
+      conduit.position.set(0, -0.6, 0.012);
       const crater = glow(0xff9a4a, 0.7, { strength: 1.4 });
-      crater.position.set(0, 1.12, 0);
-      api.root.add(cone, inner, ground, pipe, crater);
-      // 喷出的岩浆粒子和烟
+      crater.position.set(0, 1.05, 0);
+      const tags = [['岩浆房', [1.6, -2.15, 0.05]], ['岩浆通道', [0.85, -0.2, 0.05]], ['火山口', [0.75, 1.15, 0.05]]].map(([t, p]) => {
+        const l = label(t, { h: 0.022 }); l.position.set(...p); return l;
+      });
+      api.root.add(cone, cut, crust, grass, chamber, conduit, crater, ...tags);
+      // 喷出的岩浆粒子
       const N = 260, pos = new Float32Array(N * 3), P = [];
       for (let i = 0; i < N; i++) P.push({ t: Math.random() * 3 });
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const lava = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffa040, size: 0.09, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+      const lava = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffa040, size: 0.09, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
       api.root.add(lava);
-      // 真实火山照片（主 agent 提供的 assets/photos/volcano.jpg）
-      const photo = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.7), withTex(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.95 }), 'assets/photos/volcano.jpg'));
-      photo.position.set(3.1, 0.4, -0.8);
-      photo.rotation.y = -0.4;
-      const ptag = label('真实火山照片', { h: 0.024 });
-      ptag.position.set(3.1, -0.65, -0.8);
-      api.root.add(photo, ptag);
       let t0 = 0;
-      api.live('剖开火山看里面。点“喷一下”');
+      api.live('剖开火山看里面。点“🌋 喷一次”');
       return {
         action() { t0 = now(); P.forEach(p => { p.t = Math.random() * 0.5; }); },
         update(t, dt) {
@@ -579,20 +621,15 @@ window.EarthStages = (() => {
           if (!t0) return;
           const s = (now() - t0) / 1000;
           const power = s < 0.4 ? s / 0.4 : Math.exp(-(s - 0.4) * 0.55);   // 越喷越弱
+          magmaMat.emissiveIntensity = 0.45 + 0.4 * power;
           P.forEach((p, i) => {
             p.t += dt * (0.7 + power);
-            const lt = p.t % 3;
-            const ang = i * 2.399;
-            const spread = lt * 0.32;
-            pos.set([
-              Math.cos(ang) * spread * (0.4 + power),
-              1.1 + lt * 1.6 * power - lt * lt * 0.55,
-              Math.sin(ang) * spread * (0.4 + power),
-            ], i * 3);
+            const lt = p.t % 3, ang = i * 2.399, spread = lt * 0.32;
+            pos.set([Math.cos(ang) * spread * (0.4 + power), 1.05 + lt * 1.6 * power - lt * lt * 0.55, Math.sin(ang) * spread * (0.4 + power) * 0.4], i * 3);
           });
           geo.attributes.position.needsUpdate = true;
           lava.material.opacity = Math.min(1, power * 1.4);
-          api.live(power > 0.35 ? '🌋 岩浆从地下通道涌上来，喷出火山口！' : '喷发慢慢停下来了。点“喷一下”再来一次');
+          api.live(power > 0.35 ? '🌋 岩浆房里的岩浆顺着通道冲上来，从火山口喷出！' : '喷发慢慢停下来了。再点“🌋 喷一次”');
         },
       };
     };
@@ -625,13 +662,13 @@ window.EarthStages = (() => {
       ptag.position.set(4.2, 0.9, -1.5);
       api.root.add(photo, ptag);
       let a = 0, fast = 0;
-      api.live('云排成螺旋形，绕着风眼打转。点“转快点”');
+      api.live('北半球的台风从上往下看是逆时针转的。点“🌀 转起来”');
       return {
         action() { fast = now(); },
         update(t, dt) {
           a += dt * (now() - fast < 6000 ? 2.4 : 0.7);
           seeds.forEach((sd, i) => {
-            const th = sd.arm * (Math.PI * 2 / 3) + sd.r * 1.9 - a * sd.w;
+            const th = sd.arm * (Math.PI * 2 / 3) - sd.r * 1.9 + a * sd.w;   // 北半球台风从上往下看是逆时针转
             const rr = sd.r + sd.j;
             pos.set([Math.cos(th) * rr, Math.sin(th) * rr, 0.2 + sd.j * 0.4], i * 3);
           });
@@ -647,7 +684,7 @@ window.EarthStages = (() => {
       const sun = sunBall(1);
       sun.position.set(-9, 0, 0);
       const EX = 3.5, ER = 1;
-      const earth = ball(ER, '../textures/earth_daymap.jpg');
+      const earth = dayNightEarth(ER, V(-1, 0, 0)).mesh;   // 对着太阳的一面是白天
       earth.position.set(EX, 0, 0);
       api.root.add(sun, earth);
       // 磁力线：偶极子 r = L·cos²λ，向阳面压扁、背阳面拉长
@@ -727,42 +764,48 @@ window.EarthStages = (() => {
     // ============ 和我们的关系 ============
     S.life_ocean = api => {
       hideSun();
-      api.fly([0.4, 1.4, 6.5], [0, -0.4, 0]);
+      api.fly([0.6, 1, 8.4], [0.6, -0.3, 0]);
       lights(api.root, [3, 5, 6], 0.6);
-      const earth = ball(0.85, '../textures/earth_daymap.jpg', { lit: true });
-      earth.position.set(-2.6, 0.9, 0);
-      const etag = label('从太空看：地球是蓝色的');
-      etag.position.set(-2.6, 1.95, 0);
+      const earth = ball(0.75, '../textures/earth_daymap.jpg', { lit: true });
+      earth.position.set(0.3, 1.5, -1);
+      const etag = label('从太空看：地球是蓝色的', { h: 0.024 });
+      etag.position.set(0.3, 2.45, -1);
       api.root.add(earth, etag);
-      // 10 个一样的杯子，7 个倒进蓝色海水
+      // 10 个一样的杯子：7 个装海水，3 个装陆地的泥土
       const cups = [];
       for (let i = 0; i < 10; i++) {
-        const x = -2.7 + i * 0.6;
+        const x = -2.7 + i * 0.6, isSea = i < 7;
         const glass = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1, 0.5),
-          new THREE.MeshStandardMaterial({ color: 0xd8e8f2, transparent: true, opacity: 0.25, roughness: 0.1 }));
+          new THREE.MeshStandardMaterial({ color: 0xd8e8f2, transparent: true, opacity: 0.22, roughness: 0.1, depthWrite: false }));
         glass.position.set(x, -0.9, 0);
-        const water = new THREE.Mesh(new THREE.BoxGeometry(0.44, 1, 0.44),
-          new THREE.MeshStandardMaterial({ color: 0x2e8fd8, transparent: true, opacity: 0.85 }));
-        water.position.set(x, -1.4, 0);   // 底部对齐，往上长
-        water.scale.y = 0.001;
-        api.root.add(glass, water);
-        cups.push(water);
+        const fill = new THREE.Mesh(new THREE.BoxGeometry(0.44, 1, 0.44),
+          new THREE.MeshStandardMaterial({ color: isSea ? 0x2e8fd8 : 0x8a6a3e, transparent: isSea, opacity: isSea ? 0.85 : 1 }));
+        fill.position.set(x, -1.4, 0);
+        fill.scale.y = 0.001;
+        api.root.add(glass, fill);
+        cups.push(fill);
       }
+      const tagSea = label('🌊 海洋 7 份', { h: 0.024 }), tagLand = label('⛰️ 陆地 3 份', { h: 0.024 });
+      tagSea.position.set(-0.9, -1.75, 0.4); tagLand.position.set(2.1, -1.75, 0.4);
+      tagSea.visible = tagLand.visible = false;
+      api.root.add(tagSea, tagLand);
       let t0 = 0;
-      api.live('把地球分成 10 份。点“分一分”');
+      api.live('把地球表面分成 10 份。点“🎨 涂一涂”');
       return {
         action() { t0 = now(); cups.forEach(w => { w.scale.y = 0.001; }); },
         update(t, dt) {
           earth.rotation.y += dt * 0.15;
           if (!t0) return;
           const s = (now() - t0) / 1000;
+          let sea = 0, land = 0;
           cups.forEach((w, i) => {
             const k = ease(clamp((s - i * 0.35) / 0.9, 0, 1));
             w.scale.y = Math.max(0.001, k);
             w.position.y = -1.4 + k * 0.5;
+            if (k >= 1) { if (i < 7) sea++; else land++; }
           });
-          const filled = cups.filter((w, i) => i < 7 && w.scale.y > 0.9).length;
-          api.live(`🌊 10 份里 <b>${filled}</b> 份是海洋${filled >= 7 ? ' —— 所以地球叫“蓝色星球”！' : ''}`);
+          tagSea.visible = sea === 7; tagLand.visible = land === 3;
+          api.live(`🌊 海洋 <b>${sea}</b> 份　⛰️ 陆地 <b>${land}</b> 份${land === 3 ? ' —— 海洋最多，所以地球叫“蓝色星球”！' : ''}`);
         },
       };
     };
@@ -899,7 +942,7 @@ window.EarthStages = (() => {
       );
       const STEP = 5;                    // 5 秒演示一个循环：蒸发→云→雨→河
       let t0 = now();
-      api.live('💧 水在天上和地上旅行。点“再旅行一次”');
+      api.live('💧 水在天上和地上旅行。点“🔁 再旅行一次”');
       return {
         action() { t0 = now(); },
         update(t, dt) {
@@ -971,7 +1014,7 @@ window.EarthStages = (() => {
     S.story_birth = api => {
       hideSun();
       api.fly([0, 0.6, 8.5]);
-      // 尘埃先聚成一个炽热的大球，再分成一层一层
+      // 尘埃先聚成一个炽热的大球，再沉淀分层：重的铁沉到中间，轻的岩石浮在外面
       const N = 2000, pos = new Float32Array(N * 3), P = [];
       for (let i = 0; i < N; i++) {
         const r = 6 * Math.cbrt(Math.random()), a = Math.random() * Math.PI * 2, b = Math.acos(2 * Math.random() - 1);
@@ -981,31 +1024,27 @@ window.EarthStages = (() => {
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       const dust = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffc890, size: 0.06, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false }));
       api.root.add(dust);
-      const hot = new THREE.Mesh(new THREE.SphereGeometry(1.35, 64, 48),
-        new THREE.MeshBasicMaterial({ color: 0xff6a1a, transparent: true, opacity: 0 }));
+      const R = 1.35;
+      // 只画后半个球壳，前面的剖面才不会被挡住
+      const hot = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 48), new THREE.MeshBasicMaterial({ color: 0xff6a1a, transparent: true, opacity: 0, side: THREE.BackSide }));
       api.root.add(hot);
-      // 三层圈：地壳 / 地幔 / 地核
-      const LAYERS = [
-        ['🪨 地壳：最薄最硬的一层', 1.0, 0xd8c9a8],
-        ['🟠 地幔：滚烫的慢动作石头', 0.82, 0xff9a4a],
-        ['🟡 地核：铁做的，最热', 0.5, 0xffe06b],
-      ];
-      const layers = LAYERS.map(([name, r, c]) => {
-        const m = new THREE.Mesh(new THREE.SphereGeometry(r * 1.35, 48, 32),
-          new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0, wireframe: r !== 0.5 }));
-        const l = label(name, { h: 0.024 });
-        l.position.set(0, -1.35 * r - 0.25, 0);
-        l.visible = false;
-        api.root.add(m, l);
-        return { m, l };
+      // 剖面：真实比例的三层（地壳不到半径的 1%，这里加粗到 2% 才看得见）
+      const cutG = new THREE.Group();
+      cutG.position.z = R * 0.02;
+      const layerMat = c => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0 });
+      const mantle = new THREE.Mesh(new THREE.CircleGeometry(R * 0.98, 96), layerMat(0xe2702c));
+      const core = new THREE.Mesh(new THREE.CircleGeometry(R * 0.546, 96), layerMat(0xffd25a));
+      const crust = new THREE.Mesh(new THREE.RingGeometry(R * 0.98, R, 96), layerMat(0xe8dcc4));
+      core.position.z = 0.002; crust.position.z = 0.003;
+      cutG.add(mantle, core, crust);
+      api.root.add(cutG);
+      const tags = [['🪨 地壳：最外面薄薄一层', [R * 0.8, R * 0.95]], ['🟠 地幔：最厚的一层', [R * 0.25, R * 0.72]], ['🟡 地核：铁和镍，沉在中间', [0, -0.05]]].map(([t, [x, y]]) => {
+        const l = label(t, { h: 0.022 }); l.position.set(x, y, 0.2); l.visible = false; api.root.add(l); return l;
       });
       let t0 = 0;
-      api.live('46 亿年前，尘埃慢慢聚在一起。点“聚起来”');
+      api.live('46 亿年前，尘埃和小石块慢慢聚在一起。点“🔥 地球诞生”');
       return {
-        action() {
-          t0 = now();
-          layers.forEach(({ m, l }) => { m.material.opacity = 0; l.visible = false; });
-        },
+        action() { t0 = now(); },
         update(t, dt) {
           if (!t0) return;
           const s = (now() - t0) / 1000;
@@ -1015,15 +1054,13 @@ window.EarthStages = (() => {
             pos.set([p.dir.x * r, p.dir.y * r, p.dir.z * r], i * 3);
           });
           geo.attributes.position.needsUpdate = true;
+          dust.material.opacity = 0.8 * (1 - smooth(0.7, 1, k));
           hot.material.opacity = smooth(0.5, 1, k) * 0.95;
           hot.scale.setScalar(0.6 + 0.4 * k);
           const lk = ease(clamp((s - 5.5) / 2, 0, 1));
-          layers.forEach(({ m, l }, i) => {
-            const on = s > 5.5 + i * 0.5;
-            m.material.opacity = on ? (i === 2 ? 0.85 : 0.35) * lk : 0;
-            l.visible = on;
-          });
-          api.live(s < 5 ? `☄️ 尘埃聚在一起……变成一颗滚烫的地球（${Math.round(k * 100)}%）` : '🌡️ 热地球慢慢分成三层：地壳、地幔、地核');
+          [mantle, core, crust].forEach(m => { m.material.opacity = lk; });
+          tags.forEach((l, i) => { l.visible = s > 6 + i * 0.6; });
+          api.live(s < 5 ? `☄️ 尘埃和小石块撞在一起……变成一颗滚烫的地球（${Math.round(k * 100)}%）` : '🌡️ 重的铁沉到中间成了地核，轻的岩石浮在外面：分成了三层');
         },
       };
     };
@@ -1053,7 +1090,7 @@ window.EarthStages = (() => {
       moon.visible = false;
       api.root.add(moon);
       let t0 = 0;
-      api.live('很久很久以前，一颗行星撞上了年轻的地球。点“撞一下”');
+      api.live('科学家认为：很久以前，一颗和火星差不多大的行星撞上了年轻的地球。点“💥 模拟碰撞”');
       return {
         action() { t0 = now(); theia.visible = true; moon.visible = false; },
         update(t, dt) {
@@ -1099,36 +1136,50 @@ window.EarthStages = (() => {
 
     S.story_life = api => {
       hideSun();
-      api.fly([0, 0.3, 4.2]);
-      // 炽热地球 → 冷却出海洋 → 绿色生命：一个 shader  uniform 三段变化
-      const u = { day: { value: null }, heat: { value: 1 }, life: { value: 0 } };
+      api.fly([0, 0.3, 4.4]);
+      // 四个阶段：滚烫的火球 → 下雨成海、到处是水 → 海里出现看不见的小生命 → 今天的地球
+      const u = { day: { value: null }, spec: { value: null }, heat: { value: 1 }, ocean: { value: 0 }, life: { value: 0 }, today: { value: 0 }, time: { value: 0 } };
       const earth = new THREE.Mesh(new THREE.SphereGeometry(1.4, 96, 64), new THREE.ShaderMaterial({
         uniforms: u,
         vertexShader: 'varying vec2 vUv; varying vec3 vN; void main(){ vUv = uv; vN = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
         fragmentShader: `
-          uniform sampler2D day; uniform float heat, life;
+          uniform sampler2D day, spec; uniform float heat, ocean, life, today, time;
           varying vec2 vUv; varying vec3 vN;
+          float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+          float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+            return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), f.x), f.y); }
           void main(){
-            vec3 e = texture2D(day, vUv).rgb;
-            vec3 molten = vec3(1.0, 0.42, 0.1) * (0.6 + 0.4 * e.r);
-            vec3 cool = e * (1.0 + life * vec3(-0.2, 0.35, -0.2));   // 生命让大陆变绿
-            gl_FragColor = vec4(mix(molten, cool, heat), 1.0);
+            vec2 p = vUv * vec2(16.0, 8.0);
+            float n = noise(p) * 0.6 + noise(p * 2.7) * 0.4;
+            vec3 molten = mix(vec3(0.35, 0.06, 0.02), vec3(1.0, 0.45, 0.1), smoothstep(0.35, 0.8, n + 0.15 * sin(time * 0.6 + n * 9.0)));
+            // 早期地球：几乎全是海，只有零星的火山小岛（不是今天的大陆）
+            float island = smoothstep(0.78, 0.84, n);
+            vec3 sea = mix(vec3(0.05, 0.16, 0.32), vec3(0.42, 0.36, 0.3), island);
+            sea = mix(sea, sea * vec3(0.8, 1.25, 1.0) + vec3(0.0, 0.05, 0.02), life * (1.0 - island));   // 海里的微生物让海水微微泛绿
+            vec3 now_ = texture2D(day, vUv).rgb;
+            vec3 c = mix(molten, sea, ocean);
+            c = mix(c, now_, today);
+            float lit = 0.35 + 0.65 * max(dot(normalize(vN), normalize(vec3(-0.5, 0.4, 0.8))), 0.0);
+            gl_FragColor = vec4(c * mix(1.0, lit, ocean), 1.0);
           }`,
       }));
       loadTex('../textures/earth_daymap.jpg').then(t => { u.day.value = t; });
       api.root.add(earth);
-      let t0 = 0;
-      api.live('早期的地球是个滚烫的火球。点“慢慢变”');
+      const STEPS = [
+        { ocean: 0, life: 0, today: 0, text: '🌋 刚出生的地球：到处是滚烫的岩浆' },
+        { ocean: 1, life: 0, today: 0, text: '🌧️ 地球慢慢变凉，下了很久很久的雨，几乎到处都是海洋' },
+        { ocean: 1, life: 1, today: 0, text: '🦠 大约 35 亿年前，海里出现了最早的小生命，小得眼睛看不见' },
+        { ocean: 1, life: 1, today: 1, text: '🌍 又过了 30 多亿年，才有了陆地上的植物；大陆也一直在慢慢移动，变成今天的样子' },
+      ];
+      let step = 0;
+      api.live(`${STEPS[0].text}。点“🌱 看变化”`);
       return {
-        action() { t0 = now(); },
+        action() { step = (step + 1) % STEPS.length; api.live(STEPS[step].text); },
         update(t, dt, rawDt) {
           earth.rotation.y += dt * 0.08;
-          const f = 1 - Math.exp(-rawDt * 0.8);
-          if (!t0) return;
-          const s = (now() - t0) / 1000;
-          u.heat.value += ((s < 4 ? 0 : clamp((s - 4) / 5, 0, 1)) - u.heat.value) * f;
-          u.life.value += ((s < 8 ? 0 : clamp((s - 8) / 4, 0, 1)) - u.life.value) * f;
-          api.live(s < 4 ? '🌡️ 火球慢慢冷却下来……' : s < 8 ? '🌊 水汽凝结，下起大雨，海洋出现了' : u.life.value > 0.9 ? '🦠 海洋里出现了最早的生命！' : '🦠 生命正在海洋里悄悄出现……');
+          u.time.value = t / 1000;
+          const f = 1 - Math.exp(-rawDt * 1.2);
+          ['ocean', 'life', 'today'].forEach(k => { u[k].value += (STEPS[step][k] - u[k].value) * f; });
         },
       };
     };
@@ -1203,7 +1254,7 @@ window.EarthStages = (() => {
       api.root.add(ship);
       let t0 = 0;
       const TRIP = 14;                  // 14 秒演示三年的航行
-      api.live('500 多年前，麦哲伦船队从西班牙出发。点“出发”');
+      api.live('500 多年前，麦哲伦船队从西班牙出发。点“⛵ 出发”');
       return {
         action() { t0 = now(); done.geometry.setDrawRange(0, 0); },
         update(t, dt) {
@@ -1222,28 +1273,35 @@ window.EarthStages = (() => {
 
     S.probe_apollo = api => {
       hideSun();
-      api.fly([0, 0.4, 6.5]);
-      lights(api.root, [-4, 2, 5], 0.45);
-      const moon = ball(1.1, '../textures/moon.jpg', { lit: true });
-      moon.position.set(-3.4, -0.3, 0);
-      const earth = ball(0.5, '../textures/earth_daymap.jpg', { lit: true });
-      earth.position.set(3.2, 0.6, 0);
-      api.root.add(moon, earth);
-      // 阿波罗 17 号拍的照片「蓝色弹珠」（assets/photos/blue-marble.jpg）
-      const photo = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), withTex(new THREE.MeshBasicMaterial({ transparent: true }), 'assets/photos/blue-marble.jpg'));
-      photo.position.set(0, 0.3, -1.2);
+      api.fly([0, 0.4, 7]);
+      lights(api.root, [1, 1, 6], 0.25);   // 太阳在宇航员身后，所以地球几乎整个被照亮
+      // 真实比例：地球直径约是月球的 3.7 倍。宇航员离地球近、离月球远
+      const earth = ball(0.9, '../textures/earth_daymap.jpg', { lit: true });
+      earth.position.set(-2.4, 0.2, 0);
+      const moon = ball(0.9 * MOON_D, '../textures/moon.jpg', { lit: true });
+      moon.position.set(3.6, 0.5, -3);
+      const ship = satellite(0xdddddd);
+      ship.scale.setScalar(1.6);
+      ship.position.set(0.9, -0.2, 1.2);
+      ship.lookAt(earth.position);
+      const tagE = label('地球', { h: 0.024 }), tagM = label('月球（还很远）', { h: 0.024 }), tagS = label('阿波罗 17 号', { h: 0.022 });
+      tagE.position.set(-2.4, -0.95, 0); tagM.position.set(3.6, 0.05, -3); tagS.position.set(0.9, -0.55, 1.2);
+      api.root.add(earth, moon, ship, tagE, tagM, tagS);
+      const photo = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4), withTex(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }), 'assets/photos/blue-marble.jpg'));
+      photo.position.set(0.4, 0.4, 2.6);
       api.root.add(photo);
-      const tag = label('📷 蓝色弹珠 · 阿波罗 17 号 · 1972 年', { h: 0.026 });
-      tag.position.set(0, -1.35, -1.2);
-      api.root.add(tag);
       let t0 = 0;
-      api.live('宇航员在飞向月球的路上回头拍下了整张地球。点“拍照片”');
+      api.live('1972 年，阿波罗 17 号在飞往月球的路上回头看地球。点“📷 看地球”');
       return {
-        action() { t0 = now(); api.fly([0, 0.35, 2.6], [0, 0.35, -1.2], 3000); },   // 镜头凑近照片
+        action() { t0 = now(); api.fly([0.4, 0.4, 7.2], [0.4, 0.4, 2.6], 2500); },
         update(t, dt) {
           earth.rotation.y += dt * 0.12;
           moon.rotation.y += dt * 0.03;
-          if (t0 && now() - t0 > 3000) api.live('🔵 小小的蓝色圆球悬浮在黑色太空里 —— 这就是我们的家');
+          if (t0) {
+            photo.material.opacity = smooth(1500, 2800, now() - t0);
+            [tagE, tagM, tagS].forEach(l => { l.visible = photo.material.opacity < 0.5; });
+            if (now() - t0 > 2800) api.live('🔵 这就是宇航员拍下的真实照片“蓝色弹珠”：小小的蓝色地球飘在黑黑的太空里');
+          }
         },
       };
     };
@@ -1259,9 +1317,9 @@ window.EarthStages = (() => {
       api.root.add(sun, earth);
       // 空间站 + 卫星在不同高度的轨道上绕地球
       const SATS = [
-        { name: '空间站', color: 0xffffff, r: 1.55, speed: 0.9, tilt: 0.35 },
-        { name: '气象卫星', color: 0x6fd0ff, r: 2.1, speed: 0.55, tilt: 1.2 },
-        { name: '导航卫星', color: 0xffc86b, r: 2.7, speed: 0.4, tilt: -0.6 },
+        { name: '空间站', color: 0xffffff, r: 1.55, speed: 0.9, tilt: 0.9 },
+        { name: '北斗导航卫星', color: 0xffc86b, r: 2.4, speed: 0.3, tilt: -0.96 },
+        { name: '静止气象卫星', color: 0x6fd0ff, r: 3.0, speed: 0.12, tilt: 0 },   // 和地球自转一样快，所以一直停在同一个地方上空
       ];
       const list = SATS.map(s => {
         const g = satellite(s.color);
@@ -1277,7 +1335,7 @@ window.EarthStages = (() => {
         return { g, s, a: 0 };
       });
       let t0 = 0;
-      api.live('空间站离地面约 400 公里（大小和距离都压缩了），绕一圈约 90 分钟。点“看一圈”');
+      api.live('空间站离地面约 400 公里，绕一圈约 90 分钟（大小和距离都压缩了）。点“🛰️ 绕一圈”');
       return {
         action() { t0 = now(); list.forEach(o => { o.a = 0; }); },
         update(t, dt) {
