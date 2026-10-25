@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0a08">
+  <meta name="description" content="用 Cassini 与 Juno 的真实观测拼成 3D 木星：看条纹和大红斑，探索气态内部、卫星与探测任务。">
+  <title>真实的木星 · 智天的宇宙</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cellipse cx='20' cy='20' rx='16' ry='14' fill='%23c99a6a'/%3E%3Cpath d='M5 16h30v5H5z' fill='%23eee0c8'/%3E%3Cpath d='M7 26h26v3H7z' fill='%238c5d45'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.loli.net">
+  <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
+  <link rel="preload" as="image" href="assets/textures/jupiter-8k.jpg" media="(pointer: fine)" fetchpriority="high" crossorigin>
+  <link rel="preload" as="image" href="assets/textures/jupiter-4k.jpg" media="(pointer: coarse)" fetchpriority="high" crossorigin>
+  <link rel="stylesheet" href="../explorer/explorer.css?v=jupiter10">
+  <style>
+    .narration-source { position: fixed; z-index: 12; right: 18px; top: 72px; color: rgba(235,224,211,.68); font-size: 11px; pointer-events: none; }
+    @media (max-width: 640px) { .narration-source { top: 58px; right: 10px; font-size: 9px; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-label="可以拖动和缩放的扁球形 3D 木星"></canvas>
+
+  <div id="look-panel" hidden>
+    <nav class="dock" aria-label="观察木星">
+      <button class="lens active" data-mode="visible" style="--lens:#e2bc8b"><i></i><span>普通看看</span></button>
+      <button class="lens" data-mode="spot" style="--lens:#d87958"><i></i><span>大红斑</span></button>
+      <span class="dock-gap"></span>
+      <button class="action" id="btn-winds"><b>💨</b><span>条纹的风</span></button>
+      <button class="action" id="btn-rotate"><b>🔄</b><span>转一天</span></button>
+      <button class="action" id="btn-zoom"><b>🔍</b><span>凑近看</span></button>
+    </nav>
+    <button id="btn-flat" class="ask">❓ 木星为什么有点扁？</button>
+  </div>
+  <div id="narration-source" class="narration-source" aria-live="polite"></div>
+
+  <dialog id="parent" class="parent">
+    <form method="dialog"><button class="close" aria-label="关闭">✕</button></form>
+    <h2>家长看</h2>
+    <p class="lead">九格知识地图都已开放，“闯关复习”进入网站原有的“木星探险家”。每个知识点有动手按钮和“考考我”，星星只保存在这台设备上。</p>
+
+    <h3>六个知识模块（共 24 个知识点）</h3>
+    <ul class="facts">
+      <li><b>有多大多重</b>：赤道直径比约 11.21、体积比约 1321、质量比约 317.83、云顶重力比较、阳光约 43 分钟。</li>
+      <li><b>怎么动</b>：约 9.925 小时自转、约 11.862 年公转、轴倾角 3.13°、伽利略卫星共振与潮汐锁定。</li>
+      <li><b>会发生什么</b>：南半球的大红斑、相邻喷流与闪电、两极紫外极光、1994 年 SL9 撞击。</li>
+      <li><b>和我们的关系</b>：引力改变小天体轨道、肉眼与小望远镜观察、木卫二冰下海洋的可能。</li>
+      <li><b>一生的故事</b>：核心吸积、大迁移假说、太阳成为红巨星后的可能命运，均不把假说说成定论。</li>
+      <li><b>谁去研究过</b>：伽利略、先驱者、旅行者、伽利略号、朱诺号、JUICE、欧罗巴快船和计划中的天问四号。</li>
+    </ul>
+    <p class="lead">大小、距离和时间压缩的场景会在卡片里说明。体重比较的是秤的读数：采用 NASA 1 bar 赤道视重 23.12 / 9.78 ≈ 2.364 倍，区别于未计自转的平均重力比 2.640。木星不是“失败的恒星”：要再重约 80 倍才可能点燃核聚变。当前 NASA 卫星页列出 115 颗已获 IAU 承认的卫星，新发现仍会改变数字。</p>
+
+    <h3>长什么样：真实观测拼成的全球图</h3>
+    <p class="lead">主图是 Björn Jónsson 的 14400×7200 简单圆柱投影地图：中低纬来自 2000 年 Cassini，极区来自 Juno JunoCam/JIRAM 多次观测。它是跨时间的合成图，不是同一时刻的照片；网页处理为电脑 8K、手机 4K。球体按赤道/极半径比例压扁，代码负责光照和交互。</p>
+
+    <h3>里面是什么：没有地面的渐变世界</h3>
+    <p class="lead">木星没有固体地面。内部边界、温度和剖面颜色均为近似科学模型，不能把分界画成坚硬的壳。朱诺观测支持“稀释/模糊核心”，而不是一个边界清楚的铁球。</p>
+    <table>
+      <tr><th>区域</th><th>近似位置</th><th>讲解</th></tr>
+      <tr><td>从太空看上层大气</td><td>约 0.1 bar</td><td>约 -161℃ 的气体代表温度，不是真空的“气温”</td></tr>
+      <tr><td>氨云云顶</td><td>约 1 bar</td><td>约 -108℃，可见条纹来自云</td></tr>
+      <tr><td>更深大气</td><td>云顶以下</td><td>可能有水云和闪电，温度压力上升</td></tr>
+      <tr><td>液态分子氢</td><td>约 0.95～0.8 R</td><td>气体逐渐变成液体，没有海岸</td></tr>
+      <tr><td>液态金属氢</td><td>约 0.8 R 向内</td><td>氢能导电，与强磁场有关</td></tr>
+      <tr><td>稀释核心</td><td>中心区域</td><td>部分溶解、边界模糊，不是硬球</td></tr>
+    </table>
+
+    <h3>木星名片</h3>
+    <ul class="facts">
+      <li>赤道半径 71,492 km，极半径 66,854 km，体积平均半径 69,911 km。</li>
+      <li>自转约 9 小时 56 分；公转约 11.862 个地球年；轴倾角约 3.13°。</li>
+      <li>大红斑在南纬约 22°，是反气旋，从北极上空看逆时针，近年约 1.3 个地球宽。</li>
+      <li>朱诺号 2016 年进入木星极轨，2026 年 NASA 仍在发布它的新观测；任务团队计划继续探测到 2028 年。JUICE 和欧罗巴快船正分别预计于 2031、2030 年抵达。</li>
+    </ul>
+    <p class="credit">主图：NASA/JPL-Caltech/SSI/SwRI/MSSS/ASI/INAF/JIRAM/Björn Jónsson（CC BY 3.0）。其他照片、艺术图和许可详见 CREDITS.md。</p>
+  </dialog>
+
+  <script src="../explorer/vendor/three.min.js"></script>
+  <script src="../explorer/vendor/OrbitControls.js"></script>
+  <script src="../explorer/vendor/CopyShader.js"></script>
+  <script src="../explorer/vendor/LuminosityHighPassShader.js"></script>
+  <script src="../explorer/vendor/EffectComposer.js"></script>
+  <script src="../explorer/vendor/RenderPass.js"></script>
+  <script src="../explorer/vendor/ShaderPass.js"></script>
+  <script src="../explorer/vendor/UnrealBloomPass.js"></script>
+  <script src="../explorer/engine.js?v=jupiter10"></script>
+  <script src="../explorer/dive.js?v=jupiter10"></script>
+  <script src="../explorer/stage.js?v=jupiter10"></script>
+  <script src="narration.js?v=jupiter10"></script>
+  <script src="jupiter-data.js?v=jupiter10"></script>
+  <script src="jupiter-look.js?v=jupiter10"></script>
+  <script src="jupiter-size-motion.js?v=jupiter10"></script>
+  <script src="jupiter-explore.js?v=jupiter10"></script>
+  <script src="jupiter-stages.js?v=jupiter10"></script>
+  <script>Explorer.start({ body: window.BODY, setup: ctx => JupiterLook.setup(ctx).then(() => JupiterStages.setup(ctx)) });</script>
+</body>
+</html>

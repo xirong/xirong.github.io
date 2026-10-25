@@ -2,7 +2,7 @@
 
 > 要做新星球？先读 [PLANET-GUIDE.md](PLANET-GUIDE.md)：做法、检查流程、地球页踩过的坑、木星方案。
 
-太阳、行星、卫星的 3D 知识页面共用这套引擎。现有用户是 `../sun-3d/` 和 `../earth-3d/`。
+太阳、行星、卫星的 3D 知识页面共用这套引擎。现有用户是 `../sun-3d/`、`../earth-3d/` 和 `../jupiter-3d/`。
 
 ## 每个星球页面由什么组成
 
@@ -65,6 +65,8 @@ dive: {
   ],
   interior: [ { id, r0, r1, c0, c1, pattern } ],   // 1 岩石对流 / 2 辐射 / 3 核聚变 / 4 液态外核对流 / 0 素色
 }
+// BODY.flatten 可选：气态巨行星的极半径/赤道半径；省略或为 1 时是球形剖面
+// dive.thermoMax 可选：温度计顶端刻度；省略时为 18,000,000℃
 ```
 
 旁白 key：`map`、`soon`、`look`、`dive_intro`、每站的 `dive_<站 id>`、`quiz_right`、`quiz_try`，以及每个场景的 `<场景 id>`、`<场景 id>_<按钮 id>`、`q_<场景 id>`。

@@ -36,7 +36,7 @@ Explorer.registerModule('stage', (ctx, item) => {
       <p class="stage-sub"></p>
       <h2 class="stage-title"></h2>
       <p class="stage-text"></p>
-      <figure class="stage-photo" hidden><img alt=""><figcaption></figcaption></figure>
+      <figure class="stage-photo" hidden><img alt="" loading="lazy" fetchpriority="low" decoding="async"><figcaption></figcaption></figure>
       <div class="stage-extra"></div>
       <p class="stage-live"></p>
       <div class="stage-slider" hidden><label><span></span><input type="range"></label><b></b></div>
@@ -105,6 +105,7 @@ Explorer.registerModule('stage', (ctx, item) => {
     controls.maxDistance = 80;
     api.live('');
     api.extra('');
+    $('.stage-card').scrollTop = 0;   // 切换知识点后从标题开始读，不继承上一张卡片的滚动位置
 
     $('.stage-sub').textContent = sc.sub || '';
     $('.stage-title').textContent = sc.title;

@@ -8,6 +8,8 @@ Explorer.registerModule('dive', ctx => {
   'use strict';
   const { camera, controls, cut, say, body } = ctx;
   const { stops, interior } = body.dive;
+  const thermoTop = body.dive.thermoMax || 18000000;
+  cut.frame.scale.set(1, body.flatten || 1, 1);   // 气态巨行星的扁球剖面；太阳和地球默认为 1
   const N = stops.length;
   const ELEV = 13;   // 默认镜头抬高的角度（度），略微从上往下看，能看见剖面上的一圈圈
   const openFrom = stops.findIndex(s => s.open) - 1;  // 从这一站往下开始剖开
@@ -225,7 +227,7 @@ Explorer.registerModule('dive', ctx => {
   // 温度计用对数刻度，兼容太空低温、行星表面与恒星核心的巨大温差
   function thermoFrac(t) {
     if (t <= 0) return 0.02;
-    return THREE.MathUtils.clamp((Math.log10(t) - 3) / (7.25 - 3), 0.06, 1);
+    return THREE.MathUtils.clamp((Math.log10(t) - 3) / (Math.log10(thermoTop) - 3), 0.06, 1);
   }
 
   // ============ 镜头路径 ============
