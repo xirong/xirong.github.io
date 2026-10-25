@@ -9,7 +9,8 @@ window.EarthLook = (() => {
   function setup(ctx) {
     const { scene, camera, controls, bloom, loadTex, say } = ctx;
     camera.position.set(0.35, 0.5, HOME_DIST).setLength(HOME_DIST);
-    const sunDir = new THREE.Vector3(-0.65, 0.35, 0.7).normalize();
+    const SUN_HOME = new THREE.Vector3(-0.65, 0.35, 0.7).normalize();
+    const sunDir = SUN_HOME.clone();
     const earth = new THREE.Group();
     earth.rotation.z = THREE.MathUtils.degToRad(-23.5);
     scene.add(earth);
@@ -161,7 +162,7 @@ window.EarthLook = (() => {
     scene.add(atmosphere);
 
     // ============ 模块与观察按钮 ============
-    let mode = 'day', fast = false, cloudsOn = true, hidden = false, closeTriggered = false;
+    let mode = 'day', fast = false, cloudsOn = true, hidden = false, closeTriggered = false, spin = true;
     function switchMode(next, { move = false } = {}) {
       mode = next;
       document.querySelectorAll('.lens').forEach(b => b.classList.toggle('active', b.dataset.mode === next));
@@ -197,8 +198,15 @@ window.EarthLook = (() => {
       },
       textures: TEX,
       setRotateDemo(on) { toggleRotate(on, true); },
+      // 给场景模块用：在真实地球上标地点、调太阳方向、停住自转、收起云层
+      surface,
+      setSpin(on) { spin = on; },
+      setSunDir(v) { sunDir.copy(v).normalize(); },
+      setClouds(on) { clouds.visible = on && !hidden; uniforms.cloudShadow.value = on ? 1 : 0; },
       reset() {
         this.setVisible(true);
+        spin = true;
+        sunDir.copy(SUN_HOME);
         toggleRotate(false, true);
         switchMode('day');
         cloudsOn = true;
@@ -238,7 +246,7 @@ window.EarthLook = (() => {
     }));
 
     ctx.onFrame((now, dt) => {
-      surface.rotation.y += dt * (fast ? 1.25 : 0.035);
+      if (spin) surface.rotation.y += dt * (fast ? 1.25 : 0.035);
       clouds.rotation.y = surface.rotation.y + now / 1000 * 0.004;   // 云跟着地球转，自己再慢慢往东飘
       uniforms.cloudShift.value = (surface.rotation.y - clouds.rotation.y) / (Math.PI * 2);
       bloom.strength = 0.24;

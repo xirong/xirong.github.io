@@ -101,6 +101,32 @@ window.EarthStages = (() => {
       const a = (lon + 180) / 360 * Math.PI * 2, b = lat * Math.PI / 180;
       return V(-Math.cos(a) * Math.cos(b) * r, Math.sin(b) * r, Math.sin(a) * Math.cos(b) * r);
     }
+    // 在真实的主地球上做场景（高清贴图、云、大气都是同一套）：停住自转，挂上去的东西退出时摘掉
+    function mainEarth(api) {
+      const h = ctx.hooks.sun, surface = h.surface, attached = [];
+      h.setSpin(false);
+      surface.updateMatrixWorld(true);
+      return {
+        surface,
+        // 某个经纬度在世界坐标里的位置，以及那里的“上、东、北”方向
+        point(lon, lat) {
+          const pos = surface.localToWorld(lonLat(lon, lat, 1));
+          const normal = pos.clone().normalize();
+          const east = lonLat(lon + 0.5, lat, 1).sub(lonLat(lon - 0.5, lat, 1)).transformDirection(surface.matrixWorld);
+          return { pos, normal, east, north: normal.clone().cross(east).normalize() };
+        },
+        sun: v => h.setSunDir(v),
+        clouds: on => h.setClouds(on),
+        attach(o) { surface.add(o); attached.push(o); },
+        done() {
+          attached.forEach(o => {
+            surface.remove(o);
+            o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); });
+          });
+          h.setSpin(true);
+        },
+      };
+    }
     // 人造卫星（卫星与空间站共用的小模型）
     function satellite(color = 0xd8b04a) {
       const g = new THREE.Group();
@@ -636,46 +662,62 @@ window.EarthStages = (() => {
     };
 
     S.act_typhoon = api => {
-      hideSun();
-      api.fly([0, 6.5, 8], [0, 0, 0]);
-      // 海面
-      const sea = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x14507d, roughness: 0.6 }));
-      sea.rotation.x = -Math.PI / 2;
-      api.root.add(sea, new THREE.AmbientLight(0xffffff, 0.5));
-      // 螺旋云带：一群软软的白点排成旋臂，绕着风眼转
-      const N = 900, pos = new Float32Array(N * 3), seeds = [];
-      for (let i = 0; i < N; i++) seeds.push({ r: 0.7 + Math.random() * 3.6, arm: i % 3, w: 0.9 + Math.random() * 0.3, j: (Math.random() - .5) * 0.5 });
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const clouds = new THREE.Points(geo, new THREE.PointsMaterial({
-        map: glowTex, color: 0xffffff, size: 0.5, transparent: true, opacity: 0.8, depthWrite: false,
+      // 在真实地球上看台风：贴的是 NASA Aqua 卫星从正上方拍的超强台风“苏迪罗”（2015-08-04）
+      const E = mainEarth(api);
+      E.clouds(false);
+      const place = E.point(140, 17);
+      E.sun(place.normal);                                   // 正午，太阳在头顶
+      api.fly(place.pos.clone().multiplyScalar(1.85).toArray(), place.pos.toArray(), 2200);
+      const decal = new THREE.Group();
+      decal.position.copy(lonLat(140, 17, 1.012));
+      decal.quaternion.setFromUnitVectors(V(0, 0, 1), lonLat(140, 17, 1).normalize());
+      const u = { map: { value: null } };
+      const photo = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), new THREE.ShaderMaterial({
+        uniforms: u, transparent: true, depthWrite: false,
+        vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        fragmentShader: `
+          uniform sampler2D map; varying vec2 vUv;
+          void main(){
+            vec3 c = texture2D(map, vUv).rgb;
+            float lum = dot(c, vec3(0.3, 0.59, 0.11));
+            float r = length(vUv - 0.5);
+            float a = smoothstep(0.32, 0.72, lum) * (1.0 - smoothstep(0.34, 0.5, r));   // 只留下云，海面透出真实地球
+            gl_FragColor = vec4(c * 1.05, a);
+          }`,
       }));
-      clouds.rotation.x = -Math.PI / 2;
-      api.root.add(clouds);
-      const eye = glow(0x9fd0ff, 0.9, { strength: 0.9 });
-      eye.position.y = 0.15;
-      api.root.add(eye);
-      // 真实台风卫星照片（assets/photos/hurricane.jpg）
-      const photo = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 2.8), withTex(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.95 }), 'assets/photos/hurricane.jpg'));
-      photo.position.set(4.2, 2.6, -1.5);
-      photo.rotation.y = -0.5;
-      const ptag = label('卫星拍的真实台风', { h: 0.024 });
-      ptag.position.set(4.2, 0.9, -1.5);
-      api.root.add(photo, ptag);
-      let a = 0, fast = 0;
-      api.live('北半球的台风从上往下看是逆时针转的。点“🌀 转起来”');
+      loadTex('assets/textures/typhoon-decal.jpg').then(t => { u.map.value = t; });
+      const spinner = new THREE.Group();
+      spinner.add(photo);
+      // 逆时针的箭头：一圈弧线 + 三个小三角
+      const arrows = new THREE.Group();
+      const arcMat = new THREE.MeshBasicMaterial({ color: 0xffd76b, transparent: true, opacity: 0.85, depthWrite: false });
+      [0, 1, 2].forEach(i => {
+        const arc = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.004, 6, 32, Math.PI * 0.45), arcMat);
+        arc.rotation.z = i * Math.PI * 2 / 3;
+        const tip = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.03, 8), arcMat);
+        const a = i * Math.PI * 2 / 3 + Math.PI * 0.45;
+        tip.position.set(Math.cos(a) * 0.2, Math.sin(a) * 0.2, 0);
+        tip.rotation.z = a;                                   // 尖头沿逆时针方向
+        arrows.add(arc, tip);
+      });
+      arrows.position.z = 0.004;
+      arrows.visible = false;
+      decal.add(spinner, arrows);
+      E.attach(decal);
+      const tag = label('台风 · 风眼在中间', { h: 0.024 });
+      tag.position.copy(lonLat(140, 26, 1.03));
+      E.attach(tag);
+      let fast = 0;
+      api.live('NASA 卫星从正上方拍到的真实台风。点“🌀 转起来”');
       return {
-        action() { fast = now(); },
+        action() { fast = now(); arrows.visible = true; },
         update(t, dt) {
-          a += dt * (now() - fast < 6000 ? 2.4 : 0.7);
-          seeds.forEach((sd, i) => {
-            const th = sd.arm * (Math.PI * 2 / 3) - sd.r * 1.9 + a * sd.w;   // 北半球台风从上往下看是逆时针转
-            const rr = sd.r + sd.j;
-            pos.set([Math.cos(th) * rr, Math.sin(th) * rr, 0.2 + sd.j * 0.4], i * 3);
-          });
-          geo.attributes.position.needsUpdate = true;
-          api.live(now() - fast < 6000 ? '🌀 转得好快！中间的风眼反而很平静' : '🌀 台风一直在转：里面的云被甩成一条条旋臂');
+          const quick = now() - fast < 7000;
+          spinner.rotation.z += dt * (quick ? 0.6 : 0.05);    // 从上往下看逆时针
+          arrows.rotation.z += dt * (quick ? 0.6 : 0.05);
+          if (fast) api.live(quick ? '🌀 北半球的台风逆时针转：风绕着风眼往里吹，中间的风眼反而很平静' : '台风一边转，一边慢慢往西北方向移动');
         },
+        exit: E.done,
       };
     };
 
@@ -812,96 +854,103 @@ window.EarthStages = (() => {
     };
 
     S.life_land = api => {
-      hideSun();
-      api.fly([0, 2.6, 8], [0, -0.4, 0]);
-      lights(api.root, [3, 6, 5], 0.55);
-      // 三种地表并排：山地 / 平原 / 沙漠
-      const ground = new THREE.Mesh(new THREE.BoxGeometry(10, 0.4, 3), new THREE.MeshStandardMaterial({ color: 0x5d7d46, roughness: 1 }));
-      ground.position.y = -0.2;
-      api.root.add(ground);
-      const snowMat = new THREE.MeshStandardMaterial({ color: 0xf0f4f8, roughness: 0.8 });
-      [[-1.9, 0.9, 1.6], [-3.4, 1.3, 2.1], [-0.6, 0.7, 1.2]].forEach(([x, h, r]) => {
-        const mtn = new THREE.Mesh(new THREE.ConeGeometry(r * 0.55, h, 4), new THREE.MeshStandardMaterial({ color: 0x7d6a55, roughness: 1, flatShading: true }));
-        mtn.position.set(x, h / 2, -0.4);
-        mtn.rotation.y = Math.random() * 3;
-        const cap = new THREE.Mesh(new THREE.ConeGeometry(r * 0.22, h * 0.35, 4), snowMat);
-        cap.position.set(x, h * 0.82, -0.4);
-        cap.rotation.y = mtn.rotation.y;
-        api.root.add(mtn, cap);
-      });
-      const desert = new THREE.Mesh(new THREE.CircleGeometry(1.5, 32), new THREE.MeshStandardMaterial({ color: 0xd8b56a, roughness: 1 }));
-      desert.rotation.x = -Math.PI / 2;
-      desert.position.set(3.2, 0.01, -0.4);
-      api.root.add(desert);
-      [[2.4, 0.3], [3.6, -0.9], [4.1, 0.5], [2.9, 1]].forEach(([x, z]) => {
-        const dune = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 12), new THREE.MeshStandardMaterial({ color: 0xe0c078, roughness: 1 }));
-        dune.scale.y = 0.45;
-        dune.position.set(x, 0.05, z - 0.4);
-        api.root.add(dune);
-      });
-      const earth = ball(0.55, 'assets/textures/day-4k.jpg', { lit: true });
-      earth.position.set(0, 2.2, -1.2);
-      api.root.add(earth);
-      const LANDS = [
-        { name: '⛰️ 山地', pos: [-2, 1.7, -0.4], view: [[-2, 1.8, 4.5], [-2, 0.4, -0.4]] },
-        { name: '🌾 平原', pos: [0.6, 0.8, 0.6], view: [[0.6, 1.4, 4.5], [0.6, 0, 0]] },
-        { name: '🏜️ 沙漠', pos: [3.2, 1.1, -0.4], view: [[3.2, 1.6, 4], [3.2, 0.2, -0.4]] },
+      // 飞到真实地球上的几个地方：低低的太阳斜照，山脉的起伏才看得清
+      const E = mainEarth(api);
+      E.clouds(false);
+      const PLACES = [
+        { name: '⛰️ 喜马拉雅山脉', lon: 86.9, lat: 28.0, alt: 0.32, text: '世界上最高的山脉，珠穆朗玛峰高 8,849 米，山顶有积雪' },
+        { name: '🏜️ 撒哈拉沙漠', lon: 13, lat: 23, alt: 0.45, text: '世界上最大的热沙漠，黄黄的一大片，很少下雨' },
+        { name: '🌳 亚马孙雨林', lon: -62, lat: -4, alt: 0.45, text: '世界上最大的热带雨林，深绿色，住着好多动物和植物' },
+        { name: '🌾 华北平原', lon: 116, lat: 36, alt: 0.3, text: '又平又宽的平原，适合种庄稼，北京就在它的北边' },
+        { name: '🧊 南极冰盖', lon: 40, lat: -78, alt: 0.5, text: '白白的冰盖，平均有约 2 千米厚，是地球上最冷的地方' },
       ];
-      const tags = LANDS.map(l => { const t = label(l.name); t.position.set(...l.pos); t.visible = false; api.root.add(t); return t; });
-      let step = -1;
-      api.live('地球表面有各种各样的样子。点“看一看”');
+      let step = -1, cur = null;
+      const go = () => {
+        const p = PLACES[step], pt = E.point(p.lon, p.lat);
+        E.sun(pt.normal.clone().multiplyScalar(0.45).add(pt.east.clone().multiplyScalar(0.9)));   // 早晨的太阳从东边斜照
+        api.fly(pt.pos.clone().multiplyScalar(1 + p.alt).add(pt.north.clone().multiplyScalar(-p.alt * 0.6)).toArray(), pt.pos.toArray(), 2200);
+        if (cur) cur.parent.remove(cur);
+        cur = label(p.name, { h: 0.026 });
+        cur.position.copy(lonLat(p.lon, p.lat + 4, 1.02));
+        E.attach(cur);
+        api.live(`${p.name}：${p.text}`);
+      };
+      api.fly([0, 0.4, 3.6]);
+      api.live('陆地上有高山、沙漠、森林、平原，还有冰盖。点“✈️ 飞过去看”');
       return {
-        action() {
-          step = (step + 1) % LANDS.length;
-          tags.forEach((t, i) => { t.visible = i === step; });
-          api.fly(...LANDS[step].view, 1500);
-          api.live(`👀 这是${LANDS[step].name.replace(/^.\s/, '')}`);
-        },
+        action() { step = (step + 1) % PLACES.length; go(); },
+        exit: E.done,
       };
     };
 
     S.life_air = api => {
       hideSun();
-      api.fly([0, 0.3, 4.6]);
-      // 大气层：地球 + 一圈淡淡的蓝边；太阳低时边缘变红（晚霞）
-      const u = { sunH: { value: 1 }, day: { value: null } };
-      const earth = new THREE.Mesh(new THREE.SphereGeometry(1.3, 96, 64), new THREE.ShaderMaterial({
-        uniforms: u,
-        vertexShader: 'varying vec2 vUv; varying vec3 vN; varying vec3 vWorld; void main(){ vUv = uv; vN = normalize(mat3(modelMatrix) * normal); vec4 wp = modelMatrix * vec4(position, 1.0); vWorld = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }',
+      // 站在地面上看天空：太阳高时天是蓝的，太阳快落山时变成橙红的晚霞
+      const sunDir = V(0, 0.8, -1).normalize();
+      const u = { sunDir: { value: sunDir } };
+      const sky = new THREE.Mesh(new THREE.SphereGeometry(60, 64, 32), new THREE.ShaderMaterial({
+        uniforms: u, side: THREE.BackSide, depthWrite: false,
+        vertexShader: 'varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
         fragmentShader: `
-          uniform sampler2D day; uniform float sunH;
-          varying vec2 vUv; varying vec3 vN; varying vec3 vWorld;
+          uniform vec3 sunDir; varying vec3 vDir;
           void main(){
-            vec3 c = texture2D(day, vUv).rgb;
-            // 边缘 = 法线和视线的夹角，镜头怎么拖都对
-            float rim = pow(1.0 - clamp(dot(normalize(vN), normalize(cameraPosition - vWorld)), 0.0, 1.0), 2.2);
-            // 大气边缘：太阳高时是蓝光（瑞利散射），太阳低时变红（晚霞）
-            vec3 sky = mix(vec3(1.0, 0.38, 0.15), vec3(0.35, 0.62, 1.0), clamp(sunH, 0.0, 1.0));
-            gl_FragColor = vec4(c + sky * rim * 0.9, 1.0);
+            vec3 v = normalize(vDir);
+            float e = sunDir.y;                                  // 太阳高度
+            float sunset = 1.0 - smoothstep(0.02, 0.4, e);       // 太阳越低越像晚霞
+            float mu = max(dot(v, sunDir), 0.0);
+            float up = pow(max(v.y, 0.0), 0.45);
+            vec3 zenith = mix(vec3(0.16, 0.42, 0.95), vec3(0.12, 0.17, 0.42), sunset);
+            vec3 horizonFar = mix(vec3(0.72, 0.85, 1.0), vec3(0.45, 0.36, 0.62), sunset);
+            vec3 horizonSun = mix(vec3(0.85, 0.92, 1.0), vec3(1.0, 0.42, 0.12), sunset);
+            vec3 horizon = mix(horizonFar, horizonSun, pow(mu, 3.0));
+            vec3 c = mix(horizon, zenith, up);
+            c += vec3(1.0, 0.85, 0.6) * pow(mu, 300.0) * 3.0 + mix(vec3(1.0, 0.9, 0.7), vec3(1.0, 0.5, 0.2), sunset) * pow(mu, 12.0) * 0.35;
+            c *= 0.25 + 0.75 * smoothstep(-0.12, 0.05, e);
+            gl_FragColor = vec4(c, 1.0);
           }`,
       }));
-      loadTex('assets/textures/day-4k.jpg').then(t => { u.day.value = t; });
-      const sun = sunBall(0.5);
-      const sunSprite = glow(0xffe9b0, 2, { strength: 1.2 });
-      api.root.add(earth, sun, sunSprite);
-      let sunset = false;
-      const place = k => {
-        // k=1 太阳在头顶，k=0 落到地平线上
-        sun.position.set(-4.2, 0.3 + k * 3.2, -1);
-        sunSprite.position.copy(sun.position);
-      };
-      place(1);
-      api.live('☀️ 现在是正午：大气把蓝光散得满地都是，天是蓝的');
+      const ground = new THREE.Mesh(new THREE.CircleGeometry(58, 64), new THREE.MeshStandardMaterial({ color: 0x2f4a26, roughness: 1 }));
+      ground.rotation.x = -Math.PI / 2;
+      const amb = new THREE.HemisphereLight(0xbfd8ff, 0x2a3a20, 0.6);
+      const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+      api.root.add(sky, ground, amb, sunLight);
+      // 远处的小山和一座小房子
+      [[-14, -26, 6, 4], [6, -30, 9, 5], [22, -24, 5, 3]].forEach(([x, z, r, h]) => {
+        const hill = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x3a5a2e, roughness: 1 }));
+        hill.scale.y = h / r; hill.position.set(x, 0, z);
+        api.root.add(hill);
+      });
+      const house = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 1), new THREE.MeshStandardMaterial({ color: 0xd8c9a8 }));
+      house.position.set(-3, 0.45, -8);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(0.95, 0.6, 4), new THREE.MeshStandardMaterial({ color: 0xb5502e }));
+      roof.position.y = 0.75; roof.rotation.y = Math.PI / 4;
+      house.add(roof);
+      api.root.add(house);
+      api.fly([0, 1.6, 4], [0, 4, -20]);
+      // 卡片里的小图：中午阳光穿过的空气薄，傍晚斜着穿过的空气厚
+      const diagram = sunsetOn => api.extra(`<svg viewBox="0 0 300 120" style="width:100%">
+        <path d="M0,118 Q150,70 300,118" fill="#2e6fd8" opacity=".9"/>
+        <path d="M0,118 Q150,40 300,118" fill="none" stroke="#7fb4ff" stroke-width="14" opacity=".35"/>
+        <circle cx="150" cy="93" r="4" fill="#ffd76b"/>
+        <line x1="150" y1="5" x2="150" y2="89" stroke="#fff3c0" stroke-width="${sunsetOn ? 1 : 3}" opacity="${sunsetOn ? .4 : 1}"/>
+        <line x1="10" y1="62" x2="146" y2="92" stroke="#ff9a4a" stroke-width="${sunsetOn ? 3 : 1}" opacity="${sunsetOn ? 1 : .4}"/>
+        <text x="156" y="20" fill="#fff3c0" font-size="11">中午：穿过的空气薄</text>
+        <text x="8" y="52" fill="#ffb27a" font-size="11">傍晚：斜着穿过厚厚的空气</text></svg>`);
+      diagram(false);
+      let sunset = false, elev = 0.85;
+      api.live('☀️ 中午：太阳高高的，空气把蓝光散到整个天空，天是蓝的');
       return {
         action() {
           sunset = !sunset;
-          api.live(sunset ? '🌇 太阳落山了：光要穿过更厚的大气，蓝光散光了，剩下红彤彤的晚霞' : '☀️ 现在是正午：大气把蓝光散得满地都是，天是蓝的');
+          diagram(sunset);
+          api.live(sunset ? '🌇 傍晚：阳光斜着穿过厚厚的空气，蓝光在路上都被散掉了，剩下橙红色的晚霞' : '☀️ 中午：太阳高高的，空气把蓝光散到整个天空，天是蓝的');
         },
         update(t, dt, rawDt) {
-          earth.rotation.y += dt * 0.06;
-          const f = 1 - Math.exp(-rawDt * 1.5);
-          u.sunH.value += ((sunset ? 0 : 1) - u.sunH.value) * f;
-          place(u.sunH.value);
+          elev += ((sunset ? 0.04 : 0.85) - elev) * (1 - Math.exp(-rawDt * 0.9));
+          sunDir.set(0.25, Math.sin(elev), -Math.cos(elev)).normalize();
+          sunLight.position.copy(sunDir).multiplyScalar(30);
+          sunLight.color.setRGB(1, 0.55 + 0.45 * Math.min(1, elev * 2), 0.3 + 0.7 * Math.min(1, elev * 2));
+          amb.intensity = 0.25 + 0.4 * Math.min(1, elev * 2);
         },
       };
     };
@@ -977,37 +1026,55 @@ window.EarthStages = (() => {
     // ============ 一生的故事 ============
     S.story_nebula = api => {
       hideSun();
-      api.fly([0, 2.5, 9]);
-      const bg = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), withTex(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.5, depthWrite: false }), '../textures/deep-sky/orion_m42.jpg'));
-      bg.position.z = -12;
-      const N = 2400, pos = new Float32Array(N * 3), col = new Float32Array(N * 3), P = [];
-      const palette = [[1, .55, .6], [.55, .7, 1], [1, .8, .5], [.9, .6, 1]];
+      api.fly([0, 7, 9], [0, 0, 0]);
+      const bg = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), withTex(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.25, depthWrite: false }), '../textures/deep-sky/orion_m42.jpg'));
+      bg.position.set(0, -6, -14);
+      bg.rotation.x = -0.5;
+      // 太阳已经在中间亮起来了，周围是一大圈扁扁的尘埃盘
+      const sun = sunBall(0.45);
+      const sunGlow = glow(0xffd28a, 2.4, { strength: 1.1 });
+      const orbit = ring(3, 0x9fd0ff, 0.35);
+      const N = 3000, pos = new Float32Array(N * 3), col = new Float32Array(N * 3), P = [];
       for (let i = 0; i < N; i++) {
-        const r = 4.2 * Math.cbrt(Math.random()), th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
-        P.push({ r, th, y: r * Math.cos(ph) * 0.35, rr: r * Math.sin(ph) });
-        col.set(palette[i % 4], i * 3);
+        const r = 1 + Math.pow(Math.random(), 0.8) * 5;
+        P.push({ r, a: Math.random() * Math.PI * 2, y: (Math.random() - 0.5) * 0.12 * r, eaten: false });
+        const warm = Math.random();
+        col.set([0.75 + 0.25 * warm, 0.55 + 0.25 * warm, 0.4 + 0.2 * (1 - warm)], i * 3);
       }
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-      const disk = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false }));
-      api.root.add(bg, disk);
-      const baby = glow(0xfff0c0, 0.01, { strength: 1.6 });
-      api.root.add(baby);
-      let t0 = 0;
-      api.live('背景是哈勃拍的猎户座大星云。点“转起来”');
+      const disk = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.06, vertexColors: true, transparent: true, opacity: 0.85, depthWrite: false }));
+      const baby = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), new THREE.MeshBasicMaterial({ color: 0xff7a30 }));
+      baby.scale.setScalar(0.001);
+      const tag = label('未来地球的轨道', { h: 0.022 });
+      tag.position.set(0, 0.3, 3);
+      api.root.add(bg, sun, sunGlow, orbit, disk, baby, tag);
+      let t0 = 0, ba = 0;
+      api.live('太阳已经出生了，周围转着一大圈尘埃和小石块。点“🌀 聚起来”');
       return {
-        action() { t0 = now(); },
+        action() { t0 = now(); P.forEach(p => { p.eaten = false; }); },
         update(t, dt) {
-          const k = t0 ? ease(clamp((now() - t0) / 8000, 0, 1)) : 0;
+          const k = t0 ? clamp((now() - t0) / 9000, 0, 1) : 0;
+          ba += dt * 0.35 * Math.pow(1 / 3, 1.5) * 3;
+          const bpos = V(Math.cos(ba) * 3, 0, -Math.sin(ba) * 3);   // 从上往下看逆时针
+          let eaten = 0;
           P.forEach((p, i) => {
-            p.th += dt * (0.04 + 0.5 * k / (0.3 + p.rr * (1 - 0.85 * k)));   // 越缩转得越快
-            const rr = p.rr * (1 - 0.85 * k);
-            pos.set([Math.cos(p.th) * rr, p.y * (1 - 0.95 * k), Math.sin(p.th) * rr], i * 3);
+            p.a += dt * 0.6 * Math.pow(1 / p.r, 1.5) * 3;   // 越靠里转得越快
+            let q = V(Math.cos(p.a) * p.r, p.y, -Math.sin(p.a) * p.r);
+            // 地球轨道附近的尘埃被越滚越大的“地球宝宝”吸过去
+            if (t0 && Math.abs(p.r - 3) < 0.55 * k + 0.05) {
+              const pull = smooth(0, 1, k * 1.4 - Math.abs(p.r - 3));
+              q = q.lerp(bpos, pull);
+              if (pull > 0.95) { p.eaten = true; }
+            }
+            if (p.eaten) { eaten++; q.set(0, -999, 0); }
+            pos.set([q.x, q.y, q.z], i * 3);
           });
           geo.attributes.position.needsUpdate = true;
-          baby.scale.setScalar(0.01 + 2 * smooth(0.4, 1, k));
-          if (k >= 1) api.live('🎉 太阳在中间亮起来了，周围剩下的一圈尘埃，后来聚成了地球和其他行星');
+          baby.position.copy(bpos);
+          baby.scale.setScalar(t0 ? 0.02 + 0.2 * smooth(0.1, 1, k) : 0.001);
+          if (t0) api.live(k < 1 ? `☄️ 小石块撞在一起，越撞越大……（${Math.round(k * 100)}%）` : '🌋 一颗滚烫的“地球宝宝”出现了，它把轨道附近的尘埃都吸走了');
         },
       };
     };
@@ -1188,87 +1255,156 @@ window.EarthStages = (() => {
     // ============ 谁去研究过 ============
     S.probe_round = api => {
       hideSun();
-      api.fly([0, 1.6, 9], [0, 0, -1]);
-      // 海平面 + 远处微微弯曲的海面：船开出去，先沉下去的是船身，桅杆最后消失
-      const ocean = new THREE.Mesh(new THREE.CircleGeometry(30, 64), new THREE.MeshStandardMaterial({ color: 0x14507d, roughness: 0.6 }));
-      ocean.rotation.x = -Math.PI / 2;
-      ocean.position.y = -0.85;
-      api.root.add(ocean, new THREE.AmbientLight(0xffffff, 0.55));
-      const d = lights(api.root, [2, 5, 8], 0.3);
-      // 地球弧线示意（实际上海面本身就是圆球表面的一部分，这里用贴地弧线提示）
-      const arcPts = [];
-      for (let i = 0; i <= 60; i++) {
-        const x = -12 + 24 * i / 60;
-        arcPts.push(V(x, -0.85 - x * x * 0.012, -x * x * 0.004));
-      }
-      const horizon = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arcPts), new THREE.LineBasicMaterial({ color: 0x9fd0ff, transparent: true, opacity: 0.6 }));
-      api.root.add(horizon);
-      // 小船：船身 + 桅杆
+      // ===== 月食：地球的影子落在月亮上，边总是圆弧 =====
+      const ecl = new THREE.Group();
+      const sun = sunBall(0.9);
+      sun.position.set(-12, 0, 0);
+      const light = new THREE.DirectionalLight(0xffffff, 1.2);
+      light.position.set(-10, 0, 0);
+      const earth = ball(1, 'assets/textures/day-4k.jpg', { lit: true });
+      // 地球的本影：一根越来越细的影子（月亮那么远时半径约 0.73 个地球半径）
+      const UMBRA = 0.73, MX = 4.5;
+      const shadowGeo = new THREE.CylinderGeometry(UMBRA, 1, MX + 0.6, 48, 1, true);
+      shadowGeo.rotateZ(-Math.PI / 2);   // 粗的一头贴着地球，细的一头指向月亮
+      const shadow = new THREE.Mesh(shadowGeo, new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide }));
+      shadow.position.x = (MX + 0.6) / 2;
+      const mu = { map: { value: null }, umbra: { value: UMBRA } };
+      const moon = new THREE.Mesh(new THREE.SphereGeometry(MOON_D, 64, 48), new THREE.ShaderMaterial({
+        uniforms: mu,
+        vertexShader: 'varying vec2 vUv; varying vec3 vN; varying vec3 vW; void main(){ vUv = uv; vN = normalize(mat3(modelMatrix) * normal); vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+        fragmentShader: `
+          uniform sampler2D map; uniform float umbra; varying vec2 vUv; varying vec3 vN; varying vec3 vW;
+          void main(){
+            vec3 c = texture2D(map, vUv).rgb * (0.08 + 1.1 * max(dot(normalize(vN), vec3(-1.0, 0.0, 0.0)), 0.0));
+            float d = length(vW.yz);                               // 离地影中心线多远
+            float inU = 1.0 - smoothstep(umbra - 0.015, umbra + 0.015, d);
+            float inP = 1.0 - smoothstep(umbra, umbra + 0.45, d);
+            c *= 1.0 - 0.35 * inP;                                 // 半影：暗一点
+            c = mix(c, c * vec3(0.55, 0.16, 0.08), inU);           // 本影：暗红色（大气把红光折射进来）
+            gl_FragColor = vec4(c, 1.0);
+          }`,
+      }));
+      loadTex('../textures/moon.jpg').then(t => { mu.map.value = t; });
+      const tagE = label('地球', { h: 0.024 }); tagE.position.set(0, -1.3, 0);
+      const tagS = label('地球的影子', { h: 0.024 }); tagS.position.set(2.4, -1.05, 0);
+      ecl.add(sun, light, earth, shadow, moon, tagE, tagS);
+      // ===== 帆船：海面是弯的，船身先消失，桅杆最后消失（弯曲程度放大了） =====
+      const sea = new THREE.Group();
+      const R = 30;
+      const ocean = new THREE.Mesh(new THREE.SphereGeometry(R, 128, 64), new THREE.MeshStandardMaterial({ color: 0x1d5f99, roughness: 0.35, metalness: 0.1 }));
+      ocean.position.y = -R;
+      const skyDome = new THREE.Mesh(new THREE.SphereGeometry(80, 32, 16), new THREE.MeshBasicMaterial({ color: 0x9cc8f0, side: THREE.BackSide }));
+      sea.add(ocean, skyDome, new THREE.HemisphereLight(0xffffff, 0x335577, 0.9));
+      const sunL = new THREE.DirectionalLight(0xffffff, 0.8); sunL.position.set(5, 10, 6); sea.add(sunL);
       const ship = new THREE.Group();
-      const hull = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.22, 0.22), new THREE.MeshStandardMaterial({ color: 0x8a5a2e }));
-      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.7, 8), new THREE.MeshStandardMaterial({ color: 0x5a4020 }));
-      mast.position.y = 0.4;
-      const sail = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.42), new THREE.MeshStandardMaterial({ color: 0xf0ead8, side: THREE.DoubleSide }));
-      sail.position.set(0.14, 0.42, 0);
+      const hull = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.22, 0.7), new THREE.MeshStandardMaterial({ color: 0x8a5a2e }));   // 船头朝着远方
+      hull.position.y = 0.11;
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.75, 8), new THREE.MeshStandardMaterial({ color: 0x5a4020 }));
+      mast.position.y = 0.5;
+      const sail = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.42), new THREE.MeshStandardMaterial({ color: 0xc8bea6, side: THREE.DoubleSide }));   // 颜色压暗一点，免得被辉光糊成白块
+      sail.position.set(0, 0.5, 0.03);   // 帆正对着岸边的我们
       ship.add(hull, mast, sail);
-      api.root.add(ship);
-      let t0 = 0;
-      api.live('古人发现：船开远了，会先看不见船身，最后才看不见桅杆。点“开船”');
+      const shipHolder = new THREE.Group();
+      shipHolder.add(ship);
+      sea.add(shipHolder);
+      const placeShip = th => {   // 船贴着弯弯的海面走（th = 绕球心转过的角度）
+        shipHolder.position.set(0, -R + R * Math.cos(th), -R * Math.sin(th));
+        shipHolder.rotation.x = -th;
+      };
+      sea.visible = false;
+      api.root.add(ecl, sea);
+      let mode = 'eclipse', t0 = 0;
+      const show = m => {
+        mode = m; t0 = now();
+        ecl.visible = m === 'eclipse'; sea.visible = m === 'ship';
+        if (m === 'eclipse') api.fly([2.2, 2.6, 6.5], [2.6, 0, 0], 1500);
+        else { placeShip(0.07); api.fly([0, 0.6, 0], [0, 0.35, -12], 1500); }
+      };
+      show('eclipse');
+      t0 = 0;
+      moon.position.set(MX, 0, -1.6);
+      api.live('月食时，地球挡住阳光，影子落在月亮上。点“🌑 看月食”');
       return {
-        action() { t0 = now(); },
+        action(id) { show(id); },
         update(t, dt) {
-          if (!t0) { ship.position.set(2, -0.75, 3); return; }
-          const k = ease(clamp((now() - t0) / 7000, 0, 1));
-          const x = 2 + k * 8;
-          ship.position.set(x, -0.75 - x * x * 0.012, 3 - k * 2);   // 沿着弯曲的海面往下沉
-          ship.rotation.z = -x * 0.024;
-          api.live(k < 0.4 ? '⛵ 船开远了……' : k < 0.75 ? '👀 船身先沉到海平面下面，只剩桅杆！' : k >= 1 ? '🌍 桅杆也消失了 —— 海面是弯的，地球是圆的！' : '👀 只剩桅杆了……');
+          earth.rotation.y += dt * 0.1;
+          if (!t0) return;
+          const s = (now() - t0) / 1000;
+          if (mode === 'eclipse') {
+            // 先走到一半进影子的位置停一会儿（能看清圆弧形的影子边），再全部进去，最后走出来
+            const z = s < 5 ? -1.6 + 0.84 * ease(clamp(s / 5, 0, 1))
+              : s < 9 ? -0.76                                    // 月亮一半在影子里
+              : -0.76 + 2.36 * ease(clamp((s - 9) / 8, 0, 1));
+            moon.position.set(MX, 0, z);
+            if (s > 1 && s < 1.1) api.fly([MX - 1.6, 0.35, 0.55], [MX, 0, -0.4], 2500);   // 凑近月亮，从地球这边看
+            api.live(s < 4 ? '🌑 月亮慢慢走进地球的影子……'
+              : s < 9 ? '🔴 停一下，看影子的边：是一段圆弧！'
+              : s < 14 ? '🔴 月亮整个进到影子里，变成了暗红色'
+              : '🌕 不管哪一次月食，地影的边都是圆的 —— 地球是个球');
+          } else {
+            const th = 0.07 + 0.38 * clamp(s / 10, 0, 1);
+            placeShip(th);
+            const d = th * R;   // 船离岸边的距离
+            api.live(d < 6 ? '⛵ 船开远了……' : d < 9.6 ? '👀 船身先沉到弯弯的海面后面了，只剩帆和桅杆！' : d < 12.6 ? '👀 只剩桅杆尖了……' : '🌍 桅杆也看不见了 —— 海面是弯的，地球是圆的！（弯曲程度放大了）');
+          }
         },
       };
     };
 
     S.probe_magellan = api => {
-      hideSun();
-      api.fly([0, 0.4, 6.2]);
-      lights(api.root, [-4, 2, 5], 0.5);
-      const earth = ball(1.3, 'assets/textures/day-4k.jpg', { lit: true });
-      api.root.add(earth);
-      // 麦哲伦船队的航线：绕地球一圈的粗线
-      const pts = [];
-      for (let i = 0; i <= 120; i++) {
-        const a = i / 120 * Math.PI * 2;
-        pts.push(V(Math.cos(a) * 1.33, Math.sin(a * 2) * 0.28, Math.sin(a) * 1.33));
+      // 在真实地球上画出麦哲伦船队（维多利亚号）的真实航线：从西班牙出发一直往西，绕地球一圈回到西班牙
+      const E = mainEarth(api);
+      E.clouds(false);
+      const WAY = [
+        [-6.35, 36.78, '1519 年 9 月 · 从西班牙出发'], [-15.4, 28.1], [-25, 10], [-35, -5], [-43.2, -22.9], [-56, -35], [-67.7, -49.3],
+        [-68.5, -52.5, '1520 年 11 月 · 穿过南美洲南端的海峡（后来叫麦哲伦海峡）'], [-72, -53.5], [-75, -52.5],
+        [-82, -40, '进入太平洋，一连航行了 3 个多月'], [-100, -25], [-125, -12], [-150, -2], [-175, 8], [165, 12], [144.7, 13.4],
+        [123.98, 10.3, '1521 年 4 月 · 麦哲伦在菲律宾的战斗中去世'], [127.4, 0.7, '剩下的船员继续航行，到了香料群岛'], [124, -9],
+        [100, -20, '穿过印度洋'], [70, -32], [40, -37], [18.5, -34.4, '1522 年 5 月 · 绕过非洲南端的好望角'], [0, -20], [-15, 0], [-23.5, 15], [-15, 30],
+        [-6.35, 36.78, '1522 年 9 月 · 只剩 1 艘船、18 名船员回到西班牙：绕地球一圈！'],
+      ];
+      // 相邻航点之间沿大圆弧插值
+      const pts = [], notes = [];
+      for (let i = 0; i < WAY.length - 1; i++) {
+        const a = lonLat(WAY[i][0], WAY[i][1], 1).normalize(), b = lonLat(WAY[i + 1][0], WAY[i + 1][1], 1).normalize();
+        if (WAY[i][2]) notes.push([pts.length, WAY[i][2]]);
+        const n = Math.max(2, Math.ceil(a.angleTo(b) / 0.02));
+        for (let k = 0; k < n; k++) {
+          const t = k / n, ang = a.angleTo(b);
+          const p = a.clone().multiplyScalar(Math.sin((1 - t) * ang)).add(b.clone().multiplyScalar(Math.sin(t * ang))).divideScalar(Math.sin(ang) || 1);
+          pts.push(p.normalize().multiplyScalar(1.006));
+        }
       }
-      const path = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xffd76b, transparent: true, opacity: 0.75 }));
-      api.root.add(path);
-      // 走过的部分变亮：用第二条线按进度画
-      const doneGeo = new THREE.BufferGeometry().setFromPoints(pts);
-      const done = new THREE.Line(doneGeo, new THREE.LineBasicMaterial({ color: 0xffe9a0, transparent: true, opacity: 1 }));
+      pts.push(lonLat(WAY[0][0], WAY[0][1], 1.006));
+      notes.push([pts.length - 1, WAY[WAY.length - 1][2]]);
+      const all = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: 0xffd76b, dashSize: 0.02, gapSize: 0.015, transparent: true, opacity: 0.6 }));
+      all.computeLineDistances();
+      const done = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xffe9a0 }));
       done.geometry.setDrawRange(0, 0);
-      api.root.add(done);
-      const ship = new THREE.Group();
-      const hull = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.05), new THREE.MeshStandardMaterial({ color: 0x8a5a2e }));
-      const sail = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 0.12), new THREE.MeshStandardMaterial({ color: 0xf0ead8, side: THREE.DoubleSide }));
-      sail.position.set(0.03, 0.08, 0);
-      ship.add(hull, sail);
-      ship.scale.setScalar(2.2);
-      api.root.add(ship);
-      let t0 = 0;
-      const TRIP = 14;                  // 14 秒演示三年的航行
-      api.live('500 多年前，麦哲伦船队从西班牙出发。点“⛵ 出发”');
+      const ship = glow(0xffd76b, 0.04, { strength: 1.3 });
+      ship.position.copy(pts[0]);
+      const start = label('西班牙', { h: 0.022 }); start.position.copy(lonLat(-6.35, 40, 1.03));
+      const mactan = label('麦哲伦在这里去世', { h: 0.022 }); mactan.position.copy(lonLat(124, 14, 1.03));
+      [all, done, ship, start, mactan].forEach(o => E.attach(o));
+      const at = i => E.surface.localToWorld(pts[i].clone());
+      const look = i => { const w = at(i); E.sun(w.clone().normalize().add(V(0, 0.7, 0))); api.fly(w.clone().normalize().multiplyScalar(3).toArray(), [0, 0, 0], 1200); };   // 太阳偏上方，海面反光不挡住船
+      look(0);
+      let t0 = 0, lastNote = -1, lastFly = 0;
+      const TRIP = 24;                  // 24 秒演示三年
+      api.live('1519 年，5 艘船从西班牙出发，一直往西开。点“⛵ 出发”');
       return {
-        action() { t0 = now(); done.geometry.setDrawRange(0, 0); },
-        update(t, dt) {
-          earth.rotation.y += t0 ? 0 : dt * 0.1;
+        action() { t0 = now(); lastNote = -1; done.geometry.setDrawRange(0, 0); },
+        update() {
           if (!t0) return;
           const k = clamp((now() - t0) / 1000 / TRIP, 0, 1);
-          const idx = Math.floor(k * 120);
+          const idx = Math.min(pts.length - 1, Math.floor(k * (pts.length - 1)));
           done.geometry.setDrawRange(0, idx + 1);
           ship.position.copy(pts[idx]);
-          ship.lookAt(pts[Math.min(120, idx + 2)]);
-          const years = (3 * k).toFixed(1);
-          api.live(`⛵ 航行中……约 <b>${years}</b> / 3 年${k >= 1 ? ' —— 船队绕地球一圈回到了起点！' : ''}（14 秒演示三年）`);
+          if (now() - lastFly > 1300) { lastFly = now(); look(idx); }   // 镜头跟着船
+          notes.forEach(([i, text], n) => { if (idx >= i && n > lastNote) { lastNote = n; api.live(`⛵ ${text}`); } });
+          if (k >= 1) t0 = 0;
         },
+        exit: E.done,
       };
     };
 

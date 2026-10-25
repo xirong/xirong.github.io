@@ -213,8 +213,8 @@ window.NARRATION = {
     "audio": "audio/act_typhoon.mp3?v=bb5beddfbee6"
   },
   "act_typhoon_go": {
-    "text": "台风转起来啦！呼——呼——好大的风！",
-    "audio": "audio/act_typhoon_go.mp3?v=11c2c7badc2e"
+    "text": "台风转起来啦！从上往下看是逆时针转的，中间的风眼反而很平静。",
+    "audio": "audio/act_typhoon_go.mp3?v=22608a683827"
   },
   "q_act_typhoon": {
     "text": "台风是怎么形成的？",
@@ -249,8 +249,8 @@ window.NARRATION = {
     "audio": "audio/life_land.mp3?v=7ddcab7f2204"
   },
   "life_land_go": {
-    "text": "点亮陆地，绿色的森林、棕色的高原都出来啦！",
-    "audio": "audio/life_land_go.mp3?v=6bd9dae69b45"
+    "text": "我们飞过去看看！",
+    "audio": "audio/life_land_go.mp3?v=d52d7ee9ff37"
   },
   "q_life_land": {
     "text": "从太空看，绿色和棕色的地方主要是什么？",
@@ -332,9 +332,13 @@ window.NARRATION = {
     "text": "很久以前，人们以为大地是平平的。后来看到月食的时候，地球的影子投在月亮上，是圆弧形的；远远的帆船先露出桅杆，再露出船身。人们才明白：地球是圆的！",
     "audio": "audio/probe_round.mp3?v=5ab7a6f6e6e0"
   },
-  "probe_round_go": {
-    "text": "看，地球的影子投在月亮上，是圆弧形的！",
-    "audio": "audio/probe_round_go.mp3?v=5be7c6acca2f"
+  "probe_round_eclipse": {
+    "text": "月食的时候，地球挡住了太阳光，影子落在月亮上。不管哪一次月食，影子的边都是圆弧形的。只有球，影子才会一直是圆的！",
+    "audio": "audio/probe_round_eclipse.mp3?v=32d72c9f4a2b"
+  },
+  "probe_round_ship": {
+    "text": "站在海边看帆船开远，船身先看不见，最后才看不见桅杆。因为海面是弯的，船绕到了弯弯的海面后面。",
+    "audio": "audio/probe_round_ship.mp3?v=b405b06495c7"
   },
   "q_probe_round": {
     "text": "人们是怎么发现地球是圆的？",

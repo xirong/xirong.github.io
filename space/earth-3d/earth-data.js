@@ -53,12 +53,12 @@ window.BODY = {
     activity: [
       { id: 'act_quake', icon: '🧩', title: '板块慢慢动，地震突然来', sub: '卡住、拧弯、突然滑开', actions: [{ id: 'go', label: '💥 模拟地震' }], quiz: { options: ['板块相互挤压错动', '地球打喷嚏', '月亮撞地球'], answer: 0 } },
       { id: 'act_volcano', icon: '🌋', title: '火山喷发了', sub: '岩浆沿通道来到地表', photo: { src: 'assets/photos/volcano.jpg', credit: '真实火山照片 · 来源见 CREDITS.md' }, actions: [{ id: 'go', label: '🌋 喷一次' }], quiz: { options: ['岩浆', '自来水', '云'], answer: 0 } },
-      { id: 'act_typhoon', icon: '🌀', title: '台风像巨大的旋转云盘', sub: '暖海水给它能量', photo: { src: 'assets/photos/hurricane.jpg', credit: '卫星真实云系照片 · 来源见 CREDITS.md' }, actions: [{ id: 'go', label: '🌀 转起来' }], quiz: { options: ['温暖的海水', '月亮的光', '高山'], answer: 0 } },
+      { id: 'act_typhoon', icon: '🌀', title: '台风像巨大的旋转云盘', sub: '暖海水给它能量', photo: { src: 'assets/photos/typhoon-soudelor.jpg', credit: 'NASA Aqua 卫星 · 2015-08-04 超强台风苏迪罗' }, actions: [{ id: 'go', label: '🌀 转起来' }], quiz: { options: ['温暖的海水', '月亮的光', '高山'], answer: 0 } },
       { id: 'act_aurora', icon: '🌈', title: '极光在两极发光', sub: '太阳风遇到地球磁场和大气', photo: { src: '../sun-3d/assets/photos/aurora-iss.jpg', credit: 'NASA · 国际空间站拍摄的极光' }, actions: [{ id: 'go', label: '✨ 点亮极光' }], quiz: { options: ['太阳风和大气粒子碰撞', '月亮反光', '海底火山'], answer: 0 } },
     ],
     life: [
       { id: 'life_ocean', icon: '🌊', title: '蓝色海洋占约 71%', sub: '十分之七的表面被水覆盖', actions: [{ id: 'go', label: '🎨 涂一涂' }], quiz: { options: ['约 71%', '约 7%', '约 100%'], answer: 0 } },
-      { id: 'life_land', icon: '⛰️', title: '陆地不只是平地', sub: '山地、平原、沙漠和森林', actions: [{ id: 'go', label: '🏔️ 看地形' }], quiz: { options: ['绿色和棕色的陆地', '蓝色的海洋', '白色的云'], answer: 0 } },
+      { id: 'life_land', icon: '⛰️', title: '陆地不只是平地', sub: '高山、沙漠、雨林、平原、冰盖', actions: [{ id: 'go', label: '✈️ 飞过去看' }], quiz: { options: ['绿色和棕色的陆地', '蓝色的海洋', '白色的云'], answer: 0 } },
       { id: 'life_air', icon: '🌈', title: '大气是看不见的外衣', sub: '有空气，也让天空呈蓝色', actions: [{ id: 'go', label: '🌇 换晚霞' }], quiz: { options: ['大气散射蓝色光', '大海把天染蓝', '蓝色油漆'], answer: 0 } },
       { id: 'life_water', icon: '💧', title: '水一直在旅行', sub: '蒸发、成云、下雨、流回大海', actions: [{ id: 'go', label: '🔁 再旅行一次' }], quiz: { options: ['河流和大海', '外太空', '地心'], answer: 0 } },
     ],
@@ -69,7 +69,7 @@ window.BODY = {
       { id: 'story_life', icon: '🌱', title: '蓝色家园有了生命', sub: '先有海洋，再有海里的小生命', actions: [{ id: 'go', label: '🌱 看变化' }], quiz: { options: ['海洋里', '月球上', '人造卫星里'], answer: 0 } },
     ],
     probe: [
-      { id: 'probe_round', icon: '🌑', title: '古人发现地球是球', sub: '月食里的地影总是圆的', actions: [{ id: 'go', label: '🌑 看月食' }], quiz: { options: ['圆圆的影子', '影子的声音', '月亮的颜色'], answer: 0 } },
+      { id: 'probe_round', icon: '🌑', title: '古人发现地球是球', sub: '月食的地影是圆的，帆船先消失船身', actions: [{ id: 'eclipse', label: '🌑 看月食' }, { id: 'ship', label: '⛵ 看帆船' }], quiz: { options: ['圆圆的影子', '影子的声音', '月亮的颜色'], answer: 0 } },
       { id: 'probe_magellan', icon: '⛵', title: '麦哲伦船队环球航行', sub: '1519—1522 年，船队完成环球', actions: [{ id: 'go', label: '⛵ 出发' }], quiz: { options: ['环球航行', '飞到太阳', '钻进地心'], answer: 0 } },
       { id: 'probe_apollo', icon: '📷', title: '阿波罗拍下蓝色弹珠', sub: '1972 年，从太空看见整个地球', photo: { src: 'assets/photos/blue-marble.jpg', credit: 'NASA · 阿波罗 17 号“蓝色弹珠”' }, actions: [{ id: 'go', label: '📷 看地球' }], quiz: { options: ['阿波罗 17 号', '帕克探测器', '麦哲伦船队'], answer: 0 } },
       { id: 'probe_station', icon: '🛰️', title: '卫星和空间站看地球', sub: '观察云、海洋、天气和我们的家', actions: [{ id: 'go', label: '🛰️ 绕一圈' }], quiz: { options: ['卫星和空间站', '海底潜水艇', '高山'], answer: 0 } },
