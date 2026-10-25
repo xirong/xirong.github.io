@@ -90,6 +90,9 @@ Explorer.registerModule('dive', ctx => {
               float spark = step(0.97, hash(cell + k)) * (1.0 - fract(time * 4.0 + hash(cell) * 5.0));
               spark *= smoothstep(0.45, 0.05, length(fract(g) - 0.5));   // 圆圆的小闪光，不是方块
               bright = 0.95 + 0.1 * noise(vP * 20.0 + time) - 0.2 * t + spark * 0.6;
+            } else if (uPat[i] < 4.5) {
+              // 液态外核：铁镍缓慢对流，不使用太阳的光子与聚变动画
+              bright = 0.78 + 0.32 * convection(psi + sin(time * 0.15) * 0.08, t);
             }
             if (abs(float(i) - highlight) < 0.5) {
               isHl = 1.0;
@@ -208,15 +211,18 @@ Explorer.registerModule('dive', ctx => {
 
   // ============ 文字格式 ============
   function fmtTemp(t) {
-    if (t < 0) return `零下 ${-t}℃`;
+    if (t < 0) return `零下 ${-Math.round(t)}℃`;
     if (t >= 1e4) { const w = t / 1e4; return `${w >= 10 ? Math.round(w) : w.toFixed(1)} 万℃`; }
+    if (t < 1000) return `${Math.round(t)}℃`;
     return `${Math.round(t / 100) * 100}℃`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
   function fmtKm(km) {
     if (km >= 1e4) return `${Math.round(km / 1e4)} 万公里`;
-    return `${Math.round(km / 100) * 100} 公里`;
+    if (km >= 100) return `${Math.round(km).toLocaleString('zh-CN')} 公里`;
+    if (km >= 10) return `${Math.round(km)} 公里`;
+    return `${km.toFixed(1)} 公里`;
   }
-  // 温度计用对数刻度：零下 270℃ 在最底下，1,500 万℃ 到顶
+  // 温度计用对数刻度，兼容太空低温、行星表面与恒星核心的巨大温差
   function thermoFrac(t) {
     if (t <= 0) return 0.02;
     return THREE.MathUtils.clamp((Math.log10(t) - 3) / (7.25 - 3), 0.06, 1);
@@ -226,9 +232,9 @@ Explorer.registerModule('dive', ctx => {
   function pathAt(v) {
     const x = v * (N - 1), i = Math.min(N - 2, Math.floor(x)), f = x - i;
     const r = stops[i].r + (stops[i + 1].r - stops[i].r) * f;
-    // 温度在两站之间按对数插值（零下的太空单独处理）
+    // 正温度按对数插值；跨过零度时用连续线性插值，避免负温区间跳变
     const t0 = stops[i].t, t1 = stops[i + 1].t;
-    const t = t0 < 0 ? (f < 0.5 ? t0 : t1 * Math.pow(10, -(1 - f) * 2)) : Math.pow(10, Math.log10(t0) + (Math.log10(t1) - Math.log10(t0)) * f);
+    const t = t0 <= 0 || t1 <= 0 ? t0 + (t1 - t0) * f : Math.pow(10, Math.log10(t0) + (Math.log10(t1) - Math.log10(t0)) * f);
     const open = openFrom < 0 ? 0 : THREE.MathUtils.smoothstep(x, openFrom, openFrom + 0.35);
     const lerp = (key, def) => (stops[i][key] ?? def) + ((stops[i + 1][key] ?? def) - (stops[i][key] ?? def)) * f;
     const at = lerp('at', 0);

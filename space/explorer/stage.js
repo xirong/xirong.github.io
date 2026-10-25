@@ -98,7 +98,7 @@ Explorer.registerModule('stage', (ctx, item) => {
     root = new THREE.Group();
     scene.add(root);
 
-    // 每个场景从同一个起点开始：真实太阳在原位、普通眼镜、镜头可以自由转
+    // 每个场景从同一个起点开始：真实星球在原位、默认外观、镜头可以自由转
     if (ctx.hooks.sun) ctx.hooks.sun.reset();
     controls.enabled = true;
     controls.minDistance = 0.3;

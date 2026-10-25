@@ -121,6 +121,10 @@ window.Explorer = (() => {
     const NARRATION = window.NARRATION || {};
     const narrator = new Audio();
     const caption = document.getElementById('caption');
+    const sourceBadge = document.getElementById('narration-source');
+    const audioCount = Object.values(NARRATION).filter(n => n.audio).length;
+    function showSource(text) { if (sourceBadge) sourceBadge.textContent = '旁白：' + text; }
+    showSource(`小晓（edge-tts，${audioCount} 条）`);
     let soundOn = true, captionTimer = 0, zhVoice = null, spokenOnce = false;
     function pickVoice() {
       const zh = speechSynthesis.getVoices().filter(v => /^zh([-_]|$)/i.test(v.lang));
@@ -129,6 +133,7 @@ window.Explorer = (() => {
     if ('speechSynthesis' in window) { speechSynthesis.addEventListener('voiceschanged', pickVoice); pickVoice(); }
     function speak(text) {
       if (!('speechSynthesis' in window)) return;
+      showSource('浏览器语音' + (zhVoice ? ' ' + zhVoice.name : ''));
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       if (zhVoice) u.voice = zhVoice;
@@ -139,6 +144,7 @@ window.Explorer = (() => {
       if ('speechSynthesis' in window) speechSynthesis.cancel();
       narrator.pause();
       if (!src) { speak(fallbackText); return; }
+      showSource(`小晓（edge-tts，${audioCount} 条）`);
       narrator.src = src;
       narrator.currentTime = 0;
       narrator.onerror = () => speak(fallbackText);

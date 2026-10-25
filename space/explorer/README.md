@@ -1,6 +1,6 @@
 # 星球探索引擎
 
-太阳、行星、卫星的 3D 知识页面共用这套引擎。第一个用户是 `../sun-3d/`。
+太阳、行星、卫星的 3D 知识页面共用这套引擎。现有用户是 `../sun-3d/` 和 `../earth-3d/`。
 
 ## 每个星球页面由什么组成
 
@@ -34,7 +34,7 @@
   quiz: { options: [...], answer: 下标 } }     // 题目是 NARRATION['q_' + id]
 ```
 
-3D 场景函数 `api => ({ update, action(id), slider(v), exit })`，`api.root` 里的东西切换时自动清掉；`api.fly(位置, 看向)`、`api.live(html)` 实时读数、`api.extra(html)` 卡片插图。真实太阳可用 `ctx.hooks.sun.setVisible(false)` 藏起来。
+3D 场景函数 `api => ({ update, action(id), slider(v), exit })`，`api.root` 里的东西切换时自动清掉；`api.fly(位置, 看向)`、`api.live(html)` 实时读数、`api.extra(html)` 卡片插图。当前主星球可用 `ctx.hooks.sun.setVisible(false)` 藏起来（这个历史接口名在太阳和地球页共用）。
 
 ## 写一个外观脚本
 
@@ -61,7 +61,7 @@ dive: {
       look, aim,                       // 在球外：换哪种外观、镜头转向边缘多少
       open, at, elev, yaw, layer },    // 剖开后：对准哪儿、镜头角度、高亮哪一层
   ],
-  interior: [ { id, r0, r1, c0, c1, pattern } ],   // pattern 1 对流 / 2 辐射 / 3 核聚变 / 0 素色
+  interior: [ { id, r0, r1, c0, c1, pattern } ],   // 1 岩石对流 / 2 辐射 / 3 核聚变 / 4 液态外核对流 / 0 素色
 }
 ```
 

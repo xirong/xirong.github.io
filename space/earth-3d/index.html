@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#020812">
+  <meta name="description" content="用真实昼夜与云层贴图做成的 3D 地球：看白天和城市灯光，钻进地核，动手认识我们的蓝色家园。">
+  <title>真实的地球 · 智天的宇宙</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='%234b9fff'/%3E%3Cpath d='M8 18l9-8 6 5 8-2 2 10-9 9-8-5z' fill='%237acb78'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
+  <link rel="stylesheet" href="../explorer/explorer.css?v=earth1">
+  <style>
+    .narration-source { position: fixed; z-index: 12; right: 18px; top: 72px; color: rgba(220,235,255,.66); font-size: 11px; pointer-events: none; }
+    @media (max-width: 640px) { .narration-source { top: 58px; right: 10px; font-size: 9px; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-label="可以拖动和缩放的 3D 地球"></canvas>
+
+  <div id="look-panel" hidden>
+    <nav class="dock" aria-label="观察地球">
+      <button class="lens active" data-mode="day" style="--lens:#69bfff"><i></i><span>白天地球</span></button>
+      <button class="lens" data-mode="night" style="--lens:#ffd778"><i></i><span>夜晚灯光</span></button>
+      <span class="dock-gap"></span>
+      <button class="action" id="btn-clouds"><b>☁️</b><span>去掉云层</span></button>
+      <button class="action" id="btn-rotate"><b>🔄</b><span>转一天</span></button>
+      <button class="action" id="btn-zoom"><b>🔍</b><span>凑近看</span></button>
+    </nav>
+    <button id="btn-blue" class="ask">❓ 为什么是蓝色的？</button>
+  </div>
+  <div id="narration-source" class="narration-source" aria-live="polite"></div>
+
+  <dialog id="parent" class="parent">
+    <form method="dialog"><button class="close" aria-label="关闭">✕</button></form>
+    <h2>家长看</h2>
+    <p class="lead">点左上角“知识地图”切换模块。九格都已开放，“闯关复习”会跳到网站里的“地球探险家”。每个知识点都有“🤔 考考我”，答对的题会亮星星，只保存在这台设备上。</p>
+
+    <h3>六个知识模块（共 24 个知识点）</h3>
+    <ul class="facts">
+      <li><b>有多大多重</b>：约 4 个月球排直径、约 49 个月球比体积、约 81 个月球称质量、地月火体重比较、地月平均距离约 38.4 万公里（光约 1.3 秒）。</li>
+      <li><b>怎么动</b>：约 24 小时自转形成昼夜；地轴相对公转轨道面倾斜约 23.5°，公转一年形成四季；月球约 27.3 天绕地球一圈。</li>
+      <li><b>会发生什么</b>：板块运动与地震、火山、台风、太阳风与磁场共同带来的极光。</li>
+      <li><b>和我们的关系</b>：海洋覆盖约 71%、多样陆地、大气与蓝天、水循环和生命家园。</li>
+      <li><b>一生的故事</b>：约 46 亿年前太阳星云中的尘埃聚积、炽热地球分层、大碰撞形成月球的科学模型、冷却后出现海洋和生命。</li>
+      <li><b>谁去研究过</b>：古人从月食地影认识球形、麦哲伦船队环球航行、阿波罗 17 号“蓝色弹珠”、卫星与空间站。</li>
+    </ul>
+    <p class="lead">排队、装球、天平、轨道与速度都是为了方便理解而设计的交互；多数场景的大小、距离和时间不是真实比例。四季来自地轴倾斜与公转，不是北半球夏天离太阳更近。</p>
+
+    <h3>长什么样：真实地表与云图</h3>
+    <p class="lead">地表白天、夜间灯光、云层、海面高光和法线贴图复用网站已有素材。代码负责太阳光照、昼夜过渡、大气边缘和动画；夜景是观测合成图，不是此刻实时的地球。</p>
+
+    <h3>里面是什么：科学模型示意</h3>
+    <p class="lead">人不能钻到地心，剖面的颜色、花纹和动画都是示意。内部温度随深度变化，表中为代表范围，并非每一处的精确温度。</p>
+    <table>
+      <tr><th>层</th><th>大致深度</th><th>特点</th></tr>
+      <tr><td>地壳</td><td>约 5～70 km</td><td>薄而坚硬，海洋下通常更薄</td></tr>
+      <tr><td>上地幔</td><td>至约 660 km</td><td>固态岩石可长期缓慢变形</td></tr>
+      <tr><td>下地幔</td><td>约 660～2,890 km</td><td>地球最厚的一层</td></tr>
+      <tr><td>外核</td><td>约 2,890～5,150 km</td><td>液态铁镍流动，与磁场产生有关</td></tr>
+      <tr><td>内核</td><td>约 5,150～6,371 km</td><td>高压下的固态铁镍，约 5,000～6,000℃</td></tr>
+    </table>
+
+    <h3>地球名片</h3>
+    <ul class="facts">
+      <li>平均半径约 6,371 km，直径约 12,742 km；赤道略鼓，不是完美球体。</li>
+      <li>年龄约 45.4 亿年（儿童场景中说“约 46 亿年前”，与太阳系形成阶段相对应）。</li>
+      <li>质量约 5.97×10²⁴ kg，是月球质量的约 81 倍。</li>
+      <li>目前唯一确认存在生命的星球；液态水、大气和合适的温度共同造就家园。</li>
+    </ul>
+    <p class="credit">地表贴图：Solar System Scope（CC BY 4.0）；事件照片：NASA 等公开来源，详见 CREDITS.md。</p>
+  </dialog>
+
+  <script src="../explorer/vendor/three.min.js"></script>
+  <script src="../explorer/vendor/OrbitControls.js"></script>
+  <script src="../explorer/vendor/CopyShader.js"></script>
+  <script src="../explorer/vendor/LuminosityHighPassShader.js"></script>
+  <script src="../explorer/vendor/EffectComposer.js"></script>
+  <script src="../explorer/vendor/RenderPass.js"></script>
+  <script src="../explorer/vendor/ShaderPass.js"></script>
+  <script src="../explorer/vendor/UnrealBloomPass.js"></script>
+  <script src="../explorer/engine.js?v=earth1"></script>
+  <script src="../explorer/dive.js?v=earth1"></script>
+  <script src="../explorer/stage.js?v=earth1"></script>
+  <script src="narration.js?v=earth1"></script>
+  <script src="earth-data.js?v=earth1"></script>
+  <script src="earth-look.js?v=earth1"></script>
+  <script src="earth-stages.js?v=earth1"></script>
+  <script>Explorer.start({ body: window.BODY, setup: ctx => EarthLook.setup(ctx).then(() => EarthStages.setup(ctx)) });</script>
+</body>
+</html>

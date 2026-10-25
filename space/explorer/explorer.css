@@ -171,7 +171,10 @@ body:has(.stage-panel:not([hidden])) .caption { display: none; }
 
 /* ============ 窄屏 ============ */
 @media (max-width: 640px) {
-  .title h1 { font-size: 18px; }
+  .top { gap: 6px; padding-left: 8px; padding-right: 8px; }
+  .top-left, .top-right { gap: 5px; }
+  .title { flex: 1; min-width: 0; }
+  .title h1 { font-size: 18px; letter-spacing: .04em; }
   .title p { font-size: 10px; max-width: 44vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-inline: auto; }
   .round { width: 42px; height: 42px; font-size: 19px; }
   .pill { height: 36px; padding: 0 12px; font-size: 13px; }
