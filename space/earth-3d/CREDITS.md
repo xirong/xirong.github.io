@@ -4,16 +4,27 @@
 
 “长什么样”使用真实地表达面、夜间灯光与云图，代码负责太阳光照、昼夜过渡、海面高光、大气边缘和动画。“里面是什么”以及板块、火山、地球形成等动态过程是科学模型示意，不是钻进地球拍到的照片；大小、距离和时间压缩会在场景或“家长看”中说明。
 
-## 球面贴图
+## 球面贴图（`assets/textures/`，由 `tools/build-textures.py` 生成）
 
-复用 `../textures/`：
+全部来自 NASA，公有领域：
 
-- `earth_daymap.jpg`、`earth_nightmap.jpg`、`earth_clouds.jpg`、`earth_specular.jpg`：Solar System Scope，CC BY 4.0，https://www.solarsystemscope.com/textures/ 。
-- `moon.jpg`、`mars.jpg`、`starfield.jpg`：Solar System Scope，CC BY 4.0。
-- `deep-sky/orion_m42.jpg`：哈勃，NASA/ESA，复用网站已有素材。
-- `../explorer/vendor/`：Three.js r128 及 examples 组件，MIT 许可。
+| 文件 | 内容 | 来源 |
+|---|---|---|
+| `day-8k.jpg`、`day-4k.jpg` | Blue Marble Next Generation，2004 年 7 月，无阴影真实颜色 | NASA Earth Observatory 图像编号 74092 |
+| `night-8k.jpg`、`night-4k.jpg` | Black Marble 2016 夜间灯光 | NASA Earth Observatory 144898 |
+| `clouds-8k.jpg`、`clouds-4k.jpg` | Blue Marble 云图 cloud_combined_8192 | NASA Visible Earth 57747 |
+| `normal-8k.jpg`、`normal-4k.jpg` | 由 GEBCO 2008 陆地高程（73934）算出的法线贴图 | NASA Visible Earth / GEBCO |
+| `ocean-4k.png` | 由 GEBCO 2008 海底深度（73963）得到的海洋遮罩 | NASA Visible Earth / GEBCO |
 
-夜景和云图是观测合成素材，不代表页面打开时的实时地球；自转、公转与场景动画均经过加速。
+原图下载地址：`https://eoimages.gsfc.nasa.gov/images/imagerecords/` 下的 74000/74092、144000/144898、57000/57747、73000/73934、73000/73963。重新生成：
+
+```bash
+python3 tools/build-textures.py <放原图的目录>
+```
+
+其他复用：`../textures/moon.jpg`、`mars.jpg`、`sun.jpg`、`starfield.jpg`（Solar System Scope，CC BY 4.0），`deep-sky/orion_m42.jpg`（哈勃，NASA/ESA），`../explorer/vendor/`（Three.js r128，MIT）。
+
+夜景、云图都是拼合图，不代表页面打开时的实时地球；自转、公转与场景动画均经过加速。
 
 ## 真实照片（`assets/photos/`）
 

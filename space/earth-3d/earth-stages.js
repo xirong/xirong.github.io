@@ -86,13 +86,14 @@ window.EarthStages = (() => {
           varying vec2 vUv; varying vec3 vN;
           void main(){
             float ndl = dot(normalize(vN), normalize(sunDir));
-            vec3 d = texture2D(day, vUv).rgb * smoothstep(-0.12, 0.25, ndl) * light;
-            vec3 n = texture2D(night, vUv).rgb * 1.6 * (1.0 - smoothstep(-0.2, 0.15, ndl) * light);
+            vec3 d = texture2D(day, vUv).rgb * (0.05 + 1.2 * max(ndl, 0.0)) * smoothstep(-0.12, 0.25, ndl) * light;
+            vec3 nt = texture2D(night, vUv).rgb;   // Black Marble：只取亮的城市灯光
+            vec3 n = nt * smoothstep(0.16, 0.5, dot(nt, vec3(0.3, 0.59, 0.11))) * vec3(1.15, 0.95, 0.7) * 1.8 * (1.0 - smoothstep(-0.2, 0.15, ndl) * light);
             gl_FragColor = vec4(d + n, 1.0);
           }`,
       }));
-      loadTex('../textures/earth_daymap.jpg').then(t => { u.day.value = t; });
-      loadTex('../textures/earth_nightmap.jpg').then(t => { u.night.value = t; });
+      loadTex('assets/textures/day-4k.jpg').then(t => { u.day.value = t; });
+      loadTex('assets/textures/night-4k.jpg').then(t => { u.night.value = t; });
       return { mesh, u };
     }
     // 经纬度 → 球面上的点（和 THREE.SphereGeometry + 等距柱状贴图的约定一致，经度 -180° 在 u = 0）
@@ -122,7 +123,7 @@ window.EarthStages = (() => {
       hideSun();
       api.fly([0.75, 0, 5.4], [0.75, 0, 0]);
       lights(api.root, [3, 4, 6], 0.7);
-      const earth = ball(1, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(1, 'assets/textures/day-4k.jpg', { lit: true });
       api.root.add(earth);
       // 月球竖着排在地球旁边（和地球离镜头一样远，大小才比得准）；两条横线标出地球的上下边
       const COL = 1.55;
@@ -259,7 +260,7 @@ window.EarthStages = (() => {
         return g;
       });
       // 左边挂一个地球
-      const earth = ball(0.62, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(0.62, 'assets/textures/day-4k.jpg', { lit: true });
       earth.position.y = -0.72;
       pans[0].add(earth);
       // 右边堆 81 个月球
@@ -308,7 +309,7 @@ window.EarthStages = (() => {
       lights(api.root, [3, 5, 6], 0.55);
       const moon = ball(0.5, '../textures/moon.jpg', { lit: true });
       moon.position.set(-2.9, 0, 0);
-      const earth = ball(1, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(1, 'assets/textures/day-4k.jpg', { lit: true });
       earth.position.set(0, 0, 0);
       const mars = ball(0.55, '../textures/mars.jpg', { lit: true });
       mars.position.set(2.9, 0, 0);
@@ -338,7 +339,7 @@ window.EarthStages = (() => {
     S.size_far = api => {
       hideSun();
       api.fly([0, 3, 14], [0, 0, 0]);
-      const earth = ball(0.5, '../textures/earth_daymap.jpg');
+      const earth = ball(0.5, 'assets/textures/day-4k.jpg');
       earth.position.set(-4, 0, 0);
       const moon = ball(0.135, '../textures/moon.jpg');
       moon.position.set(4, 0, 0);
@@ -371,8 +372,8 @@ window.EarthStages = (() => {
     // ============ 怎么动 ============
     S.motion_spin = api => {
       hideSun();
-      api.fly([0.4, 1.2, 4.6]);
-      const sunPos = V(-8, 1.5, 3);   // 太阳从侧面照过来，昼夜各一半
+      api.fly([-1.6, 1.0, 4.4], [-0.2, 0, 0]);   // 正对晨昏线，白天黑夜各一半
+      const sunPos = V(-8, 1.5, 3);   // 太阳从侧面照过来
       const sun = sunBall(1.1);
       sun.position.copy(sunPos);
       const { mesh: earth } = dayNightEarth(1.4, sunPos.clone().normalize());
@@ -766,7 +767,7 @@ window.EarthStages = (() => {
       hideSun();
       api.fly([0.6, 1, 8.4], [0.6, -0.3, 0]);
       lights(api.root, [3, 5, 6], 0.6);
-      const earth = ball(0.75, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(0.75, 'assets/textures/day-4k.jpg', { lit: true });
       earth.position.set(0.3, 1.5, -1);
       const etag = label('从太空看：地球是蓝色的', { h: 0.024 });
       etag.position.set(0.3, 2.45, -1);
@@ -838,7 +839,7 @@ window.EarthStages = (() => {
         dune.position.set(x, 0.05, z - 0.4);
         api.root.add(dune);
       });
-      const earth = ball(0.55, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(0.55, 'assets/textures/day-4k.jpg', { lit: true });
       earth.position.set(0, 2.2, -1.2);
       api.root.add(earth);
       const LANDS = [
@@ -879,7 +880,7 @@ window.EarthStages = (() => {
             gl_FragColor = vec4(c + sky * rim * 0.9, 1.0);
           }`,
       }));
-      loadTex('../textures/earth_daymap.jpg').then(t => { u.day.value = t; });
+      loadTex('assets/textures/day-4k.jpg').then(t => { u.day.value = t; });
       const sun = sunBall(0.5);
       const sunSprite = glow(0xffe9b0, 2, { strength: 1.2 });
       api.root.add(earth, sun, sunSprite);
@@ -1163,7 +1164,7 @@ window.EarthStages = (() => {
             gl_FragColor = vec4(c * mix(1.0, lit, ocean), 1.0);
           }`,
       }));
-      loadTex('../textures/earth_daymap.jpg').then(t => { u.day.value = t; });
+      loadTex('assets/textures/day-4k.jpg').then(t => { u.day.value = t; });
       api.root.add(earth);
       const STEPS = [
         { ocean: 0, life: 0, today: 0, text: '🌋 刚出生的地球：到处是滚烫的岩浆' },
@@ -1230,7 +1231,7 @@ window.EarthStages = (() => {
       hideSun();
       api.fly([0, 0.4, 6.2]);
       lights(api.root, [-4, 2, 5], 0.5);
-      const earth = ball(1.3, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(1.3, 'assets/textures/day-4k.jpg', { lit: true });
       api.root.add(earth);
       // 麦哲伦船队的航线：绕地球一圈的粗线
       const pts = [];
@@ -1276,7 +1277,7 @@ window.EarthStages = (() => {
       api.fly([0, 0.4, 7]);
       lights(api.root, [1, 1, 6], 0.25);   // 太阳在宇航员身后，所以地球几乎整个被照亮
       // 真实比例：地球直径约是月球的 3.7 倍。宇航员离地球近、离月球远
-      const earth = ball(0.9, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(0.9, 'assets/textures/day-4k.jpg', { lit: true });
       earth.position.set(-2.4, 0.2, 0);
       const moon = ball(0.9 * MOON_D, '../textures/moon.jpg', { lit: true });
       moon.position.set(3.6, 0.5, -3);
@@ -1313,7 +1314,7 @@ window.EarthStages = (() => {
       sun.position.set(-9, 2, -2);
       const d = lights(api.root, sun.position.toArray(), 0.35);
       d.intensity = 1.25;
-      const earth = ball(1.15, '../textures/earth_daymap.jpg', { lit: true });
+      const earth = ball(1.15, 'assets/textures/day-4k.jpg', { lit: true });
       api.root.add(sun, earth);
       // 空间站 + 卫星在不同高度的轨道上绕地球
       const SATS = [
