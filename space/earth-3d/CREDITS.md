@@ -31,10 +31,17 @@ python3 tools/build-textures.py <放原图的目录>
 | 文件 | 内容 | 来源与许可 |
 |---|---|---|
 | `blue-marble.jpg` | 1972-12-07 阿波罗 17 号飞向月球途中拍摄的“蓝色弹珠”，NASA 编号 AS17-148-22727 | NASA Johnson Space Center；NASA 说明 https://science.nasa.gov/earth/earth-observatory/the-blue-marble-from-apollo-17-1133/ ；经 Wikimedia Commons 文件缩小 https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg |
-| `hurricane.jpg` | 2003 年国际空间站拍摄的伊莎贝尔飓风 | NASA；Wikimedia Commons 文件与来源说明 https://commons.wikimedia.org/wiki/File:Hurricane_Isabel_from_ISS.jpg |
+| `typhoon-soudelor.jpg` | 2015-08-04 NASA Aqua 卫星 MODIS 拍到的超强台风苏迪罗（从正上方拍），以风眼为中心裁成方形；同一张图的 2048 像素版 `textures/typhoon-decal.jpg` 贴在 3D 地球上 | NASA Goddard，NASA 图库编号 GSFC_20171208_Archive_e000672 |
 | `volcano.jpg` | 夏威夷 Puʻu ʻŌʻō 火山与岩浆 | USGS Hawaiian Volcano Observatory；Wikimedia Commons 文件与来源说明 https://commons.wikimedia.org/wiki/File:Puu_Oo_cropped.jpg |
 
 极光场景复用 `../sun-3d/assets/photos/aurora-iss.jpg`：NASA，2024-10-30 国际空间站拍摄。星云场景复用上述哈勃猎户座大星云素材。
+
+## 场景里用到的真实地点和数据
+
+- 台风：贴在东经 140°、北纬 17° 附近（苏迪罗当天的大致位置），从上往下看逆时针转。
+- 陆地：喜马拉雅山脉、撒哈拉沙漠、亚马孙雨林、华北平原、南极冰盖都按真实经纬度飞过去看，太阳从东边斜照，地形起伏来自 GEBCO 高程。
+- 麦哲伦船队：按真实航点（西班牙 → 麦哲伦海峡 → 太平洋 → 关岛 → 菲律宾马克坦岛 → 香料群岛 → 好望角 → 西班牙）沿大圆弧连线。
+- 月食：地球本影在月球距离处的半径约 0.73 个地球半径，影子边缘按这个画在月亮上。帆船场景里海面的弯曲程度放大了。
 
 ## 旁白
 
