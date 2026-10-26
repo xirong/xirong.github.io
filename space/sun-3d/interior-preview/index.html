@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#070706">
+  <title>飞进太阳 · 内部探索预览</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffb65c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="preview.css?v=5">
+</head>
+<body>
+  <canvas id="scene" aria-label="可拖动观察的太阳三维模型"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <header>
+    <a class="back" href="../index.html#inside" aria-label="返回原版太阳">‹ <span>太阳</span></a>
+    <div class="brand">飞进太阳 <span>效果预览</span></div>
+    <div class="tools">
+      <button id="sound" aria-label="打开讲解声音" aria-pressed="false">声音关</button>
+      <button id="motion" aria-label="暂停场景动画" aria-pressed="false">暂停动画</button>
+      <button id="about">家长看</button>
+    </div>
+  </header>
+  <main>
+    <section class="story" aria-live="polite" aria-atomic="true">
+      <p class="eyebrow" id="eyebrow">一场向内的旅行</p>
+      <h1 id="title">太阳里面，<br>藏着什么？</h1>
+      <p class="fact" id="fact">穿过翻滚的热浪，<br>去找太阳发光的秘密。</p>
+      <div class="reading"><span id="temperature">从这里出发</span><small id="location">目的地 · 太阳核心</small></div>
+    </section>
+    <aside class="locator" aria-label="旅程位置">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="49" class="outline"/>
+        <path d="M60 60 L95 25 A49 49 0 1 0 95 95Z" fill="#7b2b0a"/>
+        <path d="M60 60 L84 36 A34 34 0 1 0 84 84Z" fill="#cf6816"/>
+        <path d="M60 60 L69 51 A13 13 0 1 0 69 69Z" fill="#ffdf88"/>
+        <path d="M61 60H112" stroke="#fff3cd" stroke-width="1" stroke-dasharray="2 4"/>
+        <circle id="position-dot" cx="112" cy="60" r="4" fill="#fff"/>
+      </svg>
+      <span id="locator-label">太空 → 核心</span>
+    </aside>
+    <p id="reaction" hidden></p>
+    <div id="labels" aria-hidden="true"><span data-layer="convection">对流区</span><span data-layer="radiative">辐射区</span><span data-layer="core">核心</span></div>
+  </main>
+  <section class="journey" aria-label="飞行控制">
+    <div class="control-row">
+      <button class="secondary" id="overview">看剖面</button>
+      <button class="primary" id="fly" disabled><span aria-hidden="true">▷</span> 开始飞行</button>
+      <button class="secondary" id="outside">回到太空</button>
+    </div>
+    <div class="scrubber"><label for="depth">拖动，自己飞 <span id="percent">0%</span></label><input id="depth" type="range" min="0" max="600" step="1" value="0" aria-label="从太空到核心的飞行进度" disabled></div>
+    <nav class="stops" aria-label="选择探索地点">
+      <button data-stop="0" aria-current="step"><i></i><span>太空</span></button>
+      <button data-stop="1"><i></i><span>日冕</span></button>
+      <button data-stop="2"><i></i><span>表面</span></button>
+      <button data-stop="3"><i></i><span>打开太阳</span></button>
+      <button data-stop="4"><i></i><span>对流区</span></button>
+      <button data-stop="5"><i></i><span>辐射区</span></button>
+      <button data-stop="6"><i></i><span>核心</span></button>
+    </nav>
+    <p class="hint" id="hint">拖动画面转一转 · 滚轮或双指缩放</p>
+  </section>
+  <footer>太阳内部 · 科学模型示意 <span>空间与时间经过缩放</span></footer>
+  <div id="loading" role="status"><div class="loading-sun"></div><p id="load-text">正在搬来一颗太阳…</p></div>
+  <dialog id="info">
+    <form method="dialog"><button class="close" aria-label="关闭说明">×</button></form>
+    <p class="eyebrow">给好奇的大人</p><h2>这是怎样的一颗太阳？</h2>
+    <p>外表贴图来自 NASA / SDO 的 AIA 304 Å 真实观测，使用紫外伪彩。外表的红橙色不能当作肉眼所见的太阳颜色。色球和过渡区很薄，本预览将它们合并在靠近表面的途中展示。</p>
+    <p>太阳内部无法直接拍照。这些有厚度的剖面、纹理、对流胞和能量路径由 Blender 制作，再由 Three.js 实时展示。<b>内部颜色、流线形状、粒子大小和运动速度都是教学示意。</b>发亮的线表示流动或能量路径，并非太阳中的管道。</p>
+    <p>模型中核心半径约为太阳的 1/4，辐射区延伸至约 0.7 个太阳半径；外面是对流区。太阳没有坚硬外壳，剖开只是帮助看清位置。核心近景中将微观反应放大，省略中间反应，不是准确的核反应动画。</p>
+    <p>能量在辐射区经过反复吸收与再发射，逐渐向外传递。不会有一束可见光在太阳内部笔直飞行。薄大气层、日冕范围与粒子尺度没有按统一比例显示。</p>
+    <p>网页可以暂停、逐层选择和拖动观察。选择“减少动态效果”的系统会默认关闭环境动画，只有主动开始飞行时才移动镜头。</p>
+    <div class="source-links"><a href="assets/blender-cutaway.png" target="_blank" rel="noopener">看 Blender 原始渲染图 ↗</a><a href="https://science.nasa.gov/sun/facts/" target="_blank" rel="noopener">NASA：太阳的结构 ↗</a><a href="README.md">制作与素材说明 ↗</a></div>
+  </dialog>
+  <script src="../../explorer/vendor/three.min.js"></script>
+  <script src="../../explorer/vendor/OrbitControls.js"></script>
+  <script src="../../explorer/vendor/CopyShader.js"></script>
+  <script src="../../explorer/vendor/LuminosityHighPassShader.js"></script>
+  <script src="../../explorer/vendor/EffectComposer.js"></script>
+  <script src="../../explorer/vendor/RenderPass.js"></script>
+  <script src="../../explorer/vendor/ShaderPass.js"></script>
+  <script src="../../explorer/vendor/UnrealBloomPass.js"></script>
+  <script src="vendor/GLTFLoader.js"></script>
+  <script src="../narration.js"></script>
+  <script src="preview.js?v=6"></script>
+</body>
+</html>

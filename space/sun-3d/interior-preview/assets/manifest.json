@@ -1,0 +1,10 @@
+{
+  "blender": "5.2.1 LTS",
+  "radius": 10,
+  "coreRadius": 2.5,
+  "radiativeRadius": 7,
+  "objects": 14,
+  "triangles": 232896,
+  "seed": 628,
+  "note": "内部是科学模型；纹理由 Blender 烘焙。外表使用 SDO AIA 304 Å 观测伪彩图。"
+}
