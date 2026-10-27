@@ -1,0 +1,20 @@
+/* 仅太阳内部三站使用；原有面板、深度条和外观不变。 */
+.sun-interior-status, .sun-interior-reaction {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  max-width: calc(100% - 32px); padding: 10px 16px; margin: 0;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: var(--glass); color: var(--ink); text-align: center;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.sun-interior-status { top: 88px; font-size: 15px; }
+.sun-interior-status button {
+  min-height: 44px; margin: 8px 0 0; padding: 0 16px;
+  border: 1px solid var(--accent); border-radius: 22px;
+  color: var(--ink); background: rgba(255,197,107,.18);
+}
+.sun-interior-reaction { top: 23%; font-size: 17px; pointer-events: none; }
+.sun-interior-reaction::after { content: '微观过程放大示意'; display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+.sun-interior-status[hidden], .sun-interior-reaction[hidden] { display: none; }
+@media (max-width: 640px) {
+  .sun-interior-reaction { top: 17%; font-size: 14px; padding: 8px 12px; }
+}

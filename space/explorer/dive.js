@@ -8,6 +8,8 @@ Explorer.registerModule('dive', ctx => {
   'use strict';
   const { camera, controls, cut, say, body } = ctx;
   const { stops, interior } = body.dive;
+  // 星球可选择接管内部画面；未提供时完整保留公共剖面行为。
+  const customView = ctx.hooks.diveView;
   const thermoTop = body.dive.thermoMax || 18000000;
   cut.frame.scale.set(1, body.flatten || 1, 1);   // 气态巨行星的扁球剖面；太阳和地球默认为 1
   const N = stops.length;
@@ -270,6 +272,7 @@ Explorer.registerModule('dive', ctx => {
   return {
     panel: '#dive-panel',
     enter({ silent } = {}) {
+      if (customView) customView.enter();
       controls.enabled = false;
       // 让楔形的开口正对孩子现在看的方向
       const az = Math.atan2(camera.position.z, camera.position.x);
@@ -284,6 +287,8 @@ Explorer.registerModule('dive', ctx => {
       if (!silent) say('dive_intro');
     },
     exit() {
+      if (customView) customView.exit();
+      if (customView) cut.frame.visible = true;
       cut.uniforms.cutAngle.value = 0;
       faceA.visible = faceB.visible = false;
       fx.visible = false;
@@ -304,19 +309,24 @@ Explorer.registerModule('dive', ctx => {
         pos = entering.from.clone().lerp(pos, ctx.ease(k));
         if (k >= 1) entering = null;
       }
-      camera.position.copy(pos);
       // 视线对准剖面上 at 处（剖开前 at = 0，就是球心）
       const aimPoint = camPos(p.at, 0);
       const look = aimPoint.sub(pos).normalize();
       // aim > 0 时，视线从球心往旁边转，正对星球边缘（切点方向与球心方向夹角 = asin(1/r)）
       const limbAngle = Math.asin(Math.min(1, 1 / Math.max(p.r, 1)));
       look.applyAxisAngle(UP, -p.aim * limbAngle);
-      camera.lookAt(pos.clone().add(look));
+      const lookAt = pos.clone().add(look);
+      const customActive = customView && customView.update({
+        depth: s * (N - 1), settled: !dragging && s === target,
+        now, dt, rawDt, position: pos, lookAt,
+      });
+      if (!customActive) { camera.position.copy(pos); camera.lookAt(lookAt); }
+      if (customView) cut.frame.visible = !customActive;
 
       const angle = p.open * Math.PI / 2;
-      cut.uniforms.cutAngle.value = angle;
+      cut.uniforms.cutAngle.value = customActive ? 0 : angle;
       faceB.rotation.y = -angle;
-      const showFaces = angle > 0.002;
+      const showFaces = !customActive && angle > 0.002;
       faceA.visible = faceB.visible = fx.visible = showFaces;
       faceUniforms.time.value = now / 1000;
 

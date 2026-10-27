@@ -9,6 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffb65c'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
   <link rel="stylesheet" href="../explorer/explorer.css?v=stage8">
+  <link rel="stylesheet" href="sun-interior.css?v=blender1">
 </head>
 <body>
   <canvas id="scene" aria-label="可以拖动和缩放的 3D 太阳"></canvas>
@@ -55,7 +56,7 @@
     </table>
 
     <h3>里面是什么：科学模型示意</h3>
-    <p class="lead">太阳内部没法拍照。外面三层大气直接用对应的紫外照片看；钻进光球以下，画面是按分层模型画的剖面，颜色、花纹和动画都是示意。</p>
+    <p class="lead">太阳内部没法拍照。外面三层大气直接用对应的紫外照片看；对流区、辐射区和核心使用 Blender 制作的三维分层模型与等离子体纹理，颜色、花纹和运动速度都是教学示意。核心的微观粒子被放大，聚变动画省略了中间反应；云雾使用预渲染素材表现空间层次。</p>
     <table>
       <tr><th>层</th><th>位置</th><th>温度</th></tr>
       <tr><td>日冕</td><td>最外层大气，没有明确边界</td><td>约 100 万～200 万℃</td></tr>
@@ -84,6 +85,7 @@
 
   <script src="../explorer/vendor/three.min.js"></script>
   <script src="../explorer/vendor/OrbitControls.js"></script>
+  <script src="interior-preview/vendor/GLTFLoader.js"></script>
   <script src="../explorer/vendor/CopyShader.js"></script>
   <script src="../explorer/vendor/LuminosityHighPassShader.js"></script>
   <script src="../explorer/vendor/EffectComposer.js"></script>
@@ -91,13 +93,14 @@
   <script src="../explorer/vendor/ShaderPass.js"></script>
   <script src="../explorer/vendor/UnrealBloomPass.js"></script>
   <script src="../explorer/engine.js?v=stage8"></script>
-  <script src="../explorer/dive.js?v=stage8"></script>
+  <script src="../explorer/dive.js?v=sun-blender1"></script>
   <script src="../explorer/stage.js?v=stage8"></script>
   <script src="assets/frames.js"></script>
   <script src="narration.js?v=stage8"></script>
   <script src="sun-data.js?v=stage8"></script>
   <script src="sun-look.js?v=stage8"></script>
   <script src="sun-stages.js?v=stage10"></script>
-  <script>Explorer.start({ body: window.BODY, setup: ctx => SunLook.setup(ctx).then(() => SunStages.setup(ctx)) });</script>
+  <script src="sun-interior.js?v=blender1"></script>
+  <script>Explorer.start({ body: window.BODY, setup: ctx => SunLook.setup(ctx).then(() => { SunStages.setup(ctx); SunInterior.setup(ctx); }) });</script>
 </body>
 </html>
