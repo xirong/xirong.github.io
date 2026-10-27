@@ -1,0 +1,13 @@
+/* 只在已启用 Blender 内部场景时显示。 */
+.blender-interior-hud,.blender-interior-status{position:fixed;left:50%;top:96px;transform:translateX(-50%);max-width:calc(100% - 170px);text-align:center;border:1px solid var(--line);border-radius:18px;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 14px;z-index:2;}
+.blender-interior-hud p{margin:0 0 8px;font-size:14px;color:var(--ink);}
+.blender-interior-hud>div{display:flex;justify-content:center;gap:8px;}
+.blender-interior-hud button,.blender-interior-status button{min-height:44px;padding:0 14px;border-radius:24px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--ink);font-size:14px;white-space:nowrap;}
+.blender-interior-hud button[aria-pressed=true]{border-color:var(--accent);background:rgba(255,197,107,.18);}
+.blender-interior-status{top:100px;max-width:calc(100% - 24px);}
+.blender-interior-status button{display:block;margin:8px auto 0;}
+.blender-interior-hud[hidden],.blender-interior-status[hidden],.blender-interior-status button[hidden]{display:none;}
+@media(max-width:640px){.blender-interior-hud{top:82px;padding:8px;max-width:calc(100% - 24px);}.blender-interior-hud p{font-size:12px;}.blender-interior-hud button{font-size:12px;padding:0 12px;}}
+@media(max-height:600px){.blender-interior-hud{top:75px;padding:4px 8px;}.blender-interior-hud p{margin:0;font-size:11px;}.blender-interior-hud button{min-height:36px;}}
+
+body.has-blender-interior #caption{bottom:calc(202px + env(safe-area-inset-bottom));}

@@ -52,3 +52,7 @@
 ## 旁白
 
 全部文本集中在 `narration.py`，用 `zh-CN-XiaoxiaoNeural`、rate `-5%` 生成 MP3。运行 `../sun-3d/.venv/bin/python generate-audio.py` 可增量更新 `narration.js` 与 `audio/manifest.json`；不再使用的 key 与音频应同步删除。
+
+## Blender 内部模型（2026-10-27）
+
+`assets/interior/` 为本项目用 Blender 5.2 Cycles 制作的内部网格与烘焙材质，工程在 `interior-source/`。外表沿用上文观测贴图并缩小为 2K，原署名与许可不变。内部颜色、照明、纹理、运动和定位剖面是科学模型示意，不是内部实拍。科学依据、尺度约定与重建方法见 [内部模型说明](../explorer/BLENDER-INTERIORS.md)。

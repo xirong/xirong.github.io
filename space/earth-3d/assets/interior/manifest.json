@@ -1,0 +1,30 @@
+{
+  "body": "earth",
+  "blender": "5.2.1 LTS",
+  "radius": 10,
+  "flatten": 1,
+  "layers": [
+    {
+      "id": "crust",
+      "r0": 0.9945,
+      "r1": 1.0
+    },
+    {
+      "id": "upper_mantle",
+      "r0": 0.8960000000000001,
+      "r1": 0.9945
+    },
+    {
+      "id": "lower_mantle",
+      "r0": 0.546,
+      "r1": 0.8960000000000001
+    },
+    {
+      "id": "outer_core",
+      "r0": 0.1915,
+      "r1": 0.546
+    }
+  ],
+  "hasSolidInnerCore": true,
+  "note": "内部材料、色彩与运动为科学教学模型；表面使用本项目已归档观测贴图。"
+}

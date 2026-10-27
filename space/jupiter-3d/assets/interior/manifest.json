@@ -1,0 +1,25 @@
+{
+  "body": "jupiter",
+  "blender": "5.2.1 LTS",
+  "radius": 10,
+  "flatten": 0.935,
+  "layers": [
+    {
+      "id": "atmosphere",
+      "r0": 0.95,
+      "r1": 1.0
+    },
+    {
+      "id": "liquid",
+      "r0": 0.8,
+      "r1": 0.95
+    },
+    {
+      "id": "metallic",
+      "r0": 0.4,
+      "r1": 0.8
+    }
+  ],
+  "hasSolidInnerCore": false,
+  "note": "内部材料、色彩与运动为科学教学模型；表面使用本项目已归档观测贴图。"
+}

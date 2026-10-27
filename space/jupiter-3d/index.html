@@ -11,7 +11,8 @@
   <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
   <link rel="preload" as="image" href="assets/textures/jupiter-8k.jpg" media="(pointer: fine)" fetchpriority="high" crossorigin>
   <link rel="preload" as="image" href="assets/textures/jupiter-4k.jpg" media="(pointer: coarse)" fetchpriority="high" crossorigin>
-  <link rel="stylesheet" href="../explorer/explorer.css?v=jupiter10">
+  <link rel="stylesheet" href="../explorer/explorer.css?v=jupiter-blender1">
+  <link rel="stylesheet" href="../explorer/blender-interior.css?v=2">
   <style>
     .narration-source { position: fixed; z-index: 12; right: 18px; top: 72px; color: rgba(235,224,211,.68); font-size: 11px; pointer-events: none; }
     @media (max-width: 640px) { .narration-source { top: 58px; right: 10px; font-size: 9px; } }
@@ -53,6 +54,7 @@
     <p class="lead">主图是 Björn Jónsson 的 14400×7200 简单圆柱投影地图：中低纬来自 2000 年 Cassini，极区来自 Juno JunoCam/JIRAM 多次观测。它是跨时间的合成图，不是同一时刻的照片；网页处理为电脑 8K、手机 4K。球体按赤道/极半径比例压扁，代码负责光照和交互。</p>
 
     <h3>里面是什么：没有地面的渐变世界</h3>
+    <p class="lead">内部使用 Blender 制作的三维模型、烘焙流体纹理和预渲染云体，颜色与加速后的运动为教学示意。云层以下没有坚硬地面，分子氢与金属氢之间并非硬壳；稀释核心以混合流体和渐变云体表达，没有实心球面。模型保留木星的扁率；区域大小是近似值，不同内部模型仍有差异。</p>
     <p class="lead">木星没有固体地面。内部边界、温度和剖面颜色均为近似科学模型，不能把分界画成坚硬的壳。朱诺观测支持“稀释/模糊核心”，而不是一个边界清楚的铁球。</p>
     <table>
       <tr><th>区域</th><th>近似位置</th><th>讲解</th></tr>
@@ -76,21 +78,24 @@
 
   <script src="../explorer/vendor/three.min.js"></script>
   <script src="../explorer/vendor/OrbitControls.js"></script>
+  <script src="../explorer/vendor/GLTFLoader.js"></script>
   <script src="../explorer/vendor/CopyShader.js"></script>
   <script src="../explorer/vendor/LuminosityHighPassShader.js"></script>
   <script src="../explorer/vendor/EffectComposer.js"></script>
   <script src="../explorer/vendor/RenderPass.js"></script>
   <script src="../explorer/vendor/ShaderPass.js"></script>
   <script src="../explorer/vendor/UnrealBloomPass.js"></script>
-  <script src="../explorer/engine.js?v=jupiter10"></script>
-  <script src="../explorer/dive.js?v=jupiter10"></script>
-  <script src="../explorer/stage.js?v=jupiter10"></script>
-  <script src="narration.js?v=jupiter10"></script>
-  <script src="jupiter-data.js?v=jupiter10"></script>
-  <script src="jupiter-look.js?v=jupiter10"></script>
-  <script src="jupiter-size-motion.js?v=jupiter10"></script>
-  <script src="jupiter-explore.js?v=jupiter10"></script>
-  <script src="jupiter-stages.js?v=jupiter10"></script>
-  <script>Explorer.start({ body: window.BODY, setup: ctx => JupiterLook.setup(ctx).then(() => JupiterStages.setup(ctx)) });</script>
+  <script src="../explorer/engine.js?v=jupiter-blender1"></script>
+  <script src="../explorer/dive.js?v=jupiter-blender1"></script>
+  <script src="../explorer/stage.js?v=jupiter-blender1"></script>
+  <script src="narration.js?v=jupiter-blender1"></script>
+  <script src="jupiter-data.js?v=jupiter-blender1"></script>
+  <script src="jupiter-look.js?v=jupiter-blender1"></script>
+  <script src="jupiter-size-motion.js?v=jupiter-blender1"></script>
+  <script src="jupiter-explore.js?v=jupiter-blender1"></script>
+  <script src="jupiter-stages.js?v=jupiter-blender1"></script>
+  <script src="../explorer/blender-interior.js?v=2"></script>
+  <script src="jupiter-interior.js?v=2"></script>
+  <script>Explorer.start({ body: window.BODY, setup: ctx => JupiterLook.setup(ctx).then(() => { JupiterStages.setup(ctx); JupiterInterior.setup(ctx); }) });</script>
 </body>
 </html>

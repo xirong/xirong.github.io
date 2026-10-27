@@ -52,3 +52,7 @@ python3 tools/build-textures.py <放原图的目录>
 ```
 
 生成器会跳过文本未变化的音频，并更新 `narration.js` 和 `audio/manifest.json`。
+
+## Blender 内部模型（2026-10-27）
+
+`assets/interior/` 为本项目用 Blender 5.2 Cycles 制作的内部网格与烘焙材质，工程在 `interior-source/`。外表沿用上文观测贴图并缩小为 2K，原署名与许可不变。内部颜色、照明、纹理、运动和定位剖面是科学模型示意，不是内部实拍。科学依据、尺度约定与重建方法见 [内部模型说明](../explorer/BLENDER-INTERIORS.md)。
