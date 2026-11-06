@@ -1,0 +1,101 @@
+{
+  "iss": {
+    "file": "iss.glb",
+    "sourcePage": "https://science.nasa.gov/3d-resources/international-space-station-iss-a/",
+    "credit": "NASA/Ames Research Center",
+    "sourceSha256": "70d0619a69312a45cbf740ba9a491fad854e10226dc5936c213fb1f93f063678",
+    "outputSha256": "4c95918092413aaab4d9f4f25f865d4ff0890f74a4db8f2006c7863f824f9068",
+    "bytes": 283608,
+    "meshObjects": 1,
+    "originalTriangles": 6629,
+    "triangles": 6520,
+    "repairedMeshData": [],
+    "removedDegenerateFaces": 43,
+    "centerBlenderZUp": [
+      0.0,
+      0.0,
+      2.9802322387695312e-08
+    ],
+    "maximumVertexRadius": 1.0,
+    "boundsBlenderZUp": [
+      [
+        -0.8169841170310974,
+        -0.4903465509414673,
+        -0.5091502070426941
+      ],
+      [
+        0.8169841170310974,
+        0.4903465509414673,
+        0.5091502666473389
+      ]
+    ],
+    "exportAxes": "glTF Y-up",
+    "blenderVersion": "5.2.1 LTS"
+  },
+  "hubble": {
+    "file": "hubble.glb",
+    "sourcePage": "https://science.nasa.gov/3d-resources/hubble-space-telescope-a/",
+    "credit": "DigitalSpace Corporation; distributed by NASA 3D Resources",
+    "sourceSha256": "e5ba4de15c7d359ac8fa1ab7e286aff42dec09c0fadae3db99252587f39fa384",
+    "outputSha256": "de410605256ef2f4b15e27133a47d4fff8fe39a347eec2cbe81dab556578500c",
+    "bytes": 1770464,
+    "meshObjects": 1,
+    "originalTriangles": 7672,
+    "triangles": 7668,
+    "repairedMeshData": [],
+    "removedDegenerateFaces": 4,
+    "centerBlenderZUp": [
+      2.9802322387695312e-08,
+      -2.9802322387695312e-08,
+      0.0
+    ],
+    "maximumVertexRadius": 1.000000036088749,
+    "boundsBlenderZUp": [
+      [
+        -0.6729878783226013,
+        -0.7362027168273926,
+        -0.7717196941375732
+      ],
+      [
+        0.6729879379272461,
+        0.7362026572227478,
+        0.7717196941375732
+      ]
+    ],
+    "exportAxes": "glTF Y-up",
+    "blenderVersion": "5.2.1 LTS"
+  },
+  "webb": {
+    "file": "webb.glb",
+    "sourcePage": "https://science.nasa.gov/3d-resources/james-webb-space-telescope-b/",
+    "credit": "NASA/Christopher R. Meaney",
+    "sourceSha256": "4958e61e5a564f2efcc32cd516b9d36ea0b9bc644f64dbcfe182ce8a422ae526",
+    "outputSha256": "8f4f0f8d89e041f4f3e1545cfd4599e88a7bf8616afeecd6f320156639bd3156",
+    "bytes": 3164496,
+    "meshObjects": 1,
+    "originalTriangles": 93348,
+    "triangles": 39989,
+    "repairedMeshData": [],
+    "removedDegenerateFaces": 11,
+    "centerBlenderZUp": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "maximumVertexRadius": 0.9999999650754029,
+    "boundsBlenderZUp": [
+      [
+        -0.55679851770401,
+        -0.9082973599433899,
+        -0.48696836829185486
+      ],
+      [
+        0.55679851770401,
+        0.9082973599433899,
+        0.48696836829185486
+      ]
+    ],
+    "exportAxes": "glTF Y-up",
+    "blenderVersion": "5.2.1 LTS"
+  }
+}

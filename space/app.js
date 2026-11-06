@@ -2716,6 +2716,12 @@ function init() {
     createOrbits();
     addLights();
 
+    SolarRealism.init({
+        scene, renderer,
+        bodies: [...Object.values(planets).filter(body => body.name !== 'sun'), ...Object.values(moons).flat()],
+        satellites, asteroidBelt, kuiperBelt
+    });
+
     // 事件监听
     window.addEventListener('resize', onWindowResize);
     renderer.domElement.addEventListener('click', onMouseClick);
@@ -3379,6 +3385,8 @@ function switchSunStyle(style) {
     } else {
         createSun();
     }
+
+    SolarRealism.refreshLights();
 
 }
 
@@ -4950,6 +4958,8 @@ function animate() {
     if (isAnimating && oortCloudOuter && oortCloudOuter.material.uniforms) {
         oortCloudOuter.material.uniforms.time.value = elapsed;
     }
+
+    SolarRealism.update(delta, elapsed, isAnimating);
 
     // 渲染
     renderer.render(scene, camera);

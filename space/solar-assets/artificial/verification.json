@@ -1,0 +1,44 @@
+{
+  "iss": {
+    "reimported": true,
+    "center": [
+      0.0,
+      0.0,
+      2.9802322387695312e-08
+    ],
+    "maximumVertexRadius": 1.0,
+    "materials": 6,
+    "embeddedImages": 0,
+    "externalDependencies": false,
+    "dracoRequired": false,
+    "extensionsRequired": []
+  },
+  "hubble": {
+    "reimported": true,
+    "center": [
+      2.9802322387695312e-08,
+      -2.9802322387695312e-08,
+      0.0
+    ],
+    "maximumVertexRadius": 1.000000036088749,
+    "materials": 5,
+    "embeddedImages": 5,
+    "externalDependencies": false,
+    "dracoRequired": false,
+    "extensionsRequired": []
+  },
+  "webb": {
+    "reimported": true,
+    "center": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "maximumVertexRadius": 0.9999999650754029,
+    "materials": 36,
+    "embeddedImages": 0,
+    "externalDependencies": false,
+    "dracoRequired": false,
+    "extensionsRequired": []
+  }
+}

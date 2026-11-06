@@ -1,0 +1,31 @@
+{
+  "retrieved": "2026-11-06",
+  "usageGuidelines": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "repository": "https://github.com/nasa/NASA-3D-Resources",
+  "models": {
+    "iss": {
+      "title": "International Space Station (ISS) (A)",
+      "credit": "NASA/Ames Research Center",
+      "page": "https://science.nasa.gov/3d-resources/international-space-station-iss-a/",
+      "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/3D%20Models/International%20Space%20Station%20(ISS)%20(A)/International%20Space%20Station%20(ISS)%20(A).glb",
+      "original": "sources/iss-original.glb",
+      "sha256": "70d0619a69312a45cbf740ba9a491fad854e10226dc5936c213fb1f93f063678"
+    },
+    "hubble": {
+      "title": "Hubble Space Telescope (A)",
+      "credit": "DigitalSpace Corporation; distributed by NASA 3D Resources",
+      "page": "https://science.nasa.gov/3d-resources/hubble-space-telescope-a/",
+      "download": "https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/hubble-space-telescope-(a)/Hubble%20Space%20Telescope%20(A).glb",
+      "original": "sources/hubble-original.glb",
+      "sha256": "e5ba4de15c7d359ac8fa1ab7e286aff42dec09c0fadae3db99252587f39fa384"
+    },
+    "webb": {
+      "title": "James Webb Space Telescope (B)",
+      "credit": "NASA/Christopher R. Meaney",
+      "page": "https://science.nasa.gov/3d-resources/james-webb-space-telescope-b/",
+      "download": "https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/james-webb-space-telescope-(b)/James%20Webb%20Space%20Telescope%20(B).glb",
+      "original": "sources/webb-original.glb",
+      "sha256": "4958e61e5a564f2efcc32cd516b9d36ea0b9bc644f64dbcfe182ce8a422ae526"
+    }
+  }
+}
