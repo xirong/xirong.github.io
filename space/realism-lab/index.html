@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#03070d">
+  <meta name="description" content="智天的宇宙观察室：可以拖动、靠近、换个角度看的太阳系与银河系 3D 独立演示。">
+  <title>宇宙观察室 · 3D 效果预览</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+  <main id="observatory">
+    <div id="viewport" aria-label="可拖动旋转、滚轮或双指缩放的三维宇宙场景"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="../index.html" aria-label="返回宇宙探索"><span class="brand-orbit" aria-hidden="true"></span><span>智天的宇宙观察室<small>REALTIME EXPLORATION / 视觉实验 01</small></span></a>
+      <nav class="world-switch" aria-label="探索范围">
+        <button data-world="solar" aria-pressed="true">太阳系</button>
+        <button data-world="galaxy" aria-pressed="false">银河系</button>
+      </nav>
+      <button class="quiet-button" id="about-open">这次能看到什么 <span aria-hidden="true">↗</span></button>
+    </header>
+    <section class="intro" aria-live="polite">
+      <p class="eyebrow" id="eyebrow">01 / SOLAR SYSTEM</p>
+      <h1 id="scene-title">地球，有光的那一面。</h1>
+      <p id="scene-description">慢慢转到背面，看白昼变成黑夜。云层浮在海洋上，大气在边缘亮起一圈薄薄的蓝。</p>
+      <span class="material-tag" id="material-tag">观测数据贴图 · 实时光照</span>
+    </section>
+    <div id="labels" aria-hidden="true"></div>
+    <aside class="view-note"><span class="live-dot"></span><span id="view-note">实景质感 / 教学尺度</span></aside>
+    <section class="dock" aria-label="观察控制">
+      <div class="dock-heading"><span>换个角度，发现更多</span><span class="gesture-hint">拖动旋转 · 滚轮 / 双指缩放</span></div>
+      <div class="dock-controls">
+        <nav id="solar-presets" class="presets" aria-label="太阳系视角">
+          <button data-view="earth" aria-pressed="true"><span class="planet-dot earth-dot"></span>靠近地球</button>
+          <button data-view="saturn" aria-pressed="false"><span class="planet-dot saturn-dot"></span>飞到土星</button>
+          <button data-view="jupiter" aria-pressed="false"><span class="planet-dot jupiter-dot"></span>看看木星</button>
+          <button data-view="overview" aria-pressed="false">太阳系全景</button>
+        </nav>
+        <nav id="galaxy-presets" class="presets" aria-label="银河系视角" hidden>
+          <button data-view="oblique" aria-pressed="false">斜看全貌</button>
+          <button data-view="top" aria-pressed="false">俯瞰旋臂</button>
+          <button data-view="edge" aria-pressed="false">侧看银盘</button>
+          <button data-view="home" aria-pressed="false">找到太阳</button>
+        </nav>
+        <div class="utilities">
+          <button id="pause" aria-pressed="false" aria-label="暂停天体运动">Ⅱ <span>暂停</span></button>
+          <button id="reset" aria-label="重置当前视角">↺ <span>复位</span></button>
+        </div>
+      </div>
+      <div class="truth-note" id="truth-note">行星外观使用观测数据制作的贴图；大小与间距分别缩放，运动加速，位置不代表今日星历。</div>
+    </section>
+    <div id="loading" role="status"><span class="loading-orbit"></span><p>正在展开宇宙…</p><small id="loading-detail">加载行星表面与星光</small></div>
+    <div id="error" role="alert" hidden><h2>宇宙暂时没有展开</h2><p id="error-detail"></p><button onclick="location.reload()">重新加载</button></div>
+  </main>
+  <dialog id="about">
+    <button id="about-close" aria-label="关闭说明">×</button>
+    <p class="eyebrow">ABOUT THIS EXPERIMENT</p>
+    <h2>先看见，再决定。</h2>
+    <p>这是独立的效果演示，正式太阳系、银河系页面和 App 尚未替换。</p>
+    <h3>太阳系：可以绕着看的光与材质</h3>
+    <p>地球有白昼、夜间灯光、独立云层和大气边缘。土星是用 Blender 制作并导出的三维模型，有真正的薄环、遮挡和阴影。可点选全景里的行星，平滑飞近观察。</p>
+    <h3>银河系：有厚度的空间模型</h3>
+    <p>从银河结构示意图采样颜色和密度，构成立体星光。旋臂、银盘、中央隆起可从不同方向观察。外部全貌、厚度和太阳方位是示意重建，颗粒并非逐颗实测的恒星。太阳位置标记放大显示。</p>
+    <h3>这次的取舍</h3>
+    <p>优先验证自由观察、镜头过渡和外观。太阳系距离与天体大小分别缩放；银河尘埃只呈现来源图中的暗纹，尚未做完整三维遮光。没有加入语音、知识测验、真实日期星历或连续跨尺度飞行。</p>
+    <p class="credits">行星贴图：<a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noreferrer">Solar System Scope · CC BY 4.0</a>（基于 NASA 数据的合成贴图，部分颜色有增强）。银河结构：<a href="https://commons.wikimedia.org/wiki/File:Artist%E2%80%99s_impression_of_the_Milky_Way.jpg" target="_blank" rel="noreferrer">NASA/JPL-Caltech/ESO/R. Hurt</a>（艺术重建，非外拍照片）。<a href="PLAN.md">查看完整实施方案</a>。</p>
+  </dialog>
+  <script src="../explorer/vendor/three.min.js"></script>
+  <script src="../explorer/vendor/OrbitControls.js"></script>
+  <script src="../explorer/vendor/GLTFLoader.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>
