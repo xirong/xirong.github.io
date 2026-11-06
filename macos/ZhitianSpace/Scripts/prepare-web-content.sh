@@ -29,6 +29,7 @@ for dir in space math puzzle english engineering etf; do
     rsync -a --delete \
       --exclude '.DS_Store' \
       --exclude '__pycache__' \
+      --exclude '.venv' \
       "$ROOT_DIR/$dir" "$OUT_DIR/"
   fi
 done
