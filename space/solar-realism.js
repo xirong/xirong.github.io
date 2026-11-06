@@ -362,6 +362,9 @@ window.SolarRealism = (() => {
                 settingsButton.setAttribute('aria-expanded', 'false');
             }
         });
+        document.getElementById('solarModelSourcesButton').addEventListener('click', () => {
+            document.getElementById('solarModelSources').showModal();
+        });
         setDayNight(false);
         return loadAssets();
     }

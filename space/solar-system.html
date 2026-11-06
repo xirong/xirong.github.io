@@ -3819,7 +3819,13 @@
         .day-night-toggle[aria-pressed="true"] { background: rgba(0,180,230,.15); border-color: var(--accent-cyan); }
         #dayNightState { min-width: 27px; border-radius: 12px; background: rgba(255,255,255,.13); padding: 2px 7px; text-align: center; }
         .solar-settings-hint { font-size: .62rem; line-height: 1.5; color: var(--text-secondary); max-width: 165px; margin: 6px 0 0; }
-        .solar-model-source { display: block; color: #8bcbdc; }
+        .solar-model-source { display: block; color: #8bcbdc; border: 0; background: none; padding: 0; cursor: pointer; text-decoration: underline; }
+        #solarModelSources { color: #e5ecf5; background: #111827; border: 1px solid #45546b; border-radius: 16px; width: min(580px, 90vw); max-height: 80vh; padding: 24px; font-size: 14px; line-height: 1.8; }
+        #solarModelSources::backdrop { background: rgba(0,0,0,.7); }
+        #solarModelSources h2 { margin: 0 0 12px; font-size: 20px; }
+        #solarModelSources p { margin: 12px 0; }
+        #solarModelSources a { color: #8dddf2; }
+        #solarModelSources button { display: block; margin-left: auto; padding: 8px 18px; background: #243c53; color: white; border: 1px solid #678aa2; border-radius: 8px; cursor: pointer; }
         .solar-retry { margin-top: 6px; color: white; background: transparent; border: 1px solid #64758b; border-radius: 4px; cursor: pointer; }
         .day-night-toggle:focus-visible, .solar-settings-toggle:focus-visible { outline: 2px solid #7fe7ff; outline-offset: 2px; }
     </style>
@@ -3884,9 +3890,18 @@
         </button>
         <p class="solar-settings-hint">开启后，看太阳照亮哪一面</p>
         <p id="solarAssetStatus" class="solar-settings-hint" role="status">正在载入立体模型…</p>
-        <a class="solar-settings-hint solar-model-source" href="solar-assets/README.md" target="_blank" rel="noopener">模型来源与示意说明</a>
+        <button class="solar-settings-hint solar-model-source" id="solarModelSourcesButton">模型来源与示意说明</button>
         <button id="retrySolarAssets" class="solar-retry" hidden>重新加载模型</button>
     </div>
+
+    <dialog id="solarModelSources" aria-labelledby="solarModelSourcesTitle">
+        <h2 id="solarModelSourcesTitle">模型来源与示意说明</h2>
+        <p>行星、月球和其他天然卫星使用 Blender 制作的三维网格，沿用本站已有的天体贴图。小行星带和柯伊伯带中的岩块是通用示意模型，不对应逐颗实测的小天体。</p>
+        <p>国际空间站：<a href="https://science.nasa.gov/3d-resources/international-space-station-iss-a/" target="_blank" rel="noopener">NASA / Ames Research Center</a>；哈勃望远镜：<a href="https://science.nasa.gov/3d-resources/hubble-space-telescope-a/" target="_blank" rel="noopener">DigitalSpace Corporation，NASA 发布</a>；韦伯望远镜：<a href="https://science.nasa.gov/3d-resources/james-webb-space-telescope-b/" target="_blank" rel="noopener">NASA / Christopher R. Meaney</a>。这三个官方可视化模型经 Blender 整理，不代表指定日期的精确飞行构型。</p>
+        <p>其余人造卫星使用教学外形。妊神星及部分远端卫星的外形、复用的月面贴图、土卫五周围的淡环均为教学示意；淡环不代表已确认存在的结构。航天器尺寸和轨道经过放大与简化，不能用来测量真实距离或比例。</p>
+        <p>关闭“昼夜明暗”便于看清整个表面；开启后按太阳方向照明。环影使用近似计算，不代表完整的日食、月食或光散射模拟。</p>
+        <form method="dialog"><button>知道了</button></form>
+    </dialog>
 
     <!-- 控制面板 -->
     <div class="controls">
@@ -4152,7 +4167,7 @@
     </script>
 
     <script src="explorer/vendor/GLTFLoader.js"></script>
-    <script src="solar-realism.js?v=20261106-r2"></script>
+    <script src="solar-realism.js?v=20261106-r3"></script>
     <script src="app.js?v=20261106-r2-solar-realism"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
