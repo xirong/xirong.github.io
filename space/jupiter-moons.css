@@ -1,0 +1,114 @@
+.moon-family-controls {
+    margin-top: 12px;
+}
+
+.moon-family-controls[hidden],
+.moon-family-status[hidden] {
+    display: none !important;
+}
+
+.moon-family-watch,
+.moon-family-status button {
+    min-height: 44px;
+    border: 1px solid rgba(255, 211, 121, 0.48);
+    border-radius: 12px;
+    color: #fff7df;
+    background: rgba(126, 83, 30, 0.72);
+    font: 700 0.86rem 'Noto Sans SC', sans-serif;
+    cursor: pointer;
+}
+
+.moon-family-watch {
+    width: 100%;
+    padding: 11px 14px;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.26);
+}
+
+.moon-family-watch:hover,
+.moon-family-status button:hover {
+    background: rgba(166, 111, 39, 0.9);
+}
+
+.moon-family-watch:focus-visible,
+.moon-family-status button:focus-visible {
+    outline: 3px solid #ffe29a;
+    outline-offset: 2px;
+}
+
+.moon-family-watch:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+.moon-family-status {
+    position: fixed;
+    top: 86px;
+    left: 50%;
+    z-index: 930;
+    width: min(720px, calc(100vw - 32px));
+    padding: 14px 16px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border: 1px solid rgba(255, 211, 121, 0.34);
+    border-radius: 16px;
+    background: rgba(10, 12, 23, 0.9);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(14px);
+}
+
+.moon-family-status-copy {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.moon-family-status-copy strong {
+    color: #ffe29a;
+    font-size: 1rem;
+}
+
+.moon-family-status-copy span {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+
+.moon-family-status-actions {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+}
+
+.moon-family-status button {
+    padding: 9px 12px;
+    white-space: nowrap;
+}
+
+@media (max-width: 620px) {
+    .moon-family-status {
+        top: 76px;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .moon-family-status-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .moon-family-status button {
+        min-width: 0;
+        white-space: normal;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .moon-family-watch,
+    .moon-family-status button {
+        transition: none;
+    }
+}

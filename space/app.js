@@ -801,7 +801,7 @@ const planetData = {
         relativeSize: 11.2,
         orbitRadius: 130,
         moonCount: 95,
-        moonInfo: '🌙 卫星(95颗)：四大伽利略卫星 - 木卫一（艾奥，火山最活跃）、木卫二（欧罗巴，冰下有海洋）、木卫三（盖尼米德，最大卫星）、木卫四（卡利斯托，古老冰世界）'
+        moonInfo: '🌙 95颗卫星展示版（2023年）：四大伽利略卫星 - 木卫一（艾奥，火山最活跃）、木卫二（欧罗巴，冰下有海洋）、木卫三（盖尼米德，最大卫星）、木卫四（卡利斯托，古老冰世界）'
     },
     saturn: {
         name: '土星',
@@ -821,7 +821,7 @@ const planetData = {
         orbitRadius: 175,
         hasRings: true,
         moonCount: 146,
-        moonInfo: '🌙 卫星(146颗)：土卫六（泰坦，有浓厚大气层和液态甲烷湖）、土卫二（恩克拉多斯，南极喷射冰泉）、土卫五（瑞亚，冰质卫星）'
+        moonInfo: '🌙 146颗卫星展示版（2023年）：土卫六（泰坦，有浓厚大气层和液态甲烷湖）、土卫二（恩克拉多斯，南极喷射冰泉）、土卫五（瑞亚，冰质卫星）'
     },
     uranus: {
         name: '天王星',
@@ -1517,6 +1517,8 @@ let isRealScale = false;
 let selectedPlanet = null;
 let isSatelliteStripOpen = false;
 let isArtificialSatelliteStripOpen = false;
+let activeMoonFamily = null;
+const moonFamilyPlaying = { jupiter: true, saturn: true };
 let clock;
 let raycaster, mouse;
 let currentSunStyle = 'simple'; // 'simple' 或 'realistic'
@@ -2718,7 +2720,10 @@ function init() {
 
     SolarRealism.init({
         scene, renderer,
-        bodies: [...Object.values(planets).filter(body => body.name !== 'sun'), ...Object.values(moons).flat()],
+        bodies: [
+            ...Object.values(planets).filter(body => body.name !== 'sun'),
+            ...Object.values(moons).flat().filter(body => !body.userData.teachingRepresentation)
+        ],
         satellites, asteroidBelt, kuiperBelt
     });
 
@@ -4009,6 +4014,53 @@ function createAllMoons() {
             // 创建卫星轨道
             createMoonOrbitLine(planet, moonData.orbitRadius, moonData.name);
         });
+
+        createTeachingMoonFamily(planetName);
+    });
+}
+
+// ============ 创建巨行星的小卫星展示群 ============
+function createTeachingMoonFamily(planetName) {
+    const config = {
+        jupiter: { total: 95, featured: 4, source: window.JUPITER_SMALL_MOONS || [], texture: 'textures/phobos_clean.jpg' },
+        saturn: { total: 146, featured: 3, source: window.SATURN_SMALL_MOONS || [], texture: 'textures/deimos.jpg' }
+    }[planetName];
+    const planet = planets[planetName];
+    if (!config || !planet || config.source.length !== config.total - config.featured) return;
+
+    const geometry = new THREE.SphereGeometry(1, 10, 8);
+    const texture = new THREE.TextureLoader().load(config.texture);
+    texture.encoding = THREE.sRGBEncoding;
+    const materials = [0xffffff, 0xe0d7ca, 0xc6b9aa].map(color => new THREE.MeshBasicMaterial({
+        map: texture,
+        color
+    }));
+
+    config.source.forEach((identity, index) => {
+        const band = index % 7;
+        const ringIndex = Math.floor(index / 7);
+        const moonSize = planet.userData.size * (0.045 + (index % 5) * 0.0045);
+        const orbitRadius = 18 + band * 4.4 + ringIndex * 0.34;
+        const inclination = (-0.54 + band * 0.18) * (index % 2 === 0 ? 1 : -1);
+        const moonMesh = new THREE.Mesh(geometry, materials[index % materials.length]);
+        moonMesh.name = identity.name;
+        moonMesh.scale.setScalar(moonSize);
+        moonMesh.userData = {
+            ...identity,
+            parentPlanet: planetName,
+            orbitRadius,
+            orbitSpeed: (0.011 + (index % 9) * 0.0012) * (band >= 4 ? -1 : 1),
+            orbitAngle: (index * 2.399963229728653) % (Math.PI * 2),
+            inclination,
+            ascendingNode: (index * 0.73) % (Math.PI * 2),
+            size: moonSize,
+            diameter: 0,
+            color: 0xb8aa96,
+            teachingRepresentation: true,
+            desc: `${identity.nameCN}是${planetData[planetName].nameCN}的卫星之一。这里复用其他卫星的月面纹理，大小、外形、轨道距离和运行速度都是教学示意。`
+        };
+        scene.add(moonMesh);
+        moons[planetName].push(moonMesh);
     });
 }
 
@@ -4829,14 +4881,16 @@ function animate() {
             const rotationStep = isRealMotion
                 ? data.realRotationSpeed * delta
                 : data.demoRotationSpeed * frameFactor;
+            const familyFocused = activeMoonFamily === name;
+            const familyPaused = familyFocused && moonFamilyPlaying[name] === false;
 
             // 公转
-            data.orbitAngle += orbitStep;
+            if (!familyFocused) data.orbitAngle += orbitStep;
             planet.position.x = Math.cos(data.orbitAngle) * data.orbitRadius;
             planet.position.z = Math.sin(data.orbitAngle) * data.orbitRadius;
 
             // 自转
-            planet.rotation.y += rotationStep;
+            if (!familyPaused) planet.rotation.y += rotationStep;
 
             // 天王星特殊倾斜
             if (name === 'uranus') {
@@ -4900,19 +4954,28 @@ function animate() {
             const planetMoonsList = moons[planetName];
             planetMoonsList.forEach(moonMesh => {
                 const data = moonMesh.userData;
-                data.orbitAngle += data.orbitSpeed * 0.01;
+                if (moonFamilyPlaying[planetName] !== false) {
+                    data.orbitAngle += data.orbitSpeed * 0.01 * frameFactor;
+                }
 
                 const actualRadius = isRealScale
                     ? (planet.userData.size + data.orbitRadius) * planet.scale.x
                     : planet.userData.size + data.orbitRadius;
 
                 // 卫星位置 = 行星位置 + 卫星轨道位置
-                moonMesh.position.x = planet.position.x + Math.cos(data.orbitAngle) * actualRadius;
-                moonMesh.position.z = planet.position.z + Math.sin(data.orbitAngle) * actualRadius;
-                moonMesh.position.y = planet.position.y;
+                const inclination = data.inclination || 0;
+                const ascendingNode = data.ascendingNode || 0;
+                const orbitX = Math.cos(data.orbitAngle) * actualRadius;
+                const orbitZ = Math.sin(data.orbitAngle) * actualRadius * Math.cos(inclination);
+                const orbitY = Math.sin(data.orbitAngle) * actualRadius * Math.sin(inclination);
+                moonMesh.position.x = planet.position.x + orbitX * Math.cos(ascendingNode) - orbitZ * Math.sin(ascendingNode);
+                moonMesh.position.z = planet.position.z + orbitX * Math.sin(ascendingNode) + orbitZ * Math.cos(ascendingNode);
+                moonMesh.position.y = planet.position.y + orbitY;
 
                 // 卫星自转
-                moonMesh.rotation.y += 0.01;
+                if (moonFamilyPlaying[planetName] !== false) {
+                    moonMesh.rotation.y += 0.01 * frameFactor;
+                }
 
                 if (moonMesh.material.uniforms && moonMesh.material.uniforms.sunDirection) {
                     const sunDir = new THREE.Vector3()
@@ -5008,6 +5071,7 @@ function selectPlanet(name) {
     if (isMoon && !targetMesh) return;
 
     selectedPlanet = name;
+    updateMoonFamilyControls(name);
     hideAllSatelliteStrips();
     setPlanetInfoLabels();
 
@@ -5161,6 +5225,7 @@ function selectArtificialSatellite(key) {
     if (!data) return;
 
     selectedPlanet = key;
+    updateMoonFamilyControls(null);
     hideAllSatelliteStrips();
     setPlanetInfoLabels({
         size: '尺寸',
@@ -5408,6 +5473,108 @@ function animateCamera(targetPosition, lookAtTarget) {
     updateCamera();
 }
 
+// ============ 巨行星卫星家族观看模式 ============
+function getMoonFamilyConfig(planetName) {
+    return {
+        jupiter: { total: 95, title: '木星的95颗卫星', year: '2023' },
+        saturn: { total: 146, title: '土星的146颗卫星', year: '2023' }
+    }[planetName] || null;
+}
+
+function updateMoonFamilyControls(planetName) {
+    const config = getMoonFamilyConfig(planetName);
+    const controlsGroup = document.getElementById('moonFamilyControls');
+    const watchBtn = document.getElementById('watchMoonFamily');
+    const countReady = config && moons[planetName]?.length === config.total;
+    if (!controlsGroup || !watchBtn) return;
+
+    if (activeMoonFamily && activeMoonFamily !== planetName) {
+        closeMoonFamilyView(false);
+    }
+
+    controlsGroup.hidden = !config;
+    watchBtn.disabled = !countReady;
+    watchBtn.textContent = countReady ? `▶ 观看${config.total}颗卫星` : '卫星资料暂未载入';
+    if (!config) closeMoonFamilyView(false);
+}
+
+function openMoonFamilyView() {
+    const planetName = selectedPlanet;
+    const config = getMoonFamilyConfig(planetName);
+    const planet = planets[planetName];
+    if (!config || !planet || moons[planetName]?.length !== config.total) return;
+
+    activeMoonFamily = planetName;
+    moonFamilyPlaying[planetName] = true;
+    if (!isAnimating) {
+        isAnimating = true;
+        updateMotionPauseButton();
+        updateModeIndicator();
+    }
+    const status = document.getElementById('moonFamilyStatus');
+    const title = document.getElementById('moonFamilyTitle');
+    const note = document.getElementById('moonFamilyNote');
+    if (status && title && note) {
+        title.textContent = config.title;
+        note.textContent = `${config.total}颗为${config.year}年展示版本；新卫星仍可能被发现。小卫星的大小、外形与轨道为教学示意。`;
+        status.hidden = false;
+    }
+    document.getElementById('planetInfo')?.classList.remove('visible', 'expanded');
+    updateMoonFamilyPauseButton();
+
+    const center = planet.position.clone();
+    const familyRadius = moons[planetName].reduce((maxRadius, moonMesh) => {
+        return Math.max(maxRadius, planet.userData.size + (moonMesh.userData.orbitRadius || 0));
+    }, planet.userData.size);
+    const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
+    const limitingFov = Math.min(verticalFov, horizontalFov);
+    const distance = familyRadius * 1.32 / Math.sin(limitingFov / 2);
+    const offset = new THREE.Vector3(1, 0.58, 1).normalize().multiplyScalar(distance);
+    animateCamera(
+        center.clone().add(offset),
+        center
+    );
+}
+
+function toggleMoonFamilyMotion() {
+    if (!activeMoonFamily) return;
+    moonFamilyPlaying[activeMoonFamily] = !(moonFamilyPlaying[activeMoonFamily] && isAnimating);
+    if (moonFamilyPlaying[activeMoonFamily] && !isAnimating) {
+        isAnimating = true;
+        updateMotionPauseButton();
+        updateModeIndicator();
+    }
+    updateMoonFamilyPauseButton();
+}
+
+function updateMoonFamilyPauseButton() {
+    const button = document.getElementById('toggleMoonFamilyMotion');
+    if (!button || !activeMoonFamily) return;
+    const isPlaying = moonFamilyPlaying[activeMoonFamily] && isAnimating;
+    button.textContent = isPlaying ? '⏸ 暂停运行' : '▶ 继续运行';
+    button.setAttribute('aria-pressed', String(!isPlaying));
+}
+
+function closeMoonFamilyView(returnToPlanet = true) {
+    const planetName = activeMoonFamily;
+    activeMoonFamily = null;
+    if (planetName) moonFamilyPlaying[planetName] = true;
+    const status = document.getElementById('moonFamilyStatus');
+    if (status) status.hidden = true;
+    if (!returnToPlanet || !planetName || !planets[planetName]) return;
+
+    document.getElementById('planetInfo')?.classList.add('visible');
+
+    const planet = planets[planetName];
+    const center = planet.position.clone();
+    const distance = (planet.userData?.size || 1) * 8;
+    animateCamera(
+        new THREE.Vector3(center.x + distance, center.y + distance * 0.5, center.z + distance),
+        center
+    );
+}
+
 function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
 }
@@ -5466,6 +5633,22 @@ function requireSpaceEnergyGate(gateId, onPass) {
 
 // ============ 设置控制按钮 ============
 function setupControls() {
+    const watchMoonFamilyBtn = document.getElementById('watchMoonFamily');
+    const toggleMoonFamilyBtn = document.getElementById('toggleMoonFamilyMotion');
+    const returnMoonFamilyBtn = document.getElementById('returnFromMoonFamily');
+    watchMoonFamilyBtn?.addEventListener('click', event => {
+        event.stopPropagation();
+        openMoonFamilyView();
+    });
+    toggleMoonFamilyBtn?.addEventListener('click', event => {
+        event.stopPropagation();
+        toggleMoonFamilyMotion();
+    });
+    returnMoonFamilyBtn?.addEventListener('click', event => {
+        event.stopPropagation();
+        closeMoonFamilyView(true);
+    });
+
     // 太阳系介绍
     const showPlanetGuideBtn = document.getElementById('showPlanetGuide');
     if (showPlanetGuideBtn) {
@@ -5488,6 +5671,7 @@ function setupControls() {
 
     // 重置视角
     document.getElementById('resetView').addEventListener('click', function () {
+        closeMoonFamilyView(false);
         const targetPosition = new THREE.Vector3(150, 100, 250);
         const targetLookAt = new THREE.Vector3(0, 0, 0);
         animateCamera(targetPosition, targetLookAt);
@@ -5498,6 +5682,7 @@ function setupControls() {
 
     // 关闭行星信息面板
     document.getElementById('closePlanetInfo').addEventListener('click', function () {
+        closeMoonFamilyView(false);
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
         hideAllSatelliteStrips();
         document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
@@ -5811,6 +5996,7 @@ function updateMotionPauseButton() {
     if (label) {
         label.textContent = isPaused ? '继续转动' : '暂停转动';
     }
+    updateMoonFamilyPauseButton();
 }
 
 function getRealDisplaySize(diameter) {
@@ -5859,6 +6045,11 @@ function updatePlanetScales() {
 
     Object.keys(moons).forEach(planetName => {
         moons[planetName].forEach(moonMesh => {
+            if (moonMesh.userData.teachingRepresentation) {
+                const parentScale = isRealScale ? (planets[planetName]?.scale.x || 1) : 1;
+                moonMesh.scale.setScalar(moonMesh.userData.size * parentScale);
+                return;
+            }
             const moonScale = isRealScale
                 ? getRealScaleFactor(moonMesh.userData.size, moonMesh.userData.diameter)
                 : 1;

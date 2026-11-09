@@ -11,6 +11,7 @@
         href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="learning-gate.css">
+    <link rel="stylesheet" href="jupiter-moons.css?v=20261109-r1">
     <style>
         * {
             margin: 0;
@@ -4013,6 +4014,9 @@
             </div>
             <div class="planet-moons" id="planetMoons" style="display: none;">
             </div>
+            <div class="moon-family-controls" id="moonFamilyControls" hidden>
+                <button class="moon-family-watch" id="watchMoonFamily" type="button">卫星资料暂未载入</button>
+            </div>
             <article class="planet-video-card" id="planetVideoCard" style="display: none;">
                 <video class="planet-video-preview" id="planetVideoPreview" preload="metadata" playsinline></video>
                 <div class="planet-video-shade" aria-hidden="true"></div>
@@ -4027,6 +4031,17 @@
             </a>
         </div>
     </div>
+
+    <section class="moon-family-status" id="moonFamilyStatus" aria-live="polite" hidden>
+        <div class="moon-family-status-copy">
+            <strong id="moonFamilyTitle">巨行星的卫星</strong>
+            <span id="moonFamilyNote"></span>
+        </div>
+        <div class="moon-family-status-actions">
+            <button id="toggleMoonFamilyMotion" type="button" aria-pressed="false">⏸ 暂停运行</button>
+            <button id="returnFromMoonFamily" type="button">↩ 返回行星</button>
+        </div>
+    </section>
 
     <div class="planet-theater" id="planetTheater">
         <div class="planet-theater-backdrop"></div>
@@ -4168,7 +4183,9 @@
 
     <script src="explorer/vendor/GLTFLoader.js"></script>
     <script src="solar-realism.js?v=20261106-r3"></script>
-    <script src="app.js?v=20261106-r2-solar-realism"></script>
+    <script src="jupiter-moons-data.js?v=20261109-r1"></script>
+    <script src="saturn-moons-data.js?v=20261109-r1"></script>
+    <script src="app.js?v=20261109-r2-moon-families"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 
