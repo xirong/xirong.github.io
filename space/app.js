@@ -1506,7 +1506,7 @@ const jupiterFirstThree = ['io', 'europa', 'ganymede'].map(key => satelliteDockI
 const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede'].includes(item.key));
 satelliteDockItems.splice(0, satelliteDockItems.length, ...jupiterFirstThree, ...jupiterMoonDetails.map(moon => ({
     key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xb8aa96,
-    texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : jupiterMoonObservations[moon.key] ? `textures/jupiter-moons/${jupiterMoonObservations[moon.key].photo}` : null
+    texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : jupiterMoonObservations[moon.key] ? `textures/jupiter-moons/${jupiterMoonObservations[moon.key].photo}` : 'textures/phobos_clean.jpg'
 })), ...otherSatelliteDockItems);
 jupiterMoonDetails.forEach(moon => {
     moonKeyToName[moon.key] = moon.key === 'callisto' ? '木卫四' : moon.nameEN;
@@ -4110,7 +4110,6 @@ function createTeachingMoonFamily(planetName) {
             observedMaterials[key] = new THREE.MeshBasicMaterial({ map: createObservedMoonTexture(`textures/jupiter-moons/${jupiterMoonObservations[key].photo}`) });
         });
     }
-    const unknownMoonMaterial = new THREE.MeshBasicMaterial({ color: 0x777777 });
 
     config.source.forEach((identity, index) => {
         const band = index % 7;
@@ -4119,9 +4118,8 @@ function createTeachingMoonFamily(planetName) {
         const orbitRadius = 18 + band * 4.4 + ringIndex * 0.34;
         const inclination = (-0.54 + band * 0.18) * (index % 2 === 0 ? 1 : -1);
         const key = identity.name.toLowerCase();
-        const knownJupiterMoon = planetName === 'jupiter' && jupiterMoonDetails.some(item => item.key === key);
         const material = planetName === 'jupiter' && key === 'amalthea' ? amaltheaMaterial
-            : observedMaterials[key] || (knownJupiterMoon ? unknownMoonMaterial : materials[index % materials.length]);
+            : observedMaterials[key] || materials[index % materials.length];
         // 近木卫星的长短轴来自 NASA 测量；表面未覆盖部分仍为示意。
         const measuredAxes = { amalthea: [1.5, 0.88, 0.77], thebe: [1.27, 1.07, 0.92], adrastea: [1.28, 1.02, 0.9], metis: [1.34, 0.9, 0.76] };
         let moonGeometry = geometry;
@@ -4149,7 +4147,7 @@ function createTeachingMoonFamily(planetName) {
         if (planetName === 'jupiter') {
             const details = jupiterMoonDetails.find(item => item.nameEN === identity.name);
             if (details) Object.assign(moonMesh.userData, details, {
-                desc: `${details.description} ${details.year}年发现。${details.key === 'amalthea' ? '木卫五贴图来自伽利略号的部分观测，未覆盖区域为灰色；三维形状为示意。' : jupiterMoonObservations[details.key] ? '下方是探测器实拍；三维模型将照片投影到一面，未覆盖区域为灰色，形状为示意。' : '目前未找到可辨认表面细节的影像；灰色球体表示外形未知。'}`
+                desc: `${details.description} ${details.year}年发现。${details.key === 'amalthea' ? '木卫五贴图来自伽利略号的部分观测，未覆盖区域为灰色；三维形状为示意。' : jupiterMoonObservations[details.key] ? '下方是探测器实拍；三维模型将照片投影到一面，未覆盖区域为灰色，形状为示意。' : '目前未找到可辨认表面细节的影像；这里借用火卫一的贴图，外形为示意。'}`
             });
         }
         scene.add(moonMesh);
