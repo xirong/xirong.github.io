@@ -1,5 +1,12 @@
 # Space Texture Credits
 
+## Small moons of Jupiter
+
+- `jupiter-moons/amalthea-galileo-map.png`: low-resolution partial Galileo SSI mosaic, extracted from the [Amalthea dataset viewer](https://css.earth/amalthea/), which credits NASA/JPL and the PDS Ring-Moon Systems Node. Dark gray marks areas without imaging. This is a partial observation, not a complete global photograph.
+- `jupiter-moons/{thebe,amalthea,metis}-observation.jpg`: individual crops from [NASA/JPL/Cornell PIA02531](https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/), Galileo, 2000.
+- `jupiter-moons/adrastea-observation.jpg`: crop from [NASA/JPL/Cornell PIA01076](https://science.nasa.gov/photojournal/family-portrait-of-the-small-inner-satellites-of-jupiter/), Galileo, 1996–1997. Its low resolution is preserved.
+- The two uncropped JPEGs in this directory are the source images. Thebe, Metis and Adrastea's observed-view crops are projected onto one side of a teaching sphere at runtime; gray denotes areas with no image. The projection and sphere shape are illustrative and are not global maps.
+
 ## Storm comparison images
 
 - `great-red-spot.jpg`: Jupiter's Great Red Spot in true color, JunoCam observation on July 10, 2017 (PIA21775).

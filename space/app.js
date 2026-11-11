@@ -1496,11 +1496,17 @@ const moonKeyToName = {
 
 // ============ 木卫四至木卫二十二资料与快捷入口 ============
 const jupiterMoonDetails = window.JUPITER_MOON_DETAILS || [];
+const jupiterMoonObservations = {
+    amalthea: { photo: 'amalthea-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）。三维贴图使用部分观测拼图，深灰色区域没有影像。' },
+    thebe: { photo: 'thebe-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）；照片投影到模型一面，灰色为未覆盖区域，形状为示意。' },
+    metis: { photo: 'metis-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）；照片投影到模型一面，灰色为未覆盖区域，形状为示意。' },
+    adrastea: { photo: 'adrastea-observation.jpg', source: 'https://science.nasa.gov/photojournal/family-portrait-of-the-small-inner-satellites-of-jupiter/', note: '伽利略号实拍（1996至1997年，黑白），分辨率很低；照片投影到模型一面，灰色为未覆盖区域。' }
+};
 const jupiterFirstThree = ['io', 'europa', 'ganymede'].map(key => satelliteDockItems.find(item => item.key === key));
 const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede'].includes(item.key));
 satelliteDockItems.splice(0, satelliteDockItems.length, ...jupiterFirstThree, ...jupiterMoonDetails.map(moon => ({
     key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xb8aa96,
-    texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : 'textures/phobos_clean.jpg'
+    texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : jupiterMoonObservations[moon.key] ? `textures/jupiter-moons/${jupiterMoonObservations[moon.key].photo}` : null
 })), ...otherSatelliteDockItems);
 jupiterMoonDetails.forEach(moon => {
     moonKeyToName[moon.key] = moon.key === 'callisto' ? '木卫四' : moon.nameEN;
@@ -4038,6 +4044,47 @@ function createAllMoons() {
     });
 }
 
+// ============ 将单面实拍投影到示意球面，未观测的另一面保留灰色 ============
+function createObservedMoonTexture(path) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#525452';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const result = new THREE.CanvasTexture(canvas);
+    result.encoding = THREE.sRGBEncoding;
+    const image = new Image();
+    image.onload = () => {
+        const source = document.createElement('canvas');
+        source.width = image.naturalWidth;
+        source.height = image.naturalHeight;
+        const sourceContext = source.getContext('2d');
+        sourceContext.drawImage(image, 0, 0);
+        const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
+        const output = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        for (let y = 0; y < canvas.height; y++) {
+            const lat = Math.PI * (0.5 - y / (canvas.height - 1));
+            for (let x = 0; x < canvas.width; x++) {
+                const lon = 2 * Math.PI * (x / (canvas.width - 1) - 0.5);
+                if (Math.cos(lon) <= 0) continue;
+                const sx = Math.min(source.width - 1, Math.max(0, Math.round((0.5 + Math.sin(lon) * Math.cos(lat) * 0.5) * (source.width - 1))));
+                const sy = Math.min(source.height - 1, Math.max(0, Math.round((0.5 - Math.sin(lat) * 0.5) * (source.height - 1))));
+                const si = (sy * source.width + sx) * 4;
+                if (pixels[si] < 15) continue;
+                const di = (y * canvas.width + x) * 4;
+                output.data[di] = pixels[si];
+                output.data[di + 1] = pixels[si + 1];
+                output.data[di + 2] = pixels[si + 2];
+            }
+        }
+        ctx.putImageData(output, 0, 0);
+        result.needsUpdate = true;
+    };
+    image.src = path;
+    return result;
+}
+
 // ============ 创建巨行星的小卫星展示群 ============
 function createTeachingMoonFamily(planetName) {
     const config = {
@@ -4054,6 +4101,16 @@ function createTeachingMoonFamily(planetName) {
         map: texture,
         color
     }));
+    const amaltheaMap = new THREE.TextureLoader().load('textures/jupiter-moons/amalthea-galileo-map.png');
+    amaltheaMap.encoding = THREE.sRGBEncoding;
+    const amaltheaMaterial = new THREE.MeshBasicMaterial({ map: amaltheaMap });
+    const observedMaterials = {};
+    if (planetName === 'jupiter') {
+        ['thebe', 'metis', 'adrastea'].forEach(key => {
+            observedMaterials[key] = new THREE.MeshBasicMaterial({ map: createObservedMoonTexture(`textures/jupiter-moons/${jupiterMoonObservations[key].photo}`) });
+        });
+    }
+    const unknownMoonMaterial = new THREE.MeshBasicMaterial({ color: 0x777777 });
 
     config.source.forEach((identity, index) => {
         const band = index % 7;
@@ -4061,7 +4118,11 @@ function createTeachingMoonFamily(planetName) {
         const moonSize = planet.userData.size * (0.045 + (index % 5) * 0.0045);
         const orbitRadius = 18 + band * 4.4 + ringIndex * 0.34;
         const inclination = (-0.54 + band * 0.18) * (index % 2 === 0 ? 1 : -1);
-        const moonMesh = new THREE.Mesh(geometry, materials[index % materials.length]);
+        const key = identity.name.toLowerCase();
+        const knownJupiterMoon = planetName === 'jupiter' && jupiterMoonDetails.some(item => item.key === key);
+        const material = planetName === 'jupiter' && key === 'amalthea' ? amaltheaMaterial
+            : observedMaterials[key] || (knownJupiterMoon ? unknownMoonMaterial : materials[index % materials.length]);
+        const moonMesh = new THREE.Mesh(geometry, material);
         moonMesh.name = identity.name;
         moonMesh.scale.setScalar(moonSize);
         moonMesh.userData = {
@@ -4081,7 +4142,7 @@ function createTeachingMoonFamily(planetName) {
         if (planetName === 'jupiter') {
             const details = jupiterMoonDetails.find(item => item.nameEN === identity.name);
             if (details) Object.assign(moonMesh.userData, details, {
-                desc: `${details.description} ${details.year}年发现。小卫星外形和贴图为教学示意。`
+                desc: `${details.description} ${details.year}年发现。${details.key === 'amalthea' ? '木卫五贴图来自伽利略号的部分观测，未覆盖区域为灰色；三维形状为示意。' : jupiterMoonObservations[details.key] ? '下方是探测器实拍；三维模型将照片投影到一面，未覆盖区域为灰色，形状为示意。' : '目前未找到可辨认表面细节的影像；灰色球体表示外形未知。'}`
             });
         }
         scene.add(moonMesh);
@@ -5093,6 +5154,17 @@ function onMouseMove(event) {
 
 // ============ 选择行星 ============
 function selectPlanet(name) {
+    const observation = document.getElementById('jupiterMoonObservation');
+    if (observation) {
+        const item = jupiterMoonObservations[name];
+        observation.hidden = !item;
+        if (item) {
+            observation.querySelector('img').src = `textures/jupiter-moons/${item.photo}`;
+            observation.querySelector('img').alt = `${jupiterMoonDetails.find(moon => moon.key === name).nameCN}实拍影像`;
+            observation.querySelector('figcaption span').textContent = item.note;
+            observation.querySelector('a').href = item.source;
+        }
+    }
     if (artificialSatelliteData[name]) {
         selectArtificialSatellite(name);
         return;
