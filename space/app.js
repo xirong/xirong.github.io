@@ -4122,7 +4122,14 @@ function createTeachingMoonFamily(planetName) {
         const knownJupiterMoon = planetName === 'jupiter' && jupiterMoonDetails.some(item => item.key === key);
         const material = planetName === 'jupiter' && key === 'amalthea' ? amaltheaMaterial
             : observedMaterials[key] || (knownJupiterMoon ? unknownMoonMaterial : materials[index % materials.length]);
-        const moonMesh = new THREE.Mesh(geometry, material);
+        // 近木卫星的长短轴来自 NASA 测量；表面未覆盖部分仍为示意。
+        const measuredAxes = { amalthea: [1.5, 0.88, 0.77], thebe: [1.27, 1.07, 0.92], adrastea: [1.28, 1.02, 0.9], metis: [1.34, 0.9, 0.76] };
+        let moonGeometry = geometry;
+        if (planetName === 'jupiter' && measuredAxes[key]) {
+            moonGeometry = geometry.clone();
+            moonGeometry.scale(...measuredAxes[key]);
+        }
+        const moonMesh = new THREE.Mesh(moonGeometry, material);
         moonMesh.name = identity.name;
         moonMesh.scale.setScalar(moonSize);
         moonMesh.userData = {
@@ -9494,6 +9501,7 @@ function formatLabelOrbitYears(days) {
 
 function formatOrbitPeriod(days) {
     const orbitDays = formatPeriodNumber(days);
+    if (days < 3.6525) return orbitDays + ' 地球日';
     const years = formatPeriodNumber(days / 365.25);
     return orbitDays + ' 地球日，约等于 ' + years + ' 年';
 }
