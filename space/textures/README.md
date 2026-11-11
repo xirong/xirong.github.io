@@ -1,5 +1,11 @@
 # Space Texture Credits
 
+## Saturn moons
+
+- `saturn-moons/mimas.jpg`, `tethys.jpg`, `dione.jpg`, and `iapetus.jpg`: NASA/JPL-Caltech/Space Science Institute Cassini and Voyager global mosaics, cropped and resized to 1024×512 by [Orrery](https://github.com/RTF22/Orrery/blob/master/ASSETS.md); that source lists each original and its NASA public-domain attribution.
+- `saturn-moons/phoebe.jpg`: NASA/JPL/Space Science Institute, [Cassini global map PIA07775](https://science.nasa.gov/photojournal/map-of-phoebe-december-2005/), [cropped copy](https://commons.wikimedia.org/wiki/File:Phoebe_map_PIA07775_cropped.jpg); parts without clear coverage remain incomplete.
+- `saturn-moons/hyperion-photo.jpg` and `hyperion-observation.jpg`: NASA/JPL/Space Science Institute, [Cassini PIA06245](https://science.nasa.gov/photojournal/pop-up-moon-non-stereo-version/), ultraviolet image shown in monochrome. The second file is a crop projected onto one side of an approximate ellipsoid; gray represents unobserved areas.
+
 ## Small moons of Jupiter
 
 - `jupiter-moons/amalthea-galileo-map.png`: low-resolution partial Galileo SSI mosaic, extracted from the [Amalthea dataset viewer](https://css.earth/amalthea/), which credits NASA/JPL and the PDS Ring-Moon Systems Node. Dark gray marks areas without imaging. This is a partial observation, not a complete global photograph.

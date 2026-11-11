@@ -1496,20 +1496,29 @@ const moonKeyToName = {
 
 // ============ 木卫四至木卫二十二资料与快捷入口 ============
 const jupiterMoonDetails = window.JUPITER_MOON_DETAILS || [];
+const saturnMoonDetails = window.SATURN_MOON_DETAILS || [];
 const jupiterMoonObservations = {
     amalthea: { photo: 'amalthea-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）。三维贴图使用部分观测拼图，深灰色区域没有影像。' },
     thebe: { photo: 'thebe-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）；照片投影到模型一面，灰色为未覆盖区域，形状为示意。' },
     metis: { photo: 'metis-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）；照片投影到模型一面，灰色为未覆盖区域，形状为示意。' },
-    adrastea: { photo: 'adrastea-observation.jpg', source: 'https://science.nasa.gov/photojournal/family-portrait-of-the-small-inner-satellites-of-jupiter/', note: '伽利略号实拍（1996至1997年，黑白），分辨率很低；照片投影到模型一面，灰色为未覆盖区域。' }
+    adrastea: { photo: 'adrastea-observation.jpg', source: 'https://science.nasa.gov/photojournal/family-portrait-of-the-small-inner-satellites-of-jupiter/', note: '伽利略号实拍（1996至1997年，黑白），分辨率很低；照片投影到模型一面，灰色为未覆盖区域。' },
+    hyperion: { photo: 'hyperion-observation.jpg', directory: 'saturn-moons', source: 'https://science.nasa.gov/photojournal/pop-up-moon-non-stereo-version/', note: '卡西尼号紫外波段黑白影像，照片投影到示意模型的一面；灰色为未覆盖区域。' }
 };
 const jupiterFirstThree = ['io', 'europa', 'ganymede'].map(key => satelliteDockItems.find(item => item.key === key));
-const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede'].includes(item.key));
+const saturnExistingItems = Object.fromEntries(satelliteDockItems.filter(item => ['enceladus', 'rhea', 'titan'].includes(item.key)).map(item => [item.key, item]));
+const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede', 'enceladus', 'rhea', 'titan'].includes(item.key));
+const saturnByKey = Object.fromEntries(saturnMoonDetails.map(moon => [moon.key, { key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xc1c8d0, texture: `textures/saturn-moons/${moon.key === 'hyperion' ? 'hyperion-observation' : moon.key}.jpg` }]));
+const saturnDockItems = ['mimas', 'enceladus', 'tethys', 'dione', 'rhea', 'titan', 'hyperion', 'iapetus', 'phoebe'].map(key => saturnExistingItems[key] || saturnByKey[key]).filter(Boolean);
 satelliteDockItems.splice(0, satelliteDockItems.length, ...jupiterFirstThree, ...jupiterMoonDetails.map(moon => ({
     key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xb8aa96,
     texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : jupiterMoonObservations[moon.key] ? `textures/jupiter-moons/${jupiterMoonObservations[moon.key].photo}` : 'textures/phobos_clean.jpg'
-})), ...otherSatelliteDockItems);
+})), ...saturnDockItems, ...otherSatelliteDockItems);
 jupiterMoonDetails.forEach(moon => {
     moonKeyToName[moon.key] = moon.key === 'callisto' ? '木卫四' : moon.nameEN;
+    planetAudioNarration[moon.key] = `${moon.nameCN}，英文叫 ${moon.nameEN}。${moon.description}它的直径约${moon.diameter}公里。`;
+});
+saturnMoonDetails.forEach(moon => {
+    moonKeyToName[moon.key] = moon.nameEN;
     planetAudioNarration[moon.key] = `${moon.nameCN}，英文叫 ${moon.nameEN}。${moon.description}它的直径约${moon.diameter}公里。`;
 });
 
@@ -4110,6 +4119,16 @@ function createTeachingMoonFamily(planetName) {
             observedMaterials[key] = new THREE.MeshBasicMaterial({ map: createObservedMoonTexture(`textures/jupiter-moons/${jupiterMoonObservations[key].photo}`) });
         });
     }
+    const saturnMoonMaterials = {};
+    if (planetName === 'saturn') {
+        saturnMoonDetails.forEach(moon => {
+            const map = moon.key === 'hyperion'
+                ? createObservedMoonTexture('textures/saturn-moons/hyperion-observation.jpg')
+                : new THREE.TextureLoader().load(`textures/saturn-moons/${moon.key}.jpg`);
+            map.encoding = THREE.sRGBEncoding;
+            saturnMoonMaterials[moon.key] = new THREE.MeshBasicMaterial({ map });
+        });
+    }
 
     config.source.forEach((identity, index) => {
         const band = index % 7;
@@ -4119,13 +4138,13 @@ function createTeachingMoonFamily(planetName) {
         const inclination = (-0.54 + band * 0.18) * (index % 2 === 0 ? 1 : -1);
         const key = identity.name.toLowerCase();
         const material = planetName === 'jupiter' && key === 'amalthea' ? amaltheaMaterial
-            : observedMaterials[key] || materials[index % materials.length];
+            : observedMaterials[key] || saturnMoonMaterials[key] || materials[index % materials.length];
         // 近木卫星的长短轴来自 NASA 测量；表面未覆盖部分仍为示意。
         const measuredAxes = { amalthea: [1.5, 0.88, 0.77], thebe: [1.27, 1.07, 0.92], adrastea: [1.28, 1.02, 0.9], metis: [1.34, 0.9, 0.76] };
         let moonGeometry = geometry;
-        if (planetName === 'jupiter' && measuredAxes[key]) {
+        if ((planetName === 'jupiter' && measuredAxes[key]) || (planetName === 'saturn' && key === 'hyperion')) {
             moonGeometry = geometry.clone();
-            moonGeometry.scale(...measuredAxes[key]);
+            moonGeometry.scale(...(key === 'hyperion' ? [1.4, 1.0, 0.8] : measuredAxes[key]));
         }
         const moonMesh = new THREE.Mesh(moonGeometry, material);
         moonMesh.name = identity.name;
@@ -4148,6 +4167,12 @@ function createTeachingMoonFamily(planetName) {
             const details = jupiterMoonDetails.find(item => item.nameEN === identity.name);
             if (details) Object.assign(moonMesh.userData, details, {
                 desc: `${details.description} ${details.year}年发现。${details.key === 'amalthea' ? '木卫五贴图来自伽利略号的部分观测，未覆盖区域为灰色；三维形状为示意。' : jupiterMoonObservations[details.key] ? '下方是探测器实拍；三维模型将照片投影到一面，未覆盖区域为灰色，形状为示意。' : '目前未找到可辨认表面细节的影像；这里借用火卫一的贴图，外形为示意。'}`
+            });
+        }
+        if (planetName === 'saturn') {
+            const details = saturnMoonDetails.find(item => item.nameEN === identity.name);
+            if (details) Object.assign(moonMesh.userData, details, {
+                desc: `${details.description} ${details.key === 'hyperion' ? '卡西尼号影像投影在示意模型的一面，未观测部分为灰色。' : '贴图来自探测器影像；模型大小和轨道经过放大和简化。'}`
             });
         }
         scene.add(moonMesh);
@@ -5164,8 +5189,9 @@ function selectPlanet(name) {
         const item = jupiterMoonObservations[name];
         observation.hidden = !item;
         if (item) {
-            observation.querySelector('img').src = `textures/jupiter-moons/${item.photo}`;
-            observation.querySelector('img').alt = `${jupiterMoonDetails.find(moon => moon.key === name).nameCN}实拍影像`;
+            observation.querySelector('img').src = `textures/${item.directory || 'jupiter-moons'}/${item.photo}`;
+            const details = [...jupiterMoonDetails, ...saturnMoonDetails].find(moon => moon.key === name);
+            observation.querySelector('img').alt = `${details.nameCN}实拍影像`;
             observation.querySelector('figcaption span').textContent = item.note;
             observation.querySelector('a').href = item.source;
         }
@@ -5394,7 +5420,7 @@ function renderSatelliteDock() {
         const texture = item.texture ? `url('${item.texture}')` : 'none';
 
         return `
-            <div class="planet-dot satellite-dot" data-planet="${item.key}" data-name="${item.nameCN}" style="--satellite-base:${baseColor}; --satellite-soft:${softGlow}; --satellite-rim:${rimGlow}; --satellite-texture:${texture};">
+            <div class="planet-dot satellite-dot" data-planet="${item.key}" data-name="${item.nameCN}" ${item.nameShort.length >= 4 ? 'data-long-label' : ''} style="--satellite-base:${baseColor}; --satellite-soft:${softGlow}; --satellite-rim:${rimGlow}; --satellite-texture:${texture};">
                 <span class="satellite-dot-label">${item.nameShort}</span>
             </div>
         `;

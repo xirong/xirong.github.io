@@ -910,6 +910,7 @@
         .satellite-dot {
             width: 46px;
             height: 46px;
+            flex: 0 0 46px;
             --satellite-base: rgba(160, 195, 255, 0.34);
             --satellite-soft: rgba(160, 195, 255, 0.16);
             --satellite-rim: rgba(255, 255, 255, 0.7);
@@ -952,6 +953,12 @@
             line-height: 1;
             font-weight: 700;
             white-space: nowrap;
+            text-shadow: 0 1px 3px #000, 0 0 5px #000;
+        }
+
+        .satellite-dot[data-long-label] .satellite-dot-label {
+            font-size: 0.54rem;
+            letter-spacing: -0.4px;
         }
 
         .satellite-dot:hover {
@@ -1010,14 +1017,16 @@
             transform: translateX(-50%);
             z-index: 101;
             display: flex;
-            max-width: calc(100vw - 20px);
-            overflow-x: auto;
-            overflow-y: hidden;
+            width: min(1200px, calc(100vw - 20px));
+            max-height: calc(100vh - 130px);
+            box-sizing: border-box;
+            overflow-x: hidden;
+            overflow-y: auto;
             gap: 8px;
             padding: 8px 20px 12px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 50px;
+            border-radius: 24px;
             backdrop-filter: blur(20px);
             opacity: 0;
             pointer-events: none;
@@ -1033,7 +1042,10 @@
 
         .satellite-strip-track {
             display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
             gap: 8px;
+            width: 100%;
         }
 
         /* 加载动画 */
@@ -3430,16 +3442,18 @@
                 top: 86px;
             }
 
-            .satellite-strip,
             .planet-selector {
                 max-width: calc(100vw - 20px);
                 overflow-x: auto;
                 overflow-y: hidden;
                 padding-bottom: 16px;
+                scrollbar-width: none;
             }
 
+            .planet-selector::-webkit-scrollbar { display: none; }
+
             .satellite-strip-track {
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
             }
 
             .planet-guide-panel {
@@ -4191,9 +4205,10 @@
     <script src="explorer/vendor/GLTFLoader.js"></script>
     <script src="solar-realism.js?v=20261106-r3"></script>
     <script src="jupiter-moon-details.js?v=20261111-r1"></script>
+    <script src="saturn-moon-details.js?v=20261111-r1"></script>
     <script src="jupiter-moons-data.js?v=20261109-r1"></script>
     <script src="saturn-moons-data.js?v=20261109-r1"></script>
-    <script src="app.js?v=20261111-r4-jupiter-observations"></script>
+    <script src="app.js?v=20261111-r5-saturn-moons"></script>
     <a href="../index.html" style="position:fixed;left:20px;bottom:20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);z-index:1000;transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">🏠 首页</a>
 </body>
 
