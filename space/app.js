@@ -1494,6 +1494,19 @@ const moonKeyToName = {
     dysnomia: '阋卫一'
 };
 
+// ============ 木卫四至木卫二十二资料与快捷入口 ============
+const jupiterMoonDetails = window.JUPITER_MOON_DETAILS || [];
+const jupiterFirstThree = ['io', 'europa', 'ganymede'].map(key => satelliteDockItems.find(item => item.key === key));
+const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede'].includes(item.key));
+satelliteDockItems.splice(0, satelliteDockItems.length, ...jupiterFirstThree, ...jupiterMoonDetails.map(moon => ({
+    key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xb8aa96,
+    texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : 'textures/phobos_clean.jpg'
+})), ...otherSatelliteDockItems);
+jupiterMoonDetails.forEach(moon => {
+    moonKeyToName[moon.key] = moon.key === 'callisto' ? '木卫四' : moon.nameEN;
+    planetAudioNarration[moon.key] = `${moon.nameCN}，英文叫 ${moon.nameEN}。${moon.description}它的直径约${moon.diameter}公里。`;
+});
+
 // ============ 人造卫星数据 ============
 const satellitesData = [
     { name: '国际空间站', nameCN: '国际空间站 ISS', orbitRadius: 1.8, orbitSpeed: 0.15, size: 0.15, color: 0xcccccc, inclination: 0.3 },
@@ -1518,6 +1531,8 @@ let selectedPlanet = null;
 let isSatelliteStripOpen = false;
 let isArtificialSatelliteStripOpen = false;
 let activeMoonFamily = null;
+let followedMoon = null;
+let cameraAnimationId = 0;
 const moonFamilyPlaying = { jupiter: true, saturn: true };
 let clock;
 let raycaster, mouse;
@@ -4001,6 +4016,10 @@ function createAllMoons() {
                 orbitAngle: Math.random() * Math.PI * 2,
                 size: moonSize
             };
+            if (planetName === 'jupiter' && moonData.name === '木卫四') {
+                const details = jupiterMoonDetails.find(item => item.key === 'callisto');
+                if (details) Object.assign(moonMesh.userData, details, { desc: details.description });
+            }
 
             // 创建卫星标签
             createMoonLabel(moonMesh, moonData.nameCN, moonSize);
@@ -4059,6 +4078,12 @@ function createTeachingMoonFamily(planetName) {
             teachingRepresentation: true,
             desc: `${identity.nameCN}是${planetData[planetName].nameCN}的卫星之一。这里复用其他卫星的月面纹理，大小、外形、轨道距离和运行速度都是教学示意。`
         };
+        if (planetName === 'jupiter') {
+            const details = jupiterMoonDetails.find(item => item.nameEN === identity.name);
+            if (details) Object.assign(moonMesh.userData, details, {
+                desc: `${details.description} ${details.year}年发现。小卫星外形和贴图为教学示意。`
+            });
+        }
         scene.add(moonMesh);
         moons[planetName].push(moonMesh);
     });
@@ -5003,6 +5028,15 @@ function animate() {
         }
     }
 
+    // 跟随选中的卫星，避免它绕行时离开镜头。
+    if (followedMoon) {
+        const position = followedMoon.mesh.position;
+        const deltaPosition = position.clone().sub(followedMoon.lastPosition);
+        camera.position.add(deltaPosition);
+        controls.target.add(deltaPosition);
+        followedMoon.lastPosition.copy(position);
+    }
+
     // 更新小行星带
     if (isAnimating && asteroidBelt && asteroidBelt.material.uniforms) {
         asteroidBelt.material.uniforms.time.value = elapsed;
@@ -5084,10 +5118,10 @@ function selectPlanet(name) {
         document.getElementById('planetName').textContent = moonData.nameCN || name;
         document.getElementById('planetNameEN').textContent = moonData.nameEN || '';
         document.getElementById('planetType').textContent = parentPlanet ? `${parentPlanet}卫星` : '天然卫星';
-        document.getElementById('planetDiameter').textContent = moonData.diameter ? formatNumber(moonData.diameter) + ' km' : '-';
+        document.getElementById('planetDiameter').textContent = moonData.diameter ? '约 ' + formatNumber(moonData.diameter) + ' km' : '-';
         document.getElementById('planetDistance').textContent = parentPlanet ? `围绕${parentPlanet}轨道运行` : '-';
         document.getElementById('planetOrbitPeriod').textContent = moonData.orbitPeriod ? formatOrbitPeriod(moonData.orbitPeriod) : '-';
-        document.getElementById('planetRelativeSize').textContent = moonData.diameter ? `${(moonData.diameter / 12742).toFixed(3)} 倍地球直径` : '-';
+        document.getElementById('planetRelativeSize').textContent = moonData.diameter ? `${(moonData.diameter / 12742).toPrecision(3)} 倍地球直径` : '-';
         document.getElementById('planetDescription').textContent = moonData.desc || '-';
 
         const moonsDiv = document.getElementById('planetMoons');
@@ -5123,7 +5157,7 @@ function selectPlanet(name) {
             targetPosition.z + distance
         );
 
-        animateCamera(cameraTarget, targetPosition);
+        animateCamera(cameraTarget, targetPosition, targetMesh);
         return;
     }
 
@@ -5193,7 +5227,7 @@ function selectPlanet(name) {
             targetPosition.z + distance
         );
 
-        animateCamera(cameraTarget, targetPosition);
+        animateCamera(cameraTarget, targetPosition, data.category === 'moon' ? targetMesh : null);
     }
 }
 
@@ -5451,22 +5485,33 @@ function toggleArtificialSatelliteStrip() {
 }
 
 // ============ 相机动画 ============
-function animateCamera(targetPosition, lookAtTarget) {
+function animateCamera(targetPosition, lookAtTarget, followTarget = null) {
+    followedMoon = null;
+    const animationId = ++cameraAnimationId;
     const startPosition = camera.position.clone();
     const startTarget = controls.target.clone();
+    const initialFollowPosition = followTarget ? followTarget.position.clone() : null;
     const duration = 1500;
     const startTime = Date.now();
 
     function updateCamera() {
+        if (animationId !== cameraAnimationId) return;
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = easeOutCubic(progress);
 
         camera.position.lerpVectors(startPosition, targetPosition, eased);
         controls.target.lerpVectors(startTarget, lookAtTarget, eased);
+        if (followTarget) {
+            const movement = followTarget.position.clone().sub(initialFollowPosition).multiplyScalar(eased);
+            camera.position.add(movement);
+            controls.target.add(movement);
+        }
 
         if (progress < 1) {
             requestAnimationFrame(updateCamera);
+        } else if (followTarget) {
+            followedMoon = { mesh: followTarget, lastPosition: followTarget.position.clone() };
         }
     }
 
@@ -5682,6 +5727,8 @@ function setupControls() {
 
     // 关闭行星信息面板
     document.getElementById('closePlanetInfo').addEventListener('click', function () {
+        followedMoon = null;
+        cameraAnimationId++;
         closeMoonFamilyView(false);
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
         hideAllSatelliteStrips();
