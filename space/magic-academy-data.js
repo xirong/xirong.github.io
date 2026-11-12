@@ -439,7 +439,7 @@
                     e('Tilt', '倾斜', 'Uranus has a big tilt.'),
                     e('Wind', '风', 'Neptune has strong winds.'),
                     e('Triton', '海卫一', 'Triton is a moon of Neptune.', 'audio/solar/triton.mp3'),
-                    e('Titania', '天卫一', 'Titania is a moon of Uranus.', 'audio/solar/titania.mp3'),
+                    e('Titania', '天卫三', 'Titania is a moon of Uranus.', 'audio/solar/titania.mp3'),
                     e('Miranda', '天卫五', 'Miranda has cliffs.', 'audio/solar/miranda.mp3'),
                     e('Far', '遥远', 'These planets are far from the sun.')
                 ],

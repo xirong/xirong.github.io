@@ -625,8 +625,8 @@ const planetData = {
         relativeSize: 0.2124 // 2707/12742
     },
     titania: {
-        name: '天卫一',
-        nameCN: '天卫一',
+        name: '天卫三',
+        nameCN: '天卫三',
         nameEN: 'Titania',
         type: '卫星',
         diameter: 1578, // km
@@ -637,7 +637,7 @@ const planetData = {
         rotationPeriod: 8.71,
         color: 0x88b999,
         emissive: 0x3e5b61,
-        description: '天卫一是天王星系统里较大的卫星，拥有巨大的断裂谷和亮暗相间地形。',
+        description: '天卫三是天王星系统里较大的卫星，拥有巨大的断裂谷和亮暗相间地形。',
         relativeSize: 0.1238 // 1578/12742
     },
     miranda: {
@@ -841,7 +841,7 @@ const planetData = {
         orbitRadius: 220,
         hasRings: true,
         moonCount: 28,
-        moonInfo: '🌙 卫星(28颗)：天卫三（泰坦尼亚，最大卫星）、天卫四（奥伯龙，布满陨石坑）、天卫五（米兰达，有奇特地形）'
+        moonInfo: '🌙 已知29颗卫星（2026年），其中27颗已有正式名字：天卫一 Ariel、天卫二 Umbriel、天卫三 Titania、天卫四 Oberon、天卫五 Miranda 是五颗主要卫星。'
     },
     neptune: {
         name: '海王星',
@@ -1309,7 +1309,7 @@ const planetAudioNarration = {
     phobos: '火卫一，Phobos，火星离它最近的小卫星，形状不规则，表面坑坑洼洼，靠得很近、绕行也很快，像个“贴着火星跑”的小月球。',
     deimos: '火卫二，Deimos，火星的外侧卫星，体积更小更暗，轨道离得更远、更平稳，像颗安静、细小的伴星。',
     triton: '海卫一，Triton，海王星的最大卫星，轨道是逆行的，说明它很可能不是原生形成，而是后来被俘获，表面有年轻的地质痕迹。',
-    titania: '天卫一，Titania，天王星系统里体积较大的卫星之一，表面有巨型断谷和亮暗相间地形，内部可能藏有历史上复杂的构造痕迹。',
+    titania: '天卫三，Titania，天王星系统里体积较大的卫星之一，表面有巨型断谷和亮暗相间地形，内部可能藏有历史上复杂的构造痕迹。',
     miranda: '天卫五，Miranda，天王星的一颗小卫星，表面有巨大的断崖、沟槽和拼贴状地形。它像一块被撞击和内部活动反复改造过的冰岩世界。',
     charon: '冥卫一，Charon，冥王星最大的卫星，大小接近冥王星的一半。它和冥王星互相潮汐锁定，像一对很特别的双人舞伙伴。',
     nix: '冥卫二，Nix，冥王星的一颗小卫星，形状不规则，和冥卫三一样大约只有几十公里宽。它来自遥远的柯伊伯带，很适合观察小冰岩天体。',
@@ -1349,7 +1349,7 @@ const satelliteDockItems = [
     { key: 'phobos', nameCN: '火卫一', nameShort: '火卫一', accent: 0x8a7c66, texture: 'textures/phobos_clean.jpg' },
     { key: 'deimos', nameCN: '火卫二', nameShort: '火卫二', accent: 0x6e7280, texture: 'textures/deimos.jpg' },
     { key: 'triton', nameCN: '海卫一', nameShort: '海卫一', accent: 0x7cc8ff, texture: 'textures/triton.jpg' },
-    { key: 'titania', nameCN: '天卫一', nameShort: '天卫一', accent: 0x88b999, texture: 'textures/titania.jpg' },
+    { key: 'titania', nameCN: '天卫三', nameShort: '天卫三', accent: 0x88b999, texture: 'textures/titania.jpg' },
     { key: 'miranda', nameCN: '天卫五', nameShort: '天卫五', accent: 0x9f968d, texture: 'textures/miranda.jpg' },
     { key: 'charon', nameCN: '冥卫一', nameShort: '冥卫一', accent: 0xb8b1a7, texture: 'textures/moon.jpg' },
     { key: 'nix', nameCN: '冥卫二', nameShort: '冥卫二', accent: 0xaeb6c8, texture: 'textures/deimos.jpg' },
@@ -1482,7 +1482,7 @@ const moonKeyToName = {
     phobos: '火卫一',
     deimos: '火卫二',
     triton: '海卫一',
-    titania: '天卫一',
+    titania: '天卫三',
     miranda: '天卫五',
     charon: '冥卫一',
     nix: '冥卫二',
@@ -1497,22 +1497,28 @@ const moonKeyToName = {
 // ============ 木卫四至木卫二十二资料与快捷入口 ============
 const jupiterMoonDetails = window.JUPITER_MOON_DETAILS || [];
 const saturnMoonDetails = window.SATURN_MOON_DETAILS || [];
+const iceGiantMoonDetails = window.ICE_GIANT_MOON_DETAILS || [];
 const jupiterMoonObservations = {
     amalthea: { photo: 'amalthea-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）。三维贴图使用部分观测拼图，深灰色区域没有影像。' },
     thebe: { photo: 'thebe-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）；照片投影到模型一面，灰色为未覆盖区域，形状为示意。' },
     metis: { photo: 'metis-observation.jpg', source: 'https://science.nasa.gov/photojournal/best-images-yet-of-thebe-amalthea-and-metis/', note: '伽利略号实拍（2000年，黑白）；照片投影到模型一面，灰色为未覆盖区域，形状为示意。' },
     adrastea: { photo: 'adrastea-observation.jpg', source: 'https://science.nasa.gov/photojournal/family-portrait-of-the-small-inner-satellites-of-jupiter/', note: '伽利略号实拍（1996至1997年，黑白），分辨率很低；照片投影到模型一面，灰色为未覆盖区域。' },
+    puck: { photo: 'puck-observation.jpg', directory: 'ice-giant-moons', source: 'https://science.nasa.gov/uranus/moons/puck/', note: '旅行者二号实拍，分辨率有限；照片投影到示意模型的一面，灰色为未覆盖区域。' },
+    proteus: { photo: 'proteus-observation.jpg', directory: 'ice-giant-moons', source: 'https://science.nasa.gov/neptune/moons/proteus/', note: '旅行者二号实拍；照片投影到示意模型的一面，灰色为未覆盖区域。' },
     hyperion: { photo: 'hyperion-observation.jpg', directory: 'saturn-moons', source: 'https://science.nasa.gov/photojournal/pop-up-moon-non-stereo-version/', note: '卡西尼号紫外波段黑白影像，照片投影到示意模型的一面；灰色为未覆盖区域。' }
 };
 const jupiterFirstThree = ['io', 'europa', 'ganymede'].map(key => satelliteDockItems.find(item => item.key === key));
 const saturnExistingItems = Object.fromEntries(satelliteDockItems.filter(item => ['enceladus', 'rhea', 'titan'].includes(item.key)).map(item => [item.key, item]));
-const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede', 'enceladus', 'rhea', 'titan'].includes(item.key));
+const otherSatelliteDockItems = satelliteDockItems.filter(item => !['io', 'europa', 'ganymede', 'enceladus', 'rhea', 'titan', 'triton', 'titania', 'miranda'].includes(item.key));
 const saturnByKey = Object.fromEntries(saturnMoonDetails.map(moon => [moon.key, { key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xc1c8d0, texture: `textures/saturn-moons/${moon.key === 'hyperion' ? 'hyperion-observation' : moon.key}.jpg` }]));
 const saturnDockItems = ['mimas', 'enceladus', 'tethys', 'dione', 'rhea', 'titan', 'hyperion', 'iapetus', 'phoebe'].map(key => saturnExistingItems[key] || saturnByKey[key]).filter(Boolean);
 satelliteDockItems.splice(0, satelliteDockItems.length, ...jupiterFirstThree, ...jupiterMoonDetails.map(moon => ({
     key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: 0xb8aa96,
     texture: moon.key === 'callisto' ? 'textures/callisto.jpg' : jupiterMoonObservations[moon.key] ? `textures/jupiter-moons/${jupiterMoonObservations[moon.key].photo}` : 'textures/phobos_clean.jpg'
-})), ...saturnDockItems, ...otherSatelliteDockItems);
+})), ...saturnDockItems, ...iceGiantMoonDetails.map(moon => ({
+    key: moon.key, nameCN: moon.nameCN, nameShort: moon.nameCN, accent: moon.planet === 'uranus' ? 0x9dd8d7 : 0x789be0,
+    texture: ['titania', 'oberon', 'miranda', 'triton'].includes(moon.key) ? `textures/${moon.key}.jpg` : ['ariel', 'umbriel', 'puck', 'proteus'].includes(moon.key) ? `textures/ice-giant-moons/${moon.key}.jpg` : 'textures/phobos_clean.jpg'
+})), ...otherSatelliteDockItems);
 jupiterMoonDetails.forEach(moon => {
     moonKeyToName[moon.key] = moon.key === 'callisto' ? '木卫四' : moon.nameEN;
     planetAudioNarration[moon.key] = `${moon.nameCN}，英文叫 ${moon.nameEN}。${moon.description}它的直径约${moon.diameter}公里。`;
@@ -1520,6 +1526,13 @@ jupiterMoonDetails.forEach(moon => {
 saturnMoonDetails.forEach(moon => {
     moonKeyToName[moon.key] = moon.nameEN;
     planetAudioNarration[moon.key] = `${moon.nameCN}，英文叫 ${moon.nameEN}。${moon.description}它的直径约${moon.diameter}公里。`;
+});
+
+iceGiantMoonDetails.forEach(moon => {
+    moonKeyToName[moon.key] = ['titania', 'oberon', 'miranda', 'triton'].includes(moon.key) ? moon.nameCN : moon.nameEN;
+    if (!['miranda', 'triton'].includes(moon.key)) {
+        planetAudioNarration[moon.key] = `${moon.nameCN}，英文叫 ${moon.nameEN}。${moon.description}它的直径约${moon.diameter}公里。`;
+    }
 });
 
 // ============ 人造卫星数据 ============
@@ -2666,7 +2679,7 @@ const moonsData = {
     // 天王星的卫星
     uranus: [
         { name: '天卫五', nameCN: '天卫五', diameter: 471.6, orbitRadius: 5.2, orbitSpeed: 0.07, color: 0x9f968d, desc: '天卫五（Miranda）是天王星系统中最奇特的小卫星之一，表面有巨大断崖、沟槽和拼贴状地形，很适合观察冰岩卫星被撞击和内部活动改造后的样子。', texturePath: 'textures/miranda.jpg', brightness: 1.18, fresnelColor: 'vec3(0.82, 0.8, 0.75)', fresnelIntensity: 0.1, segments: 48 },
-        { name: '天卫一', nameCN: '天卫一', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '天卫一（Titania）是天王星系统中较大的卫星，拥有巨大的断裂谷和古老平原，显示它有复杂的内部演化历史。', texturePath: 'textures/titania.jpg', brightness: 1.14, fresnelColor: 'vec3(0.82, 0.88, 0.94)', fresnelIntensity: 0.08, segments: 48 },
+        { name: '天卫三', nameCN: '天卫三', diameter: 1578, orbitRadius: 7, orbitSpeed: 0.05, color: 0xaabbbb, desc: '天卫三（Titania）是天王星系统中较大的卫星，拥有巨大的断裂谷和古老平原，显示它有复杂的内部演化历史。', texturePath: 'textures/titania.jpg', brightness: 1.14, fresnelColor: 'vec3(0.82, 0.88, 0.94)', fresnelIntensity: 0.08, segments: 48 },
         { name: '天卫四', nameCN: '天卫四', diameter: 1523, orbitRadius: 9, orbitSpeed: 0.04, color: 0x99aaaa, desc: '奥伯龙', texturePath: 'textures/oberon.jpg', brightness: 1.14, fresnelColor: 'vec3(0.8, 0.84, 0.9)', fresnelIntensity: 0.08, segments: 48 }
     ],
     // 海王星的卫星
@@ -4050,6 +4063,53 @@ function createAllMoons() {
         });
 
         createTeachingMoonFamily(planetName);
+        createIceGiantMoons(planetName);
+    });
+}
+
+// ============ 创建天王星和海王星的已命名卫星 ============
+function createIceGiantMoons(planetName) {
+    if (!['uranus', 'neptune'].includes(planetName)) return;
+    const details = iceGiantMoonDetails.filter(moon => moon.planet === planetName);
+    const planet = planets[planetName];
+    const geometry = new THREE.SphereGeometry(1, 24, 16);
+    const loader = new THREE.TextureLoader();
+    const fallback = loader.load('textures/phobos_clean.jpg');
+    fallback.encoding = THREE.sRGBEncoding;
+    const fallbackMaterial = new THREE.MeshBasicMaterial({ map: fallback });
+    const surfaceMaterials = {};
+    ['ariel', 'umbriel', 'puck', 'proteus'].forEach(key => {
+        const map = ['puck', 'proteus'].includes(key)
+            ? createObservedMoonTexture(`textures/ice-giant-moons/${key}.jpg`)
+            : loader.load(`textures/ice-giant-moons/${key}.jpg`);
+        map.encoding = THREE.sRGBEncoding;
+        surfaceMaterials[key] = new THREE.MeshBasicMaterial({ map });
+    });
+    details.forEach((moon, index) => {
+        const existing = moons[planetName].find(mesh => mesh.name === moon.nameCN);
+        if (existing) {
+            if (moon.key === 'oberon') Object.assign(existing.userData, moon, { desc: `${moon.description}贴图来自探测器影像，大小和轨道为示意。` });
+            return;
+        }
+        const size = planet.userData.size * (moon.diameter > 400 ? 0.11 : 0.055);
+        const mesh = new THREE.Mesh(geometry, surfaceMaterials[moon.key] || fallbackMaterial);
+        mesh.name = moon.nameEN;
+        mesh.scale.setScalar(size);
+        const textureNote = ['ariel', 'umbriel'].includes(moon.key)
+            ? '贴图来自旅行者二号的表面影像，未观测区域缺少真实细节。'
+            : ['puck', 'proteus'].includes(moon.key)
+                ? '下方是旅行者二号实拍；照片投影到模型一面，未覆盖区域为灰色。'
+                : '尚无清晰的表面纹理，这里借用火卫一贴图，外形为示意。';
+        mesh.userData = {
+            ...moon, parentPlanet: planetName, size, teachingRepresentation: true,
+            orbitRadius: 11 + (index % 7) * 2.8 + Math.floor(index / 7) * 0.6,
+            orbitSpeed: (moon.orbitPeriod < 0 ? -1 : 1) * (0.012 + (index % 8) * 0.001),
+            orbitAngle: (index * 2.399963229728653) % (Math.PI * 2),
+            inclination: (index % 5 - 2) * 0.12, ascendingNode: index * 0.73,
+            desc: `${moon.description} ${textureNote}模型大小和轨道经过放大和简化。`
+        };
+        scene.add(mesh);
+        moons[planetName].push(mesh);
     });
 }
 
@@ -5190,7 +5250,7 @@ function selectPlanet(name) {
         observation.hidden = !item;
         if (item) {
             observation.querySelector('img').src = `textures/${item.directory || 'jupiter-moons'}/${item.photo}`;
-            const details = [...jupiterMoonDetails, ...saturnMoonDetails].find(moon => moon.key === name);
+            const details = [...jupiterMoonDetails, ...saturnMoonDetails, ...iceGiantMoonDetails].find(moon => moon.key === name);
             observation.querySelector('img').alt = `${details.nameCN}实拍影像`;
             observation.querySelector('figcaption span').textContent = item.note;
             observation.querySelector('a').href = item.source;
@@ -6833,7 +6893,7 @@ function renderCapacityTargetPicker(container) {
         { key: 'haumea', icon: '🧊', name: '妊神星' },
         { key: 'rhea', icon: '🌙', name: '土卫五' },
         { key: 'makemake', icon: '🧊', name: '鸟神星' },
-        { key: 'titania', icon: '🌙', name: '天卫一' },
+        { key: 'titania', icon: '🌙', name: '天卫三' },
         { key: 'miranda', icon: '🌙', name: '天卫五' },
         { key: 'ceres', icon: '🧊', name: '谷神星' },
         { key: 'enceladus', icon: '🌙', name: '土卫二' },
@@ -9524,10 +9584,12 @@ function formatLabelOrbitYears(days) {
 }
 
 function formatOrbitPeriod(days) {
-    const orbitDays = formatPeriodNumber(days);
-    if (days < 3.6525) return orbitDays + ' 地球日';
-    const years = formatPeriodNumber(days / 365.25);
-    return orbitDays + ' 地球日，约等于 ' + years + ' 年';
+    const duration = Math.abs(days);
+    const direction = days < 0 ? '（逆行）' : '';
+    const orbitDays = formatPeriodNumber(duration);
+    if (duration < 3.6525) return orbitDays + ' 地球日' + direction;
+    const years = formatPeriodNumber(duration / 365.25);
+    return orbitDays + ' 地球日，约等于 ' + years + ' 年' + direction;
 }
 
 // ============ 行星视频 · 信息面板卡片 + 影院模式 ============

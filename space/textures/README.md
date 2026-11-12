@@ -59,3 +59,10 @@ These are photographs of atmospheric features, not planetary surface maps. Apply
 - `artificial/beidou.jpg`: BeiDou-3 satellite mockup
   source: https://commons.wikimedia.org/wiki/File:Beidou-3_Satellite_Mockup.jpg
   license: source-page terms; attribution retained through this credit entry
+
+## Uranus and Neptune moon textures
+
+- `ice-giant-moons/ariel.jpg`, `umbriel.jpg`: Voyager 2 image-based maps from NASA/JPL Solar System Simulator, https://maps.jpl.nasa.gov/tmaps/uranus.html. Observational coverage is incomplete.
+- `ice-giant-moons/puck-observation.jpg`: Voyager 2 image, NASA/JPL, https://science.nasa.gov/uranus/moons/puck/. `puck.jpg` is a crop used for a one-sided illustrative projection.
+- `ice-giant-moons/proteus-observation.jpg`: Voyager 2 image, NASA/JPL, https://science.nasa.gov/neptune/moons/proteus/. `proteus.jpg` is a crop used for a one-sided illustrative projection.
+- Named moons without a usable surface map use the existing Phobos placeholder and are identified as illustrative in their information cards.
