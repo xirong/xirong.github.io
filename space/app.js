@@ -1820,6 +1820,8 @@ const REAL_ORBIT_DAYS_PER_SECOND = 24;
 const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
 const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
 const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
+const CAMERA_NEAR = 0.1;
+const CAMERA_MIN_DISTANCE = 0.5;
 // 黑洞口径：事件视界（史瓦西半径）与引力影响区
 const BLACK_HOLE_EVENT_HORIZON_RADIUS_KM = Math.round(getBlackHoleEventHorizonRadiusKm(DEFAULT_BLACK_HOLE_BODY_KEY));
 // 简化教学口径：用“引力影响区”展示 Sgr A*，约 1,000,000,000 km（约 6.7 AU）
@@ -2720,7 +2722,7 @@ function init() {
     camera = new THREE.PerspectiveCamera(
         60,
         window.innerWidth / window.innerHeight,
-        0.1,
+        CAMERA_NEAR,
         20000
     );
     camera.position.set(150, 100, 250);
@@ -2740,7 +2742,7 @@ function init() {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 0.5;
+    controls.minDistance = CAMERA_MIN_DISTANCE;
     controls.maxDistance = 2500;
     controls.enablePan = true;
 
@@ -4088,7 +4090,7 @@ function createIceGiantMoons(planetName) {
     details.forEach((moon, index) => {
         const existing = moons[planetName].find(mesh => mesh.name === moon.nameCN);
         if (existing) {
-            if (moon.key === 'oberon') Object.assign(existing.userData, moon, { desc: `${moon.description}贴图来自探测器影像，大小和轨道为示意。` });
+            if (moon.key === 'oberon') Object.assign(existing.userData, moon, { desc: `${moon.description}贴图来自探测器影像，轨道为示意。` });
             return;
         }
         const size = planet.userData.size * (moon.diameter > 400 ? 0.11 : 0.055);
@@ -4106,7 +4108,7 @@ function createIceGiantMoons(planetName) {
             orbitSpeed: (moon.orbitPeriod < 0 ? -1 : 1) * (0.012 + (index % 8) * 0.001),
             orbitAngle: (index * 2.399963229728653) % (Math.PI * 2),
             inclination: (index % 5 - 2) * 0.12, ascendingNode: index * 0.73,
-            desc: `${moon.description} ${textureNote}模型大小和轨道经过放大和简化。`
+            desc: `${moon.description} ${textureNote}轨道经过简化，教学模式会放大卫星。`
         };
         scene.add(mesh);
         moons[planetName].push(mesh);
@@ -4218,10 +4220,9 @@ function createTeachingMoonFamily(planetName) {
             inclination,
             ascendingNode: (index * 0.73) % (Math.PI * 2),
             size: moonSize,
-            diameter: 0,
             color: 0xb8aa96,
             teachingRepresentation: true,
-            desc: `${identity.nameCN}是${planetData[planetName].nameCN}的卫星之一。这里复用其他卫星的月面纹理，大小、外形、轨道距离和运行速度都是教学示意。`
+            desc: `${identity.nameCN}是${planetData[planetName].nameCN}的卫星之一。这里复用其他卫星的月面纹理，外形和轨道为示意，直径为估计值。`
         };
         if (planetName === 'jupiter') {
             const details = jupiterMoonDetails.find(item => item.nameEN === identity.name);
@@ -4232,7 +4233,7 @@ function createTeachingMoonFamily(planetName) {
         if (planetName === 'saturn') {
             const details = saturnMoonDetails.find(item => item.nameEN === identity.name);
             if (details) Object.assign(moonMesh.userData, details, {
-                desc: `${details.description} ${details.key === 'hyperion' ? '卡西尼号影像投影在示意模型的一面，未观测部分为灰色。' : '贴图来自探测器影像；模型大小和轨道经过放大和简化。'}`
+                desc: `${details.description} ${details.key === 'hyperion' ? '卡西尼号影像投影在示意模型的一面，未观测部分为灰色。' : '贴图来自探测器影像，轨道经过简化，教学模式会放大卫星。'}`
             });
         }
         scene.add(moonMesh);
@@ -5309,18 +5310,7 @@ function selectPlanet(name) {
             }
         });
 
-        const targetPosition = new THREE.Vector3();
-        targetMesh.getWorldPosition(targetPosition);
-
-        const targetSize = targetMesh.userData?.size || 1;
-        const distance = name === 'sun' ? 80 : targetSize * 8;
-        const cameraTarget = new THREE.Vector3(
-            targetPosition.x + distance,
-            targetPosition.y + distance * 0.5,
-            targetPosition.z + distance
-        );
-
-        animateCamera(cameraTarget, targetPosition, targetMesh);
+        focusSolarBody(name, targetMesh, true);
         return;
     }
 
@@ -5378,20 +5368,17 @@ function selectPlanet(name) {
     });
 
     // 移动相机到目标天体
-    if (targetMesh) {
-        const targetPosition = new THREE.Vector3();
-        targetMesh.getWorldPosition(targetPosition);
+    if (targetMesh) focusSolarBody(name, targetMesh, data.category === 'moon');
+}
 
-        const targetSize = targetMesh.userData?.size || 1;
-        const distance = name === 'sun' ? 80 : targetSize * 8;
-        const cameraTarget = new THREE.Vector3(
-            targetPosition.x + distance,
-            targetPosition.y + distance * 0.5,
-            targetPosition.z + distance
-        );
-
-        animateCamera(cameraTarget, targetPosition, data.category === 'moon' ? targetMesh : null);
-    }
+// ============ 按当前显示大小定位天体 ============
+function focusSolarBody(name, targetMesh, followMoon) {
+    const position = targetMesh.getWorldPosition(new THREE.Vector3());
+    const { size, diameter } = targetMesh.userData;
+    const radius = isRealScale && followMoon && diameter ? getRealDisplaySize(diameter) : size || 1;
+    const distance = name === 'sun' ? 80 : radius * 8;
+    const offset = new THREE.Vector3(distance, distance * 0.5, distance);
+    animateCamera(position.clone().add(offset), position, followMoon ? targetMesh : null);
 }
 
 // ============ 设置详情面板字段 ==========
@@ -5650,6 +5637,12 @@ function toggleArtificialSatelliteStrip() {
 // ============ 相机动画 ============
 function animateCamera(targetPosition, lookAtTarget, followTarget = null) {
     followedMoon = null;
+    const diameter = isRealScale ? followTarget?.userData.diameter : null;
+    const radius = diameter ? getRealDisplaySize(diameter) : 0;
+    camera.near = radius ? Math.min(CAMERA_NEAR, radius / 2) : CAMERA_NEAR;
+    controls.minDistance = radius ? Math.min(CAMERA_MIN_DISTANCE, radius * 2) : CAMERA_MIN_DISTANCE;
+    camera.updateProjectionMatrix();
+
     const animationId = ++cameraAnimationId;
     const startPosition = camera.position.clone();
     const startTarget = controls.target.clone();
@@ -5724,7 +5717,7 @@ function openMoonFamilyView() {
     const note = document.getElementById('moonFamilyNote');
     if (status && title && note) {
         title.textContent = config.title;
-        note.textContent = `${config.total}颗为${config.year}年展示版本；新卫星仍可能被发现。小卫星的大小、外形与轨道为教学示意。`;
+        note.textContent = `${config.total}颗为${config.year}年展示版本。真实比例按已知或估计直径显示卫星，外形和轨道为教学示意。`;
         status.hidden = false;
     }
     document.getElementById('planetInfo')?.classList.remove('visible', 'expanded');
@@ -5905,8 +5898,13 @@ function setupControls() {
         this.classList.toggle('active', isRealScale);
         updateModeIndicator();
 
-        // 切换比例（真实比例下行星会非常小）
         updatePlanetScales();
+        // 进入真实比例时保留视距，便于直接看出卫星缩小了多少。
+        // 从小卫星特写切回教学模式时拉远，以免相机落在放大的模型里面。
+        if (!isRealScale && camera.near < CAMERA_NEAR && selectedPlanet) {
+            const target = getTargetMesh(selectedPlanet);
+            if (target) focusSolarBody(selectedPlanet, target, true);
+        }
     });
 
     // 真实公转 / 自转切换
@@ -6253,19 +6251,15 @@ function updatePlanetScales() {
         updateAttachedLabelPosition(labels[name], planet.userData.size, scale);
     });
 
-    Object.keys(moons).forEach(planetName => {
-        moons[planetName].forEach(moonMesh => {
-            if (moonMesh.userData.teachingRepresentation) {
-                const parentScale = isRealScale ? (planets[planetName]?.scale.x || 1) : 1;
-                moonMesh.scale.setScalar(moonMesh.userData.size * parentScale);
-                return;
-            }
-            const moonScale = isRealScale
-                ? getRealScaleFactor(moonMesh.userData.size, moonMesh.userData.diameter)
-                : 1;
-
-            moonMesh.scale.setScalar(moonScale);
-            updateAttachedLabelPosition(labels[moonMesh.name], moonMesh.userData.size, moonScale);
+    Object.values(moons).forEach(moonList => {
+        moonList.forEach(moonMesh => {
+            const { size, diameter, teachingRepresentation } = moonMesh.userData;
+            // 批量创建的小卫星共用单位球几何，其余模型的几何已包含教学尺寸。
+            const teachingScale = teachingRepresentation ? size : 1;
+            const scaleFactor = isRealScale ? getRealScaleFactor(size, diameter) : 1;
+            moonMesh.scale.setScalar(teachingScale * scaleFactor);
+            if (teachingRepresentation) moonMesh.visible = !isRealScale || diameter > 0;
+            updateAttachedLabelPosition(labels[moonMesh.name], size, scaleFactor);
         });
     });
 }
