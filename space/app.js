@@ -436,7 +436,7 @@ const planetData = {
         diameter: 3474,
         mass: 0.0735, // 10²⁴ kg
         category: 'moon',
-        distance: 0.384, // 距地球 384,400 km
+        distance: 0.3844, // 距地球 384,400 km
         orbitPeriod: 27.3, // 天
         rotationPeriod: 27.3, // 同步自转
         color: 0xaaaaaa,
@@ -1163,6 +1163,8 @@ let moon; // 月球（保留兼容）
 let asteroidBelt; // 小行星带
 let satellites = []; // 人造卫星
 let kuiperBelt; // 柯伊伯带
+const realScaleBelts = [];
+const realScaleMarkers = {};
 let oortCloudInner;  // 内奥尔特云粒子
 let oortCloudOuter;  // 外奥尔特云球壳
 let oortCloudBoundary; // 边界标识
@@ -1559,7 +1561,7 @@ let selectedPlanet = null;
 let isSatelliteStripOpen = false;
 let isArtificialSatelliteStripOpen = false;
 let activeMoonFamily = null;
-let followedMoon = null;
+let followedBody = null;
 let cameraAnimationId = 0;
 const moonFamilyPlaying = { jupiter: true, saturn: true };
 let clock;
@@ -1818,8 +1820,13 @@ let currentDragBlackHoleScope = 'blackHoleEventHorizon'; // 拖进黑洞子口�
 // 自转：1 秒约等于 0.2 个地球日，地球自转一圈约 5 秒
 const REAL_ORBIT_DAYS_PER_SECOND = 24;
 const REAL_ROTATION_DAYS_PER_SECOND = 0.2;
-const REAL_SCALE_REFERENCE_DIAMETER = planetData.jupiter.diameter;
-const REAL_SCALE_REFERENCE_SIZE = 4 + planetData.jupiter.relativeSize * 0.4;
+const KM_PER_AU = 149597870.7;
+// 所有绕日距离和天体半径共用这把尺。场景里的 10 个单位等于 1 AU。
+const SCENE_UNITS_PER_AU = 10;
+const SCENE_UNITS_PER_KM = SCENE_UNITS_PER_AU / KM_PER_AU;
+const ASTEROID_BELT_AU = [2.2, 3.2]; // NASA Dawn 对主带的近似范围
+const KUIPER_BELT_AU = [30, 50]; // NASA 对柯伊伯带主要区域的近似范围
+const SUN_TEACHING_RADIUS = 15;
 const CAMERA_NEAR = 0.1;
 const CAMERA_MIN_DISTANCE = 0.5;
 // 黑洞口径：事件视界（史瓦西半径）与引力影响区
@@ -2891,7 +2898,7 @@ function createStarfield() {
 // ============ 创建太阳 ============
 function createSun() {
     // 太阳本体 - 炙热的核心（纹理 + 动态效果）
-    const sunGeometry = new THREE.SphereGeometry(15, 128, 128);
+    const sunGeometry = new THREE.SphereGeometry(SUN_TEACHING_RADIUS, 128, 128);
     const textureLoader = new THREE.TextureLoader();
     const sunTexture = textureLoader.load('textures/sun.jpg');
     sunTexture.wrapS = THREE.RepeatWrapping;
@@ -2961,7 +2968,7 @@ function createSun() {
 
     sun = new THREE.Mesh(sunGeometry, sunMaterial);
     sun.name = 'sun';
-    sun.userData = planetData.sun;
+    sun.userData = { ...planetData.sun, size: SUN_TEACHING_RADIUS };
     scene.add(sun);
     planets.sun = sun;
 
@@ -3252,7 +3259,8 @@ function createSolarFlares() {
                 pos.y += cos(time * 2.5 + lifetime * 8.0) * life * 2.0;
                 
                 vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                gl_PointSize = size * (200.0 / -mvPosition.z) * (1.0 - life * 0.5);
+                float sunScale = length(modelViewMatrix[0].xyz);
+                gl_PointSize = size * sunScale * (200.0 / -mvPosition.z) * (1.0 - life * 0.5);
                 gl_Position = projectionMatrix * mvPosition;
             }
         `,
@@ -3290,7 +3298,7 @@ function createSimpleSun() {
     sunTexture.wrapS = THREE.RepeatWrapping;
     sunTexture.wrapT = THREE.RepeatWrapping;
 
-    const sunGeometry = new THREE.SphereGeometry(15, 64, 64);
+    const sunGeometry = new THREE.SphereGeometry(SUN_TEACHING_RADIUS, 64, 64);
     const sunMaterial = new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
@@ -3334,7 +3342,7 @@ function createSimpleSun() {
 
     sun = new THREE.Mesh(sunGeometry, sunMaterial);
     sun.name = 'sun';
-    sun.userData = planetData.sun;
+    sun.userData = { ...planetData.sun, size: SUN_TEACHING_RADIUS };
     scene.add(sun);
     planets.sun = sun;
 
@@ -3437,7 +3445,7 @@ function switchSunStyle(style) {
     }
 
     SolarRealism.refreshLights();
-
+    sun.scale.setScalar(isRealScale ? getRealScaleFactor(SUN_TEACHING_RADIUS, planetData.sun.diameter) : 1);
 }
 
 // ============ 创建行星 ============
@@ -3986,7 +3994,7 @@ function createMoonOrbit() {
     const earth = planets.earth;
     if (!earth) return;
 
-    const orbitRadius = earth.userData.size * 3;
+    const orbitRadius = moon.userData.orbitRadius;
     const orbitGeometry = new THREE.BufferGeometry();
     const points = [];
 
@@ -4496,6 +4504,7 @@ function createAsteroidBelt() {
     asteroidBelt = new THREE.Points(geometry, material);
     asteroidBelt.name = 'asteroidBelt';
     scene.add(asteroidBelt);
+    createRealScaleBelt(ASTEROID_BELT_AU, 0xc69566, '小行星带');
 }
 
 // ============ 创建土星环 ============
@@ -4770,6 +4779,21 @@ function createKuiperBelt() {
     kuiperBelt = new THREE.Points(geometry, material);
     kuiperBelt.name = 'kuiperBelt';
     scene.add(kuiperBelt);
+    createRealScaleBelt(KUIPER_BELT_AU, 0x688ed0, '柯伊伯带');
+}
+
+// ============ 真实比例下用环带标示小天体的分布范围 ============
+function createRealScaleBelt([innerAu, outerAu], color, name) {
+    const innerRadius = innerAu * SCENE_UNITS_PER_AU;
+    const outerRadius = outerAu * SCENE_UNITS_PER_AU;
+    const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 256).rotateX(-Math.PI / 2);
+    const band = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+        color, side: THREE.DoubleSide, transparent: true, opacity: 0.24, depthWrite: false
+    }));
+    band.name = name;
+    band.visible = false;
+    scene.add(band);
+    realScaleBelts.push(band);
 }
 
 // ============ 创建奥尔特云 ============
@@ -4891,7 +4915,7 @@ function updateOortCloudVisibility() {
     const dist = camera.position.length(); // 距原点的距离
 
     // 相机距离 < 500: 全部隐藏
-    if (dist < 500) {
+    if (isRealScale || dist < 500) {
         oortCloudInner.visible = false;
         oortCloudOuter.visible = false;
         oortCloudBoundary.visible = false;
@@ -4961,19 +4985,19 @@ function flyToOortCloud() {
 
 // ============ 创建轨道 ============
 function createOrbits() {
-    const planetNames = ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'haumea', 'makemake', 'eris'];
-
-    planetNames.forEach(name => {
-        const data = planetData[name];
+    Object.entries(planets).forEach(([name, planet]) => {
+        if (name === 'moon') return;
+        createRealScaleMarker(name, planet.userData);
+        if (!planet.userData.orbitRadius) return;
         const orbitGeometry = new THREE.BufferGeometry();
         const points = [];
 
-        for (let i = 0; i <= 128; i++) {
-            const angle = (i / 128) * Math.PI * 2;
+        for (let i = 0; i <= 256; i++) {
+            const angle = (i / 256) * Math.PI * 2;
             points.push(
-                Math.cos(angle) * data.orbitRadius,
+                Math.cos(angle),
                 0,
-                Math.sin(angle) * data.orbitRadius
+                Math.sin(angle)
             );
         }
 
@@ -4986,9 +5010,83 @@ function createOrbits() {
         });
 
         const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+        orbit.scale.setScalar(getHeliocentricOrbitRadius(planet.userData));
         orbit.visible = showOrbits;
         scene.add(orbit);
         orbits[name] = orbit;
+    });
+}
+
+// ============ 用相同的轨道半径计算轨道线和天体位置 ============
+function getHeliocentricOrbitRadius(data) {
+    return isRealScale ? data.distance * 1e6 * SCENE_UNITS_PER_KM : data.orbitRadius;
+}
+
+function getMoonOrbitRadius() {
+    return isRealScale ? moon.userData.distance * 1e6 * SCENE_UNITS_PER_KM : moon.userData.orbitRadius;
+}
+
+// ============ 全景中给看不清的天体标注位置 ============
+function createRealScaleMarker(name, data) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 140;
+    canvas.height = 36;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = name === 'sun' ? '#ffcf72' : '#a7daff';
+    ctx.beginPath();
+    ctx.arc(10, 18, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = 'bold 22px Noto Sans SC, sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.strokeStyle = '#000005';
+    ctx.lineWidth = 4;
+    ctx.strokeText(data.nameCN, 24, 18);
+    ctx.fillText(data.nameCN, 24, 18);
+
+    const labelMap = new THREE.CanvasTexture(canvas);
+    const dotMap = labelMap.clone();
+    dotMap.repeat.x = 20 / canvas.width;
+    dotMap.needsUpdate = true;
+    const marker = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: labelMap, sizeAttenuation: false, depthWrite: false, toneMapped: false
+    }));
+    marker.userData = { labelMap, dotMap, labelWidth: 14 + ctx.measureText(data.nameCN).width / 2 };
+    marker.visible = false;
+    realScaleMarkers[name] = marker;
+    scene.add(marker);
+}
+
+function updateRealScaleMarkers() {
+    if (!isRealScale || !showLabels || camera.position.distanceToSquared(controls.target) <= 1) {
+        Object.values(realScaleMarkers).forEach(marker => { marker.visible = false; });
+        return;
+    }
+
+    const { clientWidth: width, clientHeight: height } = renderer.domElement;
+    const pixel = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / height;
+    const projected = new THREE.Vector3();
+    const labelBoxes = [];
+    camera.updateMatrixWorld();
+
+    Object.entries(realScaleMarkers).forEach(([name, marker]) => {
+        marker.position.copy(planets[name].position);
+        projected.copy(marker.position).project(camera);
+        marker.visible = Math.abs(projected.x) < 1 && Math.abs(projected.y) < 1 && Math.abs(projected.z) < 1;
+        if (!marker.visible) return;
+
+        const x = (1 + projected.x) * width / 2;
+        const y = (1 - projected.y) * height / 2;
+        const { labelMap, dotMap, labelWidth } = marker.userData;
+        // 内侧天体在全景里容易挤在一起。文字重叠时只画位置点。
+        const right = x + labelWidth;
+        const showName = right < width && !labelBoxes.some(box =>
+            Math.abs(box.y - y) < 15 && x - 4 < box.right && right > box.left);
+        if (showName) labelBoxes.push({ left: x - 4, right, y });
+
+        marker.material.map = showName ? labelMap : dotMap;
+        const markerWidth = showName ? 70 : 10;
+        marker.center.set(5 / markerWidth, 0.5);
+        marker.scale.set(markerWidth * pixel, 18 * pixel, 1);
     });
 }
 
@@ -5008,6 +5106,141 @@ function addLights() {
     const fillLight = new THREE.DirectionalLight(0x4466aa, 0.1);
     fillLight.position.set(-100, 50, 100);
     scene.add(fillLight);
+}
+
+// ============ 更新绕行位置，切换比例时可在暂停状态重算 ============
+function updateOrbitalBodies(delta, elapsed) {
+    const frameFactor = delta * 60;
+    Object.keys(planets).forEach(name => {
+        if (name === 'sun' || name === 'moon') return;
+
+        const planet = planets[name];
+        const data = planet.userData;
+        const orbitStep = isRealMotion
+            ? data.realOrbitSpeed * delta
+            : data.demoOrbitSpeed * 0.01 * frameFactor;
+        const rotationStep = isRealMotion
+            ? data.realRotationSpeed * delta
+            : data.demoRotationSpeed * frameFactor;
+        const familyFocused = activeMoonFamily === name;
+        const familyPaused = familyFocused && moonFamilyPlaying[name] === false;
+
+        // 公转
+        if (!familyFocused) data.orbitAngle += orbitStep;
+        const orbitRadius = getHeliocentricOrbitRadius(data);
+        planet.position.x = Math.cos(data.orbitAngle) * orbitRadius;
+        planet.position.z = Math.sin(data.orbitAngle) * orbitRadius;
+
+        // 自转
+        if (!familyPaused) planet.rotation.y += rotationStep;
+
+        // 天王星特殊倾斜
+        if (name === 'uranus') {
+            planet.rotation.z = Math.PI / 2;
+        }
+
+        // 统一更新所有行星的 shader uniforms（时间 + 太阳方向）
+        if (planet.material.uniforms) {
+            if (planet.material.uniforms.time) {
+                planet.material.uniforms.time.value = elapsed;
+            }
+            if (planet.material.uniforms.sunDirection) {
+                const sunDir = new THREE.Vector3()
+                    .copy(planet.position).negate().normalize();
+                planet.material.uniforms.sunDirection.value.copy(sunDir);
+            }
+            // 地球云层旋转
+            if (name === 'earth' && planet.userData.cloudMesh) {
+                const cloudRotationStep = isRealMotion
+                    ? rotationStep * 1.05
+                    : 0.0003 * frameFactor;
+                planet.userData.cloudMesh.rotation.y += cloudRotationStep;
+            }
+        }
+    });
+
+    // 更新月球位置（围绕地球转）
+    if (moon && planets.earth) {
+        const earth = planets.earth;
+        const moonData = moon.userData;
+        const moonOrbitStep = isRealMotion
+            ? moonData.realOrbitSpeed * delta
+            : moonData.demoOrbitSpeed * 0.01 * frameFactor;
+        const moonOrbitRadius = getMoonOrbitRadius();
+
+        moonData.orbitAngle += moonOrbitStep;
+
+        // 月球位置 = 地球位置 + 月球相对于地球的轨道位置
+        moon.position.x = earth.position.x + Math.cos(moonData.orbitAngle) * moonOrbitRadius;
+        moon.position.z = earth.position.z + Math.sin(moonData.orbitAngle) * moonOrbitRadius;
+        moon.position.y = earth.position.y;
+
+        // 月球自转（同步自转，始终一面朝向地球）
+        moon.rotation.y = -moonData.orbitAngle;
+
+        // 更新月球 shader 太阳方向
+        if (moon.material.uniforms && moon.material.uniforms.sunDirection) {
+            const sunDir = new THREE.Vector3()
+                .copy(moon.position).negate().normalize();
+            moon.material.uniforms.sunDirection.value.copy(sunDir);
+        }
+    }
+
+    // 更新所有卫星位置
+    Object.keys(moons).forEach(planetName => {
+        const planet = planets[planetName];
+        if (!planet) return;
+
+        const planetMoonsList = moons[planetName];
+        planetMoonsList.forEach(moonMesh => {
+            const data = moonMesh.userData;
+            if (moonFamilyPlaying[planetName] !== false) {
+                data.orbitAngle += data.orbitSpeed * 0.01 * frameFactor;
+            }
+
+            const actualRadius = isRealScale
+                ? (planet.userData.size + data.orbitRadius) * planet.scale.x
+                : planet.userData.size + data.orbitRadius;
+
+            // 卫星位置 = 行星位置 + 卫星轨道位置
+            const inclination = data.inclination || 0;
+            const ascendingNode = data.ascendingNode || 0;
+            const orbitX = Math.cos(data.orbitAngle) * actualRadius;
+            const orbitZ = Math.sin(data.orbitAngle) * actualRadius * Math.cos(inclination);
+            const orbitY = Math.sin(data.orbitAngle) * actualRadius * Math.sin(inclination);
+            moonMesh.position.x = planet.position.x + orbitX * Math.cos(ascendingNode) - orbitZ * Math.sin(ascendingNode);
+            moonMesh.position.z = planet.position.z + orbitX * Math.sin(ascendingNode) + orbitZ * Math.cos(ascendingNode);
+            moonMesh.position.y = planet.position.y + orbitY;
+
+            // 卫星自转
+            if (moonFamilyPlaying[planetName] !== false) {
+                moonMesh.rotation.y += 0.01 * frameFactor;
+            }
+
+            if (moonMesh.material.uniforms && moonMesh.material.uniforms.sunDirection) {
+                const sunDir = new THREE.Vector3()
+                    .copy(moonMesh.position).negate().normalize();
+                moonMesh.material.uniforms.sunDirection.value.copy(sunDir);
+            }
+        });
+    });
+
+    // 更新人造卫星位置
+    const earth = planets.earth;
+    if (earth) {
+        satellites.forEach(sat => {
+            const data = sat.userData;
+            if (delta > 0) data.orbitAngle += data.orbitSpeed * 0.01;
+
+            const actualRadius = (earth.userData.size + data.orbitRadius) * earth.scale.x;
+            const inclination = data.inclination || 0;
+
+            // 带倾斜角的轨道
+            sat.position.x = earth.position.x + Math.cos(data.orbitAngle) * actualRadius;
+            sat.position.z = earth.position.z + Math.sin(data.orbitAngle) * actualRadius * Math.cos(inclination);
+            sat.position.y = earth.position.y + Math.sin(data.orbitAngle) * actualRadius * Math.sin(inclination);
+        });
+    }
 }
 
 // ============ 动画循环 ============
@@ -5045,149 +5278,17 @@ function animate() {
         });
     }
 
-    // 更新行星
-    if (isAnimating) {
-        Object.keys(planets).forEach(name => {
-            if (name === 'sun' || name === 'moon') return;
+    if (isAnimating) updateOrbitalBodies(delta, elapsed);
 
-            const planet = planets[name];
-            const data = planet.userData;
-            const orbitStep = isRealMotion
-                ? data.realOrbitSpeed * delta
-                : data.demoOrbitSpeed * 0.01 * frameFactor;
-            const rotationStep = isRealMotion
-                ? data.realRotationSpeed * delta
-                : data.demoRotationSpeed * frameFactor;
-            const familyFocused = activeMoonFamily === name;
-            const familyPaused = familyFocused && moonFamilyPlaying[name] === false;
-
-            // 公转
-            if (!familyFocused) data.orbitAngle += orbitStep;
-            planet.position.x = Math.cos(data.orbitAngle) * data.orbitRadius;
-            planet.position.z = Math.sin(data.orbitAngle) * data.orbitRadius;
-
-            // 自转
-            if (!familyPaused) planet.rotation.y += rotationStep;
-
-            // 天王星特殊倾斜
-            if (name === 'uranus') {
-                planet.rotation.z = Math.PI / 2;
-            }
-
-            // 统一更新所有行星的 shader uniforms（时间 + 太阳方向）
-            if (planet.material.uniforms) {
-                if (planet.material.uniforms.time) {
-                    planet.material.uniforms.time.value = elapsed;
-                }
-                if (planet.material.uniforms.sunDirection) {
-                    const sunDir = new THREE.Vector3()
-                        .copy(planet.position).negate().normalize();
-                    planet.material.uniforms.sunDirection.value.copy(sunDir);
-                }
-                // 地球云层旋转
-                if (name === 'earth' && planet.userData.cloudMesh) {
-                    const cloudRotationStep = isRealMotion
-                        ? rotationStep * 1.05
-                        : 0.0003 * frameFactor;
-                    planet.userData.cloudMesh.rotation.y += cloudRotationStep;
-                }
-            }
-        });
-
-        // 更新月球位置（围绕地球转）
-        if (moon && planets.earth) {
-            const earth = planets.earth;
-            const moonData = moon.userData;
-            const moonOrbitStep = isRealMotion
-                ? moonData.realOrbitSpeed * delta
-                : moonData.demoOrbitSpeed * 0.01 * frameFactor;
-            const moonOrbitRadius = isRealScale
-                ? moonData.orbitRadius * earth.scale.x
-                : moonData.orbitRadius;
-
-            moonData.orbitAngle += moonOrbitStep;
-
-            // 月球位置 = 地球位置 + 月球相对于地球的轨道位置
-            moon.position.x = earth.position.x + Math.cos(moonData.orbitAngle) * moonOrbitRadius;
-            moon.position.z = earth.position.z + Math.sin(moonData.orbitAngle) * moonOrbitRadius;
-            moon.position.y = earth.position.y;
-
-            // 月球自转（同步自转，始终一面朝向地球）
-            moon.rotation.y = -moonData.orbitAngle;
-
-            // 更新月球 shader 太阳方向
-            if (moon.material.uniforms && moon.material.uniforms.sunDirection) {
-                const sunDir = new THREE.Vector3()
-                    .copy(moon.position).negate().normalize();
-                moon.material.uniforms.sunDirection.value.copy(sunDir);
-            }
-        }
-
-        // 更新所有卫星位置
-        Object.keys(moons).forEach(planetName => {
-            const planet = planets[planetName];
-            if (!planet) return;
-
-            const planetMoonsList = moons[planetName];
-            planetMoonsList.forEach(moonMesh => {
-                const data = moonMesh.userData;
-                if (moonFamilyPlaying[planetName] !== false) {
-                    data.orbitAngle += data.orbitSpeed * 0.01 * frameFactor;
-                }
-
-                const actualRadius = isRealScale
-                    ? (planet.userData.size + data.orbitRadius) * planet.scale.x
-                    : planet.userData.size + data.orbitRadius;
-
-                // 卫星位置 = 行星位置 + 卫星轨道位置
-                const inclination = data.inclination || 0;
-                const ascendingNode = data.ascendingNode || 0;
-                const orbitX = Math.cos(data.orbitAngle) * actualRadius;
-                const orbitZ = Math.sin(data.orbitAngle) * actualRadius * Math.cos(inclination);
-                const orbitY = Math.sin(data.orbitAngle) * actualRadius * Math.sin(inclination);
-                moonMesh.position.x = planet.position.x + orbitX * Math.cos(ascendingNode) - orbitZ * Math.sin(ascendingNode);
-                moonMesh.position.z = planet.position.z + orbitX * Math.sin(ascendingNode) + orbitZ * Math.cos(ascendingNode);
-                moonMesh.position.y = planet.position.y + orbitY;
-
-                // 卫星自转
-                if (moonFamilyPlaying[planetName] !== false) {
-                    moonMesh.rotation.y += 0.01 * frameFactor;
-                }
-
-                if (moonMesh.material.uniforms && moonMesh.material.uniforms.sunDirection) {
-                    const sunDir = new THREE.Vector3()
-                        .copy(moonMesh.position).negate().normalize();
-                    moonMesh.material.uniforms.sunDirection.value.copy(sunDir);
-                }
-            });
-        });
-
-        // 更新人造卫星位置
-        const earth = planets.earth;
-        if (earth) {
-            satellites.forEach(sat => {
-                const data = sat.userData;
-                data.orbitAngle += data.orbitSpeed * 0.01;
-
-                const actualRadius = earth.userData.size + data.orbitRadius;
-                const inclination = data.inclination || 0;
-
-                // 带倾斜角的轨道
-                sat.position.x = earth.position.x + Math.cos(data.orbitAngle) * actualRadius;
-                sat.position.z = earth.position.z + Math.sin(data.orbitAngle) * actualRadius * Math.cos(inclination);
-                sat.position.y = earth.position.y + Math.sin(data.orbitAngle) * actualRadius * Math.sin(inclination);
-            });
-        }
-    }
-
-    // 跟随选中的卫星，避免它绕行时离开镜头。
-    if (followedMoon) {
-        const position = followedMoon.mesh.position;
-        const deltaPosition = position.clone().sub(followedMoon.lastPosition);
+    // 跟随聚焦的天体，避免它绕行时离开镜头。
+    if (followedBody) {
+        const position = followedBody.mesh.position;
+        const deltaPosition = position.clone().sub(followedBody.lastPosition);
         camera.position.add(deltaPosition);
         controls.target.add(deltaPosition);
-        followedMoon.lastPosition.copy(position);
+        followedBody.lastPosition.copy(position);
     }
+    updateRealScaleMarkers();
 
     // 更新小行星带
     if (isAnimating && asteroidBelt && asteroidBelt.material.uniforms) {
@@ -5316,6 +5417,7 @@ function selectPlanet(name) {
 
     // 奥尔特云特殊处理
     if (name === 'oortCloud') {
+        if (isRealScale) setRealScale(false);
         flyToOortCloud();
         return;
     }
@@ -5375,10 +5477,12 @@ function selectPlanet(name) {
 function focusSolarBody(name, targetMesh, followMoon) {
     const position = targetMesh.getWorldPosition(new THREE.Vector3());
     const { size, diameter } = targetMesh.userData;
-    const radius = isRealScale && followMoon && diameter ? getRealDisplaySize(diameter) : size || 1;
-    const distance = name === 'sun' ? 80 : radius * 8;
+    const realRadius = isRealScale && diameter ? getRealDisplaySize(diameter) : 0;
+    const radius = realRadius || size || 1;
+    const distance = name === 'sun' && !isRealScale ? 80 : radius * 8;
     const offset = new THREE.Vector3(distance, distance * 0.5, distance);
-    animateCamera(position.clone().add(offset), position, followMoon ? targetMesh : null);
+    const followsOrbit = followMoon || (isRealScale && name !== 'sun');
+    animateCamera(position.clone().add(offset), position, followsOrbit ? targetMesh : null, realRadius);
 }
 
 // ============ 设置详情面板字段 ==========
@@ -5441,19 +5545,7 @@ function selectArtificialSatellite(key) {
     });
 
     // 人造卫星都围绕地球的示意轨道运行，阅读时把镜头带回地球附近。
-    const earth = planets.earth;
-    if (earth) {
-        const targetPosition = new THREE.Vector3();
-        earth.getWorldPosition(targetPosition);
-        const targetSize = earth.userData?.size || 1;
-        const distance = targetSize * 8;
-        const cameraTarget = new THREE.Vector3(
-            targetPosition.x + distance,
-            targetPosition.y + distance * 0.5,
-            targetPosition.z + distance
-        );
-        animateCamera(cameraTarget, targetPosition);
-    }
+    if (planets.earth) focusSolarBody('earth', planets.earth, false);
 }
 
 function renderSatelliteDock() {
@@ -5635,12 +5727,10 @@ function toggleArtificialSatelliteStrip() {
 }
 
 // ============ 相机动画 ============
-function animateCamera(targetPosition, lookAtTarget, followTarget = null) {
-    followedMoon = null;
-    const diameter = isRealScale ? followTarget?.userData.diameter : null;
-    const radius = diameter ? getRealDisplaySize(diameter) : 0;
-    camera.near = radius ? Math.min(CAMERA_NEAR, radius / 2) : CAMERA_NEAR;
-    controls.minDistance = radius ? Math.min(CAMERA_MIN_DISTANCE, radius * 2) : CAMERA_MIN_DISTANCE;
+function animateCamera(targetPosition, lookAtTarget, followTarget = null, focusRadius = 0) {
+    followedBody = null;
+    camera.near = focusRadius ? Math.min(CAMERA_NEAR, focusRadius / 2) : CAMERA_NEAR;
+    controls.minDistance = focusRadius ? Math.min(CAMERA_MIN_DISTANCE, focusRadius * 2) : CAMERA_MIN_DISTANCE;
     camera.updateProjectionMatrix();
 
     const animationId = ++cameraAnimationId;
@@ -5667,7 +5757,7 @@ function animateCamera(targetPosition, lookAtTarget, followTarget = null) {
         if (progress < 1) {
             requestAnimationFrame(updateCamera);
         } else if (followTarget) {
-            followedMoon = { mesh: followTarget, lastPosition: followTarget.position.clone() };
+            followedBody = { mesh: followTarget, lastPosition: followTarget.position.clone() };
         }
     }
 
@@ -5722,20 +5812,18 @@ function openMoonFamilyView() {
     }
     document.getElementById('planetInfo')?.classList.remove('visible', 'expanded');
     updateMoonFamilyPauseButton();
+    frameMoonFamily(planetName);
+}
 
+function frameMoonFamily(planetName) {
+    const planet = planets[planetName];
     const center = planet.position.clone();
     const familyRadius = moons[planetName].reduce((maxRadius, moonMesh) => {
         return Math.max(maxRadius, planet.userData.size + (moonMesh.userData.orbitRadius || 0));
-    }, planet.userData.size);
-    const verticalFov = THREE.MathUtils.degToRad(camera.fov);
-    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
-    const limitingFov = Math.min(verticalFov, horizontalFov);
-    const distance = familyRadius * 1.32 / Math.sin(limitingFov / 2);
+    }, planet.userData.size) * planet.scale.x;
+    const distance = getOrbitFrameDistance(familyRadius, 1.32);
     const offset = new THREE.Vector3(1, 0.58, 1).normalize().multiplyScalar(distance);
-    animateCamera(
-        center.clone().add(offset),
-        center
-    );
+    animateCamera(center.clone().add(offset), center, null, familyRadius);
 }
 
 function toggleMoonFamilyMotion() {
@@ -5767,13 +5855,7 @@ function closeMoonFamilyView(returnToPlanet = true) {
 
     document.getElementById('planetInfo')?.classList.add('visible');
 
-    const planet = planets[planetName];
-    const center = planet.position.clone();
-    const distance = (planet.userData?.size || 1) * 8;
-    animateCamera(
-        new THREE.Vector3(center.x + distance, center.y + distance * 0.5, center.z + distance),
-        center
-    );
+    focusSolarBody(planetName, planets[planetName], false);
 }
 
 function easeOutCubic(t) {
@@ -5871,19 +5953,13 @@ function setupControls() {
     });
 
     // 重置视角
-    document.getElementById('resetView').addEventListener('click', function () {
-        closeMoonFamilyView(false);
-        const targetPosition = new THREE.Vector3(150, 100, 250);
-        const targetLookAt = new THREE.Vector3(0, 0, 0);
-        animateCamera(targetPosition, targetLookAt);
-        document.getElementById('planetInfo').classList.remove('visible', 'expanded');
-        hideAllSatelliteStrips();
-        document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
-    });
+    document.getElementById('resetView').addEventListener('click', () => resetSolarView());
+    document.getElementById('realScaleInnerView').addEventListener('click', () => resetSolarView());
+    document.getElementById('realScaleOuterView').addEventListener('click', () => resetSolarView(true));
 
     // 关闭行星信息面板
     document.getElementById('closePlanetInfo').addEventListener('click', function () {
-        followedMoon = null;
+        followedBody = null;
         cameraAnimationId++;
         closeMoonFamilyView(false);
         document.getElementById('planetInfo').classList.remove('visible', 'expanded');
@@ -5894,16 +5970,17 @@ function setupControls() {
 
     // 真实比例切换
     document.getElementById('toggleRealScale').addEventListener('click', function () {
-        isRealScale = !isRealScale;
-        this.classList.toggle('active', isRealScale);
-        updateModeIndicator();
-
-        updatePlanetScales();
-        // 进入真实比例时保留视距，便于直接看出卫星缩小了多少。
-        // 从小卫星特写切回教学模式时拉远，以免相机落在放大的模型里面。
-        if (!isRealScale && camera.near < CAMERA_NEAR && selectedPlanet) {
-            const target = getTargetMesh(selectedPlanet);
-            if (target) focusSolarBody(selectedPlanet, target, true);
+        setRealScale(!isRealScale);
+        const target = getTargetMesh(selectedPlanet);
+        if (activeMoonFamily) {
+            frameMoonFamily(activeMoonFamily);
+        } else if (target) {
+            const isMoon = selectedPlanet === 'moon' || !planets[selectedPlanet];
+            focusSolarBody(selectedPlanet, target, isMoon);
+        } else if (artificialSatelliteData[selectedPlanet]) {
+            focusSolarBody('earth', planets.earth, false);
+        } else {
+            resetSolarView();
         }
     });
 
@@ -6186,6 +6263,29 @@ function updateModeIndicator() {
     scaleValue.textContent = labels.join(' + ');
 }
 
+function getOrbitFrameDistance(radius, padding) {
+    const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
+    return radius * padding / Math.sin(Math.min(verticalFov, horizontalFov) / 2);
+}
+
+function resetSolarView(showOuterPlanets = false) {
+    closeMoonFamilyView(false);
+    selectedPlanet = null;
+    document.getElementById('planetInfo').classList.remove('visible', 'expanded');
+    hideAllSatelliteStrips();
+    document.querySelectorAll('.planet-dot').forEach(dot => dot.classList.remove('active'));
+
+    const position = new THREE.Vector3(150, 100, 250);
+    if (isRealScale) {
+        const radius = showOuterPlanets
+            ? getHeliocentricOrbitRadius(planetData.neptune)
+            : ASTEROID_BELT_AU[1] * SCENE_UNITS_PER_AU;
+        position.set(0, 1.35, 1).normalize().multiplyScalar(getOrbitFrameDistance(radius, 1.24));
+    }
+    animateCamera(position, new THREE.Vector3());
+}
+
 function updateMotionPauseButton() {
     const btn = document.getElementById('toggleMotionPause');
     if (!btn) return;
@@ -6208,7 +6308,7 @@ function updateMotionPauseButton() {
 }
 
 function getRealDisplaySize(diameter) {
-    return REAL_SCALE_REFERENCE_SIZE * (diameter / REAL_SCALE_REFERENCE_DIAMETER);
+    return diameter * 0.5 * SCENE_UNITS_PER_KM;
 }
 
 function getRealScaleFactor(baseSize, diameter) {
@@ -6216,52 +6316,42 @@ function getRealScaleFactor(baseSize, diameter) {
     return getRealDisplaySize(diameter) / baseSize;
 }
 
-function updateAttachedLabelPosition(labelSprite, baseSize, scale) {
-    if (!labelSprite || !baseSize) return;
+// ============ 同步切换天体大小、绕日轨道和小天体带 ============
+function setRealScale(enabled) {
+    isRealScale = enabled;
+    const toggle = document.getElementById('toggleRealScale');
+    toggle.classList.toggle('active', enabled);
+    toggle.setAttribute('aria-pressed', String(enabled));
+    document.getElementById('scaleIndicator').classList.toggle('real-scale', enabled);
+    document.getElementById('realScaleLegend').hidden = !enabled;
+    updateModeIndicator();
 
-    const offsetY = labelSprite.userData.offsetY || 3;
-    const safeScale = Math.max(scale, 0.0001);
-    labelSprite.position.y = baseSize + offsetY / safeScale;
-}
-
-// ============ 更新行星大小 ============
-function updatePlanetScales() {
-    // 真实比例模式：以木星为基准，用统一直径基准计算所有天体大小
-    const sunScaleFactor = 2.5;  // 太阳仍保留压缩显示，否则会过大
-
-    Object.keys(planets).forEach(name => {
-        const planet = planets[name];
-        const data = planetData[name];
-
-        let scale;
-        if (isRealScale) {
-            // 真实比例模式
-            if (name === 'sun') {
-                // 太阳：比木星大，但不是真实的10倍（否则太大）
-                scale = sunScaleFactor;
-            } else {
-                scale = getRealScaleFactor(planet.userData.size, data.diameter);
-            }
-        } else {
-            // 教学比例：所有行星大小相近，便于观察
-            scale = 1;
+    Object.entries(planets).forEach(([name, planet]) => {
+        const { size, diameter } = planet.userData;
+        planet.scale.setScalar(enabled ? getRealScaleFactor(size, diameter) : 1);
+        if (name !== 'moon' && orbits[name]) {
+            orbits[name].scale.setScalar(getHeliocentricOrbitRadius(planet.userData));
         }
-
-        planet.scale.setScalar(scale);
-        updateAttachedLabelPosition(labels[name], planet.userData.size, scale);
     });
+    orbits.moon.scale.setScalar(getMoonOrbitRadius() / (moon.userData.orbitRadius * planets.earth.scale.x));
 
     Object.values(moons).forEach(moonList => {
         moonList.forEach(moonMesh => {
             const { size, diameter, teachingRepresentation } = moonMesh.userData;
             // 批量创建的小卫星共用单位球几何，其余模型的几何已包含教学尺寸。
             const teachingScale = teachingRepresentation ? size : 1;
-            const scaleFactor = isRealScale ? getRealScaleFactor(size, diameter) : 1;
+            const scaleFactor = enabled ? getRealScaleFactor(size, diameter) : 1;
             moonMesh.scale.setScalar(teachingScale * scaleFactor);
-            if (teachingRepresentation) moonMesh.visible = !isRealScale || diameter > 0;
-            updateAttachedLabelPosition(labels[moonMesh.name], size, scaleFactor);
+            if (teachingRepresentation) moonMesh.visible = !enabled || diameter > 0;
         });
     });
+
+    satellites.forEach(sat => sat.scale.setScalar(planets.earth.scale.x));
+    Object.values(labels).forEach(label => { label.visible = showLabels && !enabled; });
+    asteroidBelt.visible = kuiperBelt.visible = !enabled;
+    realScaleBelts.forEach(band => { band.visible = enabled; });
+    updateOortCloudVisibility();
+    updateOrbitalBodies(0, simulationTime);
 }
 
 // ============ 行星对比换算工具 ============
