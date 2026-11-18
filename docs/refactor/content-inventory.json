@@ -1,0 +1,7403 @@
+{
+ "explorers": {
+  "太阳": [
+   {
+    "id": 1,
+    "title": "太阳有多大",
+    "desc": "能装下130万个地球",
+    "stories": [
+     "太阳是太阳系中心的大火球，所有的行星都围着它转！",
+     "太阳能装下130万个地球！它真的非常非常大！",
+     "如果太阳是一个篮球，地球只有绿豆那么大！"
+    ],
+    "hanzi": [
+     {
+      "char": "日",
+      "pinyin": "rì",
+      "words": "日头 · 日出"
+     },
+     {
+      "char": "火",
+      "pinyin": "huǒ",
+      "words": "火焰 · 火山"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳能装下多少个地球？",
+      "answer": "130万个"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "太阳系有4个岩石行星和4个气态行星，一共几个？",
+      "expression": "4 + 4 = ?",
+      "answer": "8 个"
+     },
+     {
+      "type": "fillin",
+      "question": "太阳能装下130万个地球！如果搬走了3个地球模型，桌上还剩几个？（原来有9个）",
+      "expression": "9 - 3 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "太阳能板今天收集了6份光能，又收集了4份，一共收集了几份光能？",
+      "expression": "6加4等于10",
+      "answer": 10
+     },
+     {
+      "type": "sequential",
+      "question": "太阳能板有8份光能，用掉了3份照明，又收集了2份，现在有几份光能？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "核聚变发光",
+    "desc": "太阳为什么会发光？",
+    "stories": [
+     "太阳为什么会发光？因为核聚变！",
+     "氢变成氦，释放出巨大的能量！",
+     "就像一个超级大火炉，不停地燃烧，给我们带来光和热！"
+    ],
+    "hanzi": [
+     {
+      "char": "光",
+      "pinyin": "guāng",
+      "words": "光明 · 阳光"
+     },
+     {
+      "char": "热",
+      "pinyin": "rè",
+      "words": "热水 · 炎热"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳发光是因为？",
+      "answer": "核聚变"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "太阳的光到地球要8分钟，小明等了2分钟，还要等几分钟？",
+      "expression": "8 - 2 = ?",
+      "answer": "6 分钟"
+     },
+     {
+      "type": "fillin",
+      "question": "核聚变把4个氢原子变成1个氦原子，用掉了几个氢？",
+      "expression": "数一数，一共用了几个？",
+      "answer": 4
+     },
+     {
+      "type": "fillin",
+      "question": "太阳发出了9束光线，有4束照到了地球，还有几束没照到地球？",
+      "expression": "9减4等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "太阳发出了7束光线，地球接收了3束，植物又吸收了2束用于光合作用，剩余几束光线照射着地面？",
+      "expression": "7 - 3 - 2",
+      "answer": 2
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "太阳温度",
+    "desc": "比火山岩浆还热！",
+    "stories": [
+     "太阳表面温度有5500度，比火山岩浆还热！",
+     "太阳核心温度更高，有1500万度！",
+     "但太阳离我们很远，所以我们只觉得温暖。"
+    ],
+    "hanzi": [
+     {
+      "char": "红",
+      "pinyin": "hóng",
+      "words": "红色 · 红花"
+     },
+     {
+      "char": "明",
+      "pinyin": "míng",
+      "words": "明天 · 光明"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳表面大约多少度？",
+      "answer": "5500度"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "小明看了3次太阳黑子，小红看了4次，一共看了几次？",
+      "expression": "3 + 4 = ?",
+      "answer": "7 次"
+     },
+     {
+      "type": "fillin",
+      "question": "太阳表面温度5500度！如果温度计最高10度，需要几个温度计叠起来才到10度？（2+8=?）",
+      "expression": "2 + 8 = ?",
+      "answer": 10
+     },
+     {
+      "type": "fillin",
+      "question": "太阳表面有5个热区，又出现了3个新热区，一共有几个热区？",
+      "expression": "5加3等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "太阳表面有9个热区，冷却了4个变成暗区，又爆发了2个新热区，现在有几个热区？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "太阳黑子",
+    "desc": "太阳上的黑色斑点",
+    "stories": [
+     "太阳表面有黑色斑点，叫做太阳黑子！",
+     "它们不是真的黑，只是比周围温度低！",
+     "黑子也有4000多度，但旁边更亮，所以显得黑！"
+    ],
+    "hanzi": [
+     {
+      "char": "金",
+      "pinyin": "jīn",
+      "words": "金子 · 金色"
+     },
+     {
+      "char": "亮",
+      "pinyin": "liàng",
+      "words": "明亮 · 亮光"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳黑子看起来黑是因为？",
+      "answer": "比周围温度低显得暗"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "望远镜看到5个大黑子和2个小黑子，一共几个？",
+      "expression": "5 + 2 = ?",
+      "answer": "7 个"
+     },
+     {
+      "type": "fillin",
+      "question": "太阳上有9个黑子，消失了3个，还剩几个？",
+      "expression": "9 - 3 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "太阳上出现了6个太阳黑子，消失了4个，还剩几个太阳黑子？",
+      "expression": "6减4等于2",
+      "answer": 2
+     },
+     {
+      "type": "sequential",
+      "question": "太阳上有4个太阳黑子，耀斑爆发新增了5个，其中3个快速消失了，还剩几个太阳黑子？",
+      "expression": "4 + 5 - 3",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "太阳与生命",
+    "desc": "万物生长靠太阳",
+    "stories": [
+     "没有太阳，地球会变成冰球！",
+     "植物需要阳光进行光合作用，才能生长！",
+     "太阳给我们带来白天黑夜和四季变化！"
+    ],
+    "hanzi": [
+     {
+      "char": "力",
+      "pinyin": "lì",
+      "words": "力气 · 力量"
+     },
+     {
+      "char": "能",
+      "pinyin": "néng",
+      "words": "能力 · 能量"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "没有太阳，地球会怎样？",
+      "answer": "变成冰球"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "春夏秋冬4个季节，智天最喜欢2个，不喜欢几个？",
+      "expression": "4 - 2 = ?",
+      "answer": "2 个"
+     },
+     {
+      "type": "fillin",
+      "question": "植物需要阳光才能长大！花园里有3朵红花和4朵黄花，一共几朵？",
+      "expression": "3 + 4 = ?",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "花园里有3朵向日葵，太阳照射后又开了4朵，现在一共有几朵向日葵？",
+      "expression": "3加4等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "花园里有8朵花，太阳太强晒蔫了2朵，下雨后又开了3朵，现在有几朵花？",
+      "expression": "8 - 2 + 3",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "太阳的未来",
+    "desc": "太阳也会变老吗？",
+    "stories": [
+     "太阳已经燃烧了46亿年！",
+     "大约50亿年后，太阳会变成红巨星！",
+     "最后变成白矮星，像一颗安静的小星星。"
+    ],
+    "hanzi": [
+     {
+      "char": "阳",
+      "pinyin": "yáng",
+      "words": "太阳 · 阳光"
+     },
+     {
+      "char": "白",
+      "pinyin": "bái",
+      "words": "白色 · 雪白"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳最后会变成什么？",
+      "answer": "白矮星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "太阳家族有8颗行星，走了3颗去旅行，还剩几颗？",
+      "expression": "8 - 3 = ?",
+      "answer": "5 颗"
+     },
+     {
+      "type": "fillin",
+      "question": "太阳已经燃烧了46亿年！如果用小火柴来数，6根加上2根是几根？",
+      "expression": "6 + 2 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "太阳风带走了6颗宇宙尘埃，又卷走了3颗，一共带走了几颗尘埃？",
+      "expression": "6加3等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "太阳有10份热量，变成红巨星后散发了4份，剩余热量变成白矮星又冷却了3份，最后还有几份热量？",
+      "expression": "10 - 4 - 3",
+      "answer": 3
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "水星": [
+   {
+    "id": 1,
+    "title": "离太阳最近",
+    "desc": "太阳系最内侧的行星",
+    "stories": [
+     "水星是离太阳最近的行星，太阳在水星上看起来比在地球上大3倍！",
+     "水星绕太阳一圈只要88天，是太阳系中\"跑\"得最快的行星",
+     "水星的名字在英文里叫Mercury，就是罗马神话中跑得最快的信使之神"
+    ],
+    "hanzi": [
+     {
+      "char": "快",
+      "pinyin": "kuài",
+      "words": "快速 · 快乐"
+     },
+     {
+      "char": "慢",
+      "pinyin": "màn",
+      "words": "慢慢 · 缓慢"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "离太阳最近的行星是？",
+      "answer": "水星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "水星跑了3圈，又跑了4圈，一共跑了几圈？",
+      "expression": "3 + 4 = ?",
+      "answer": "7 圈"
+     },
+     {
+      "type": "fillin",
+      "question": "水星绕太阳跑了9圈，地球才跑了1圈，水星多跑了几圈？",
+      "expression": "9 - 1 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "水星跑了7圈太阳，地球才跑了1圈，水星比地球多跑了几圈？",
+      "expression": "7减1等于6",
+      "answer": 6
+     },
+     {
+      "type": "sequential",
+      "question": "水星绕太阳跑了5圈，又跑了3圈，中途停下来休息后再跑了2圈，一共跑了几圈？",
+      "expression": "5 + 3 + 2",
+      "answer": 10
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "极端温差",
+    "desc": "白天430度，晚上零下180度",
+    "stories": [
+     "水星白天超级热，温度能到430度！",
+     "但是到了晚上，温度会降到零下180度！",
+     "这是因为水星几乎没有大气层保护，热量一下子就跑光了"
+    ],
+    "hanzi": [
+     {
+      "char": "早",
+      "pinyin": "zǎo",
+      "words": "早上 · 早安"
+     },
+     {
+      "char": "晚",
+      "pinyin": "wǎn",
+      "words": "晚上 · 晚安"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "水星温差大是因为？",
+      "answer": "几乎没有大气层"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "白天热了5度，晚上又冷了3度，温度变化了几度？",
+      "expression": "5 + 3 = ?",
+      "answer": "8 度"
+     },
+     {
+      "type": "fillin",
+      "question": "水星白天很热晚上很冷！温度计白天升了6格，晚上降了4格，还剩几格？",
+      "expression": "6 - 4 = ?",
+      "answer": 2
+     },
+     {
+      "type": "fillin",
+      "question": "水星白天温度升了8格，晚上冷却了5格，最终变化了几格？",
+      "expression": "8减5等于3",
+      "answer": 3
+     },
+     {
+      "type": "sequential",
+      "question": "温度计白天升了6格，又升了2格，到了晚上降了4格，最终是几格？",
+      "expression": "6 + 2 - 4",
+      "answer": 4
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "水星表面",
+    "desc": "坑坑洼洼像月球",
+    "stories": [
+     "水星的表面和月球很像，坑坑洼洼的全是陨石坑",
+     "最大的陨石坑叫\"卡洛里盆地\"，直径有1500公里",
+     "水星看起来灰灰的，因为表面都是岩石和尘土"
+    ],
+    "hanzi": [
+     {
+      "char": "黑",
+      "pinyin": "hēi",
+      "words": "黑色 · 黑夜"
+     },
+     {
+      "char": "白",
+      "pinyin": "bái",
+      "words": "白色 · 雪白"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "水星的表面和什么很像？",
+      "answer": "月球"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "水星上有4个大陨石坑和5个小坑，一共几个？",
+      "expression": "4 + 5 = ?",
+      "answer": "9 个"
+     },
+     {
+      "type": "fillin",
+      "question": "水星表面有10个陨石坑，探测器拍了7个，还有几个没拍到？",
+      "expression": "10 - 7 = ?",
+      "answer": 3
+     },
+     {
+      "type": "fillin",
+      "question": "水星表面有6个陨石坑，小行星又撞出了3个新坑，现在一共有几个陨石坑？",
+      "expression": "6加3等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "水星表面有10个陨石坑，小行星填平了3个，探测器又发现了2个新坑，现在一共有几个陨石坑？",
+      "expression": "10 - 3 + 2",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "水星的一天",
+    "desc": "一天比一年还长！",
+    "stories": [
+     "水星自转一圈要59个地球日！",
+     "但是水星的一个\"太阳日\"（从日出到下一次日出）要176个地球日！",
+     "也就是说水星上的一天比一年（88天绕太阳一圈）还要长！"
+    ],
+    "hanzi": [
+     {
+      "char": "长",
+      "pinyin": "cháng",
+      "words": "长短 · 长大"
+     },
+     {
+      "char": "短",
+      "pinyin": "duǎn",
+      "words": "短小 · 长短"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "水星的一天和一年比，哪个长？",
+      "answer": "一天比一年长"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "水星转了2圈太阳，地球转了6圈，地球多转了几圈？",
+      "expression": "6 - 2 = ?",
+      "answer": "4 圈"
+     },
+     {
+      "type": "fillin",
+      "question": "水星的一天有176个地球日，一年有88天。176比88多多少？先算：9-1=?",
+      "expression": "9 - 1 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "水星自转一圈要59天，比地球的自转（1天）多了几天？（简化：9减1等于几）",
+      "expression": "9减1等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "水星的一天超长！宇航员带了8瓶水，喝掉了3瓶，又补充了2瓶，还剩几瓶水？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "没有月亮",
+    "desc": "孤独的小行星",
+    "stories": [
+     "水星没有卫星！它是太阳系中除了金星以外唯一没有月亮的行星",
+     "水星也没有光环，是一颗\"孤独\"的小行星",
+     "但是水星有一个很大的铁核，占了它体积的大部分"
+    ],
+    "hanzi": [
+     {
+      "char": "多",
+      "pinyin": "duō",
+      "words": "多少 · 很多"
+     },
+     {
+      "char": "少",
+      "pinyin": "shǎo",
+      "words": "多少 · 少数"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "水星有几颗卫星？",
+      "answer": "0 颗，没有卫星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "地球有1颗月亮，火星有2颗，水星有0颗，一共几颗？",
+      "expression": "1 + 2 + 0 = ?",
+      "answer": "3 颗"
+     },
+     {
+      "type": "fillin",
+      "question": "水星没有卫星好孤独！木星有5颗大卫星，比水星多几颗？",
+      "expression": "5 - 0 = ?",
+      "answer": 5
+     },
+     {
+      "type": "fillin",
+      "question": "水星没有卫星！太阳系8颗行星中，有2颗没有卫星，有卫星的行星有几颗？",
+      "expression": "8减2等于6",
+      "answer": 6
+     },
+     {
+      "type": "sequential",
+      "question": "木星有4颗大卫星，又发现了3颗新卫星，水星有0颗卫星，木星的卫星比水星多几颗？",
+      "expression": "4 + 3 - 0",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "探索水星",
+    "desc": "信使号和贝皮科伦坡号",
+    "stories": [
+     "探索水星很难，因为它离太阳太近了",
+     "美国的\"信使号\"探测器花了好多年才到达水星，围着它转了4年",
+     "现在欧洲和日本的\"贝皮科伦坡号\"正在飞往水星的路上"
+    ],
+    "hanzi": [
+     {
+      "char": "前",
+      "pinyin": "qián",
+      "words": "前面 · 前进"
+     },
+     {
+      "char": "后",
+      "pinyin": "hòu",
+      "words": "后面 · 以后"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "第一个围绕水星飞行的探测器叫？",
+      "answer": "信使号"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "信使号拍了6张照片，传回了4张，还没传回几张？",
+      "expression": "6 - 4 = ?",
+      "answer": "2 张"
+     },
+     {
+      "type": "fillin",
+      "question": "探测器飞向水星要经过3个行星轨道，再经过2个小行星带，一共经过几个？",
+      "expression": "3 + 2 = ?",
+      "answer": 5
+     },
+     {
+      "type": "fillin",
+      "question": "信使号探测器拍了10张水星照片，传回了7张，还有几张没传回？",
+      "expression": "10减7等于3",
+      "answer": 3
+     },
+     {
+      "type": "sequential",
+      "question": "贝皮科伦坡号飞行了5年，又飞了3年，到达水星后绕飞了2年，一共飞了几年？",
+      "expression": "5 + 3 + 2",
+      "answer": 10
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "金星": [
+   {
+    "id": 1,
+    "title": "地球的姐妹",
+    "desc": "金星和地球是姐妹星",
+    "stories": [
+     "金星和地球大小差不多，所以被叫做地球的\"姐妹星\"！",
+     "但是金星和地球其实非常不一样，它是太阳系中最热的行星！",
+     "金星是夜空中除了月亮以外最亮的天体，古人叫它\"太白金星\"！"
+    ],
+    "hanzi": [
+     {
+      "char": "心",
+      "pinyin": "xīn",
+      "words": "心脏 · 开心"
+     },
+     {
+      "char": "热",
+      "pinyin": "rè",
+      "words": "炎热 · 热水"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "金星被叫做地球的什么？",
+      "answer": "姐妹星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "金星和地球是姐妹，再加上火星3个好朋友，一共几个？",
+      "expression": "金星、地球、火星，数一数！",
+      "answer": "3个"
+     },
+     {
+      "type": "fillin",
+      "question": "金星有2个好朋友来做客，又来了3个，现在一共有几个好朋友？",
+      "expression": "2 + 3 = ?",
+      "answer": 5
+     },
+     {
+      "type": "fillin",
+      "question": "金星上有3片厚厚的云，又飘来了2片，一共有几片云？",
+      "expression": "3加2等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "金星大气里有4片云，被风吹走了1片，又飘来了3片，现在有几片？",
+      "expression": "4 - 1 + 3",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "超级大气层",
+    "desc": "厚厚的云层包裹着",
+    "stories": [
+     "金星被厚厚的云层包裹着，从外面根本看不到表面！",
+     "金星的大气层主要是二氧化碳，产生了超强的温室效应！",
+     "大气压力是地球的90倍！就像在900米深的海底一样。"
+    ],
+    "hanzi": [
+     {
+      "char": "厚",
+      "pinyin": "hòu",
+      "words": "厚薄 · 厚度"
+     },
+     {
+      "char": "薄",
+      "pinyin": "báo",
+      "words": "薄薄 · 薄片"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "金星表面看不到是因为？",
+      "answer": "被厚厚的云层包裹着"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "金星有5层厚厚的云，地球有3层，金星多几层？",
+      "expression": "5 - 3 = ?",
+      "answer": "2层"
+     },
+     {
+      "type": "fillin",
+      "question": "金星的云层里有4朵黄云和3朵白云，一共有几朵云？",
+      "expression": "4 + 3 = ?",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "金星大气层里有8朵厚厚的云，大风吹走了3朵，还剩几朵？",
+      "expression": "8减3等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "金星大气里有6团黄云，散开了2团，又聚集了1团，现在有几团？",
+      "expression": "6 - 2 + 1",
+      "answer": 5
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "最热的行星",
+    "desc": "表面温度465度！",
+    "stories": [
+     "金星表面温度高达465度！比水星还热，虽然水星离太阳更近！",
+     "这是因为金星的温室效应太强了，热量进去就出不来！",
+     "铅和锡到了金星上都会被融化成液体！"
+    ],
+    "hanzi": [
+     {
+      "char": "高",
+      "pinyin": "gāo",
+      "words": "高大 · 高兴"
+     },
+     {
+      "char": "低",
+      "pinyin": "dī",
+      "words": "高低 · 低头"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳系最热的行星是？",
+      "answer": "金星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "今天温度升高了3度，明天又升高了4度，一共升了几度？",
+      "expression": "3 + 4 = ?",
+      "answer": "7度"
+     },
+     {
+      "type": "fillin",
+      "question": "金星表面有9块熔岩石，被高温融化了3块，还剩几块？",
+      "expression": "9 - 3 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "金星高温融化了8块铅，又放进去了2块，被融化的一共有几块？",
+      "expression": "8加2等于10",
+      "answer": 10
+     },
+     {
+      "type": "sequential",
+      "question": "金星上有7块熔岩，高温融化了3块，冷却变硬了2块，现在有几块没融化？",
+      "expression": "7 - 3 + 2",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "倒着转的行星",
+    "desc": "太阳从西边升起！",
+    "stories": [
+     "金星是太阳系中唯一\"倒着转\"的行星！",
+     "在金星上，太阳是从西边升起、东边落下的，和地球完全相反！",
+     "而且金星自转一圈要243天，比它绕太阳一圈的225天还长！"
+    ],
+    "hanzi": [
+     {
+      "char": "开",
+      "pinyin": "kāi",
+      "words": "开门 · 打开"
+     },
+     {
+      "char": "关",
+      "pinyin": "guān",
+      "words": "关门 · 关闭"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "金星上太阳从哪边升起？",
+      "answer": "西边"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "金星转了2圈，地球转了8圈，地球多转了几圈？",
+      "expression": "8 - 2 = ?",
+      "answer": "6圈"
+     },
+     {
+      "type": "fillin",
+      "question": "金星上太阳从西边升起，小宇航员看了4次日出又看了2次日落，一共看了几次？",
+      "expression": "4 + 2 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "金星倒着转，小宇航员看到太阳从西边升起了3次，又落下了4次，一共几次？",
+      "expression": "3加4等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "金星自转了5圈，地球转了9圈，地球多转了几圈，再加上火星转了1圈，总共多几圈？",
+      "expression": "9 - 5 + 1",
+      "answer": 5
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "金星的表面",
+    "desc": "火山和熔岩平原",
+    "stories": [
+     "科学家用雷达穿过厚厚的云层，终于看到了金星的表面！",
+     "金星上有很多火山，有些可能现在还在喷发！",
+     "金星表面有高山、峡谷和大片的熔岩平原，像一个炼狱般的世界。"
+    ],
+    "hanzi": [
+     {
+      "char": "左",
+      "pinyin": "zuǒ",
+      "words": "左边 · 左手"
+     },
+     {
+      "char": "右",
+      "pinyin": "yòu",
+      "words": "右边 · 右手"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "科学家用什么看到金星表面的？",
+      "answer": "雷达"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "金星上有3座大火山和4座小火山，一共几座？",
+      "expression": "3 + 4 = ?",
+      "answer": "7座"
+     },
+     {
+      "type": "fillin",
+      "question": "雷达拍了10张金星表面照片，有2张模糊了，清晰的有几张？",
+      "expression": "10 - 2 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "雷达扫描了10个金星火山，有3个太模糊没看清，清楚的有几个？",
+      "expression": "10减3等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "金星上发现了6座火山，新喷发了2座，又有1座停下来了，正在喷发的有几座？",
+      "expression": "6 + 2 - 1",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "探索金星",
+    "desc": "勇敢的探测器",
+    "stories": [
+     "苏联的\"金星号\"系列探测器多次降落在金星表面！",
+     "但是因为金星太热太热了，探测器最多只能坚持2个小时就被烤坏了！",
+     "科学家们正在设计新的探测器，希望能在金星上待更久！"
+    ],
+    "hanzi": [
+     {
+      "char": "出",
+      "pinyin": "chū",
+      "words": "出发 · 日出"
+     },
+     {
+      "char": "入",
+      "pinyin": "rù",
+      "words": "进入 · 出入"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "探测器在金星上坚持不久是因为？",
+      "answer": "太热了被烤坏"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "探测器拍了5张照片，发回了3张，还剩几张没发？",
+      "expression": "5 - 3 = ?",
+      "answer": "2张"
+     },
+     {
+      "type": "fillin",
+      "question": "金星号探测器坚持了2个小时就坏了，如果新探测器能多坚持4个小时，一共能坚持几个小时？",
+      "expression": "2 + 4 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "金星号探测器带了8个零件，被高温烧坏了3个，还剩几个？",
+      "expression": "8减3等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "探测器拍了5张金星照片，发回了2张，又拍了4张，一共有几张没发回？",
+      "expression": "5 - 2 + 4",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "地球": [
+   {
+    "id": 1,
+    "title": "我们的家园",
+    "desc": "地球是什么形状？",
+    "stories": [
+     "地球是我们的家，所有人、动物、花草都住在上面！",
+     "地球看起来像一个大球，但不是完美的圆球，而是稍微有点扁的！",
+     "从太空看地球，蓝色的是海洋，绿色和棕色的是陆地，白色的是云。"
+    ],
+    "hanzi": [
+     {
+      "char": "地",
+      "pinyin": "dì",
+      "words": "大地 · 地球"
+     },
+     {
+      "char": "球",
+      "pinyin": "qiú",
+      "words": "地球 · 皮球"
+     },
+     {
+      "char": "家",
+      "pinyin": "jiā",
+      "words": "家人 · 回家"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "地球是什么形状的？",
+      "answer": "像一个大球"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "地球上有3片大海和2块大陆地，一共几个？",
+      "expression": "3 + 2 = ?",
+      "answer": "5 个"
+     },
+     {
+      "type": "fillin",
+      "question": "天上有7朵白云，飘走了3朵，还剩几朵？",
+      "expression": "7 - 3 = ?",
+      "answer": 4
+     },
+     {
+      "type": "fillin",
+      "question": "地球上有3片海洋，又发现了2片，一共有几片？",
+      "expression": "3 + 2 = 5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "地球上有8朵云，飘走了3朵，又飘来了2朵，现在有几朵？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "转啊转",
+    "desc": "地球为什么会有白天和黑夜？",
+    "stories": [
+     "地球像陀螺一样，不停地转圈圈，这叫自转！",
+     "地球转一圈需要1天，也就是24小时！",
+     "朝着太阳的一面是白天，背着太阳的一面是黑夜。所以白天和黑夜会交替出现！"
+    ],
+    "hanzi": [
+     {
+      "char": "日",
+      "pinyin": "rì",
+      "words": "日出 · 生日"
+     },
+     {
+      "char": "月",
+      "pinyin": "yuè",
+      "words": "月亮 · 月饼"
+     },
+     {
+      "char": "天",
+      "pinyin": "tiān",
+      "words": "天空 · 白天"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "为什么会有白天和黑夜？",
+      "answer": "地球在转圈"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "白天有5只小鸟飞来了，又飞来了3只，一共有几只？",
+      "expression": "5 + 3 = ?",
+      "answer": "8 只"
+     },
+     {
+      "type": "fillin",
+      "question": "地球转一圈是1天，转了2圈就是几天？",
+      "expression": "1 + 1 = ?",
+      "answer": 2
+     },
+     {
+      "type": "fillin",
+      "question": "白天有5只小鸟在唱歌，飞来了3只，一共几只？",
+      "expression": "5 + 3 = 8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "树上有9只小鸟，飞走了4只，又飞来了2只，现在有几只？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "蓝色星球",
+    "desc": "地球为什么叫蓝色星球？",
+    "stories": [
+     "地球表面大部分都是水！海洋占了十分之七！",
+     "水会变魔术：太阳一晒变成水蒸气飞到天上，遇冷变成小水滴组成云！",
+     "云越来越重就会下雨，雨水流入河里、流入大海，再被太阳晒……不停地循环！"
+    ],
+    "hanzi": [
+     {
+      "char": "水",
+      "pinyin": "shuǐ",
+      "words": "水杯 · 河水"
+     },
+     {
+      "char": "雨",
+      "pinyin": "yǔ",
+      "words": "下雨 · 雨伞"
+     },
+     {
+      "char": "海",
+      "pinyin": "hǎi",
+      "words": "大海 · 海洋"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "地球为什么叫蓝色星球？",
+      "answer": "因为大部分是海洋"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天上有4朵云，又飘来了4朵，一共几朵？",
+      "expression": "4 + 4 = ?",
+      "answer": "8 朵"
+     },
+     {
+      "type": "fillin",
+      "question": "池塘里有9条小鱼，游走了3条，还剩几条？",
+      "expression": "9 - 3 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "池塘里有7条鱼和3只虾，一共有几只小动物？",
+      "expression": "7 + 3 = 10",
+      "answer": 10
+     },
+     {
+      "type": "sequential",
+      "question": "池塘有10条鱼，游走了6条，又游来了3条，现在有几条？",
+      "expression": "10 - 6 + 3",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "空气外衣",
+    "desc": "为什么天是蓝色的？",
+    "stories": [
+     "地球外面包了一层大气层，就像一件看不见的外衣！",
+     "大气层里有我们呼吸的空气，没有空气，人和动物都不能活！",
+     "阳光穿过大气层时，蓝色的光被散射开来，所以天空看起来是蓝色的！太阳落山时光走得更远，变成红色和橙色，就是美丽的晚霞！"
+    ],
+    "hanzi": [
+     {
+      "char": "风",
+      "pinyin": "fēng",
+      "words": "大风 · 风车"
+     },
+     {
+      "char": "云",
+      "pinyin": "yún",
+      "words": "白云 · 乌云"
+     },
+     {
+      "char": "气",
+      "pinyin": "qì",
+      "words": "空气 · 天气"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天空为什么是蓝色的？",
+      "answer": "阳光中蓝色光被散射了"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天上有6朵白云和2朵乌云，一共几朵？",
+      "expression": "6 + 2 = ?",
+      "answer": "8 朵"
+     },
+     {
+      "type": "fillin",
+      "question": "刮风了，8片树叶掉了5片，树上还有几片？",
+      "expression": "8 - 5 = ?",
+      "answer": 3
+     },
+     {
+      "type": "fillin",
+      "question": "天空中有6朵白云和2朵乌云，一共有几朵云？",
+      "expression": "6 + 2 = 8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "天上有10朵云，散开了5朵，又飘来了3朵，现在有几朵？",
+      "expression": "10 - 5 + 3",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "四季变化",
+    "desc": "为什么会有春夏秋冬？",
+    "stories": [
+     "地球还会绕着太阳转圈圈，转一圈就是1年！",
+     "地球是歪着转的，所以太阳照射的地方会变化，就有了春夏秋冬！",
+     "春天花开了，夏天好热呀，秋天叶子黄了，冬天下雪啦！四季就这样轮流来！"
+    ],
+    "hanzi": [
+     {
+      "char": "春",
+      "pinyin": "chūn",
+      "words": "春天 · 春风"
+     },
+     {
+      "char": "冬",
+      "pinyin": "dōng",
+      "words": "冬天 · 冬瓜"
+     },
+     {
+      "char": "花",
+      "pinyin": "huā",
+      "words": "花朵 · 开花"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "为什么会有四季变化？",
+      "answer": "地球歪着绕太阳转"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "春天开了4朵红花和3朵黄花，一共几朵？",
+      "expression": "4 + 3 = ?",
+      "answer": "7 朵"
+     },
+     {
+      "type": "fillin",
+      "question": "秋天树上有10个苹果，摘了4个，还有几个？",
+      "expression": "10 - 4 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "春天开了4朵花，秋天落了2朵，还剩几朵？",
+      "expression": "4 - 2 = 2",
+      "answer": 2
+     },
+     {
+      "type": "sequential",
+      "question": "花园有8朵花，摘了3朵送妈妈，又开了4朵，现在有几朵？",
+      "expression": "8 - 3 + 4",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "生命的摇篮",
+    "desc": "地球上有什么特别的？",
+    "stories": [
+     "地球是我们目前知道的唯一有生命的星球！",
+     "地球上有空气可以呼吸，有水可以喝，温度刚刚好，不太热也不太冷！",
+     "所以地球上有大树、小草、小动物和我们！我们要爱护地球，保护我们的家园！"
+    ],
+    "hanzi": [
+     {
+      "char": "树",
+      "pinyin": "shù",
+      "words": "大树 · 树叶"
+     },
+     {
+      "char": "草",
+      "pinyin": "cǎo",
+      "words": "小草 · 草地"
+     },
+     {
+      "char": "鸟",
+      "pinyin": "niǎo",
+      "words": "小鸟 · 鸟窝"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "为什么地球上有生命？",
+      "answer": "有空气、有水、温度合适"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "草地上有5只兔子和4只松鼠，一共几只小动物？",
+      "expression": "5 + 4 = ?",
+      "answer": "9 只"
+     },
+     {
+      "type": "fillin",
+      "question": "树上有6只小鸟，飞走了2只，还有几只？",
+      "expression": "6 - 2 = ?",
+      "answer": 4
+     },
+     {
+      "type": "fillin",
+      "question": "森林里有5只兔子和4只松鼠，一共有几只小动物？",
+      "expression": "5 + 4 = 9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "草地上有7只兔子，跑走了3只，又来了5只，现在有几只？",
+      "expression": "7 - 3 + 5",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "月球": [
+   {
+    "id": 1,
+    "title": "月球引力",
+    "desc": "引力只有地球的1/6",
+    "stories": [
+     "月球比地球小很多，它的引力只有地球的六分之一！",
+     "在月球上，你能跳得比地球上高6倍！如果你在地球上跳1米，在月球上能跳6米高！",
+     "宇航员在月球上走路像在蹦蹦跳跳，因为太轻了！"
+    ],
+    "hanzi": [
+     {
+      "char": "月",
+      "pinyin": "yuè",
+      "words": "月亮 · 月光"
+     },
+     {
+      "char": "大",
+      "pinyin": "dà",
+      "words": "大小 · 大人"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "在月球上跳高，能跳多高？",
+      "answer": "比地球上高6倍"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "宇航员在地球跳1米高，在月球跳了6米，高了几米？",
+      "expression": "6 - 1 = ?",
+      "answer": "5 米"
+     },
+     {
+      "type": "fillin",
+      "question": "月球上有4个宇航员，又来了3个，现在一共有几个？",
+      "expression": "4 + 3 = ?",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "月球上有4个陨石坑，又被小行星撞出了3个新坑，现在一共有几个陨石坑？",
+      "expression": "4加3等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "月球上原来有8块月球岩石，宇航员带走了3块，又捡回来了2块，现在有几块？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "大碰撞诞生",
+    "desc": "月球是怎么来的？",
+    "stories": [
+     "很久很久以前，一个火星大小的星球撞上了地球！",
+     "碰撞产生了好多好多碎片，飞到了太空中。",
+     "这些碎片慢慢聚在一起，就变成了我们的月亮！这叫做\"大碰撞假说\"。"
+    ],
+    "hanzi": [
+     {
+      "char": "石",
+      "pinyin": "shí",
+      "words": "石头 · 岩石"
+     },
+     {
+      "char": "星",
+      "pinyin": "xīng",
+      "words": "星星 · 星空"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "月球是怎么形成的？",
+      "answer": "大碰撞产生的碎片聚成的"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "碰撞后飞出了5块大碎片和3块小碎片，一共几块？",
+      "expression": "5 + 3 = ?",
+      "answer": "8 块"
+     },
+     {
+      "type": "fillin",
+      "question": "碰撞后有9块碎片，飞走了4块，还剩几块？",
+      "expression": "9 - 4 = ?",
+      "answer": 5
+     },
+     {
+      "type": "fillin",
+      "question": "月球基地里有6名宇航员，又乘飞船来了4名，现在月球基地有几名宇航员？",
+      "expression": "6加4等于10",
+      "answer": 10
+     },
+     {
+      "type": "sequential",
+      "question": "月球基地有9套太空服，坏了2套送去修理，又新运来了3套，现在有几套太空服？",
+      "expression": "9 - 2 + 3",
+      "answer": 10
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "潮汐锁定",
+    "desc": "永远一面朝地球",
+    "stories": [
+     "你知道吗？我们在地球上永远只能看到月球的一面！",
+     "月球自转一圈的时间和绕地球一圈的时间一模一样，都是大约27天！",
+     "这就叫\"潮汐锁定\"，就像月球被地球\"锁住\"了一样。另一面我们永远看不到！"
+    ],
+    "hanzi": [
+     {
+      "char": "天",
+      "pinyin": "tiān",
+      "words": "天空 · 蓝天"
+     },
+     {
+      "char": "地",
+      "pinyin": "dì",
+      "words": "大地 · 地球"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "我们能看到月球的几面？",
+      "answer": "永远只能看到一面"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "智天连续看了3个晚上的月亮，又看了4个晚上，一共看了几个晚上？",
+      "expression": "3 + 4 = ?",
+      "answer": "7 个晚上"
+     },
+     {
+      "type": "fillin",
+      "question": "月球绕地球转了2圈，又转了6圈，一共转了几圈？",
+      "expression": "2 + 6 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "月球车在月球上行驶了5圈，因为低重力又多跑了2圈，一共跑了几圈？",
+      "expression": "5加2等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "月球车出发时带了10块月球岩石，放下了4块，又装上了1块，现在带着几块？",
+      "expression": "10 - 4 + 1",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "登月英雄",
+    "desc": "阿波罗11号的故事",
+    "stories": [
+     "1969年，美国的阿波罗11号飞船载着3位宇航员飞向月球！",
+     "阿姆斯特朗第一个踏上月球，他说：\"这是个人的一小步，却是人类的一大步！\"",
+     "宇航员在月球上插了一面旗，留下了脚印。因为没有风，脚印到现在还在呢！"
+    ],
+    "hanzi": [
+     {
+      "char": "人",
+      "pinyin": "rén",
+      "words": "大人 · 人们"
+     },
+     {
+      "char": "飞",
+      "pinyin": "fēi",
+      "words": "飞机 · 飞船"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "第一个登上月球的人是谁？",
+      "answer": "阿姆斯特朗"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "阿波罗11号有3名宇航员，加上阿波罗12号的3名，一共几名？",
+      "expression": "3 + 3 = ?",
+      "answer": "6 名"
+     },
+     {
+      "type": "fillin",
+      "question": "宇航员带了8面旗帜，插了5面，还剩几面？",
+      "expression": "8 - 5 = ?",
+      "answer": 3
+     },
+     {
+      "type": "fillin",
+      "question": "阿波罗飞船上有3名宇航员穿着太空服，还有5名没穿，一共有几名宇航员？",
+      "expression": "3加5等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "宇航员在月球插了6面旗帜，风把2面吹倒了，他们又插了4面新旗，现在立着几面旗？",
+      "expression": "6 - 2 + 4",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "月球表面",
+    "desc": "陨石坑和月海",
+    "stories": [
+     "月球表面有很多大坑，叫做\"陨石坑\"，是小行星撞出来的！",
+     "月球上有一些暗色的大块区域，古人以为是海，所以叫\"月海\"。其实那里没有水，是很久以前岩浆冷却后的平原。",
+     "最大的陨石坑叫南极-艾特肯盆地，直径有2500公里，比中国一半还大！"
+    ],
+    "hanzi": [
+     {
+      "char": "山",
+      "pinyin": "shān",
+      "words": "高山 · 山峰"
+     },
+     {
+      "char": "土",
+      "pinyin": "tǔ",
+      "words": "泥土 · 土地"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "月球上的大坑是怎么来的？",
+      "answer": "小行星撞出来的"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "月球上有2个大陨石坑和5个小陨石坑，一共几个？",
+      "expression": "2 + 5 = ?",
+      "answer": "7 个"
+     },
+     {
+      "type": "fillin",
+      "question": "探测器发现了10个陨石坑，有3个被探测过，还有几个没探测？",
+      "expression": "10 - 3 = ?",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "月球表面有8个大陨石坑，宇宙射线填平了3个，还剩几个大陨石坑？",
+      "expression": "8减3等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "探测器发现了5个月海，又发现了3个新月海，后来证实其中2个不是月海，真正的月海有几个？",
+      "expression": "5 + 3 - 2",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "没有空气",
+    "desc": "月球上不能呼吸",
+    "stories": [
+     "月球上没有空气！所以在月球上，声音传不出去，不管你怎么喊，旁边的人都听不到！",
+     "白天月球表面温度可以到127度，比开水还烫！晚上降到零下173度，比北极还冷一百倍！",
+     "所以宇航员要穿特殊的太空服，里面有氧气、有水、还有调温系统，像穿着一个小房子！"
+    ],
+    "hanzi": [
+     {
+      "char": "风",
+      "pinyin": "fēng",
+      "words": "大风 · 风车"
+     },
+     {
+      "char": "空",
+      "pinyin": "kōng",
+      "words": "天空 · 太空"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "在月球上能听到声音吗？",
+      "answer": "听不到，因为没有空气"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "太空服有头盔、手套、靴子、背包和连体衣，一共几个部件？",
+      "expression": "数一数：头盔1 + 手套1 + 靴子1 + 背包1 + 连体衣1",
+      "answer": "5 个"
+     },
+     {
+      "type": "fillin",
+      "question": "宇航员带了7瓶氧气，用了4瓶，还剩几瓶？",
+      "expression": "7 - 4 = ?",
+      "answer": 3
+     },
+     {
+      "type": "fillin",
+      "question": "宇航员太空服里有7瓶氧气，用掉了2瓶，还剩几瓶氧气？",
+      "expression": "7减2等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "月球基地有4瓶氧气，补充了6瓶，宇航员用掉了3瓶，现在还有几瓶？",
+      "expression": "4 + 6 - 3",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "火星": [
+   {
+    "id": 1,
+    "title": "红色星球",
+    "desc": "火星为什么是红色的？",
+    "stories": [
+     "火星是太阳系第四颗行星，排在地球后面！",
+     "火星看起来是红色的，因为表面有很多氧化铁，就像铁生锈一样！",
+     "所以火星也叫\"红色星球\"，中国古人叫它\"荧惑\"。"
+    ],
+    "hanzi": [
+     {
+      "char": "沙",
+      "pinyin": "shā",
+      "words": "沙子 · 沙漠"
+     },
+     {
+      "char": "尘",
+      "pinyin": "chén",
+      "words": "灰尘 · 尘土"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "火星为什么是红色的？",
+      "answer": "表面有氧化铁（铁锈）"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "火星上有3座大火山和4座小火山，一共几座？",
+      "expression": "3 + 4 = ?",
+      "answer": "7 座"
+     },
+     {
+      "type": "fillin",
+      "question": "火星表面有6块红色石头，风吹走了2块，还剩几块？",
+      "expression": "6 - 2 = ?",
+      "answer": 4
+     },
+     {
+      "type": "fillin",
+      "question": "火星的红色沙漠上有4块大石头，又滚来了3块，一共有几块？",
+      "expression": "4加3等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "火星沙漠里有8粒红色石子，风吹走了3粒，又落下来2粒，现在有几粒？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "火星地形",
+    "desc": "太阳系最高的山",
+    "stories": [
+     "火星上有太阳系最高的山——奥林帕斯山，高度是珠穆朗玛峰的3倍！",
+     "火星上还有一条超级大峡谷叫水手号峡谷，长4000公里！",
+     "火星的北半球平坦，南半球坑坑洼洼，科学家觉得很奇怪。"
+    ],
+    "hanzi": [
+     {
+      "char": "远",
+      "pinyin": "yuǎn",
+      "words": "远方 · 远处"
+     },
+     {
+      "char": "近",
+      "pinyin": "jìn",
+      "words": "近处 · 附近"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳系最高的山在哪里？",
+      "answer": "火星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "峡谷里有6块大石头，滚走了2块，还剩几块？",
+      "expression": "6 - 2 = ?",
+      "answer": "4 块"
+     },
+     {
+      "type": "fillin",
+      "question": "奥林帕斯山上有5个观测站，又新建了3个，一共有几个？",
+      "expression": "5 + 3 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "奥林帕斯山周围有9个小丘，地震消失了2个，还剩几个？",
+      "expression": "9减2等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "火星地形探测器发现了5条峡谷，又找到了3条，其中2条已经研究完了，还有几条没研究？",
+      "expression": "5 + 3 - 2",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "火星大气",
+    "desc": "稀薄大气和沙尘暴",
+    "stories": [
+     "火星有大气层，但非常非常稀薄，只有地球的1%！",
+     "火星大气主要是二氧化碳，人类不能直接呼吸。",
+     "火星上经常刮沙尘暴，有时候能把整个火星都包起来！"
+    ],
+    "hanzi": [
+     {
+      "char": "干",
+      "pinyin": "gān",
+      "words": "干燥 · 干净"
+     },
+     {
+      "char": "冷",
+      "pinyin": "lěng",
+      "words": "寒冷 · 冰冷"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "火星上经常发生什么？",
+      "answer": "沙尘暴"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "火星上刮了3天沙尘暴，又刮了5天，一共刮了几天？",
+      "expression": "3 + 5 = ?",
+      "answer": "8 天"
+     },
+     {
+      "type": "fillin",
+      "question": "沙尘暴卷起了9粒沙子，落下了4粒，空中还有几粒？",
+      "expression": "9 - 4 = ?",
+      "answer": 5
+     },
+     {
+      "type": "fillin",
+      "question": "火星沙尘暴刮了3天，又停了2天，这次沙尘暴一共持续了几天？",
+      "expression": "3加2等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "火星上有10团沙尘，大风吹走了4团，又卷起了2团，天空中有几团沙尘？",
+      "expression": "10 - 4 + 2",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "寻找水",
+    "desc": "火星上有水吗？",
+    "stories": [
+     "科学家发现火星的南北极有大片的冰盖！",
+     "火星上还有干涸的河道，说明很久以前火星上可能有河流和海洋。",
+     "有水就可能有生命，所以科学家特别想知道火星上有没有生物。"
+    ],
+    "hanzi": [
+     {
+      "char": "冰",
+      "pinyin": "bīng",
+      "words": "冰块 · 冰冷"
+     },
+     {
+      "char": "水",
+      "pinyin": "shuǐ",
+      "words": "水杯 · 河水"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "火星的极地有什么？",
+      "answer": "冰盖"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "探测器找到了3块冰和2块岩石，一共找到几块？",
+      "expression": "3 + 2 = ?",
+      "answer": "5 块"
+     },
+     {
+      "type": "fillin",
+      "question": "火星北极有7块大冰，融化了1块，还有几块？",
+      "expression": "7 - 1 = ?",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "火星北极有5块大冰，科学家取走了2块研究，还剩几块？",
+      "expression": "5减2等于3",
+      "answer": 3
+     },
+     {
+      "type": "sequential",
+      "question": "火星上找到了4块冰，又发现了3块，融化了2块，还有几块冰？",
+      "expression": "4 + 3 - 2",
+      "answer": 5
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "火星探测器",
+    "desc": "机器人探险家",
+    "stories": [
+     "人类派了好多机器人去火星探险！美国的\"好奇号\"火星车已经在火星上跑了好多年！",
+     "中国的\"祝融号\"也成功登陆了火星，在上面拍了好多照片！",
+     "这些火星车用太阳能或核电池供电，替我们探索火星。"
+    ],
+    "hanzi": [
+     {
+      "char": "车",
+      "pinyin": "chē",
+      "words": "汽车 · 火车"
+     },
+     {
+      "char": "轮",
+      "pinyin": "lún",
+      "words": "车轮 · 轮子"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "中国的火星车叫什么名字？",
+      "answer": "祝融号"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "好奇号有6个轮子，坏了1个，还有几个好的？",
+      "expression": "6 - 1 = ?",
+      "answer": "5 个"
+     },
+     {
+      "type": "fillin",
+      "question": "祝融号拍了4张照片，好奇号拍了6张，一共拍了几张？",
+      "expression": "4 + 6 = ?",
+      "answer": 10
+     },
+     {
+      "type": "fillin",
+      "question": "火星车祝融号行驶了6天，好奇号行驶了3天，两辆车一共行驶了几天？",
+      "expression": "6加3等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "机器人探测器拍了7张照片，传输失败了2张，又补拍了3张，一共成功几张？",
+      "expression": "7 - 2 + 3",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "火星的卫星",
+    "desc": "像土豆的小卫星",
+    "stories": [
+     "火星有2个小卫星，叫火卫一和火卫二！",
+     "它们的名字来自希腊神话，意思是\"恐惧\"和\"恐慌\"。",
+     "这两个卫星形状不像月球那样圆，而是像土豆一样不规则！"
+    ],
+    "hanzi": [
+     {
+      "char": "色",
+      "pinyin": "sè",
+      "words": "颜色 · 红色"
+     },
+     {
+      "char": "红",
+      "pinyin": "hóng",
+      "words": "红色 · 红花"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "火星有几个卫星？",
+      "answer": "2 个"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "地球有1个月亮，火星有2个小卫星，一共几个？",
+      "expression": "1 + 2 = ?",
+      "answer": "3 个"
+     },
+     {
+      "type": "fillin",
+      "question": "火卫一绕火星转了5圈，火卫二转了3圈，一共转了几圈？",
+      "expression": "5 + 3 = ?",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "火卫一绕火星跑得很快，一天能转8圈，火卫二只转2圈，火卫一多转了几圈？",
+      "expression": "8减2等于6",
+      "answer": 6
+     },
+     {
+      "type": "sequential",
+      "question": "火卫一转了5圈，火卫二转了3圈，又来了一颗新卫星转了1圈，三颗卫星一共转了几圈？",
+      "expression": "5 + 3 + 1",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "木星": [
+   {
+    "id": 1,
+    "title": "太阳系最大",
+    "desc": "最大的行星",
+    "stories": [
+     "木星是太阳系中最大的行星！",
+     "木星能装下1300多个地球！它的直径是地球的11倍！",
+     "如果把太阳系所有行星加在一起，木星的质量还是比它们的总和大2倍多！"
+    ],
+    "hanzi": [
+     {
+      "char": "木",
+      "pinyin": "mù",
+      "words": "木头 · 树木"
+     },
+     {
+      "char": "目",
+      "pinyin": "mù",
+      "words": "目光 · 眼目"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳系最大的行星是？",
+      "answer": "木星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "木星有4颗大卫星和3颗小卫星在身边，一共几颗？",
+      "expression": "4 + 3 = ?",
+      "answer": "7颗"
+     },
+     {
+      "type": "fillin",
+      "question": "木星能装下10个小星球，已经装了4个，还能装几个？",
+      "expression": "10 - 4 = 6",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "木星能装下10个小行星，已经装了4个，还能装几个？",
+      "expression": "10减4等于6",
+      "answer": 6
+     },
+     {
+      "type": "sequential",
+      "question": "木星装了9颗小星球，飞走了3颗，又被吸引来了2颗，现在装了几颗？",
+      "expression": "9 - 3 + 2",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "气态巨行星",
+    "desc": "没有固体地面",
+    "stories": [
+     "木星没有固体的地面！它全部是由气体组成的！",
+     "主要是氢气和氦气，就像一个超级巨大的气球！",
+     "如果你想在木星上降落，会一直往下沉，因为没有地面可以站！"
+    ],
+    "hanzi": [
+     {
+      "char": "云",
+      "pinyin": "yún",
+      "words": "白云 · 乌云"
+     },
+     {
+      "char": "气",
+      "pinyin": "qì",
+      "words": "空气 · 气球"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "木星的表面是什么？",
+      "answer": "没有固体表面，全是气体"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "木星大气有5层，我们看到了3层，还有几层没看到？",
+      "expression": "5 - 3 = ?",
+      "answer": "2层"
+     },
+     {
+      "type": "fillin",
+      "question": "木星的气体云有3团白色的和4团橙色的，一共有几团？",
+      "expression": "3 + 4 = 7",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "木星气体云有8团，其中3团变成了风暴，还剩几团安静的气体云？",
+      "expression": "8减3等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "木星大气有5层云，刮风混合了2层，又分开了1层，现在有几层分开的云？",
+      "expression": "5 - 2 + 1",
+      "answer": 4
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "大红斑",
+    "desc": "超级大风暴",
+    "stories": [
+     "木星上有一个超级大风暴叫\"大红斑\"，比地球还要大！",
+     "这个风暴已经刮了至少400年了，一直没有停！",
+     "大红斑里面的风速可以达到每小时600多公里，比地球上最强的台风还厉害！"
+    ],
+    "hanzi": [
+     {
+      "char": "雷",
+      "pinyin": "léi",
+      "words": "打雷 · 雷声"
+     },
+     {
+      "char": "电",
+      "pinyin": "diàn",
+      "words": "闪电 · 电灯"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "木星的大红斑是什么？",
+      "answer": "一个超级大风暴"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "大风暴里有4股大风和3股小风，一共几股风？",
+      "expression": "4 + 3 = ?",
+      "answer": "7股"
+     },
+     {
+      "type": "fillin",
+      "question": "大红斑的风速特别快，如果风吹走了9片云，又飘来了1片，还剩几片被吹走的？",
+      "expression": "9 - 1 = 8",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "大红斑里有9股旋转气流，平静了4股，还有几股在旋转？",
+      "expression": "9减4等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "大红斑风暴持续了6天，又加强了2天，减弱了1天，一共刮了几天？",
+      "expression": "6 + 2 - 1",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "木星的卫星",
+    "desc": "伽利略卫星",
+    "stories": [
+     "木星有79颗卫星，是太阳系卫星最多的行星之一！",
+     "最有名的是四颗伽利略卫星：木卫一、木卫二、木卫三和木卫四！",
+     "木卫二表面覆盖着冰，冰下面可能有海洋，说不定有生命哦！"
+    ],
+    "hanzi": [
+     {
+      "char": "口",
+      "pinyin": "kǒu",
+      "words": "人口 · 口袋"
+     },
+     {
+      "char": "耳",
+      "pinyin": "ěr",
+      "words": "耳朵 · 耳环"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "木星最有名的四颗卫星叫什么？",
+      "answer": "伽利略卫星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "伽利略发现了4颗卫星，后来又发现了3颗，一共几颗？",
+      "expression": "4 + 3 = ?",
+      "answer": "7颗"
+     },
+     {
+      "type": "fillin",
+      "question": "木卫二的冰面上有5条裂缝，又发现了3条，一共几条？",
+      "expression": "5 + 3 = 8",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "木卫二的冰面下有4条地下河，科学家又发现了5条，一共几条？",
+      "expression": "4加5等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "木星有8颗大卫星，飞走了3颗，又来了2颗，现在有几颗大卫星？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "木星的环",
+    "desc": "看不见的光环",
+    "stories": [
+     "你知道吗？木星也有环！不过木星的环非常非常暗淡，肉眼看不到！",
+     "木星环主要是由尘埃组成的，不像土星环那么漂亮！",
+     "直到1979年旅行者1号飞过木星时才发现了它的环！"
+    ],
+    "hanzi": [
+     {
+      "char": "环",
+      "pinyin": "huán",
+      "words": "环绕 · 光环"
+     },
+     {
+      "char": "圈",
+      "pinyin": "quān",
+      "words": "圆圈 · 跑圈"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "木星的环是由什么组成的？",
+      "answer": "尘埃"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "木星环有3层，土星环有7层，木星比土星少几层？",
+      "expression": "7 - 3 = ?",
+      "answer": "4层"
+     },
+     {
+      "type": "fillin",
+      "question": "木星环上飘着6粒尘埃，飞走了2粒，还剩几粒？",
+      "expression": "6 - 2 = 4",
+      "answer": 4
+     },
+     {
+      "type": "fillin",
+      "question": "木星环上有7粒大尘埃，飞走了3粒，还剩几粒？",
+      "expression": "7减3等于4",
+      "answer": 4
+     },
+     {
+      "type": "sequential",
+      "question": "木星环上有5粒尘埃，又飘来3粒，被太阳风吹走了2粒，还剩几粒？",
+      "expression": "5 + 3 - 2",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "保护地球",
+    "desc": "宇宙吸尘器",
+    "stories": [
+     "木星有一个特别重要的作用——保护地球！",
+     "木星的引力特别大，能把飞向地球的小行星和彗星吸引走！",
+     "就像一个大哥哥，帮地球挡住了很多危险的\"石头雨\"，所以木星被叫做\"宇宙吸尘器\"！"
+    ],
+    "hanzi": [
+     {
+      "char": "雨",
+      "pinyin": "yǔ",
+      "words": "下雨 · 雨水"
+     },
+     {
+      "char": "手",
+      "pinyin": "shǒu",
+      "words": "小手 · 手指"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "木星被叫做什么？",
+      "answer": "宇宙吸尘器"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "木星帮地球挡住了5块大石头和3块小石头，一共几块？",
+      "expression": "5 + 3 = ?",
+      "answer": "8块"
+     },
+     {
+      "type": "fillin",
+      "question": "木星吸走了10颗小行星，地球自己挡住了1颗，木星比地球多挡了几颗？",
+      "expression": "10 - 1 = 9",
+      "answer": 9
+     },
+     {
+      "type": "fillin",
+      "question": "木星帮地球挡住了6颗小行星，地球自己挡住了2颗，木星比地球多挡了几颗？",
+      "expression": "6减2等于4",
+      "answer": 4
+     },
+     {
+      "type": "sequential",
+      "question": "木星吸引了9颗彗星，其中4颗撞上木星，又飞来了2颗，现在还有几颗在附近？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "土星": [
+   {
+    "id": 1,
+    "title": "美丽的光环",
+    "desc": "土星最有名的光环",
+    "stories": [
+     "土星最有名的就是它美丽的光环！光环看起来像一个大大的帽檐。",
+     "土星环是由无数冰块和岩石组成的，大的像房子，小的像沙粒。",
+     "这些冰块和石头围绕土星高速旋转，看起来就像一个巨大的唱片！"
+    ],
+    "hanzi": [
+     {
+      "char": "圆",
+      "pinyin": "yuán",
+      "words": "圆形 · 团圆"
+     },
+     {
+      "char": "方",
+      "pinyin": "fāng",
+      "words": "方形 · 方向"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "土星环是由什么组成的？",
+      "answer": "冰块和岩石"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "土星环有3层明亮的环和4层暗淡的环，一共几层？",
+      "expression": "3 + 4 = ?",
+      "answer": "7层"
+     },
+     {
+      "type": "fillin",
+      "question": "土星环上有8块大冰块，碎掉了2块，还剩几块？",
+      "expression": "8 - 2 = 6",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "土星环上有7块大冰块，又飞来了3块，现在一共几块？",
+      "expression": "7加3等于10",
+      "answer": 10
+     },
+     {
+      "type": "sequential",
+      "question": "土星环上有8块冰块，碎了3块，又飘来了2块，现在有几块？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "密度最小",
+    "desc": "能浮在水上的星球",
+    "stories": [
+     "土星有一个超级有趣的特点——它的密度比水还小！",
+     "如果有一个足够大的游泳池，把土星放进去，它会浮在水面上！",
+     "这是因为土星主要由氢气和氦气组成，非常非常轻。"
+    ],
+    "hanzi": [
+     {
+      "char": "小",
+      "pinyin": "xiǎo",
+      "words": "大小 · 小鸟"
+     },
+     {
+      "char": "中",
+      "pinyin": "zhōng",
+      "words": "中间 · 中国"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "把土星放进水里会怎样？",
+      "answer": "浮在水面上"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "游泳池里有8个球，沉下去了3个，浮着的有几个？",
+      "expression": "8 - 3 = ?",
+      "answer": "5个"
+     },
+     {
+      "type": "fillin",
+      "question": "土星的密度很小，如果放4个土星和3个木星进游泳池，一共放了几个星球？",
+      "expression": "4 + 3 = 7",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "游泳池里放了4个土星，又放了3个土星，一共放了几个？",
+      "expression": "4加3等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "游泳池里有9个球，沉下去3个，又浮上来2个，现在浮着几个？",
+      "expression": "9 - 3 + 2",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "土星的风",
+    "desc": "超级大风和六边形旋风",
+    "stories": [
+     "土星上的风速快得吓人，最快能到每小时1800公里！",
+     "这比地球上最快的飞机还要快好几倍！",
+     "在土星的两极还有六边形的旋风，形状特别奇怪，像一个巨大的蜂巢！"
+    ],
+    "hanzi": [
+     {
+      "char": "上",
+      "pinyin": "shàng",
+      "words": "上面 · 上课"
+     },
+     {
+      "char": "下",
+      "pinyin": "xià",
+      "words": "下面 · 下雨"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "土星两极的旋风是什么形状？",
+      "answer": "六边形"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "土星刮了2天大风，又刮了6天小风，一共刮了几天？",
+      "expression": "2 + 6 = ?",
+      "answer": "8天"
+     },
+     {
+      "type": "fillin",
+      "question": "六边形旋风有6条边，普通旋风有0条边，它们相差几条边？",
+      "expression": "6 - 0 = 6",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "土星风暴刮了6条边，停下了0条，还有几条在转？",
+      "expression": "6减0等于6",
+      "answer": 6
+     },
+     {
+      "type": "sequential",
+      "question": "土星有4个大风暴，又来了5个，平息了3个，现在有几个？",
+      "expression": "4 + 5 - 3",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "神秘的土卫六",
+    "desc": "有湖泊的卫星",
+    "stories": [
+     "土卫六是土星最大的卫星，也叫\"泰坦\"。",
+     "它有厚厚的大气层，是太阳系中除了地球以外唯一有浓厚大气的卫星。",
+     "土卫六上有湖泊和河流，但不是水，而是液态的甲烷！"
+    ],
+    "hanzi": [
+     {
+      "char": "里",
+      "pinyin": "lǐ",
+      "words": "里面 · 家里"
+     },
+     {
+      "char": "外",
+      "pinyin": "wài",
+      "words": "外面 · 外婆"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "土卫六上的湖泊是什么做的？",
+      "answer": "液态甲烷"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "土卫六有2片大湖和4片小湖，一共几片？",
+      "expression": "2 + 4 = ?",
+      "answer": "6片"
+     },
+     {
+      "type": "fillin",
+      "question": "土卫六上有9条甲烷河流，干涸了4条，还有几条在流动？",
+      "expression": "9 - 4 = 5",
+      "answer": 5
+     },
+     {
+      "type": "fillin",
+      "question": "土卫六上有7条甲烷河，又出现了2条新的，一共有几条？",
+      "expression": "7加2等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "土卫六有8片湖，干涸了3片，又新生成了2片，现在有几片？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "土星的卫星",
+    "desc": "80多颗卫星的大家族",
+    "stories": [
+     "土星有80多颗卫星，是太阳系中卫星第二多的行星！",
+     "除了土卫六，还有一颗很特别的卫星叫土卫二。",
+     "土卫二的南极会喷出冰的喷泉！科学家觉得冰下面可能有温暖的海洋。"
+    ],
+    "hanzi": [
+     {
+      "char": "花",
+      "pinyin": "huā",
+      "words": "花朵 · 开花"
+     },
+     {
+      "char": "美",
+      "pinyin": "měi",
+      "words": "美丽 · 美好"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "土卫二有什么特别之处？",
+      "answer": "会喷冰的喷泉"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "我们发现了4颗有冰的卫星和2颗没冰的，一共几颗？",
+      "expression": "4 + 2 = ?",
+      "answer": "6颗"
+     },
+     {
+      "type": "fillin",
+      "question": "土卫二喷出了10股冰泉，停了3股，还在喷的有几股？",
+      "expression": "10 - 3 = 7",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "土卫二喷出5股冰泉，土卫六喷出3股甲烷，一共几股？",
+      "expression": "5加3等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "土卫二有9股冰泉，停了4股，又喷出2股，现在有几股？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "卡西尼号探测器",
+    "desc": "探索土星的太空使者",
+    "stories": [
+     "人类派了一个叫\"卡西尼号\"的探测器去研究土星！",
+     "它飞了7年才到土星，在那里工作了13年！",
+     "最后卡西尼号冲进了土星的大气层，像一颗流星一样消失了，完成了它的使命。"
+    ],
+    "hanzi": [
+     {
+      "char": "冰",
+      "pinyin": "bīng",
+      "words": "冰块 · 冰激凌"
+     },
+     {
+      "char": "石",
+      "pinyin": "shí",
+      "words": "石头 · 岩石"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "卡西尼号最后怎么了？",
+      "answer": "冲进了土星大气层"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "卡西尼号拍了5张土星照片和4张卫星照片，一共几张？",
+      "expression": "5 + 4 = ?",
+      "answer": "9张"
+     },
+     {
+      "type": "fillin",
+      "question": "卡西尼号飞了7年到土星，中途休息了0年，实际飞行几年？",
+      "expression": "7 - 0 = 7",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "卡西尼号飞行了7年，中途检查了2次设备，还剩几年没检查？",
+      "expression": "7减2等于5",
+      "answer": 5
+     },
+     {
+      "type": "sequential",
+      "question": "卡西尼号拍了5张土星照片，又拍了3张，发回了4张，还剩几张？",
+      "expression": "5 + 3 - 4",
+      "answer": 4
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "天王星": [
+   {
+    "id": 1,
+    "title": "横躺的行星",
+    "desc": "天王星为什么是躺着转",
+    "stories": [
+     "天王星是一颗非常特别的行星——它是横着躺在太空中的！",
+     "科学家觉得很久很久以前，一颗地球大小的天体撞了天王星，把它撞歪了。",
+     "天王星的自转轴倾斜了98度，就像一个球在地上滚着前进一样！"
+    ],
+    "hanzi": [
+     {
+      "char": "倒",
+      "pinyin": "dǎo",
+      "words": "倒下 · 倒立"
+     },
+     {
+      "char": "转",
+      "pinyin": "zhuàn",
+      "words": "旋转 · 转动"
+     },
+     {
+      "char": "歪",
+      "pinyin": "wāi",
+      "words": "歪斜 · 歪头"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天王星为什么是横着转的？",
+      "answer": "被大天体撞歪了"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天王星倾斜了98度，直立的行星是0度，天王星比直立多歪了多少度？",
+      "expression": "98 - 0 = ?",
+      "answer": "98度"
+     },
+     {
+      "type": "fillin",
+      "question": "太阳系有8颗行星，横躺着转的只有1颗，竖着转的有几颗？",
+      "expression": "8 - 1 = 7",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "天王星横躺着转，4颗行星竖着转，又发现了3颗竖着转的，竖着转的有几颗？",
+      "expression": "4加3等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "天文学家观测了8颗行星，横着转的有1颗，剩下的竖着转，又发现新转法2颗，竖着转的有几颗？",
+      "expression": "8 - 1 - 2",
+      "answer": 5
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "冰巨星的秘密",
+    "desc": "天王星是一颗冰巨星",
+    "stories": [
+     "天王星和海王星被称为\"冰巨星\"，和木星、土星不一样。",
+     "天王星的内部有大量的水冰、甲烷冰和氨冰，就像一个巨大的冰球。",
+     "天王星之所以看起来是青蓝色的，是因为大气中的甲烷气体会吸收红光。"
+    ],
+    "hanzi": [
+     {
+      "char": "冷",
+      "pinyin": "lěng",
+      "words": "寒冷 · 冰冷"
+     },
+     {
+      "char": "蓝",
+      "pinyin": "lán",
+      "words": "蓝色 · 蓝天"
+     },
+     {
+      "char": "气",
+      "pinyin": "qì",
+      "words": "空气 · 气球"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天王星为什么看起来是青蓝色的？",
+      "answer": "因为大气中的甲烷吸收红光"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "太阳系有2颗冰巨星和2颗气态巨行星，一共几颗巨行星？",
+      "expression": "2 + 2 = ?",
+      "answer": "4颗"
+     },
+     {
+      "type": "fillin",
+      "question": "天王星有3种冰：水冰、甲烷冰、氨冰，如果融化了1种，还剩几种？",
+      "expression": "3 - 1 = 2",
+      "answer": 2
+     },
+     {
+      "type": "fillin",
+      "question": "天王星有3种冰，又发现了4种新物质，一共发现了几种？",
+      "expression": "3加4等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "天王星内部有9块大冰，融化了4块，又结冻了2块，现在有几块冰？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "天王星的光环",
+    "desc": "暗淡而神秘的环系统",
+    "stories": [
+     "你知道吗？天王星也有光环！只是比土星的暗淡得多。",
+     "天王星一共有13道光环，它们非常细而且很暗，肉眼看不到。",
+     "天王星的光环是竖着的！因为天王星是横躺的，所以环也跟着竖起来了。"
+    ],
+    "hanzi": [
+     {
+      "char": "暗",
+      "pinyin": "àn",
+      "words": "黑暗 · 暗淡"
+     },
+     {
+      "char": "细",
+      "pinyin": "xì",
+      "words": "细小 · 细线"
+     },
+     {
+      "char": "竖",
+      "pinyin": "shù",
+      "words": "竖立 · 竖起"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天王星有几道光环？",
+      "answer": "13道"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天王星有13道环，科学家先发现了9道，后来又发现了几道？",
+      "expression": "13 - 9 = ?",
+      "answer": "4道"
+     },
+     {
+      "type": "fillin",
+      "question": "天王星有13道环，土星肉眼可见的环有3道，天王星比土星多几道？",
+      "expression": "13 - 3 = 10",
+      "answer": 10
+     },
+     {
+      "type": "fillin",
+      "question": "天王星有13道光环，科学家已经给9道起了名字，还有几道没有名字？",
+      "expression": "13减9等于4",
+      "answer": 4
+     },
+     {
+      "type": "sequential",
+      "question": "天王星有6道亮环，又发现了4道暗环，暗环中有1道消失了，现在共有几道环？",
+      "expression": "6 + 4 - 1",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "奇特的卫星",
+    "desc": "以莎士比亚命名的卫星",
+    "stories": [
+     "天王星有27颗已知的卫星，它们都是以文学作品中的人物命名的！",
+     "其中最大的卫星叫天卫三（泰坦妮亚），它的表面有峡谷和悬崖。",
+     "还有一颗叫天卫五（米兰达）的卫星特别奇怪，表面有一个高达20公里的大悬崖！"
+    ],
+    "hanzi": [
+     {
+      "char": "高",
+      "pinyin": "gāo",
+      "words": "高大 · 高山"
+     },
+     {
+      "char": "名",
+      "pinyin": "míng",
+      "words": "名字 · 有名"
+     },
+     {
+      "char": "深",
+      "pinyin": "shēn",
+      "words": "深处 · 深海"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天王星的卫星是以什么命名的？",
+      "answer": "文学作品人物"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天王星有27颗卫星，其中5颗比较大，小卫星有几颗？",
+      "expression": "27 - 5 = ?",
+      "answer": "22颗"
+     },
+     {
+      "type": "fillin",
+      "question": "探测器拍了5颗大卫星的照片，又拍了3颗小卫星，一共拍了几颗？",
+      "expression": "5 + 3 = 8",
+      "answer": 8
+     },
+     {
+      "type": "fillin",
+      "question": "天王星有5颗大卫星，又发现了3颗中型卫星，一共发现了几颗？",
+      "expression": "5加3等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "天王星有10颗卫星被拍到了，跑掉了3颗，又发现了2颗，现在看到几颗？",
+      "expression": "10 - 3 + 2",
+      "answer": 9
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "极端的季节",
+    "desc": "42年的白天和黑夜",
+    "stories": [
+     "因为天王星是横着转的，所以它的季节非常极端！",
+     "天王星的一个极地面朝太阳时，那里会有连续42年的白天！",
+     "然后另一个极转向太阳，前一个极就开始连续42年的黑夜！天王星绕太阳一圈要84年。"
+    ],
+    "hanzi": [
+     {
+      "char": "长",
+      "pinyin": "cháng",
+      "words": "长久 · 很长"
+     },
+     {
+      "char": "黑",
+      "pinyin": "hēi",
+      "words": "黑夜 · 黑色"
+     },
+     {
+      "char": "白",
+      "pinyin": "bái",
+      "words": "白天 · 白色"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天王星绕太阳一圈要多少年？",
+      "answer": "84年"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天王星极地有42年白天和42年黑夜，加起来是多少年？",
+      "expression": "42 + 42 = ?",
+      "answer": "84年"
+     },
+     {
+      "type": "fillin",
+      "question": "地球1年有4个季节，天王星也有4个季节但每个季节约21年，21比4多几？",
+      "expression": "21 - 4 = 17",
+      "answer": 17
+     },
+     {
+      "type": "fillin",
+      "question": "天王星极寒的冬天有3个月亮升起，夏天多升起了4个，夏天共升起几个？",
+      "expression": "3加4等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "天王星的蓝绿色让人看见了8颗云，消散了5颗，又新冒出3颗，现在有几颗云？",
+      "expression": "8 - 5 + 3",
+      "answer": 6
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "发现天王星",
+    "desc": "用望远镜发现的行星",
+    "stories": [
+     "天王星是第一颗用望远镜发现的行星！之前的行星都能用肉眼看到。",
+     "1781年，一位叫赫歇尔的天文学家用自制的望远镜发现了它。",
+     "旅行者2号是唯一飞越天王星的探测器，它在1986年拍下了天王星的照片。"
+    ],
+    "hanzi": [
+     {
+      "char": "看",
+      "pinyin": "kàn",
+      "words": "看见 · 好看"
+     },
+     {
+      "char": "远",
+      "pinyin": "yuǎn",
+      "words": "远方 · 遥远"
+     },
+     {
+      "char": "新",
+      "pinyin": "xīn",
+      "words": "新发现 · 新的"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "天王星是怎么被发现的？",
+      "answer": "用望远镜发现的"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天王星在1781年被发现，旅行者2号1986年飞越，相隔多少年？",
+      "expression": "1986 - 1781 = ?",
+      "answer": "205年"
+     },
+     {
+      "type": "fillin",
+      "question": "旅行者2号拍了6张天王星的照片和4张卫星的照片，一共几张？",
+      "expression": "6 + 4 = 10",
+      "answer": 10
+     },
+     {
+      "type": "fillin",
+      "question": "赫歇尔用望远镜看了6颗星，又看了4颗，一共看了几颗？",
+      "expression": "6加4等于10",
+      "answer": 10
+     },
+     {
+      "type": "sequential",
+      "question": "旅行者2号拍了9张天王星照片，损坏了2张，又拍了3张，现在有几张？",
+      "expression": "9 - 2 + 3",
+      "answer": 10
+     }
+    ],
+    "extraKeys": []
+   }
+  ],
+  "海王星": [
+   {
+    "id": 1,
+    "title": "最远的行星",
+    "desc": "海王星离太阳有多远？",
+    "stories": [
+     "海王星是太阳系中离太阳最远的行星！",
+     "海王星离太阳大约45亿公里！阳光到海王星要4个多小时！",
+     "在海王星上看太阳，太阳就像一颗特别亮的星星。"
+    ],
+    "hanzi": [
+     {
+      "char": "海",
+      "pinyin": "hǎi",
+      "words": "大海 · 海洋"
+     },
+     {
+      "char": "洋",
+      "pinyin": "yáng",
+      "words": "海洋 · 太平洋"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "太阳系中离太阳最远的行星是？",
+      "answer": "海王星"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "太阳系有8颗行星，海王星排第8，前面有几颗？",
+      "expression": "8 - 1 = ?",
+      "answer": "7颗"
+     },
+     {
+      "type": "fillin",
+      "question": "阳光到海王星要4个多小时，到地球要8分钟。4 + 3 = ？",
+      "expression": "4加3等于7哦！",
+      "answer": 7
+     },
+     {
+      "type": "fillin",
+      "question": "海王星是最远的行星，离太阳的距离是地球的4倍，再加3倍更远，一共是几倍？",
+      "expression": "4加3等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "探险队出发去海王星，准备了9天粮食，用了4天，补充了2天的，还剩几天？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 2,
+    "title": "蓝色的巨人",
+    "desc": "海王星为什么是蓝色的？",
+    "stories": [
+     "海王星是一颗美丽的蓝色星球！",
+     "它的蓝色来自大气中的甲烷气体，甲烷吸收了红光，只反射蓝光！",
+     "海王星的大小是地球的4倍，能装下57个地球！"
+    ],
+    "hanzi": [
+     {
+      "char": "蓝",
+      "pinyin": "lán",
+      "words": "蓝色 · 蓝天"
+     },
+     {
+      "char": "深",
+      "pinyin": "shēn",
+      "words": "深浅 · 深海"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "海王星为什么是蓝色的？",
+      "answer": "大气中的甲烷吸收了红光"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "海王星能装下地球，智天数了4个又数了3个，一共数了几个？",
+      "expression": "4 + 3 = ?",
+      "answer": "7个"
+     },
+     {
+      "type": "fillin",
+      "question": "海王星的大小是地球的4倍，比地球多几倍？4 - 1 = ？",
+      "expression": "4减1等于3哦！",
+      "answer": 3
+     },
+     {
+      "type": "fillin",
+      "question": "海王星的深蓝色很美，科学家数了5个蓝色区域，又发现了3个，一共几个？",
+      "expression": "5加3等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "海王星大气有10层深蓝色云，消散了4层，又生成了2层，现在有几层？",
+      "expression": "10 - 4 + 2",
+      "answer": 8
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 3,
+    "title": "超级风暴",
+    "desc": "太阳系最快的风",
+    "stories": [
+     "海王星上的风是太阳系中最快的！风速可以超过每小时2000公里！",
+     "1989年旅行者2号发现了一个叫\"大黑斑\"的巨大风暴！",
+     "海王星上还有高高的冰云在天上飘。"
+    ],
+    "hanzi": [
+     {
+      "char": "波",
+      "pinyin": "bō",
+      "words": "波浪 · 风波"
+     },
+     {
+      "char": "浪",
+      "pinyin": "làng",
+      "words": "浪花 · 海浪"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "海王星上发现的巨大风暴叫什么？",
+      "answer": "大黑斑"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "风暴刮了3天停了，又刮了5天，一共刮了几天？",
+      "expression": "3 + 5 = ?",
+      "answer": "8天"
+     },
+     {
+      "type": "fillin",
+      "question": "大黑斑风暴有10级风力，小风暴有4级，大的比小的多几级？10 - 4 = ？",
+      "expression": "10减4等于6哦！",
+      "answer": 6
+     },
+     {
+      "type": "fillin",
+      "question": "大暗斑超强风暴已经刮了6天，又刮了3天，一共刮了几天？",
+      "expression": "6加3等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "大暗斑风暴有8个旋臂，消失了3个，又多出了2个，现在有几个旋臂？",
+      "expression": "8 - 3 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 4,
+    "title": "海王星的卫星",
+    "desc": "倒着转的海卫一",
+    "stories": [
+     "海王星有16颗已知的卫星，最大的叫\"海卫一\"，也叫特里同！",
+     "海卫一很特别，它是倒着绕海王星转的！说明它可能是被海王星\"抓\"来的！",
+     "海卫一表面有氮冰喷泉，会喷出黑色的烟柱！"
+    ],
+    "hanzi": [
+     {
+      "char": "鱼",
+      "pinyin": "yú",
+      "words": "小鱼 · 金鱼"
+     },
+     {
+      "char": "门",
+      "pinyin": "mén",
+      "words": "大门 · 门口"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "海卫一为什么特别？",
+      "answer": "它是倒着绕海王星转的"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "海卫一喷了2次冰泉，又喷了4次，一共喷了几次？",
+      "expression": "2 + 4 = ?",
+      "answer": "6次"
+     },
+     {
+      "type": "fillin",
+      "question": "海卫一喷了6次冰泉，停了2次，还在喷的有几次？",
+      "expression": "6 - 2 = ?",
+      "answer": 4
+     },
+     {
+      "type": "fillin",
+      "question": "海卫一倒着转，喷了5次冰泉，海王星又让它多喷了3次，一共喷了几次？",
+      "expression": "5加3等于8",
+      "answer": 8
+     },
+     {
+      "type": "sequential",
+      "question": "海卫一有9次氮冰喷发，平息了4次，极寒又触发了2次，现在有几次喷发？",
+      "expression": "9 - 4 + 2",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 5,
+    "title": "冰巨星",
+    "desc": "钻石雨的秘密",
+    "stories": [
+     "海王星和天王星被叫做\"冰巨星\"，它们和木星土星的\"气巨星\"不同！",
+     "海王星内部有大量的水冰、氨冰和甲烷冰！",
+     "科学家猜测在海王星深处，巨大的压力可能把碳变成了钻石雨！"
+    ],
+    "hanzi": [
+     {
+      "char": "冰",
+      "pinyin": "bīng",
+      "words": "冰块 · 冰冷"
+     },
+     {
+      "char": "寒",
+      "pinyin": "hán",
+      "words": "寒冷 · 严寒"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "海王星深处可能下什么雨？",
+      "answer": "钻石雨"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "天上下了4颗钻石和2颗冰块，一共下了几颗？",
+      "expression": "4 + 2 = ?",
+      "answer": "6颗"
+     },
+     {
+      "type": "fillin",
+      "question": "钻石雨下了8颗钻石，智天捡了5颗，还剩几颗？8 - 5 = ？",
+      "expression": "8减5等于3哦！",
+      "answer": 3
+     },
+     {
+      "type": "fillin",
+      "question": "海王星极冷的深处下了7颗钻石雨，又下了2颗，一共几颗？",
+      "expression": "7加2等于9",
+      "answer": 9
+     },
+     {
+      "type": "sequential",
+      "question": "钻石雨下了6颗，智天捡了2颗，爸爸又找到了3颗，一共有几颗钻石？",
+      "expression": "6 - 2 + 3",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   },
+   {
+    "id": 6,
+    "title": "发现海王星",
+    "desc": "数学的力量",
+    "stories": [
+     "海王星是人类用数学计算发现的！科学家发现天王星的轨道不太对，推测外面还有一颗行星在\"拉\"它！",
+     "1846年，科学家按照计算的位置用望远镜找到了海王星！",
+     "这证明了数学的力量真的很厉害！"
+    ],
+    "hanzi": [
+     {
+      "char": "井",
+      "pinyin": "jǐng",
+      "words": "水井 · 天井"
+     },
+     {
+      "char": "暗",
+      "pinyin": "àn",
+      "words": "黑暗 · 暗淡"
+     }
+    ],
+    "quiz": [
+     {
+      "question": "海王星是怎么被发现的？",
+      "answer": "用数学计算出位置再找到的"
+     }
+    ],
+    "math": [
+     {
+      "type": "choice",
+      "question": "科学家算了3天又算了4天，终于找到了海王星，一共算了几天？",
+      "expression": "3 + 4 = ?",
+      "answer": "7天"
+     },
+     {
+      "type": "fillin",
+      "question": "望远镜看了10颗星星，其中有1颗是海王星，其他的有几颗？10 - 1 = ？",
+      "expression": "10减1等于9哦！",
+      "answer": 9
+     },
+     {
+      "type": "fillin",
+      "question": "科学家用数学发现了海王星，算了8道题，错了1道，答对了几道？",
+      "expression": "8减1等于7",
+      "answer": 7
+     },
+     {
+      "type": "sequential",
+      "question": "科学家观测了6颗星，发现3颗不对，又重新找了4颗，现在找了几颗？",
+      "expression": "6 - 3 + 4",
+      "answer": 7
+     }
+    ],
+    "extraKeys": []
+   }
+  ]
+ },
+ "kids": {
+  "levels": [
+   {
+    "title": "我们的家",
+    "intro": "我是地球，你的家在我身上。我有蓝色的大海和绿色的陆地。",
+    "quiz": [
+     "月亮绕着谁转？"
+    ]
+   },
+   {
+    "title": "离太阳很近",
+    "intro": "水星和金星离太阳最近，那里非常非常热！",
+    "quiz": [
+     "离太阳近感觉怎么样？"
+    ]
+   },
+   {
+    "title": "红色邻居",
+    "intro": "我是火星，我红红的。也许未来我们会去我那里探险。",
+    "quiz": [
+     "火星是什么颜色？"
+    ]
+   },
+   {
+    "title": "最大的行星",
+    "intro": "我是木星，我是最大的行星。我有很多很多卫星，比如木卫一、木卫二。",
+    "quiz": [
+     "木星有多少卫星？"
+    ]
+   },
+   {
+    "title": "戴光环的星球",
+    "intro": "我是土星，我戴着漂亮的光环，像呼啦圈一样。",
+    "quiz": [
+     "土星的光环像什么？"
+    ]
+   },
+   {
+    "title": "很远很冷",
+    "intro": "我们住得很远很远，那里很冷很冷。天王星是青绿色的，海王星是深蓝色的。",
+    "quiz": [
+     "离太阳越远感觉怎样？"
+    ]
+   }
+  ],
+  "words": {
+   "sun": {
+    "name": "太阳",
+    "icon": "☀️",
+    "words": [
+     {
+      "char": "日",
+      "pinyin": "rì",
+      "words": "红日 · 明日",
+      "sentence": "红日初升，照亮了大地。",
+      "pictograph": "drawSun"
+     },
+     {
+      "char": "火",
+      "pinyin": "huǒ",
+      "words": "火苗 · 火炬",
+      "sentence": "火苗跳跃，温暖了整个房间。",
+      "pictograph": "drawFire"
+     },
+     {
+      "char": "大",
+      "pinyin": "dà",
+      "words": "大小 · 大人",
+      "sentence": "大象很大，小蚂蚁很小。",
+      "pictograph": "drawBig"
+     },
+     {
+      "char": "光",
+      "pinyin": "guāng",
+      "words": "阳光 · 月光",
+      "sentence": "阳光暖暖的照在身上。",
+      "pictograph": "drawLight"
+     },
+     {
+      "char": "热",
+      "pinyin": "rè",
+      "words": "热水 · 炎热",
+      "sentence": "夏天好热，吃冰棍凉快。",
+      "pictograph": "drawHot"
+     }
+    ]
+   },
+   "earth": {
+    "name": "地球",
+    "icon": "🌍",
+    "words": [
+     {
+      "char": "山",
+      "pinyin": "shān",
+      "words": "高山 · 山峰",
+      "sentence": "高高的山像巨人站着。",
+      "pictograph": "drawMountain"
+     },
+     {
+      "char": "水",
+      "pinyin": "shuǐ",
+      "words": "河水 · 雨水",
+      "sentence": "小河的水哗啦啦地流。",
+      "pictograph": "drawWater"
+     },
+     {
+      "char": "木",
+      "pinyin": "mù",
+      "words": "树木 · 木头",
+      "sentence": "森林里有很多树木。",
+      "pictograph": "drawTree"
+     },
+     {
+      "char": "土",
+      "pinyin": "tǔ",
+      "words": "泥土 · 土地",
+      "sentence": "泥土里长出了小苗。",
+      "pictograph": "drawEarth"
+     },
+     {
+      "char": "田",
+      "pinyin": "tián",
+      "words": "田地 · 田野",
+      "sentence": "田野里麦苗绿油油一片。",
+      "pictograph": "drawField"
+     },
+     {
+      "char": "云",
+      "pinyin": "yún",
+      "words": "白云 · 云朵",
+      "sentence": "白云像棉花糖飘在天上。",
+      "pictograph": "drawCloud"
+     },
+     {
+      "char": "雨",
+      "pinyin": "yǔ",
+      "words": "下雨 · 雨滴",
+      "sentence": "下雨了，滴答滴答响。",
+      "pictograph": "drawRain"
+     }
+    ]
+   },
+   "moon": {
+    "name": "月球",
+    "icon": "🌙",
+    "words": [
+     {
+      "char": "月",
+      "pinyin": "yuè",
+      "words": "月亮 · 月光",
+      "sentence": "月亮悄悄爬上了树梢。",
+      "pictograph": "drawMoon"
+     },
+     {
+      "char": "石",
+      "pinyin": "shí",
+      "words": "石头 · 岩石",
+      "sentence": "河边有很多圆圆的石头。",
+      "pictograph": "drawStone"
+     },
+     {
+      "char": "小",
+      "pinyin": "xiǎo",
+      "words": "大小 · 小鸟",
+      "sentence": "小小的蚂蚁力气大。",
+      "pictograph": "drawSmall"
+     }
+    ]
+   },
+   "saturn": {
+    "name": "土星",
+    "icon": "🪐",
+    "words": [
+     {
+      "char": "星",
+      "pinyin": "xīng",
+      "words": "星星 · 星空",
+      "sentence": "满天星星亮晶晶。",
+      "pictograph": "drawStar"
+     },
+     {
+      "char": "目",
+      "pinyin": "mù",
+      "words": "眼目 · 目光",
+      "sentence": "用眼睛看世界真奇妙。",
+      "pictograph": "drawEye"
+     },
+     {
+      "char": "口",
+      "pinyin": "kǒu",
+      "words": "口才 · 口算",
+      "sentence": "他口才极佳，赢得了众人赞许。",
+      "pictograph": "drawMouth"
+     }
+    ]
+   },
+   "mars": {
+    "name": "火星",
+    "icon": "🔴",
+    "words": [
+     {
+      "char": "人",
+      "pinyin": "rén",
+      "words": "大人 · 人们",
+      "sentence": "小朋友长大变成大人。",
+      "pictograph": "drawPerson"
+     },
+     {
+      "char": "上",
+      "pinyin": "shàng",
+      "words": "上面 · 上学",
+      "sentence": "小鸟飞到树上去了。",
+      "pictograph": "drawUp"
+     },
+     {
+      "char": "下",
+      "pinyin": "xià",
+      "words": "下面 · 下雨",
+      "sentence": "苹果从树上掉下来了。",
+      "pictograph": "drawDown"
+     }
+    ]
+   },
+   "jupiter": {
+    "name": "木星",
+    "icon": "🟤",
+    "words": [
+     {
+      "char": "天",
+      "pinyin": "tiān",
+      "words": "天空 · 蓝天",
+      "sentence": "蓝色的天空让人心情愉快。",
+      "pictograph": "drawSky"
+     },
+     {
+      "char": "手",
+      "pinyin": "shǒu",
+      "words": "小手 · 手指",
+      "sentence": "我有两只小手会画画。",
+      "pictograph": "drawHand"
+     },
+     {
+      "char": "足",
+      "pinyin": "zú",
+      "words": "脚足 · 足球",
+      "sentence": "小脚丫踩在沙滩上。",
+      "pictograph": "drawFoot"
+     }
+    ]
+   },
+   "neptune": {
+    "name": "海王星",
+    "icon": "🔵",
+    "words": [
+     {
+      "char": "鱼",
+      "pinyin": "yú",
+      "words": "小鱼 · 金鱼",
+      "sentence": "小鱼在水里游来游去。",
+      "pictograph": "drawFish"
+     },
+     {
+      "char": "门",
+      "pinyin": "mén",
+      "words": "大门 · 门口",
+      "sentence": "打开门，阳光照进来。",
+      "pictograph": "drawDoor"
+     },
+     {
+      "char": "井",
+      "pinyin": "jǐng",
+      "words": "水井 · 井口",
+      "sentence": "村民们在水井旁洗衣服。",
+      "pictograph": "drawWell"
+     }
+    ]
+   },
+   "venus": {
+    "name": "金星",
+    "icon": "🟡",
+    "words": [
+     {
+      "char": "心",
+      "pinyin": "xīn",
+      "words": "开心 · 爱心",
+      "sentence": "帮助别人让我很开心。",
+      "pictograph": "drawHeart"
+     },
+     {
+      "char": "耳",
+      "pinyin": "ěr",
+      "words": "耳朵 · 耳机",
+      "sentence": "用耳朵听美妙的音乐。",
+      "pictograph": "drawEar"
+     },
+     {
+      "char": "舟",
+      "pinyin": "zhōu",
+      "words": "小舟 · 舟船",
+      "sentence": "小舟在湖面上轻轻漂。",
+      "pictograph": "drawBoat"
+     }
+    ]
+   }
+  }
+ },
+ "spaceWords": [
+  {
+   "id": "sun",
+   "name": "太阳",
+   "emoji": "☀️",
+   "color": "#ffd93d",
+   "words": [
+    {
+     "char": "太",
+     "pinyin": "tài",
+     "emoji": "☀️",
+     "context": "太阳很大很热"
+    },
+    {
+     "char": "阳",
+     "pinyin": "yáng",
+     "emoji": "🌅",
+     "context": "阳光照大地"
+    },
+    {
+     "char": "日",
+     "pinyin": "rì",
+     "emoji": "🌞",
+     "context": "日出东方红"
+    },
+    {
+     "char": "光",
+     "pinyin": "guāng",
+     "emoji": "✨",
+     "context": "阳光暖洋洋"
+    },
+    {
+     "char": "热",
+     "pinyin": "rè",
+     "emoji": "🔥",
+     "context": "夏天很热"
+    },
+    {
+     "char": "大",
+     "pinyin": "dà",
+     "emoji": "🌟",
+     "context": "太阳很大"
+    },
+    {
+     "char": "火",
+     "pinyin": "huǒ",
+     "emoji": "🔥",
+     "context": "火红的太阳"
+    },
+    {
+     "char": "红",
+     "pinyin": "hóng",
+     "emoji": "🔴",
+     "context": "红红的太阳"
+    }
+   ]
+  },
+  {
+   "id": "earth",
+   "name": "地球",
+   "emoji": "🌍",
+   "color": "#4ecdc4",
+   "words": [
+    {
+     "char": "地",
+     "pinyin": "dì",
+     "emoji": "🌍",
+     "context": "地球是我们的家"
+    },
+    {
+     "char": "球",
+     "pinyin": "qiú",
+     "emoji": "⚽",
+     "context": "地球是圆的"
+    },
+    {
+     "char": "水",
+     "pinyin": "shuǐ",
+     "emoji": "💧",
+     "context": "水是生命之源"
+    },
+    {
+     "char": "山",
+     "pinyin": "shān",
+     "emoji": "⛰️",
+     "context": "高高的大山"
+    },
+    {
+     "char": "风",
+     "pinyin": "fēng",
+     "emoji": "💨",
+     "context": "风吹白云飘"
+    },
+    {
+     "char": "云",
+     "pinyin": "yún",
+     "emoji": "☁️",
+     "context": "白云在天上"
+    },
+    {
+     "char": "气",
+     "pinyin": "qì",
+     "emoji": "🌬️",
+     "context": "空气很清新"
+    },
+    {
+     "char": "蓝",
+     "pinyin": "lán",
+     "emoji": "🔵",
+     "context": "蓝蓝的天空"
+    }
+   ]
+  },
+  {
+   "id": "moon",
+   "name": "月亮",
+   "emoji": "🌙",
+   "color": "#c0c0c0",
+   "words": [
+    {
+     "char": "月",
+     "pinyin": "yuè",
+     "emoji": "🌙",
+     "context": "月亮弯弯"
+    },
+    {
+     "char": "夜",
+     "pinyin": "yè",
+     "emoji": "🌃",
+     "context": "夜晚看星星"
+    },
+    {
+     "char": "圆",
+     "pinyin": "yuán",
+     "emoji": "🔵",
+     "context": "月亮圆圆的"
+    },
+    {
+     "char": "白",
+     "pinyin": "bái",
+     "emoji": "⚪",
+     "context": "白白的月光"
+    },
+    {
+     "char": "小",
+     "pinyin": "xiǎo",
+     "emoji": "🔹",
+     "context": "小小的星星"
+    },
+    {
+     "char": "冷",
+     "pinyin": "lěng",
+     "emoji": "❄️",
+     "context": "月球很冷"
+    },
+    {
+     "char": "石",
+     "pinyin": "shí",
+     "emoji": "🪨",
+     "context": "月球有石头"
+    },
+    {
+     "char": "冰",
+     "pinyin": "bīng",
+     "emoji": "🧊",
+     "context": "冰冷的月夜"
+    }
+   ]
+  },
+  {
+   "id": "stars",
+   "name": "星星",
+   "emoji": "⭐",
+   "color": "#a855f7",
+   "words": [
+    {
+     "char": "星",
+     "pinyin": "xīng",
+     "emoji": "⭐",
+     "context": "星星亮晶晶"
+    },
+    {
+     "char": "金",
+     "pinyin": "jīn",
+     "emoji": "🌟",
+     "context": "金星很亮"
+    },
+    {
+     "char": "木",
+     "pinyin": "mù",
+     "emoji": "🪵",
+     "context": "木星最大"
+    },
+    {
+     "char": "土",
+     "pinyin": "tǔ",
+     "emoji": "🟤",
+     "context": "土星有光环"
+    },
+    {
+     "char": "天",
+     "pinyin": "tiān",
+     "emoji": "🌌",
+     "context": "天上有星星"
+    },
+    {
+     "char": "王",
+     "pinyin": "wáng",
+     "emoji": "👑",
+     "context": "天王星在远方"
+    },
+    {
+     "char": "海",
+     "pinyin": "hǎi",
+     "emoji": "🌊",
+     "context": "海王星是蓝色"
+    },
+    {
+     "char": "冥",
+     "pinyin": "míng",
+     "emoji": "🔮",
+     "context": "冥王星很小"
+    }
+   ]
+  },
+  {
+   "id": "space",
+   "name": "太空",
+   "emoji": "🚀",
+   "color": "#ff9f43",
+   "words": [
+    {
+     "char": "飞",
+     "pinyin": "fēi",
+     "emoji": "🚀",
+     "context": "火箭飞上天"
+    },
+    {
+     "char": "上",
+     "pinyin": "shàng",
+     "emoji": "⬆️",
+     "context": "飞向上方"
+    },
+    {
+     "char": "下",
+     "pinyin": "xià",
+     "emoji": "⬇️",
+     "context": "降落到地下"
+    },
+    {
+     "char": "左",
+     "pinyin": "zuǒ",
+     "emoji": "⬅️",
+     "context": "向左转"
+    },
+    {
+     "char": "右",
+     "pinyin": "yòu",
+     "emoji": "➡️",
+     "context": "向右转"
+    },
+    {
+     "char": "转",
+     "pinyin": "zhuǎn",
+     "emoji": "🔄",
+     "context": "地球在转动"
+    },
+    {
+     "char": "看",
+     "pinyin": "kàn",
+     "emoji": "👀",
+     "context": "看看星星"
+    },
+    {
+     "char": "找",
+     "pinyin": "zhǎo",
+     "emoji": "🔍",
+     "context": "找找月亮"
+    }
+   ]
+  },
+  {
+   "id": "numbers",
+   "name": "数字",
+   "emoji": "🔢",
+   "color": "#ff6b9d",
+   "words": [
+    {
+     "char": "一",
+     "pinyin": "yī",
+     "emoji": "1️⃣",
+     "context": "一颗星星"
+    },
+    {
+     "char": "二",
+     "pinyin": "èr",
+     "emoji": "2️⃣",
+     "context": "二个月亮"
+    },
+    {
+     "char": "三",
+     "pinyin": "sān",
+     "emoji": "3️⃣",
+     "context": "三朵白云"
+    },
+    {
+     "char": "四",
+     "pinyin": "sì",
+     "emoji": "4️⃣",
+     "context": "四季变化"
+    },
+    {
+     "char": "五",
+     "pinyin": "wǔ",
+     "emoji": "5️⃣",
+     "context": "五颗行星"
+    },
+    {
+     "char": "六",
+     "pinyin": "liù",
+     "emoji": "6️⃣",
+     "context": "六种颜色"
+    },
+    {
+     "char": "七",
+     "pinyin": "qī",
+     "emoji": "7️⃣",
+     "context": "七色彩虹"
+    },
+    {
+     "char": "八",
+     "pinyin": "bā",
+     "emoji": "8️⃣",
+     "context": "八大行星"
+    },
+    {
+     "char": "九",
+     "pinyin": "jiǔ",
+     "emoji": "9️⃣",
+     "context": "九颗卫星"
+    },
+    {
+     "char": "十",
+     "pinyin": "shí",
+     "emoji": "🔟",
+     "context": "十个手指"
+    }
+   ]
+  },
+  {
+   "id": "direction",
+   "name": "方位探索",
+   "emoji": "🧭",
+   "color": "#00bcd4",
+   "words": [
+    {
+     "char": "东",
+     "pinyin": "dōng",
+     "emoji": "🌅",
+     "context": "太阳从东边升起"
+    },
+    {
+     "char": "西",
+     "pinyin": "xī",
+     "emoji": "🌇",
+     "context": "太阳从西边落下"
+    },
+    {
+     "char": "南",
+     "pinyin": "nán",
+     "emoji": "🧭",
+     "context": "南方很温暖"
+    },
+    {
+     "char": "北",
+     "pinyin": "běi",
+     "emoji": "❄️",
+     "context": "北方有雪"
+    },
+    {
+     "char": "中",
+     "pinyin": "zhōng",
+     "emoji": "⭕",
+     "context": "在中间"
+    },
+    {
+     "char": "前",
+     "pinyin": "qián",
+     "emoji": "⏩",
+     "context": "向前走"
+    },
+    {
+     "char": "后",
+     "pinyin": "hòu",
+     "emoji": "⏪",
+     "context": "在后面"
+    },
+    {
+     "char": "边",
+     "pinyin": "biān",
+     "emoji": "📍",
+     "context": "在旁边"
+    },
+    {
+     "char": "远",
+     "pinyin": "yuǎn",
+     "emoji": "🔭",
+     "context": "很远很远"
+    },
+    {
+     "char": "近",
+     "pinyin": "jìn",
+     "emoji": "👋",
+     "context": "离得很近"
+    },
+    {
+     "char": "入",
+     "pinyin": "rù",
+     "emoji": "🚪",
+     "context": "进入房间"
+    }
+   ]
+  },
+  {
+   "id": "seasons",
+   "name": "四季时光",
+   "emoji": "🌸",
+   "color": "#e91e63",
+   "words": [
+    {
+     "char": "春",
+     "pinyin": "chūn",
+     "emoji": "🌸",
+     "context": "春天来了"
+    },
+    {
+     "char": "夏",
+     "pinyin": "xià",
+     "emoji": "☀️",
+     "context": "夏天很热"
+    },
+    {
+     "char": "冬",
+     "pinyin": "dōng",
+     "emoji": "❄️",
+     "context": "冬天下雪"
+    },
+    {
+     "char": "空",
+     "pinyin": "kōng",
+     "emoji": "🌌",
+     "context": "天空很蓝"
+    },
+    {
+     "char": "今",
+     "pinyin": "jīn",
+     "emoji": "📅",
+     "context": "今天真好"
+    },
+    {
+     "char": "早",
+     "pinyin": "zǎo",
+     "emoji": "🌅",
+     "context": "早上好"
+    },
+    {
+     "char": "公",
+     "pinyin": "gōng",
+     "emoji": "🏛️",
+     "context": "公园里玩"
+    },
+    {
+     "char": "正",
+     "pinyin": "zhèng",
+     "emoji": "✓",
+     "context": "正在学习"
+    }
+   ]
+  },
+  {
+   "id": "colors",
+   "name": "缤纷色彩",
+   "emoji": "🎨",
+   "color": "#9c27b0",
+   "words": [
+    {
+     "char": "青",
+     "pinyin": "qīng",
+     "emoji": "💚",
+     "context": "青青的草"
+    },
+    {
+     "char": "黄",
+     "pinyin": "huáng",
+     "emoji": "💛",
+     "context": "黄黄的花"
+    },
+    {
+     "char": "黑",
+     "pinyin": "hēi",
+     "emoji": "⚫",
+     "context": "黑黑的夜"
+    },
+    {
+     "char": "彩",
+     "pinyin": "cǎi",
+     "emoji": "🌈",
+     "context": "彩虹真美"
+    },
+    {
+     "char": "色",
+     "pinyin": "sè",
+     "emoji": "🎨",
+     "context": "五颜六色"
+    },
+    {
+     "char": "美",
+     "pinyin": "měi",
+     "emoji": "💖",
+     "context": "美丽的花"
+    },
+    {
+     "char": "丽",
+     "pinyin": "lì",
+     "emoji": "👸",
+     "context": "美丽公主"
+    },
+    {
+     "char": "点",
+     "pinyin": "diǎn",
+     "emoji": "✨",
+     "context": "小点点"
+    }
+   ]
+  },
+  {
+   "id": "animals",
+   "name": "可爱动物",
+   "emoji": "🐱",
+   "color": "#ff5722",
+   "words": [
+    {
+     "char": "鱼",
+     "pinyin": "yú",
+     "emoji": "🐟",
+     "context": "小鱼游游"
+    },
+    {
+     "char": "猫",
+     "pinyin": "māo",
+     "emoji": "🐱",
+     "context": "小猫喵喵"
+    },
+    {
+     "char": "狗",
+     "pinyin": "gǒu",
+     "emoji": "🐕",
+     "context": "小狗汪汪"
+    },
+    {
+     "char": "鹅",
+     "pinyin": "é",
+     "emoji": "🦢",
+     "context": "大白鹅"
+    },
+    {
+     "char": "尾",
+     "pinyin": "wěi",
+     "emoji": "🦊",
+     "context": "长尾巴"
+    },
+    {
+     "char": "巴",
+     "pinyin": "ba",
+     "emoji": "🐒",
+     "context": "尾巴摇摇"
+    },
+    {
+     "char": "它",
+     "pinyin": "tā",
+     "emoji": "🐾",
+     "context": "它是小猫"
+    },
+    {
+     "char": "群",
+     "pinyin": "qún",
+     "emoji": "🐑",
+     "context": "一群小羊"
+    }
+   ]
+  },
+  {
+   "id": "nature",
+   "name": "自然万物",
+   "emoji": "🌲",
+   "color": "#4caf50",
+   "words": [
+    {
+     "char": "森",
+     "pinyin": "sēn",
+     "emoji": "🌲",
+     "context": "森林里"
+    },
+    {
+     "char": "林",
+     "pinyin": "lín",
+     "emoji": "🌳",
+     "context": "树林里"
+    },
+    {
+     "char": "江",
+     "pinyin": "jiāng",
+     "emoji": "🌊",
+     "context": "大江大河"
+    },
+    {
+     "char": "闪",
+     "pinyin": "shǎn",
+     "emoji": "⚡",
+     "context": "闪闪发光"
+    },
+    {
+     "char": "苹",
+     "pinyin": "píng",
+     "emoji": "🍎",
+     "context": "苹果红"
+    },
+    {
+     "char": "果",
+     "pinyin": "guǒ",
+     "emoji": "🍇",
+     "context": "水果甜"
+    },
+    {
+     "char": "杏",
+     "pinyin": "xìng",
+     "emoji": "🍑",
+     "context": "杏子黄"
+    },
+    {
+     "char": "梨",
+     "pinyin": "lí",
+     "emoji": "🍐",
+     "context": "梨子甜"
+    }
+   ]
+  },
+  {
+   "id": "family",
+   "name": "家人朋友",
+   "emoji": "👨‍👩‍👧",
+   "color": "#2196f3",
+   "words": [
+    {
+     "char": "朋",
+     "pinyin": "péng",
+     "emoji": "👫",
+     "context": "好朋友"
+    },
+    {
+     "char": "友",
+     "pinyin": "yǒu",
+     "emoji": "🤝",
+     "context": "朋友多"
+    },
+    {
+     "char": "弟",
+     "pinyin": "dì",
+     "emoji": "👦",
+     "context": "小弟弟"
+    },
+    {
+     "char": "姐",
+     "pinyin": "jiě",
+     "emoji": "👧",
+     "context": "大姐姐"
+    },
+    {
+     "char": "娃",
+     "pinyin": "wá",
+     "emoji": "👶",
+     "context": "小娃娃"
+    },
+    {
+     "char": "们",
+     "pinyin": "men",
+     "emoji": "👨‍👩‍👧",
+     "context": "我们一起"
+    },
+    {
+     "char": "谁",
+     "pinyin": "shuí",
+     "emoji": "❓",
+     "context": "是谁呀"
+    },
+    {
+     "char": "几",
+     "pinyin": "jǐ",
+     "emoji": "🔢",
+     "context": "有几个"
+    }
+   ]
+  },
+  {
+   "id": "feelings",
+   "name": "心情感受",
+   "emoji": "❤️",
+   "color": "#f44336",
+   "words": [
+    {
+     "char": "好",
+     "pinyin": "hǎo",
+     "emoji": "👍",
+     "context": "真好呀"
+    },
+    {
+     "char": "心",
+     "pinyin": "xīn",
+     "emoji": "❤️",
+     "context": "开心笑"
+    },
+    {
+     "char": "喜",
+     "pinyin": "xǐ",
+     "emoji": "😊",
+     "context": "喜欢你"
+    },
+    {
+     "char": "欢",
+     "pinyin": "huān",
+     "emoji": "🎉",
+     "context": "欢乐多"
+    },
+    {
+     "char": "怕",
+     "pinyin": "pà",
+     "emoji": "😨",
+     "context": "不要怕"
+    },
+    {
+     "char": "害",
+     "pinyin": "hài",
+     "emoji": "😰",
+     "context": "害怕了"
+    },
+    {
+     "char": "声",
+     "pinyin": "shēng",
+     "emoji": "🔊",
+     "context": "大声说"
+    },
+    {
+     "char": "最",
+     "pinyin": "zuì",
+     "emoji": "🏆",
+     "context": "最棒了"
+    }
+   ]
+  },
+  {
+   "id": "items",
+   "name": "生活用品",
+   "emoji": "🎒",
+   "color": "#795548",
+   "words": [
+    {
+     "char": "伞",
+     "pinyin": "sǎn",
+     "emoji": "☂️",
+     "context": "打伞啦"
+    },
+    {
+     "char": "书",
+     "pinyin": "shū",
+     "emoji": "📚",
+     "context": "看书本"
+    },
+    {
+     "char": "衣",
+     "pinyin": "yī",
+     "emoji": "👕",
+     "context": "穿衣服"
+    },
+    {
+     "char": "刀",
+     "pinyin": "dāo",
+     "emoji": "🔪",
+     "context": "小剪刀"
+    },
+    {
+     "char": "包",
+     "pinyin": "bāo",
+     "emoji": "🎒",
+     "context": "小书包"
+    },
+    {
+     "char": "贝",
+     "pinyin": "bèi",
+     "emoji": "🐚",
+     "context": "贝壳美"
+    },
+    {
+     "char": "双",
+     "pinyin": "shuāng",
+     "emoji": "👟",
+     "context": "一双鞋"
+    },
+    {
+     "char": "串",
+     "pinyin": "chuàn",
+     "emoji": "📿",
+     "context": "一串珠"
+    },
+    {
+     "char": "条",
+     "pinyin": "tiáo",
+     "emoji": "📏",
+     "context": "一条线"
+    }
+   ]
+  },
+  {
+   "id": "shapes",
+   "name": "形状大小",
+   "emoji": "📐",
+   "color": "#607d8b",
+   "words": [
+    {
+     "char": "长",
+     "pinyin": "cháng",
+     "emoji": "📏",
+     "context": "长长的"
+    },
+    {
+     "char": "短",
+     "pinyin": "duǎn",
+     "emoji": "📐",
+     "context": "短短的"
+    },
+    {
+     "char": "弯",
+     "pinyin": "wān",
+     "emoji": "🌙",
+     "context": "弯弯的"
+    },
+    {
+     "char": "半",
+     "pinyin": "bàn",
+     "emoji": "◐",
+     "context": "一半"
+    },
+    {
+     "char": "全",
+     "pinyin": "quán",
+     "emoji": "⭕",
+     "context": "全部"
+    },
+    {
+     "char": "力",
+     "pinyin": "lì",
+     "emoji": "💪",
+     "context": "有力气"
+    },
+    {
+     "char": "立",
+     "pinyin": "lì",
+     "emoji": "🧍",
+     "context": "站立好"
+    }
+   ]
+  },
+  {
+   "id": "actions1",
+   "name": "日常动作",
+   "emoji": "🏃",
+   "color": "#009688",
+   "words": [
+    {
+     "char": "去",
+     "pinyin": "qù",
+     "emoji": "🚶",
+     "context": "去玩耍"
+    },
+    {
+     "char": "说",
+     "pinyin": "shuō",
+     "emoji": "💬",
+     "context": "说话啦"
+    },
+    {
+     "char": "见",
+     "pinyin": "jiàn",
+     "emoji": "👀",
+     "context": "看见了"
+    },
+    {
+     "char": "开",
+     "pinyin": "kāi",
+     "emoji": "🔓",
+     "context": "开门啦"
+    },
+    {
+     "char": "关",
+     "pinyin": "guān",
+     "emoji": "🔒",
+     "context": "关门好"
+    },
+    {
+     "char": "读",
+     "pinyin": "dú",
+     "emoji": "📖",
+     "context": "读书声"
+    },
+    {
+     "char": "穿",
+     "pinyin": "chuān",
+     "emoji": "👔",
+     "context": "穿衣服"
+    },
+    {
+     "char": "游",
+     "pinyin": "yóu",
+     "emoji": "🏊",
+     "context": "游泳去"
+    }
+   ]
+  },
+  {
+   "id": "actions2",
+   "name": "更多动作",
+   "emoji": "✨",
+   "color": "#673ab7",
+   "words": [
+    {
+     "char": "变",
+     "pinyin": "biàn",
+     "emoji": "🦋",
+     "context": "变变变"
+    },
+    {
+     "char": "发",
+     "pinyin": "fā",
+     "emoji": "📤",
+     "context": "发出去"
+    },
+    {
+     "char": "学",
+     "pinyin": "xué",
+     "emoji": "📚",
+     "context": "学知识"
+    },
+    {
+     "char": "起",
+     "pinyin": "qǐ",
+     "emoji": "🌅",
+     "context": "起床啦"
+    },
+    {
+     "char": "要",
+     "pinyin": "yào",
+     "emoji": "🙋",
+     "context": "我要要"
+    },
+    {
+     "char": "把",
+     "pinyin": "bǎ",
+     "emoji": "🤲",
+     "context": "把它给我"
+    },
+    {
+     "char": "过",
+     "pinyin": "guò",
+     "emoji": "🚶",
+     "context": "走过去"
+    },
+    {
+     "char": "到",
+     "pinyin": "dào",
+     "emoji": "📍",
+     "context": "到达了"
+    }
+   ]
+  },
+  {
+   "id": "connectors",
+   "name": "连接小字",
+   "emoji": "🔗",
+   "color": "#3f51b5",
+   "words": [
+    {
+     "char": "在",
+     "pinyin": "zài",
+     "emoji": "📍",
+     "context": "在这里"
+    },
+    {
+     "char": "可",
+     "pinyin": "kě",
+     "emoji": "👌",
+     "context": "可以的"
+    },
+    {
+     "char": "有",
+     "pinyin": "yǒu",
+     "emoji": "✔️",
+     "context": "有东西"
+    },
+    {
+     "char": "以",
+     "pinyin": "yǐ",
+     "emoji": "👍",
+     "context": "可以玩"
+    },
+    {
+     "char": "从",
+     "pinyin": "cóng",
+     "emoji": "🚶",
+     "context": "从这走"
+    },
+    {
+     "char": "么",
+     "pinyin": "me",
+     "emoji": "❓",
+     "context": "什么呀"
+    },
+    {
+     "char": "就",
+     "pinyin": "jiù",
+     "emoji": "➡️",
+     "context": "就是它"
+    },
+    {
+     "char": "吧",
+     "pinyin": "ba",
+     "emoji": "😊",
+     "context": "好吧好吧"
+    }
+   ]
+  },
+  {
+   "id": "others",
+   "name": "其他常用",
+   "emoji": "🎯",
+   "color": "#ff9800",
+   "words": [
+    {
+     "char": "交",
+     "pinyin": "jiāo",
+     "emoji": "🤝",
+     "context": "交朋友"
+    },
+    {
+     "char": "欠",
+     "pinyin": "qiàn",
+     "emoji": "🥱",
+     "context": "打哈欠"
+    },
+    {
+     "char": "办",
+     "pinyin": "bàn",
+     "emoji": "📋",
+     "context": "办事情"
+    },
+    {
+     "char": "什",
+     "pinyin": "shén",
+     "emoji": "❓",
+     "context": "什么"
+    },
+    {
+     "char": "呀",
+     "pinyin": "ya",
+     "emoji": "😮",
+     "context": "是呀"
+    }
+   ]
+  }
+ ],
+ "academy": {
+  "academyName": "智天宇宙魔法学院",
+  "zoneName": "太阳系新生区",
+  "storageKey": "magicAcademySolarRookieV1",
+  "introAudio": "audio/magic-academy/day1/intro.mp3",
+  "introText": "欢迎智天进入太阳系新生区。每一枚勋章都要认十个汉字，读十个英文，再完成十道能量题。",
+  "completionText": "太阳系新生区完成！智天已经集齐第一批太阳系勋章，可以准备进入卫星和银河任务。",
+  "missions": [
+   {
+    "type": "badge",
+    "id": "sun-badge",
+    "shortTitle": "太阳",
+    "title": "太阳勋章",
+    "instruction": "认识太阳、光和热，点亮第一枚太阳系勋章",
+    "rewardId": "sun-badge",
+    "targetName": "太阳",
+    "targetNameEn": "Sun",
+    "texture": "textures/sun.jpg",
+    "audio": "audio/solar/sun.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "太阳是太阳系的中心，也是一颗会自己发光发热的恒星。",
+     "先把和太阳有关的字、英文和能量题完成，再领取太阳勋章。"
+    ],
+    "chars": [
+     {
+      "char": "日",
+      "pinyin": "rì",
+      "words": "日出 · 红日",
+      "sentence": "太阳出来的时候，我们说红日升起。",
+      "audio": "audio/words/日-intro.mp3"
+     },
+     {
+      "char": "火",
+      "pinyin": "huǒ",
+      "words": "火焰 · 火山",
+      "sentence": "太阳像一团巨大的火。",
+      "audio": "audio/words/火-intro.mp3"
+     },
+     {
+      "char": "光",
+      "pinyin": "guāng",
+      "words": "阳光 · 光明",
+      "sentence": "太阳给地球带来光。",
+      "audio": "audio/words/光-intro.mp3"
+     },
+     {
+      "char": "热",
+      "pinyin": "rè",
+      "words": "炎热 · 热水",
+      "sentence": "太阳让白天变得暖暖的。",
+      "audio": "audio/words/热-intro.mp3"
+     },
+     {
+      "char": "明",
+      "pinyin": "míng",
+      "words": "明亮 · 明天",
+      "sentence": "阳光照亮了天空。",
+      "audio": "audio/words/明-intro.mp3"
+     },
+     {
+      "char": "亮",
+      "pinyin": "liàng",
+      "words": "亮光 · 闪亮",
+      "sentence": "太阳看起来很亮。",
+      "audio": "audio/words/亮-intro.mp3"
+     },
+     {
+      "char": "能",
+      "pinyin": "néng",
+      "words": "能量 · 能力",
+      "sentence": "太阳给地球送来能量。",
+      "audio": "audio/words/能-intro.mp3"
+     },
+     {
+      "char": "力",
+      "pinyin": "lì",
+      "words": "力量 · 力气",
+      "sentence": "太阳有很强大的力量。",
+      "audio": "audio/words/力-intro.mp3"
+     },
+     {
+      "char": "白",
+      "pinyin": "bái",
+      "words": "白天 · 白云",
+      "sentence": "太阳升起就是白天。",
+      "audio": "audio/words/白-intro.mp3"
+     },
+     {
+      "char": "阳",
+      "pinyin": "yáng",
+      "words": "太阳 · 阳光",
+      "sentence": "阳光照在大地上。",
+      "audio": "audio/words/阳-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Sun",
+      "cn": "太阳",
+      "sentence": "The Sun is a star.",
+      "audio": "audio/solar/sun.mp3"
+     },
+     {
+      "word": "Star",
+      "cn": "恒星",
+      "sentence": "A star makes light.",
+      "audio": ""
+     },
+     {
+      "word": "Light",
+      "cn": "光",
+      "sentence": "Light comes from the sun.",
+      "audio": ""
+     },
+     {
+      "word": "Heat",
+      "cn": "热",
+      "sentence": "The sun gives heat.",
+      "audio": ""
+     },
+     {
+      "word": "Day",
+      "cn": "白天",
+      "sentence": "The sun makes the day bright.",
+      "audio": ""
+     },
+     {
+      "word": "Energy",
+      "cn": "能量",
+      "sentence": "The sun gives energy.",
+      "audio": ""
+     },
+     {
+      "word": "Orbit",
+      "cn": "轨道",
+      "sentence": "Planets orbit the sun.",
+      "audio": ""
+     },
+     {
+      "word": "Solar System",
+      "cn": "太阳系",
+      "sentence": "We live in the Solar System.",
+      "audio": ""
+     },
+     {
+      "word": "Planet",
+      "cn": "行星",
+      "sentence": "A planet goes around a star.",
+      "audio": ""
+     },
+     {
+      "word": "Sky",
+      "cn": "天空",
+      "sentence": "The sky is bright in the day.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "sun-add-rock-gas-planets",
+      "question": "太阳系有4个岩石行星和4个气态行星，一共几个？",
+      "expression": "4 + 4",
+      "answer": 8,
+      "hint": "把两组行星合在一起数。",
+      "audio": "audio/learning-gate/sun-add-rock-gas-planets.mp3"
+     },
+     {
+      "id": "sun-add-light-energy",
+      "question": "太阳能板收集了6份光能，又收集4份，一共几份？",
+      "expression": "6 + 4",
+      "answer": 10,
+      "hint": "从6继续数4个。",
+      "audio": "audio/learning-gate/sun-add-light-energy.mp3"
+     },
+     {
+      "id": "sun-sub-earth-models",
+      "question": "桌上有9个地球模型，搬走3个，还剩几个？",
+      "expression": "9 - 3",
+      "answer": 6,
+      "hint": "从9里面拿走3个。",
+      "audio": "audio/learning-gate/sun-sub-earth-models.mp3"
+     },
+     {
+      "id": "sun-sub-light-rays",
+      "question": "太阳发出9束光，有4束照到地球，还有几束没照到？",
+      "expression": "9 - 4",
+      "answer": 5,
+      "hint": "总数9束，去掉4束。",
+      "audio": "audio/learning-gate/sun-sub-light-rays.mp3"
+     },
+     {
+      "id": "sun-seq-light-energy",
+      "question": "太阳能板有8份光能，用掉3份，又收集2份，现在有几份？",
+      "expression": "8 - 3 + 2",
+      "answer": 7,
+      "hint": "先减3，再加2。",
+      "audio": "audio/learning-gate/sun-seq-light-energy.mp3"
+     },
+     {
+      "id": "sun-seq-hot-zones",
+      "question": "太阳表面9个热区，冷却4个，又爆发2个，现在几个？",
+      "expression": "9 - 4 + 2",
+      "answer": 7,
+      "hint": "先看冷却后剩下多少，再加新热区。",
+      "audio": "audio/learning-gate/sun-seq-hot-zones.mp3"
+     },
+     {
+      "id": "sun-light-1",
+      "question": "智天点亮3盏太阳灯，又点亮5盏，一共几盏？",
+      "expression": "3 + 5",
+      "answer": 8,
+      "hint": "从3继续数5盏。",
+      "audio": ""
+     },
+     {
+      "id": "sun-light-2",
+      "question": "10束阳光里有2束被云挡住，还剩几束？",
+      "expression": "10 - 2",
+      "answer": 8,
+      "hint": "从10里面去掉2。",
+      "audio": ""
+     },
+     {
+      "id": "sun-light-3",
+      "question": "火箭有5格太阳能，又充3格，用掉1格，还剩几格？",
+      "expression": "5 + 3 - 1",
+      "answer": 7,
+      "hint": "先加3，再减1。",
+      "audio": ""
+     },
+     {
+      "id": "sun-light-4",
+      "question": "太阳徽章需要7颗星，已经找到4颗，还差几颗？",
+      "expression": "7 - 4",
+      "answer": 3,
+      "hint": "从7里面去掉已经找到的4颗。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "mercury-badge",
+    "shortTitle": "水星",
+    "title": "水星勋章",
+    "instruction": "认识最快的水星，完成陨石坑和冷热任务",
+    "rewardId": "mercury-badge",
+    "targetName": "水星",
+    "targetNameEn": "Mercury",
+    "texture": "textures/mercury.jpg",
+    "audio": "audio/solar/mercury.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "水星离太阳最近，绕太阳跑得最快。",
+     "它表面有很多陨石坑，白天很热，夜晚很冷。"
+    ],
+    "chars": [
+     {
+      "char": "水",
+      "pinyin": "shuǐ",
+      "words": "水星 · 水杯",
+      "sentence": "水星名字里有水，但它不是有很多水的行星。",
+      "audio": "audio/words/水-intro.mp3"
+     },
+     {
+      "char": "快",
+      "pinyin": "kuài",
+      "words": "快速 · 快乐",
+      "sentence": "水星绕太阳跑得最快。",
+      "audio": "audio/words/快-intro.mp3"
+     },
+     {
+      "char": "慢",
+      "pinyin": "màn",
+      "words": "慢慢 · 缓慢",
+      "sentence": "和水星相比，很多行星跑得更慢。",
+      "audio": "audio/words/慢-intro.mp3"
+     },
+     {
+      "char": "早",
+      "pinyin": "zǎo",
+      "words": "早上 · 早安",
+      "sentence": "水星的日出和地球不一样。",
+      "audio": "audio/words/早-intro.mp3"
+     },
+     {
+      "char": "晚",
+      "pinyin": "wǎn",
+      "words": "晚上 · 晚安",
+      "sentence": "水星夜晚会很冷。",
+      "audio": "audio/words/晚-intro.mp3"
+     },
+     {
+      "char": "黑",
+      "pinyin": "hēi",
+      "words": "黑夜 · 黑色",
+      "sentence": "没有阳光的地方很黑。",
+      "audio": "audio/words/黑-intro.mp3"
+     },
+     {
+      "char": "白",
+      "pinyin": "bái",
+      "words": "白天 · 白色",
+      "sentence": "太阳照到的地方是白天。",
+      "audio": "audio/words/白-intro.mp3"
+     },
+     {
+      "char": "长",
+      "pinyin": "cháng",
+      "words": "长短 · 很长",
+      "sentence": "水星的一天很特别。",
+      "audio": "audio/words/长-intro.mp3"
+     },
+     {
+      "char": "短",
+      "pinyin": "duǎn",
+      "words": "短小 · 长短",
+      "sentence": "水星的一年很短。",
+      "audio": "audio/words/短-intro.mp3"
+     },
+     {
+      "char": "坑",
+      "pinyin": "kēng",
+      "words": "土坑 · 陨石坑",
+      "sentence": "水星表面有许多陨石坑。",
+      "audio": "audio/words/坑-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Mercury",
+      "cn": "水星",
+      "sentence": "Mercury is closest to the sun.",
+      "audio": "audio/solar/mercury.mp3"
+     },
+     {
+      "word": "Crater",
+      "cn": "陨石坑",
+      "sentence": "A crater is a round hole.",
+      "audio": ""
+     },
+     {
+      "word": "Fast",
+      "cn": "快",
+      "sentence": "Mercury is fast.",
+      "audio": ""
+     },
+     {
+      "word": "Hot",
+      "cn": "热",
+      "sentence": "Mercury can be very hot.",
+      "audio": ""
+     },
+     {
+      "word": "Cold",
+      "cn": "冷",
+      "sentence": "Mercury can be very cold.",
+      "audio": ""
+     },
+     {
+      "word": "Rock",
+      "cn": "岩石",
+      "sentence": "Mercury is a rocky planet.",
+      "audio": ""
+     },
+     {
+      "word": "Small",
+      "cn": "小",
+      "sentence": "Mercury is small.",
+      "audio": ""
+     },
+     {
+      "word": "Closest",
+      "cn": "最近",
+      "sentence": "Mercury is closest to the sun.",
+      "audio": ""
+     },
+     {
+      "word": "Day",
+      "cn": "白天",
+      "sentence": "A day on Mercury is special.",
+      "audio": ""
+     },
+     {
+      "word": "Year",
+      "cn": "年",
+      "sentence": "Mercury has a short year.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "mercury-add-craters",
+      "question": "水星上有4个大陨石坑和5个小坑，一共几个？",
+      "expression": "4 + 5",
+      "answer": 9,
+      "hint": "把大坑和小坑合起来。",
+      "audio": "audio/learning-gate/mercury-add-craters.mp3"
+     },
+     {
+      "id": "mercury-sub-temperature",
+      "question": "温度计白天升了6格，晚上降了4格，还剩几格？",
+      "expression": "6 - 4",
+      "answer": 2,
+      "hint": "从6里面降下去4格。",
+      "audio": "audio/learning-gate/mercury-sub-temperature.mp3"
+     },
+     {
+      "id": "mercury-seq-craters",
+      "question": "水星有10个坑，填平3个，又发现2个，现在几个？",
+      "expression": "10 - 3 + 2",
+      "answer": 9,
+      "hint": "先减3，再加2。",
+      "audio": "audio/learning-gate/mercury-seq-craters.mp3"
+     },
+     {
+      "id": "mercury-1",
+      "question": "水星车找到2块灰石，又找到6块，一共几块？",
+      "expression": "2 + 6",
+      "answer": 8,
+      "hint": "从2继续数6个。",
+      "audio": ""
+     },
+     {
+      "id": "mercury-2",
+      "question": "8盏探照灯关掉5盏，还亮几盏？",
+      "expression": "8 - 5",
+      "answer": 3,
+      "hint": "从8里面去掉5。",
+      "audio": ""
+     },
+     {
+      "id": "mercury-3",
+      "question": "飞船飞过3个坑，又飞过4个坑，一共几个？",
+      "expression": "3 + 4",
+      "answer": 7,
+      "hint": "3和4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "mercury-4",
+      "question": "水星徽章有9格能量，用掉2格，还剩几格？",
+      "expression": "9 - 2",
+      "answer": 7,
+      "hint": "从9里面去掉2。",
+      "audio": ""
+     },
+     {
+      "id": "mercury-5",
+      "question": "智天看到5个小坑，又看到3个，其中1个被挡住，还看到几个？",
+      "expression": "5 + 3 - 1",
+      "answer": 7,
+      "hint": "先加3，再减1。",
+      "audio": ""
+     },
+     {
+      "id": "mercury-6",
+      "question": "机器人有6个轮印，又压出2个，一共几个？",
+      "expression": "6 + 2",
+      "answer": 8,
+      "hint": "6后面再数2。",
+      "audio": ""
+     },
+     {
+      "id": "mercury-7",
+      "question": "10个任务完成了7个，还剩几个？",
+      "expression": "10 - 7",
+      "answer": 3,
+      "hint": "从10里面去掉7。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "venus-badge",
+    "shortTitle": "金星",
+    "title": "金星勋章",
+    "instruction": "认识厚云、热表面和明亮的金星",
+    "rewardId": "venus-badge",
+    "targetName": "金星",
+    "targetNameEn": "Venus",
+    "texture": "textures/venus_atmosphere.jpg",
+    "audio": "audio/solar/venus.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "金星和地球大小很接近，但被厚厚的大气包住。",
+     "它非常明亮，也非常热。"
+    ],
+    "chars": [
+     {
+      "char": "金",
+      "pinyin": "jīn",
+      "words": "金星 · 金色",
+      "sentence": "金星在夜空里很亮。",
+      "audio": "audio/words/金-intro.mp3"
+     },
+     {
+      "char": "心",
+      "pinyin": "xīn",
+      "words": "开心 · 心脏",
+      "sentence": "学习新星球很开心。",
+      "audio": "audio/words/心-intro.mp3"
+     },
+     {
+      "char": "热",
+      "pinyin": "rè",
+      "words": "炎热 · 热水",
+      "sentence": "金星表面非常热。",
+      "audio": "audio/words/热-intro.mp3"
+     },
+     {
+      "char": "厚",
+      "pinyin": "hòu",
+      "words": "厚云 · 厚度",
+      "sentence": "金星有厚厚的大气。",
+      "audio": "audio/words/厚-intro.mp3"
+     },
+     {
+      "char": "薄",
+      "pinyin": "báo",
+      "words": "薄片 · 薄云",
+      "sentence": "厚和薄是一对意思相反的字。",
+      "audio": "audio/words/薄-intro.mp3"
+     },
+     {
+      "char": "高",
+      "pinyin": "gāo",
+      "words": "高温 · 高山",
+      "sentence": "金星有很高的温度。",
+      "audio": "audio/words/高-intro.mp3"
+     },
+     {
+      "char": "低",
+      "pinyin": "dī",
+      "words": "低头 · 高低",
+      "sentence": "高和低也能一起记。",
+      "audio": "audio/words/低-intro.mp3"
+     },
+     {
+      "char": "开",
+      "pinyin": "kāi",
+      "words": "打开 · 开门",
+      "sentence": "打开望远镜看金星。",
+      "audio": "audio/words/开-intro.mp3"
+     },
+     {
+      "char": "关",
+      "pinyin": "guān",
+      "words": "关闭 · 关门",
+      "sentence": "观察结束要关闭设备。",
+      "audio": "audio/words/关-intro.mp3"
+     },
+     {
+      "char": "云",
+      "pinyin": "yún",
+      "words": "白云 · 云层",
+      "sentence": "金星外面有厚厚云层。",
+      "audio": "audio/words/云-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Venus",
+      "cn": "金星",
+      "sentence": "Venus is very bright.",
+      "audio": "audio/solar/venus.mp3"
+     },
+     {
+      "word": "Cloud",
+      "cn": "云",
+      "sentence": "Venus has thick clouds.",
+      "audio": ""
+     },
+     {
+      "word": "Hot",
+      "cn": "热",
+      "sentence": "Venus is very hot.",
+      "audio": ""
+     },
+     {
+      "word": "Bright",
+      "cn": "明亮",
+      "sentence": "Venus is bright.",
+      "audio": ""
+     },
+     {
+      "word": "Atmosphere",
+      "cn": "大气",
+      "sentence": "Venus has a thick atmosphere.",
+      "audio": ""
+     },
+     {
+      "word": "Yellow",
+      "cn": "黄色",
+      "sentence": "Venus looks yellow.",
+      "audio": ""
+     },
+     {
+      "word": "Twin",
+      "cn": "双胞胎",
+      "sentence": "Venus is near Earth size.",
+      "audio": ""
+     },
+     {
+      "word": "Morning Star",
+      "cn": "晨星",
+      "sentence": "Venus can be a morning star.",
+      "audio": ""
+     },
+     {
+      "word": "Evening Star",
+      "cn": "昏星",
+      "sentence": "Venus can be an evening star.",
+      "audio": ""
+     },
+     {
+      "word": "Rocky Planet",
+      "cn": "岩石行星",
+      "sentence": "Venus is rocky.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "venus-1",
+      "question": "金星云层有5层，又发现3层，一共几层？",
+      "expression": "5 + 3",
+      "answer": 8,
+      "hint": "5和3合起来。",
+      "audio": ""
+     },
+     {
+      "id": "venus-2",
+      "question": "10颗亮星里有2颗被云挡住，还能看到几颗？",
+      "expression": "10 - 2",
+      "answer": 8,
+      "hint": "从10里面去掉2。",
+      "audio": ""
+     },
+     {
+      "id": "venus-3",
+      "question": "探测器拍了4张金星照片，又拍4张，一共几张？",
+      "expression": "4 + 4",
+      "answer": 8,
+      "hint": "两个4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "venus-4",
+      "question": "金星任务有9格热量，散掉3格，还剩几格？",
+      "expression": "9 - 3",
+      "answer": 6,
+      "hint": "从9里面去掉3。",
+      "audio": ""
+     },
+     {
+      "id": "venus-5",
+      "question": "云层原来6朵，飘来2朵，又散开1朵，现在几朵？",
+      "expression": "6 + 2 - 1",
+      "answer": 7,
+      "hint": "先加2，再减1。",
+      "audio": ""
+     },
+     {
+      "id": "venus-6",
+      "question": "智天收集3个金色徽章碎片，又收集5个，一共几个？",
+      "expression": "3 + 5",
+      "answer": 8,
+      "hint": "3后面再数5。",
+      "audio": ""
+     },
+     {
+      "id": "venus-7",
+      "question": "8个观测点关闭4个，还开着几个？",
+      "expression": "8 - 4",
+      "answer": 4,
+      "hint": "从8里面去掉4。",
+      "audio": ""
+     },
+     {
+      "id": "venus-8",
+      "question": "飞船有7瓶冷却水，用掉2瓶，还剩几瓶？",
+      "expression": "7 - 2",
+      "answer": 5,
+      "hint": "从7里面去掉2。",
+      "audio": ""
+     },
+     {
+      "id": "venus-9",
+      "question": "金星车先走2步，又走6步，一共几步？",
+      "expression": "2 + 6",
+      "answer": 8,
+      "hint": "2和6合起来。",
+      "audio": ""
+     },
+     {
+      "id": "venus-10",
+      "question": "任务灯有5盏，又亮3盏，灭掉2盏，现在亮几盏？",
+      "expression": "5 + 3 - 2",
+      "answer": 6,
+      "hint": "先加3，再减2。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "earth-moon-badge",
+    "shortTitle": "地月",
+    "title": "地月勋章",
+    "instruction": "把地球和月球一起认识，完成我们的家园任务",
+    "rewardId": "earth-moon-badge",
+    "targetName": "地球和月球",
+    "targetNameEn": "Earth and Moon",
+    "texture": "textures/earth_daymap.jpg",
+    "audio": "audio/solar/earth.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "地球是我们的家，月球是地球最熟悉的伙伴。",
+     "这枚勋章把地球、月亮、天空和大地放在一起复习。"
+    ],
+    "chars": [
+     {
+      "char": "地",
+      "pinyin": "dì",
+      "words": "大地 · 地球",
+      "sentence": "我们住在地球上。",
+      "audio": "audio/words/地-intro.mp3"
+     },
+     {
+      "char": "球",
+      "pinyin": "qiú",
+      "words": "地球 · 皮球",
+      "sentence": "地球像一个大球。",
+      "audio": "audio/words/球-intro.mp3"
+     },
+     {
+      "char": "家",
+      "pinyin": "jiā",
+      "words": "家人 · 回家",
+      "sentence": "地球是我们的家。",
+      "audio": "audio/words/家-intro.mp3"
+     },
+     {
+      "char": "月",
+      "pinyin": "yuè",
+      "words": "月亮 · 月光",
+      "sentence": "月亮绕着地球转。",
+      "audio": "audio/words/月-intro.mp3"
+     },
+     {
+      "char": "天",
+      "pinyin": "tiān",
+      "words": "天空 · 白天",
+      "sentence": "天上有白云和星星。",
+      "audio": "audio/words/天-intro.mp3"
+     },
+     {
+      "char": "水",
+      "pinyin": "shuǐ",
+      "words": "水杯 · 河水",
+      "sentence": "地球上有很多水。",
+      "audio": "audio/words/水-intro.mp3"
+     },
+     {
+      "char": "雨",
+      "pinyin": "yǔ",
+      "words": "下雨 · 雨伞",
+      "sentence": "云里会落下雨。",
+      "audio": "audio/words/雨-intro.mp3"
+     },
+     {
+      "char": "海",
+      "pinyin": "hǎi",
+      "words": "大海 · 海洋",
+      "sentence": "地球有蓝色的大海。",
+      "audio": "audio/words/海-intro.mp3"
+     },
+     {
+      "char": "风",
+      "pinyin": "fēng",
+      "words": "大风 · 风车",
+      "sentence": "风吹动云和树叶。",
+      "audio": "audio/words/风-intro.mp3"
+     },
+     {
+      "char": "云",
+      "pinyin": "yún",
+      "words": "白云 · 云朵",
+      "sentence": "云在天空中飘。",
+      "audio": "audio/words/云-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Earth",
+      "cn": "地球",
+      "sentence": "Earth is our home.",
+      "audio": "audio/solar/earth.mp3"
+     },
+     {
+      "word": "Moon",
+      "cn": "月球",
+      "sentence": "The Moon goes around Earth.",
+      "audio": "audio/solar/moon.mp3"
+     },
+     {
+      "word": "Home",
+      "cn": "家",
+      "sentence": "Earth is our home.",
+      "audio": ""
+     },
+     {
+      "word": "Ocean",
+      "cn": "海洋",
+      "sentence": "Earth has oceans.",
+      "audio": ""
+     },
+     {
+      "word": "Cloud",
+      "cn": "云",
+      "sentence": "Clouds float in the sky.",
+      "audio": ""
+     },
+     {
+      "word": "Rain",
+      "cn": "雨",
+      "sentence": "Rain falls from clouds.",
+      "audio": ""
+     },
+     {
+      "word": "Sky",
+      "cn": "天空",
+      "sentence": "The sky is blue.",
+      "audio": ""
+     },
+     {
+      "word": "Land",
+      "cn": "陆地",
+      "sentence": "We stand on land.",
+      "audio": ""
+     },
+     {
+      "word": "Water",
+      "cn": "水",
+      "sentence": "Water is important.",
+      "audio": ""
+     },
+     {
+      "word": "Life",
+      "cn": "生命",
+      "sentence": "Earth has life.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "moon-add-astronauts",
+      "question": "月球上有4个宇航员，又来了3个，现在几个？",
+      "expression": "4 + 3",
+      "answer": 7,
+      "hint": "先数原来的，再数后来的人。",
+      "audio": "audio/learning-gate/moon-add-astronauts.mp3"
+     },
+     {
+      "id": "moon-add-spacesuits",
+      "question": "基地有6名宇航员，又来了4名，现在几名？",
+      "expression": "6 + 4",
+      "answer": 10,
+      "hint": "6和4合起来。",
+      "audio": "audio/learning-gate/moon-add-spacesuits.mp3"
+     },
+     {
+      "id": "moon-sub-flags",
+      "question": "宇航员带了8面旗，插了5面，还剩几面？",
+      "expression": "8 - 5",
+      "answer": 3,
+      "hint": "从8里面去掉5。",
+      "audio": "audio/learning-gate/moon-sub-flags.mp3"
+     },
+     {
+      "id": "moon-sub-oxygen",
+      "question": "带了7瓶氧气，用了4瓶，还剩几瓶？",
+      "expression": "7 - 4",
+      "answer": 3,
+      "hint": "从7里面去掉4。",
+      "audio": "audio/learning-gate/moon-sub-oxygen.mp3"
+     },
+     {
+      "id": "moon-seq-rocks",
+      "question": "月球有8块岩石，带走3块，又捡回2块，现在几块？",
+      "expression": "8 - 3 + 2",
+      "answer": 7,
+      "hint": "先减3，再加2。",
+      "audio": "audio/learning-gate/moon-seq-rocks.mp3"
+     },
+     {
+      "id": "earth-1",
+      "question": "地球村有3朵云，又飘来4朵，一共几朵？",
+      "expression": "3 + 4",
+      "answer": 7,
+      "hint": "3和4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "earth-2",
+      "question": "10滴雨落下6滴，云里还剩几滴？",
+      "expression": "10 - 6",
+      "answer": 4,
+      "hint": "从10里面去掉6。",
+      "audio": ""
+     },
+     {
+      "id": "earth-3",
+      "question": "月亮灯有5盏，又亮2盏，一共几盏？",
+      "expression": "5 + 2",
+      "answer": 7,
+      "hint": "5后面再数2。",
+      "audio": ""
+     },
+     {
+      "id": "earth-4",
+      "question": "地球卡有8颗星，已经贴5颗，还差几颗？",
+      "expression": "8 - 5",
+      "answer": 3,
+      "hint": "从8里面去掉5。",
+      "audio": ""
+     },
+     {
+      "id": "earth-5",
+      "question": "海洋球有4个，又放3个，拿走2个，现在几个？",
+      "expression": "4 + 3 - 2",
+      "answer": 5,
+      "hint": "先加3，再减2。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "mars-badge",
+    "shortTitle": "火星",
+    "title": "火星勋章",
+    "instruction": "认识红色火星、沙尘、冰和探测车",
+    "rewardId": "mars-badge",
+    "targetName": "火星",
+    "targetNameEn": "Mars",
+    "texture": "textures/mars.jpg",
+    "audio": "audio/solar/mars.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "火星是红色的岩石行星，有高山、峡谷、沙尘和冰。",
+     "这枚勋章会复习颜色、远近、冷热和探测车。"
+    ],
+    "chars": [
+     {
+      "char": "火",
+      "pinyin": "huǒ",
+      "words": "火星 · 火焰",
+      "sentence": "火星的名字里有火。",
+      "audio": "audio/words/火-intro.mp3"
+     },
+     {
+      "char": "沙",
+      "pinyin": "shā",
+      "words": "沙子 · 沙漠",
+      "sentence": "火星表面有很多沙尘。",
+      "audio": "audio/words/沙-intro.mp3"
+     },
+     {
+      "char": "尘",
+      "pinyin": "chén",
+      "words": "灰尘 · 尘土",
+      "sentence": "沙尘暴会遮住火星天空。",
+      "audio": "audio/words/尘-intro.mp3"
+     },
+     {
+      "char": "远",
+      "pinyin": "yuǎn",
+      "words": "远方 · 遥远",
+      "sentence": "火星离地球很远。",
+      "audio": "audio/words/远-intro.mp3"
+     },
+     {
+      "char": "近",
+      "pinyin": "jìn",
+      "words": "近处 · 附近",
+      "sentence": "远和近是一对相反的字。",
+      "audio": "audio/words/近-intro.mp3"
+     },
+     {
+      "char": "干",
+      "pinyin": "gān",
+      "words": "干燥 · 干净",
+      "sentence": "火星表面很干。",
+      "audio": "audio/words/干-intro.mp3"
+     },
+     {
+      "char": "冷",
+      "pinyin": "lěng",
+      "words": "寒冷 · 冰冷",
+      "sentence": "火星比地球冷。",
+      "audio": "audio/words/冷-intro.mp3"
+     },
+     {
+      "char": "冰",
+      "pinyin": "bīng",
+      "words": "冰块 · 冰冷",
+      "sentence": "火星两极有冰。",
+      "audio": "audio/words/冰-intro.mp3"
+     },
+     {
+      "char": "车",
+      "pinyin": "chē",
+      "words": "汽车 · 火车",
+      "sentence": "探测车在火星上工作。",
+      "audio": "audio/words/车-intro.mp3"
+     },
+     {
+      "char": "红",
+      "pinyin": "hóng",
+      "words": "红色 · 红花",
+      "sentence": "火星看起来红红的。",
+      "audio": "audio/words/红-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Mars",
+      "cn": "火星",
+      "sentence": "Mars is the red planet.",
+      "audio": "audio/solar/mars.mp3"
+     },
+     {
+      "word": "Red Planet",
+      "cn": "红色行星",
+      "sentence": "Mars is called the Red Planet.",
+      "audio": ""
+     },
+     {
+      "word": "Dust",
+      "cn": "尘土",
+      "sentence": "Mars has dust storms.",
+      "audio": ""
+     },
+     {
+      "word": "Rover",
+      "cn": "探测车",
+      "sentence": "A rover drives on Mars.",
+      "audio": ""
+     },
+     {
+      "word": "Volcano",
+      "cn": "火山",
+      "sentence": "Mars has a giant volcano.",
+      "audio": ""
+     },
+     {
+      "word": "Canyon",
+      "cn": "峡谷",
+      "sentence": "Mars has a huge canyon.",
+      "audio": ""
+     },
+     {
+      "word": "Ice",
+      "cn": "冰",
+      "sentence": "Mars has ice.",
+      "audio": ""
+     },
+     {
+      "word": "Rock",
+      "cn": "岩石",
+      "sentence": "Mars is rocky.",
+      "audio": ""
+     },
+     {
+      "word": "Phobos",
+      "cn": "火卫一",
+      "sentence": "Phobos is a moon of Mars.",
+      "audio": "audio/solar/phobos.mp3"
+     },
+     {
+      "word": "Deimos",
+      "cn": "火卫二",
+      "sentence": "Deimos is a small moon of Mars.",
+      "audio": "audio/solar/deimos.mp3"
+     }
+    ],
+    "questions": [
+     {
+      "id": "mars-add-volcanoes",
+      "question": "火星上有3座大火山和4座小火山，一共几座？",
+      "expression": "3 + 4",
+      "answer": 7,
+      "hint": "把大火山和小火山合起来。",
+      "audio": "audio/learning-gate/mars-add-volcanoes.mp3"
+     },
+     {
+      "id": "mars-add-rovers-photos",
+      "question": "祝融号拍4张照片，好奇号拍6张，一共几张？",
+      "expression": "4 + 6",
+      "answer": 10,
+      "hint": "4和6合起来。",
+      "audio": "audio/learning-gate/mars-add-rovers-photos.mp3"
+     },
+     {
+      "id": "mars-sub-red-stones",
+      "question": "火星表面有6块红石头，风吹走2块，还剩几块？",
+      "expression": "6 - 2",
+      "answer": 4,
+      "hint": "从6里面去掉2。",
+      "audio": "audio/learning-gate/mars-sub-red-stones.mp3"
+     },
+     {
+      "id": "mars-sub-ice",
+      "question": "火星北极有7块大冰，融化1块，还有几块？",
+      "expression": "7 - 1",
+      "answer": 6,
+      "hint": "从7里面去掉1。",
+      "audio": "audio/learning-gate/mars-sub-ice.mp3"
+     },
+     {
+      "id": "mars-seq-red-stones",
+      "question": "火星沙漠有8粒红石子，吹走3粒，又落下2粒，现在几粒？",
+      "expression": "8 - 3 + 2",
+      "answer": 7,
+      "hint": "先减3，再加2。",
+      "audio": "audio/learning-gate/mars-seq-red-stones.mp3"
+     },
+     {
+      "id": "mars-seq-canyons",
+      "question": "发现5条峡谷，又找到3条，研究完2条，还有几条没研究？",
+      "expression": "5 + 3 - 2",
+      "answer": 6,
+      "hint": "先加3，再减2。",
+      "audio": "audio/learning-gate/mars-seq-canyons.mp3"
+     },
+     {
+      "id": "mars-1",
+      "question": "火星车有5个车轮印，又压出4个，一共几个？",
+      "expression": "5 + 4",
+      "answer": 9,
+      "hint": "5和4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "mars-2",
+      "question": "9块红石头里捡走5块，还剩几块？",
+      "expression": "9 - 5",
+      "answer": 4,
+      "hint": "从9里面去掉5。",
+      "audio": ""
+     },
+     {
+      "id": "mars-3",
+      "question": "火卫一和火卫二一共有几颗火星卫星？",
+      "expression": "1 + 1",
+      "answer": 2,
+      "hint": "一颗加一颗。",
+      "audio": ""
+     },
+     {
+      "id": "mars-4",
+      "question": "任务箱有10格氧气，用掉3格，又补1格，现在几格？",
+      "expression": "10 - 3 + 1",
+      "answer": 8,
+      "hint": "先减3，再加1。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "jupiter-badge",
+    "shortTitle": "木星",
+    "title": "木星勋章",
+    "instruction": "认识最大的行星、条纹云和四颗大卫星",
+    "rewardId": "jupiter-badge",
+    "targetName": "木星",
+    "targetNameEn": "Jupiter",
+    "texture": "textures/jupiter.jpg",
+    "audio": "audio/solar/jupiter.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "木星是太阳系最大的行星，身边有很多卫星。",
+     "四颗伽利略卫星很适合一起记：木卫一、木卫二、木卫三、木卫四。"
+    ],
+    "chars": [
+     {
+      "char": "木",
+      "pinyin": "mù",
+      "words": "木星 · 木头",
+      "sentence": "木星是最大的行星。",
+      "audio": "audio/words/木-intro.mp3"
+     },
+     {
+      "char": "目",
+      "pinyin": "mù",
+      "words": "目光 · 眼目",
+      "sentence": "木和目读音一样，字形不同。",
+      "audio": "audio/words/目-intro.mp3"
+     },
+     {
+      "char": "云",
+      "pinyin": "yún",
+      "words": "白云 · 云层",
+      "sentence": "木星表面是厚厚云层。",
+      "audio": "audio/words/云-intro.mp3"
+     },
+     {
+      "char": "气",
+      "pinyin": "qì",
+      "words": "空气 · 气体",
+      "sentence": "木星是气态巨行星。",
+      "audio": "audio/words/气-intro.mp3"
+     },
+     {
+      "char": "雷",
+      "pinyin": "léi",
+      "words": "打雷 · 雷声",
+      "sentence": "木星有强烈风暴。",
+      "audio": "audio/words/雷-intro.mp3"
+     },
+     {
+      "char": "电",
+      "pinyin": "diàn",
+      "words": "闪电 · 电灯",
+      "sentence": "风暴里可能有闪电。",
+      "audio": "audio/words/电-intro.mp3"
+     },
+     {
+      "char": "口",
+      "pinyin": "kǒu",
+      "words": "人口 · 口袋",
+      "sentence": "口字像一个小框。",
+      "audio": "audio/words/口-intro.mp3"
+     },
+     {
+      "char": "耳",
+      "pinyin": "ěr",
+      "words": "耳朵 · 耳环",
+      "sentence": "耳朵用来听声音。",
+      "audio": "audio/words/耳-intro.mp3"
+     },
+     {
+      "char": "环",
+      "pinyin": "huán",
+      "words": "光环 · 环绕",
+      "sentence": "木星也有很暗的环。",
+      "audio": "audio/words/环-intro.mp3"
+     },
+     {
+      "char": "雨",
+      "pinyin": "yǔ",
+      "words": "下雨 · 雨水",
+      "sentence": "木星云层里有奇妙天气。",
+      "audio": "audio/words/雨-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Jupiter",
+      "cn": "木星",
+      "sentence": "Jupiter is the largest planet.",
+      "audio": "audio/solar/jupiter.mp3"
+     },
+     {
+      "word": "Io",
+      "cn": "木卫一",
+      "sentence": "Io has many volcanoes.",
+      "audio": "audio/solar/io.mp3"
+     },
+     {
+      "word": "Europa",
+      "cn": "木卫二",
+      "sentence": "Europa has ice.",
+      "audio": "audio/solar/europa.mp3"
+     },
+     {
+      "word": "Ganymede",
+      "cn": "木卫三",
+      "sentence": "Ganymede is the largest moon.",
+      "audio": "audio/solar/ganymede.mp3"
+     },
+     {
+      "word": "Callisto",
+      "cn": "木卫四",
+      "sentence": "Callisto is a moon of Jupiter.",
+      "audio": ""
+     },
+     {
+      "word": "Storm",
+      "cn": "风暴",
+      "sentence": "Jupiter has a big storm.",
+      "audio": ""
+     },
+     {
+      "word": "Great Red Spot",
+      "cn": "大红斑",
+      "sentence": "The Great Red Spot is a storm.",
+      "audio": ""
+     },
+     {
+      "word": "Gas Giant",
+      "cn": "气态巨行星",
+      "sentence": "Jupiter is a gas giant.",
+      "audio": ""
+     },
+     {
+      "word": "Cloud Band",
+      "cn": "云带",
+      "sentence": "Jupiter has cloud bands.",
+      "audio": ""
+     },
+     {
+      "word": "Moon",
+      "cn": "卫星",
+      "sentence": "Jupiter has many moons.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "jupiter-add-moons",
+      "question": "木星有4颗大卫星和3颗小卫星，一共几颗？",
+      "expression": "4 + 3",
+      "answer": 7,
+      "hint": "把两组卫星合起来。",
+      "audio": "audio/learning-gate/jupiter-add-moons.mp3"
+     },
+     {
+      "id": "jupiter-add-ice-rivers",
+      "question": "木卫二冰面下有4条地下河，又发现5条，一共几条？",
+      "expression": "4 + 5",
+      "answer": 9,
+      "hint": "4和5合起来。",
+      "audio": "audio/learning-gate/jupiter-add-ice-rivers.mp3"
+     },
+     {
+      "id": "jupiter-sub-cloud-layers",
+      "question": "木星大气有5层，看到了3层，还有几层没看到？",
+      "expression": "5 - 3",
+      "answer": 2,
+      "hint": "从5里面去掉3。",
+      "audio": "audio/learning-gate/jupiter-sub-cloud-layers.mp3"
+     },
+     {
+      "id": "jupiter-sub-dust",
+      "question": "木星环上有6粒尘埃，飞走2粒，还剩几粒？",
+      "expression": "6 - 2",
+      "answer": 4,
+      "hint": "从6里面去掉2。",
+      "audio": "audio/learning-gate/jupiter-sub-dust.mp3"
+     },
+     {
+      "id": "jupiter-seq-small-planets",
+      "question": "木星装了9颗小星球，飞走3颗，又来2颗，现在几颗？",
+      "expression": "9 - 3 + 2",
+      "answer": 8,
+      "hint": "先减3，再加2。",
+      "audio": "audio/learning-gate/jupiter-seq-small-planets.mp3"
+     },
+     {
+      "id": "jupiter-seq-storm-days",
+      "question": "大红斑刮6天，又加强2天，减弱1天，一共几天？",
+      "expression": "6 + 2 - 1",
+      "answer": 7,
+      "hint": "先加2，再减1。",
+      "audio": "audio/learning-gate/jupiter-seq-storm-days.mp3"
+     },
+     {
+      "id": "jupiter-1",
+      "question": "木卫一有3座火山，木卫二有2条冰裂缝，一共几个目标？",
+      "expression": "3 + 2",
+      "answer": 5,
+      "hint": "3和2合起来。",
+      "audio": ""
+     },
+     {
+      "id": "jupiter-2",
+      "question": "10朵云里散开4朵，还剩几朵？",
+      "expression": "10 - 4",
+      "answer": 6,
+      "hint": "从10里面去掉4。",
+      "audio": ""
+     },
+     {
+      "id": "jupiter-3",
+      "question": "木星徽章有8格能量，用掉5格，还剩几格？",
+      "expression": "8 - 5",
+      "answer": 3,
+      "hint": "从8里面去掉5。",
+      "audio": ""
+     },
+     {
+      "id": "jupiter-4",
+      "question": "智天先看到2条云带，又看到6条，一共几条？",
+      "expression": "2 + 6",
+      "answer": 8,
+      "hint": "2和6合起来。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "saturn-badge",
+    "shortTitle": "土星",
+    "title": "土星勋章",
+    "instruction": "认识漂亮光环、冰块和土卫六",
+    "rewardId": "saturn-badge",
+    "targetName": "土星",
+    "targetNameEn": "Saturn",
+    "texture": "textures/saturn.jpg",
+    "audio": "audio/solar/saturn.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "土星最容易被记住，因为它有非常漂亮的光环。",
+     "土星身边还有很多卫星，土卫六和土卫二都很有名。"
+    ],
+    "chars": [
+     {
+      "char": "土",
+      "pinyin": "tǔ",
+      "words": "土星 · 土地",
+      "sentence": "土星是有大光环的行星。",
+      "audio": "audio/words/土-intro.mp3"
+     },
+     {
+      "char": "圆",
+      "pinyin": "yuán",
+      "words": "圆形 · 团圆",
+      "sentence": "土星环像圆圆的圈。",
+      "audio": "audio/words/圆-intro.mp3"
+     },
+     {
+      "char": "方",
+      "pinyin": "fāng",
+      "words": "方形 · 方向",
+      "sentence": "圆和方可以一起比较。",
+      "audio": "audio/words/方-intro.mp3"
+     },
+     {
+      "char": "小",
+      "pinyin": "xiǎo",
+      "words": "小鸟 · 大小",
+      "sentence": "小冰块组成大光环。",
+      "audio": "audio/words/小-intro.mp3"
+     },
+     {
+      "char": "中",
+      "pinyin": "zhōng",
+      "words": "中间 · 中国",
+      "sentence": "土星在太阳系外侧中间一带。",
+      "audio": "audio/words/中-intro.mp3"
+     },
+     {
+      "char": "上",
+      "pinyin": "shàng",
+      "words": "上面 · 上课",
+      "sentence": "光环在土星周围。",
+      "audio": "audio/words/上-intro.mp3"
+     },
+     {
+      "char": "下",
+      "pinyin": "xià",
+      "words": "下面 · 下雨",
+      "sentence": "上和下是一对方向字。",
+      "audio": "audio/words/下-intro.mp3"
+     },
+     {
+      "char": "里",
+      "pinyin": "lǐ",
+      "words": "里面 · 家里",
+      "sentence": "光环里有冰和石头。",
+      "audio": "audio/words/里-intro.mp3"
+     },
+     {
+      "char": "外",
+      "pinyin": "wài",
+      "words": "外面 · 外婆",
+      "sentence": "土星在地球轨道外面。",
+      "audio": "audio/words/外-intro.mp3"
+     },
+     {
+      "char": "冰",
+      "pinyin": "bīng",
+      "words": "冰块 · 冰冷",
+      "sentence": "土星环里有很多冰。",
+      "audio": "audio/words/冰-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Saturn",
+      "cn": "土星",
+      "sentence": "Saturn has rings.",
+      "audio": "audio/solar/saturn.mp3"
+     },
+     {
+      "word": "Ring",
+      "cn": "光环",
+      "sentence": "Saturn has beautiful rings.",
+      "audio": ""
+     },
+     {
+      "word": "Ice",
+      "cn": "冰",
+      "sentence": "The rings have ice.",
+      "audio": ""
+     },
+     {
+      "word": "Titan",
+      "cn": "土卫六",
+      "sentence": "Titan is a moon of Saturn.",
+      "audio": "audio/solar/titan.mp3"
+     },
+     {
+      "word": "Rhea",
+      "cn": "土卫五",
+      "sentence": "Rhea is a moon of Saturn.",
+      "audio": "audio/solar/rhea.mp3"
+     },
+     {
+      "word": "Enceladus",
+      "cn": "土卫二",
+      "sentence": "Enceladus has ice.",
+      "audio": "audio/solar/enceladus.mp3"
+     },
+     {
+      "word": "Gas Giant",
+      "cn": "气态巨行星",
+      "sentence": "Saturn is a gas giant.",
+      "audio": ""
+     },
+     {
+      "word": "Circle",
+      "cn": "圆圈",
+      "sentence": "A ring is like a circle.",
+      "audio": ""
+     },
+     {
+      "word": "Moon",
+      "cn": "卫星",
+      "sentence": "Saturn has many moons.",
+      "audio": ""
+     },
+     {
+      "word": "Cassini",
+      "cn": "卡西尼",
+      "sentence": "Cassini studied Saturn.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "saturn-add-rings",
+      "question": "土星环有3层明亮的环和4层暗淡的环，一共几层？",
+      "expression": "3 + 4",
+      "answer": 7,
+      "hint": "把两种环合起来。",
+      "audio": "audio/learning-gate/saturn-add-rings.mp3"
+     },
+     {
+      "id": "saturn-add-cassini-photos",
+      "question": "卡西尼号拍了5张土星照片和4张卫星照片，一共几张？",
+      "expression": "5 + 4",
+      "answer": 9,
+      "hint": "5和4合起来。",
+      "audio": "audio/learning-gate/saturn-add-cassini-photos.mp3"
+     },
+     {
+      "id": "saturn-sub-ice-blocks",
+      "question": "土星环上有8块大冰块，碎掉2块，还剩几块？",
+      "expression": "8 - 2",
+      "answer": 6,
+      "hint": "从8里面去掉2。",
+      "audio": "audio/learning-gate/saturn-sub-ice-blocks.mp3"
+     },
+     {
+      "id": "saturn-sub-rivers",
+      "question": "土卫六有9条甲烷河，干涸4条，还有几条？",
+      "expression": "9 - 4",
+      "answer": 5,
+      "hint": "从9里面去掉4。",
+      "audio": "audio/learning-gate/saturn-sub-rivers.mp3"
+     },
+     {
+      "id": "saturn-seq-floating-balls",
+      "question": "池子里有9个球，沉下3个，又浮上2个，现在几个？",
+      "expression": "9 - 3 + 2",
+      "answer": 8,
+      "hint": "先减3，再加2。",
+      "audio": "audio/learning-gate/saturn-seq-floating-balls.mp3"
+     },
+     {
+      "id": "saturn-1",
+      "question": "土星有6颗小冰粒，又飞来3颗，一共几颗？",
+      "expression": "6 + 3",
+      "answer": 9,
+      "hint": "6和3合起来。",
+      "audio": ""
+     },
+     {
+      "id": "saturn-2",
+      "question": "10个环影里挡住5个，还看到几个？",
+      "expression": "10 - 5",
+      "answer": 5,
+      "hint": "从10里面去掉5。",
+      "audio": ""
+     },
+     {
+      "id": "saturn-3",
+      "question": "土卫六拍2张图，土卫二拍4张图，一共几张？",
+      "expression": "2 + 4",
+      "answer": 6,
+      "hint": "2和4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "saturn-4",
+      "question": "光环任务有8步，完成6步，还剩几步？",
+      "expression": "8 - 6",
+      "answer": 2,
+      "hint": "从8里面去掉6。",
+      "audio": ""
+     },
+     {
+      "id": "saturn-5",
+      "question": "冰块先有5块，又来3块，碎掉1块，现在几块？",
+      "expression": "5 + 3 - 1",
+      "answer": 7,
+      "hint": "先加3，再减1。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "ice-giants-badge",
+    "shortTitle": "冰巨",
+    "title": "冰巨星勋章",
+    "instruction": "把天王星和海王星放在一起，认识遥远蓝色世界",
+    "rewardId": "ice-giants-badge",
+    "targetName": "天王星和海王星",
+    "targetNameEn": "Uranus and Neptune",
+    "texture": "textures/uranus.jpg",
+    "audio": "audio/solar/uranus.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "天王星和海王星都是遥远的冰巨星，看起来有蓝绿色和深蓝色。",
+     "这枚勋章把横躺的天王星、强风的海王星和远方卫星一起复习。"
+    ],
+    "chars": [
+     {
+      "char": "天",
+      "pinyin": "tiān",
+      "words": "天王星 · 天空",
+      "sentence": "天王星像侧躺着转。",
+      "audio": "audio/words/天-intro.mp3"
+     },
+     {
+      "char": "王",
+      "pinyin": "wáng",
+      "words": "王子 · 国王",
+      "sentence": "天王星名字里有王。",
+      "audio": "audio/words/王-intro.mp3"
+     },
+     {
+      "char": "海",
+      "pinyin": "hǎi",
+      "words": "海王星 · 大海",
+      "sentence": "海王星是深蓝色。",
+      "audio": "audio/words/海-intro.mp3"
+     },
+     {
+      "char": "蓝",
+      "pinyin": "lán",
+      "words": "蓝色 · 蓝天",
+      "sentence": "两颗冰巨星都带蓝色。",
+      "audio": "audio/words/蓝-intro.mp3"
+     },
+     {
+      "char": "深",
+      "pinyin": "shēn",
+      "words": "深蓝 · 深海",
+      "sentence": "海王星是深蓝色。",
+      "audio": "audio/words/深-intro.mp3"
+     },
+     {
+      "char": "冷",
+      "pinyin": "lěng",
+      "words": "寒冷 · 冰冷",
+      "sentence": "远离太阳会很冷。",
+      "audio": "audio/words/冷-intro.mp3"
+     },
+     {
+      "char": "倒",
+      "pinyin": "dǎo",
+      "words": "倒下 · 倒立",
+      "sentence": "天王星像倒着转。",
+      "audio": "audio/words/倒-intro.mp3"
+     },
+     {
+      "char": "转",
+      "pinyin": "zhuàn",
+      "words": "旋转 · 转动",
+      "sentence": "行星都会转动。",
+      "audio": "audio/words/转-intro.mp3"
+     },
+     {
+      "char": "远",
+      "pinyin": "yuǎn",
+      "words": "远方 · 遥远",
+      "sentence": "海王星离太阳很远。",
+      "audio": "audio/words/远-intro.mp3"
+     },
+     {
+      "char": "新",
+      "pinyin": "xīn",
+      "words": "新的 · 新发现",
+      "sentence": "天王星曾是望远镜发现的新行星。",
+      "audio": "audio/words/新-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Uranus",
+      "cn": "天王星",
+      "sentence": "Uranus is an ice giant.",
+      "audio": "audio/solar/uranus.mp3"
+     },
+     {
+      "word": "Neptune",
+      "cn": "海王星",
+      "sentence": "Neptune is far away.",
+      "audio": "audio/solar/neptune.mp3"
+     },
+     {
+      "word": "Ice Giant",
+      "cn": "冰巨星",
+      "sentence": "Uranus and Neptune are ice giants.",
+      "audio": ""
+     },
+     {
+      "word": "Blue",
+      "cn": "蓝色",
+      "sentence": "Neptune is blue.",
+      "audio": ""
+     },
+     {
+      "word": "Tilt",
+      "cn": "倾斜",
+      "sentence": "Uranus has a big tilt.",
+      "audio": ""
+     },
+     {
+      "word": "Wind",
+      "cn": "风",
+      "sentence": "Neptune has strong winds.",
+      "audio": ""
+     },
+     {
+      "word": "Triton",
+      "cn": "海卫一",
+      "sentence": "Triton is a moon of Neptune.",
+      "audio": "audio/solar/triton.mp3"
+     },
+     {
+      "word": "Titania",
+      "cn": "天卫三",
+      "sentence": "Titania is a moon of Uranus.",
+      "audio": "audio/solar/titania.mp3"
+     },
+     {
+      "word": "Miranda",
+      "cn": "天卫五",
+      "sentence": "Miranda has cliffs.",
+      "audio": "audio/solar/miranda.mp3"
+     },
+     {
+      "word": "Far",
+      "cn": "遥远",
+      "sentence": "These planets are far from the sun.",
+      "audio": ""
+     }
+    ],
+    "questions": [
+     {
+      "id": "neptune-add-blue-zones",
+      "question": "海王星有5个蓝色区域，又发现3个，一共几个？",
+      "expression": "5 + 3",
+      "answer": 8,
+      "hint": "5和3合起来。",
+      "audio": "audio/learning-gate/neptune-add-blue-zones.mp3"
+     },
+     {
+      "id": "neptune-sub-diamonds",
+      "question": "钻石雨下了8颗，智天捡了5颗，还剩几颗？",
+      "expression": "8 - 5",
+      "answer": 3,
+      "hint": "从8里面去掉5。",
+      "audio": "audio/learning-gate/neptune-sub-diamonds.mp3"
+     },
+     {
+      "id": "neptune-seq-clouds",
+      "question": "海王星有10层云，消散4层，又生成2层，现在几层？",
+      "expression": "10 - 4 + 2",
+      "answer": 8,
+      "hint": "先减4，再加2。",
+      "audio": "audio/learning-gate/neptune-seq-clouds.mp3"
+     },
+     {
+      "id": "ice-1",
+      "question": "天王星有4个蓝色信标，海王星有4个，一共几个？",
+      "expression": "4 + 4",
+      "answer": 8,
+      "hint": "两个4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "ice-2",
+      "question": "9阵强风里停了3阵，还剩几阵？",
+      "expression": "9 - 3",
+      "answer": 6,
+      "hint": "从9里面去掉3。",
+      "audio": ""
+     },
+     {
+      "id": "ice-3",
+      "question": "天卫五有5条峡谷，又看到2条，一共几条？",
+      "expression": "5 + 2",
+      "answer": 7,
+      "hint": "5和2合起来。",
+      "audio": ""
+     },
+     {
+      "id": "ice-4",
+      "question": "海卫一任务有8格能量，用掉4格，还剩几格？",
+      "expression": "8 - 4",
+      "answer": 4,
+      "hint": "从8里面去掉4。",
+      "audio": ""
+     },
+     {
+      "id": "ice-5",
+      "question": "冰巨星卡片先有3张，又收4张，送出1张，现在几张？",
+      "expression": "3 + 4 - 1",
+      "answer": 6,
+      "hint": "先加4，再减1。",
+      "audio": ""
+     },
+     {
+      "id": "ice-6",
+      "question": "10颗蓝星点亮了7颗，还差几颗？",
+      "expression": "10 - 7",
+      "answer": 3,
+      "hint": "从10里面去掉7。",
+      "audio": ""
+     },
+     {
+      "id": "ice-7",
+      "question": "智天读了2个英文名，又读8个，一共几个？",
+      "expression": "2 + 8",
+      "answer": 10,
+      "hint": "2和8合起来。",
+      "audio": ""
+     }
+    ]
+   },
+   {
+    "type": "badge",
+    "id": "rookie-master-badge",
+    "shortTitle": "总复习",
+    "title": "太阳系新生总勋章",
+    "instruction": "把八大行星和常见卫星按名字、英文和数量全部复习一遍",
+    "rewardId": "rookie-master-badge",
+    "targetName": "太阳系",
+    "targetNameEn": "Solar System",
+    "texture": "textures/2.png",
+    "audio": "audio/magic-academy/day1/intro.mp3",
+    "observeLink": "solar-system.html",
+    "lines": [
+     "最后一枚是太阳系新生总勋章，要把前面学过的名字串起来。",
+     "完成后，智天就可以进入卫星探险区和银河远航区。"
+    ],
+    "chars": [
+     {
+      "char": "星",
+      "pinyin": "xīng",
+      "words": "星星 · 行星",
+      "sentence": "太阳系里有很多天体。",
+      "audio": "audio/words/星-intro.mp3"
+     },
+     {
+      "char": "行",
+      "pinyin": "xíng",
+      "words": "行走 · 行星",
+      "sentence": "行星绕着太阳运行。",
+      "audio": "audio/words/行-intro.mp3"
+     },
+     {
+      "char": "卫",
+      "pinyin": "wèi",
+      "words": "卫星 · 守卫",
+      "sentence": "卫星绕着行星转。",
+      "audio": "audio/words/卫-intro.mp3"
+     },
+     {
+      "char": "太",
+      "pinyin": "tài",
+      "words": "太阳 · 太空",
+      "sentence": "太阳系在太空中。",
+      "audio": "audio/words/太-intro.mp3"
+     },
+     {
+      "char": "空",
+      "pinyin": "kōng",
+      "words": "天空 · 太空",
+      "sentence": "太空非常辽阔。",
+      "audio": "audio/words/空-intro.mp3"
+     },
+     {
+      "char": "大",
+      "pinyin": "dà",
+      "words": "大小 · 大人",
+      "sentence": "木星很大。",
+      "audio": "audio/words/大-intro.mp3"
+     },
+     {
+      "char": "小",
+      "pinyin": "xiǎo",
+      "words": "小鸟 · 小星球",
+      "sentence": "水星比较小。",
+      "audio": "audio/words/小-intro.mp3"
+     },
+     {
+      "char": "多",
+      "pinyin": "duō",
+      "words": "多少 · 很多",
+      "sentence": "木星和土星有很多卫星。",
+      "audio": "audio/words/多-intro.mp3"
+     },
+     {
+      "char": "少",
+      "pinyin": "shǎo",
+      "words": "少数 · 多少",
+      "sentence": "有的行星卫星很少。",
+      "audio": "audio/words/少-intro.mp3"
+     },
+     {
+      "char": "看",
+      "pinyin": "kàn",
+      "words": "看见 · 好看",
+      "sentence": "看一看太阳系全景。",
+      "audio": "audio/words/看-intro.mp3"
+     }
+    ],
+    "english": [
+     {
+      "word": "Sun",
+      "cn": "太阳",
+      "sentence": "The Sun is a star.",
+      "audio": "audio/solar/sun.mp3"
+     },
+     {
+      "word": "Mercury",
+      "cn": "水星",
+      "sentence": "Mercury is closest to the sun.",
+      "audio": "audio/solar/mercury.mp3"
+     },
+     {
+      "word": "Venus",
+      "cn": "金星",
+      "sentence": "Venus is bright.",
+      "audio": "audio/solar/venus.mp3"
+     },
+     {
+      "word": "Earth",
+      "cn": "地球",
+      "sentence": "Earth is our home.",
+      "audio": "audio/solar/earth.mp3"
+     },
+     {
+      "word": "Mars",
+      "cn": "火星",
+      "sentence": "Mars is red.",
+      "audio": "audio/solar/mars.mp3"
+     },
+     {
+      "word": "Jupiter",
+      "cn": "木星",
+      "sentence": "Jupiter is the largest planet.",
+      "audio": "audio/solar/jupiter.mp3"
+     },
+     {
+      "word": "Saturn",
+      "cn": "土星",
+      "sentence": "Saturn has rings.",
+      "audio": "audio/solar/saturn.mp3"
+     },
+     {
+      "word": "Uranus",
+      "cn": "天王星",
+      "sentence": "Uranus is an ice giant.",
+      "audio": "audio/solar/uranus.mp3"
+     },
+     {
+      "word": "Neptune",
+      "cn": "海王星",
+      "sentence": "Neptune is far away.",
+      "audio": "audio/solar/neptune.mp3"
+     },
+     {
+      "word": "Moon",
+      "cn": "月球",
+      "sentence": "The Moon goes around Earth.",
+      "audio": "audio/solar/moon.mp3"
+     }
+    ],
+    "questions": [
+     {
+      "id": "master-1",
+      "question": "八大行星里有4个岩石行星和4个巨行星，一共几个？",
+      "expression": "4 + 4",
+      "answer": 8,
+      "hint": "4和4合起来。",
+      "audio": ""
+     },
+     {
+      "id": "master-2",
+      "question": "智天先认了5个行星英文，又认了5个，一共几个？",
+      "expression": "5 + 5",
+      "answer": 10,
+      "hint": "5和5合起来。",
+      "audio": ""
+     },
+     {
+      "id": "master-3",
+      "question": "10张行星卡片收好8张，还剩几张？",
+      "expression": "10 - 8",
+      "answer": 2,
+      "hint": "从10里面去掉8。",
+      "audio": ""
+     },
+     {
+      "id": "master-4",
+      "question": "太阳系任务有9颗星，已经点亮6颗，还差几颗？",
+      "expression": "9 - 6",
+      "answer": 3,
+      "hint": "从9里面去掉6。",
+      "audio": ""
+     },
+     {
+      "id": "master-5",
+      "question": "先找到3颗内侧行星，又找到5颗外侧行星，一共几颗？",
+      "expression": "3 + 5",
+      "answer": 8,
+      "hint": "3和5合起来。",
+      "audio": ""
+     },
+     {
+      "id": "master-6",
+      "question": "卫星队有7颗卫星，飞走2颗，又回来3颗，现在几颗？",
+      "expression": "7 - 2 + 3",
+      "answer": 8,
+      "hint": "先减2，再加3。",
+      "audio": ""
+     },
+     {
+      "id": "master-7",
+      "question": "火箭有10格能量，用掉4格，又补2格，现在几格？",
+      "expression": "10 - 4 + 2",
+      "answer": 8,
+      "hint": "先减4，再加2。",
+      "audio": ""
+     },
+     {
+      "id": "master-8",
+      "question": "智天有6枚小徽章，又得到2枚，一共几枚？",
+      "expression": "6 + 2",
+      "answer": 8,
+      "hint": "6后面再数2。",
+      "audio": ""
+     },
+     {
+      "id": "master-9",
+      "question": "8颗行星里已经复习5颗，还剩几颗？",
+      "expression": "8 - 5",
+      "answer": 3,
+      "hint": "从8里面去掉5。",
+      "audio": ""
+     },
+     {
+      "id": "master-10",
+      "question": "总勋章需要4颗蓝星和4颗金星，一共几颗？",
+      "expression": "4 + 4",
+      "answer": 8,
+      "hint": "两个4合起来。",
+      "audio": ""
+     }
+    ]
+   }
+  ],
+  "rewards": [
+   {
+    "id": "sun-badge",
+    "kind": "star",
+    "title": "太阳勋章",
+    "name": "太阳",
+    "nameEn": "Sun",
+    "texture": "textures/sun.jpg",
+    "text": "你认识了太阳、光、热和太阳能量。"
+   },
+   {
+    "id": "mercury-badge",
+    "kind": "planet",
+    "title": "水星勋章",
+    "name": "水星",
+    "nameEn": "Mercury",
+    "texture": "textures/mercury.jpg",
+    "text": "你认识了最快的水星和陨石坑。"
+   },
+   {
+    "id": "venus-badge",
+    "kind": "planet",
+    "title": "金星勋章",
+    "name": "金星",
+    "nameEn": "Venus",
+    "texture": "textures/venus_atmosphere.jpg",
+    "text": "你认识了明亮又炎热的金星。"
+   },
+   {
+    "id": "earth-moon-badge",
+    "kind": "planet",
+    "title": "地月勋章",
+    "name": "地月",
+    "nameEn": "Earth and Moon",
+    "texture": "textures/earth_daymap.jpg",
+    "text": "你认识了地球家园和月球伙伴。"
+   },
+   {
+    "id": "mars-badge",
+    "kind": "planet",
+    "title": "火星勋章",
+    "name": "火星",
+    "nameEn": "Mars",
+    "texture": "textures/mars.jpg",
+    "text": "你认识了红色火星、沙尘、冰和探测车。"
+   },
+   {
+    "id": "jupiter-badge",
+    "kind": "planet",
+    "title": "木星勋章",
+    "name": "木星",
+    "nameEn": "Jupiter",
+    "texture": "textures/jupiter.jpg",
+    "text": "你认识了最大的行星和木星卫星。"
+   },
+   {
+    "id": "saturn-badge",
+    "kind": "planet",
+    "title": "土星勋章",
+    "name": "土星",
+    "nameEn": "Saturn",
+    "texture": "textures/saturn.jpg",
+    "text": "你认识了土星光环和土星卫星。"
+   },
+   {
+    "id": "ice-giants-badge",
+    "kind": "planet",
+    "title": "冰巨星勋章",
+    "name": "冰巨星",
+    "nameEn": "Ice Giants",
+    "texture": "textures/uranus.jpg",
+    "text": "你认识了天王星、海王星和遥远蓝色世界。"
+   },
+   {
+    "id": "rookie-master-badge",
+    "kind": "star",
+    "title": "太阳系新生总勋章",
+    "name": "总勋章",
+    "nameEn": "Solar Rookie",
+    "texture": "textures/2.png",
+    "text": "你完成了太阳系新生区第一轮总复习。"
+   }
+  ]
+ },
+ "gate": {
+  "defaultPlanId": "space-energy-math-10",
+  "defaultCooldownHours": 24,
+  "plans": {
+   "space-energy-math-10": {
+    "title": "宇宙能量补给",
+    "subtitle": "先补满能量，再探索宇宙奥秘",
+    "completionScope": "gate",
+    "cooldownHours": 24,
+    "answerRange": {
+     "min": 0,
+     "max": 10
+    },
+    "wrongLockMs": 650,
+    "correctDelayMs": 1150,
+    "sections": [
+     {
+      "kind": "math",
+      "type": "add",
+      "label": "加法能量",
+      "count": 4
+     },
+     {
+      "kind": "math",
+      "type": "sub",
+      "label": "减法能量",
+      "count": 4
+     },
+     {
+      "kind": "math",
+      "type": "sequential",
+      "label": "连续加减法",
+      "count": 2
+     }
+    ]
+   }
+  },
+  "questionBanks": {
+   "math": [
+    {
+     "id": "sun-add-rock-gas-planets",
+     "kind": "math",
+     "type": "add",
+     "source": "太阳探险家",
+     "question": "太阳系有4个岩石行星和4个气态行星，一共几个？",
+     "expression": "4 + 4",
+     "answer": 8,
+     "hint": "数一数两组行星，一组一组接着数"
+    },
+    {
+     "id": "sun-add-light-energy",
+     "kind": "math",
+     "type": "add",
+     "source": "太阳探险家",
+     "question": "太阳能板今天收集了6份光能，又收集了4份，一共收集了几份光能？",
+     "expression": "6 + 4",
+     "answer": 10,
+     "hint": "先数已经收集的光能，再接着数新来的光能"
+    },
+    {
+     "id": "mars-add-volcanoes",
+     "kind": "math",
+     "type": "add",
+     "source": "火星探险家",
+     "question": "火星上有3座大火山和4座小火山，一共几座？",
+     "expression": "3 + 4",
+     "answer": 7,
+     "hint": "把大火山和小火山放在一起数一数"
+    },
+    {
+     "id": "mars-add-rovers-photos",
+     "kind": "math",
+     "type": "add",
+     "source": "火星探险家",
+     "question": "祝融号拍了4张照片，好奇号拍了6张，一共拍了几张？",
+     "expression": "4 + 6",
+     "answer": 10,
+     "hint": "先数一台探测器拍的照片，再接着数另一台"
+    },
+    {
+     "id": "jupiter-add-moons",
+     "kind": "math",
+     "type": "add",
+     "source": "木星探险家",
+     "question": "木星有4颗大卫星和3颗小卫星在身边，一共几颗？",
+     "expression": "4 + 3",
+     "answer": 7,
+     "hint": "把大卫星和小卫星合在一起数"
+    },
+    {
+     "id": "jupiter-add-ice-rivers",
+     "kind": "math",
+     "type": "add",
+     "source": "木星探险家",
+     "question": "木卫二的冰面下有4条地下河，科学家又发现了5条，一共几条？",
+     "expression": "4 + 5",
+     "answer": 9,
+     "hint": "从冰面下原来的地下河开始接着数"
+    },
+    {
+     "id": "saturn-add-rings",
+     "kind": "math",
+     "type": "add",
+     "source": "土星探险家",
+     "question": "土星环有3层明亮的环和4层暗淡的环，一共几层？",
+     "expression": "3 + 4",
+     "answer": 7,
+     "hint": "明亮的环和暗淡的环都要算进去"
+    },
+    {
+     "id": "saturn-add-cassini-photos",
+     "kind": "math",
+     "type": "add",
+     "source": "土星探险家",
+     "question": "卡西尼号拍了5张土星照片和4张卫星照片，一共几张？",
+     "expression": "5 + 4",
+     "answer": 9,
+     "hint": "两种照片合在一起，慢慢数"
+    },
+    {
+     "id": "moon-add-astronauts",
+     "kind": "math",
+     "type": "add",
+     "source": "月球探险家",
+     "question": "月球上有4个宇航员，又来了3个，现在一共有几个？",
+     "expression": "4 + 3",
+     "answer": 7,
+     "hint": "先数原来的宇航员，再数后来的人"
+    },
+    {
+     "id": "moon-add-spacesuits",
+     "kind": "math",
+     "type": "add",
+     "source": "月球探险家",
+     "question": "月球基地里有6名宇航员，又乘飞船来了4名，现在月球基地有几名宇航员？",
+     "expression": "6 + 4",
+     "answer": 10,
+     "hint": "把基地里原有的人和新来的人合起来"
+    },
+    {
+     "id": "neptune-add-blue-zones",
+     "kind": "math",
+     "type": "add",
+     "source": "海王星探险家",
+     "question": "海王星的深蓝色很美，科学家数了5个蓝色区域，又发现了3个，一共几个？",
+     "expression": "5 + 3",
+     "answer": 8,
+     "hint": "从已经看到的蓝色区域继续往后数"
+    },
+    {
+     "id": "mercury-add-craters",
+     "kind": "math",
+     "type": "add",
+     "source": "水星探险家",
+     "question": "水星上有4个大陨石坑和5个小坑，一共几个？",
+     "expression": "4 + 5",
+     "answer": 9,
+     "hint": "大坑和小坑都在水星表面，一起数"
+    },
+    {
+     "id": "sun-sub-earth-models",
+     "kind": "math",
+     "type": "sub",
+     "source": "太阳探险家",
+     "question": "太阳能装下130万个地球！桌上原来有9个地球模型，搬走了3个，还剩几个？",
+     "expression": "9 - 3",
+     "answer": 6,
+     "hint": "先想原来有多少，再拿走搬走的那一部分"
+    },
+    {
+     "id": "sun-sub-light-rays",
+     "kind": "math",
+     "type": "sub",
+     "source": "太阳探险家",
+     "question": "太阳发出了9束光线，有4束照到了地球，还有几束没照到地球？",
+     "expression": "9 - 4",
+     "answer": 5,
+     "hint": "先看总共有几束，再去掉照到地球的光线"
+    },
+    {
+     "id": "mars-sub-red-stones",
+     "kind": "math",
+     "type": "sub",
+     "source": "火星探险家",
+     "question": "火星表面有6块红色石头，风吹走了2块，还剩几块？",
+     "expression": "6 - 2",
+     "answer": 4,
+     "hint": "原来的红色石头里，有一些被风吹走了"
+    },
+    {
+     "id": "mars-sub-ice",
+     "kind": "math",
+     "type": "sub",
+     "source": "火星探险家",
+     "question": "火星北极有7块大冰，融化了1块，还有几块？",
+     "expression": "7 - 1",
+     "answer": 6,
+     "hint": "从大冰的总数里拿掉融化的那一块"
+    },
+    {
+     "id": "jupiter-sub-cloud-layers",
+     "kind": "math",
+     "type": "sub",
+     "source": "木星探险家",
+     "question": "木星大气有5层，我们看到了3层，还有几层没看到？",
+     "expression": "5 - 3",
+     "answer": 2,
+     "hint": "先看一共有几层，再去掉已经看到的几层"
+    },
+    {
+     "id": "jupiter-sub-dust",
+     "kind": "math",
+     "type": "sub",
+     "source": "木星探险家",
+     "question": "木星环上飘着6粒尘埃，飞走了2粒，还剩几粒？",
+     "expression": "6 - 2",
+     "answer": 4,
+     "hint": "尘埃飞走以后，只数还留下来的"
+    },
+    {
+     "id": "saturn-sub-ice-blocks",
+     "kind": "math",
+     "type": "sub",
+     "source": "土星探险家",
+     "question": "土星环上有8块大冰块，碎掉了2块，还剩几块？",
+     "expression": "8 - 2",
+     "answer": 6,
+     "hint": "碎掉的冰块不算在剩下的里面"
+    },
+    {
+     "id": "saturn-sub-rivers",
+     "kind": "math",
+     "type": "sub",
+     "source": "土星探险家",
+     "question": "土卫六上有9条甲烷河流，干涸了4条，还有几条在流动？",
+     "expression": "9 - 4",
+     "answer": 5,
+     "hint": "干涸的河流要从总数里拿掉"
+    },
+    {
+     "id": "moon-sub-flags",
+     "kind": "math",
+     "type": "sub",
+     "source": "月球探险家",
+     "question": "宇航员带了8面旗帜，插了5面，还剩几面？",
+     "expression": "8 - 5",
+     "answer": 3,
+     "hint": "已经插好的旗帜不用再数进剩下的"
+    },
+    {
+     "id": "moon-sub-oxygen",
+     "kind": "math",
+     "type": "sub",
+     "source": "月球探险家",
+     "question": "宇航员带了7瓶氧气，用了4瓶，还剩几瓶？",
+     "expression": "7 - 4",
+     "answer": 3,
+     "hint": "用掉的氧气瓶要从带来的瓶子里拿走"
+    },
+    {
+     "id": "neptune-sub-diamonds",
+     "kind": "math",
+     "type": "sub",
+     "source": "海王星探险家",
+     "question": "钻石雨下了8颗钻石，智天捡了5颗，还剩几颗？",
+     "expression": "8 - 5",
+     "answer": 3,
+     "hint": "智天捡走的钻石不算在雨里剩下的"
+    },
+    {
+     "id": "mercury-sub-temperature",
+     "kind": "math",
+     "type": "sub",
+     "source": "水星探险家",
+     "question": "水星白天很热晚上很冷！温度计白天升了6格，晚上降了4格，还剩几格？",
+     "expression": "6 - 4",
+     "answer": 2,
+     "hint": "温度计降下去的格子要从升高的格子里拿掉"
+    },
+    {
+     "id": "sun-seq-light-energy",
+     "kind": "math",
+     "type": "sequential",
+     "source": "太阳探险家",
+     "question": "太阳能板有8份光能，用掉了3份照明，又收集了2份，现在有几份光能？",
+     "expression": "8 - 3 + 2",
+     "answer": 7,
+     "hint": "分两步算，先处理用掉的光能，再处理新收集的光能"
+    },
+    {
+     "id": "sun-seq-hot-zones",
+     "kind": "math",
+     "type": "sequential",
+     "source": "太阳探险家",
+     "question": "太阳表面有9个热区，冷却了4个变成暗区，又爆发了2个新热区，现在有几个热区？",
+     "expression": "9 - 4 + 2",
+     "answer": 7,
+     "hint": "分两步算，先看冷却后的热区，再加上新爆发的热区"
+    },
+    {
+     "id": "mars-seq-red-stones",
+     "kind": "math",
+     "type": "sequential",
+     "source": "火星探险家",
+     "question": "火星沙漠里有8粒红色石子，风吹走了3粒，又落下来2粒，现在有几粒？",
+     "expression": "8 - 3 + 2",
+     "answer": 7,
+     "hint": "分两步算，先去掉吹走的石子，再加上落下来的石子"
+    },
+    {
+     "id": "mars-seq-canyons",
+     "kind": "math",
+     "type": "sequential",
+     "source": "火星探险家",
+     "question": "火星地形探测器发现了5条峡谷，又找到了3条，其中2条已经研究完了，还有几条没研究？",
+     "expression": "5 + 3 - 2",
+     "answer": 6,
+     "hint": "分两步算，先把发现的峡谷合起来，再拿掉研究完的"
+    },
+    {
+     "id": "jupiter-seq-small-planets",
+     "kind": "math",
+     "type": "sequential",
+     "source": "木星探险家",
+     "question": "木星装了9颗小星球，飞走了3颗，又被吸引来了2颗，现在装了几颗？",
+     "expression": "9 - 3 + 2",
+     "answer": 8,
+     "hint": "分两步算，先看飞走后剩下多少，再加上新来的"
+    },
+    {
+     "id": "jupiter-seq-storm-days",
+     "kind": "math",
+     "type": "sequential",
+     "source": "木星探险家",
+     "question": "大红斑风暴持续了6天，又加强了2天，减弱了1天，一共刮了几天？",
+     "expression": "6 + 2 - 1",
+     "answer": 7,
+     "hint": "分两步算，先处理加强的天数，再处理减弱的天数"
+    },
+    {
+     "id": "saturn-seq-floating-balls",
+     "kind": "math",
+     "type": "sequential",
+     "source": "土星探险家",
+     "question": "游泳池里有9个球，沉下去3个，又浮上来2个，现在浮着几个？",
+     "expression": "9 - 3 + 2",
+     "answer": 8,
+     "hint": "分两步算，先去掉沉下去的球，再加上浮上来的球"
+    },
+    {
+     "id": "moon-seq-rocks",
+     "kind": "math",
+     "type": "sequential",
+     "source": "月球探险家",
+     "question": "月球上原来有8块月球岩石，宇航员带走了3块，又捡回来了2块，现在有几块？",
+     "expression": "8 - 3 + 2",
+     "answer": 7,
+     "hint": "分两步算，先拿走带走的岩石，再加上捡回来的岩石"
+    },
+    {
+     "id": "neptune-seq-clouds",
+     "kind": "math",
+     "type": "sequential",
+     "source": "海王星探险家",
+     "question": "海王星大气有10层深蓝色云，消散了4层，又生成了2层，现在有几层？",
+     "expression": "10 - 4 + 2",
+     "answer": 8,
+     "hint": "分两步算，先看消散后剩下多少，再加上新生成的云"
+    },
+    {
+     "id": "mercury-seq-craters",
+     "kind": "math",
+     "type": "sequential",
+     "source": "水星探险家",
+     "question": "水星表面有10个陨石坑，小行星填平了3个，探测器又发现了2个新坑，现在一共有几个陨石坑？",
+     "expression": "10 - 3 + 2",
+     "answer": 9,
+     "hint": "分两步算，先去掉填平的坑，再加上新发现的坑"
+    }
+   ]
+  }
+ },
+ "planetMath": [
+  {
+   "id": "sun",
+   "name": "太阳",
+   "bg": "radial-gradient(circle at 35% 35%, #fffde7, #ffeb3b, #ff9800, #e65100)",
+   "glow": "rgba(255,193,7,0.6)"
+  },
+  {
+   "id": "mercury",
+   "name": "水星",
+   "bg": "radial-gradient(circle at 35% 35%, #e0e0e0, #9e9e9e, #616161)",
+   "glow": "rgba(158,158,158,0.5)"
+  },
+  {
+   "id": "venus",
+   "name": "金星",
+   "bg": "radial-gradient(circle at 35% 35%, #fff8e1, #ffe082, #f9a825)",
+   "glow": "rgba(249,168,37,0.5)"
+  },
+  {
+   "id": "earth",
+   "name": "地球",
+   "bg": "radial-gradient(circle at 35% 35%, #e3f2fd, #42a5f5, #1565c0, #2e7d32)",
+   "glow": "rgba(66,165,245,0.5)"
+  },
+  {
+   "id": "mars",
+   "name": "火星",
+   "bg": "radial-gradient(circle at 35% 35%, #ffccbc, #e64a19, #bf360c)",
+   "glow": "rgba(230,74,25,0.5)"
+  },
+  {
+   "id": "jupiter",
+   "name": "木星",
+   "bg": "radial-gradient(circle at 35% 35%, #fff3e0, #d7ccc8, #bcaaa4, #a1887f)",
+   "glow": "rgba(188,170,164,0.5)"
+  },
+  {
+   "id": "saturn",
+   "name": "土星",
+   "bg": "radial-gradient(circle at 35% 35%, #fff8e1, #ffe0b2, #d2b48c)",
+   "glow": "rgba(210,180,140,0.5)",
+   "ring": true
+  },
+  {
+   "id": "uranus",
+   "name": "天王星",
+   "bg": "radial-gradient(circle at 35% 35%, #e0f7fa, #80deea, #00acc1)",
+   "glow": "rgba(0,172,193,0.5)"
+  },
+  {
+   "id": "neptune",
+   "name": "海王星",
+   "bg": "radial-gradient(circle at 35% 35%, #e8eaf6, #5c6bc0, #283593)",
+   "glow": "rgba(92,107,192,0.5)"
+  },
+  {
+   "id": "pluto",
+   "name": "冥王星",
+   "bg": "radial-gradient(circle at 35% 35%, #efebe9, #a1887f, #6d4c41)",
+   "glow": "rgba(109,76,65,0.5)"
+  }
+ ]
+}
