@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>木星观测站 · 智天的学习乐园</title>
+    <meta
+      name="description"
+      content="把望远镜对准木星，追踪四颗大卫星，留下自己的两晚观测记录。"
+    />
+    <link rel="icon" href="../../favicon.ico" />
+    <link rel="stylesheet" href="station.css" />
+    <script defer src="narration.js"></script>
+    <script defer src="station.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="bar wrap">
+        <a class="brand" href="./" aria-label="木星观测站首页"
+          ><i class="brandmark"></i><strong>木星观测站</strong></a
+        >
+        <nav aria-label="主导航">
+          <button class="active" id="home">观测台</button
+          ><button id="book">
+            发现册<span class="book-dot" hidden></span>
+          </button>
+        </nav>
+        <button id="sound" class="sound" aria-pressed="true">
+          <i data-icon="sound"></i><span>语音开</span>
+        </button>
+      </div>
+    </header>
+    <main class="wrap">
+      <section class="hero" aria-labelledby="title">
+        <div class="stars" aria-hidden="true"></div>
+        <div class="illustration" aria-hidden="true">
+          <div class="orbit orbit-a"></div>
+          <div class="orbit orbit-b"></div>
+          <img
+            class="giant"
+            src="images/jupiter.webp"
+            alt=""
+            fetchpriority="high"
+          /><img class="passing" src="images/io.webp" alt="" /><span
+            class="jove-label"
+            >JUPITER <b>♃</b></span
+          >
+        </div>
+        <div class="hero-copy">
+          <span class="mission-chip"><i></i> 今日观测任务</span>
+          <h1 id="title">木星旁的亮点，<br /><em>明晚还在吗？</em></h1>
+          <p>找到木星的四颗大卫星。<br />隔一晚，再看它们在哪儿。</p>
+          <button class="primary" id="start">
+            <i data-icon="scope"></i><strong id="start-label">开始观测</strong><span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <div class="hero-foot">
+          <div>
+            <i data-icon="moon"></i> 两晚观测 <b>·</b>
+            <i data-icon="target"></i> 四颗卫星
+          </div>
+          <small>真实纹理 · 模拟视图</small>
+        </div>
+      </section>
+      <section class="gallery" aria-labelledby="gallery-title">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow"><b></b> MOON ATLAS</span>
+            <h2 id="gallery-title">认识木星的四位伙伴</h2>
+          </div>
+          <span class="gallery-hint"
+            >点一颗卫星，翻开它的档案 <span aria-hidden="true">↘</span></span
+          >
+        </div>
+        <div id="atlas" class="atlas"></div>
+      </section>
+      <footer>
+        <span>智天的学习乐园 <b>/</b> 太阳系探险</span
+        ><button id="credits">模型与素材说明 ↗</button>
+      </footer>
+    </main>
+    <dialog id="panel" aria-labelledby="dialog-title">
+      <div class="dialog-top">
+        <span class="eyebrow" id="panel-label">观测手记</span>
+        <div>
+          <button id="read" class="quiet" aria-label="再听一次">
+            <i data-icon="sound"></i></button
+          ><button id="close" class="quiet" aria-label="关闭">×</button>
+        </div>
+      </div>
+      <div id="content"></div>
+    </dialog>
+  </body>
+</html>
